@@ -46,10 +46,10 @@ class Kernel extends ConsoleKernel
 		/**
 		* Commands run on weekly schedule
 		*/
-		$schedule->command('crawl:securitycentervulns')->thursdays('18:00');
-		$schedule->command('process:securitycentercriticals')->thursdays('18:15');
-		$schedule->command('process:securitycenterhighs')->thursdays('19:30');
-		$schedule->command('process:securitycentermediums')->thursdays('21:00');
+		$schedule->command('crawl:securitycentervulns')->weekly()->thursdays()->at('18:00');
+		$schedule->command('process:securitycentercriticals')->weekly()->thursdays()->at('18:15');
+		$schedule->command('process:securitycenterhighs')->weekly()->thursdays()->at('19:30');
+		$schedule->command('process:securitycentermediums')->weekly()->thursdays()->at('21:00');
 
 		/**
 		* Commands run on daily schedule
