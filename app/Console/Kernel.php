@@ -37,11 +37,23 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
-		$schedule->command('crawl:ironportthreats')->monthlyOn(1, '20:00');		// runs every month on the 1st at 10:00pm
-		$schedule->command('process:ironportthreats')->monthlyOn(1, '20:30');	// runs every month on the 1st at 10:30pm
+		/**
+		* Commands run on monthly schedule
+		*/
+		$schedule->command('crawl:ironportthreats')->monthlyOn(1, '22:00');		// runs every month on the 1st at 10:00pm
+		$schedule->command('process:ironportthreats')->monthlyOn(1, '22:30');	// runs every month on the 1st at 10:30pm
 
+		/**
+		* Commands run on weekly schedule
+		*/
+		$schedule->command('crawl:securitycentervulns')->thursdays('18:00');
+		$schedule->command('process:securitycentercriticals')->thursdays('18:15');
+		$schedule->command('process:securitycenterhighs')->thursdays('19:30');
+		$schedule->command('process:securitycentermediums')->thursdays('21:00');
+
+		/**
+		* Commands run on daily schedule
+		*/
 		$schedule->command('crawl:cylancedevices')->daily();					// runs at midnight (00:00)
 		$schedule->command('process:cylancedevices')->dailyAt('01:00');
 		$schedule->command('crawl:cylancethreats')->dailyAt('02:00');
