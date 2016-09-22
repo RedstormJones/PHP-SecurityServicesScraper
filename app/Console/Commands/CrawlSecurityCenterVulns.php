@@ -2,8 +2,11 @@
 
 namespace App\Console\Commands;
 
-require_once(dirname(__DIR__).'/globals.php');
-require_once(CRAWLERS.'Crawler.php');
+//require_once(dirname(__DIR__).'/globals.php');
+//require_once(CRAWLERS.'Crawler.php');
+
+require_once(getenv('CRAWLERS').'Crawler.php');
+
 
 use Illuminate\Console\Command;
 
@@ -41,7 +44,7 @@ class CrawlSecurityCenterVulns extends Command
     public function handle()
     {
 		// setup cookie jar to store cookies
-		$cookiejar = 'cookie.txt';
+		$cookiejar = getenv('COOKIES').'securitycenter_cookie.txt';
 		$crawler = new \Crawler\Crawler($cookiejar);
 
 		// build post assoc array using authentication info
@@ -50,11 +53,14 @@ class CrawlSecurityCenterVulns extends Command
 		    'password' => getenv('SECURITYCENTER_PASSWORD'),
 		];
 
-		// set url to the token resource and post authentication data
+		// set url to the token resource
 		$url = 'https:/'.'/knetscalp001:443/rest/token';
-		$response = $crawler->post($url, "", $post);
 
-		// capture response and JSON decode it
+		// post authentication data, capture response and dump to file
+		$response = $crawler->post($url, "", $post);
+		file_put_contents(getenv('RESPONSES').'SC_login.dump', $response);
+
+		// JSON decode response
 		$resp = \Metaclassing\Utility::decodeJson($response);
 
 		// extract token value from response and echo to console
@@ -71,10 +77,12 @@ class CrawlSecurityCenterVulns extends Command
 		$high_collection = $this->getVulnsBySeverity($crawler, 3);          // high severity vulnerabilities
 		$critical_collection = $this->getVulnsBySeverity($crawler, 4);      // critical severity vulnerabilities
 
+		// instantiate severity arrays
 		$critical_vulns = [];
 		$high_vulns = [];
 		$medium_vulns = [];
 
+		// cycle through critical vulnerabilities and build simple array
 		foreach($critical_collection as $result)
 		{
 		    foreach($result as $vuln)
@@ -83,6 +91,7 @@ class CrawlSecurityCenterVulns extends Command
 		    }
 		}
 
+		// cycle through high vulnerabilities and build simple array
 		foreach($high_collection as $result)
 		{
 		    foreach($result as $vuln)
@@ -91,6 +100,7 @@ class CrawlSecurityCenterVulns extends Command
 		    }
 		}
 
+		// cycle through medium vulnerabilities and build simple array
 		foreach($medium_collection as $result)
 		{
 		    foreach($result as $vuln)
@@ -99,14 +109,16 @@ class CrawlSecurityCenterVulns extends Command
 		    }
 		}
 
+		/*
 		echo 'critical vulnerability count: '.count($critical_vulns).PHP_EOL;
 		echo 'high vulnerability count:     '.count($high_vulns).PHP_EOL;
 		echo 'medium vulnerability count:   '.count($medium_vulns).PHP_EOL;
+		/**/
 
 		// dump data to file
-		file_put_contents('/opt/application/collections/sc_medvulns_collection.json', \Metaclassing\Utility::encodeJson($medium_vulns));
-		file_put_contents('/opt/application/collections/sc_highvulns_collection.json', \Metaclassing\Utility::encodeJson($high_vulns));
-		file_put_contents('/opt/application/collections/sc_criticalvulns_collection.json', \Metaclassing\Utility::encodeJson($critical_vulns));
+		file_put_contents(getenv('COLLECTIONS').'sc_medvulns_collection.json', \Metaclassing\Utility::encodeJson($medium_vulns));
+		file_put_contents(getenv('COLLECTIONS').'sc_highvulns_collection.json', \Metaclassing\Utility::encodeJson($high_vulns));
+		file_put_contents(getenv('COLLECTIONS').'sc_criticalvulns_collection.json', \Metaclassing\Utility::encodeJson($critical_vulns));
     }
 
 	/**
@@ -132,9 +144,6 @@ class CrawlSecurityCenterVulns extends Command
 	*/
 	public function getVulnsBySeverity($crawler, $severity)
 	{
-    	// setup output file
-	    $outputfile = '/opt/application/collections/sc_vulns_sev'.$severity.'.json';
-
     	// point url to the resource we want
 	    $url = 'https:/'.'/knetscalp001:443/rest/analysis';
 
@@ -142,6 +151,7 @@ class CrawlSecurityCenterVulns extends Command
 	    $collection = [];
     	$count = 0;
 	    $endoffset = 1000;
+		$page = 1;
 
     	echo 'starting page scrape..'.PHP_EOL;
 
@@ -166,10 +176,12 @@ class CrawlSecurityCenterVulns extends Command
                 	'endOffset'     => $endoffset,
             	],
         	];
-    	    //print_r($post);
 
-	        // send request for resource, decode response and dump to console
+	        // send request for resource, capture response and dump to file
         	$response = $crawler->post($url, $url, \Metaclassing\Utility::encodeJson($post));
+			file_put_contents(getenv('RESPONSES').'SC_vulns.dump'.$page, $response);
+
+			// JSON decode response
     	    $resp = \Metaclassing\Utility::decodeJson($response);
 
 	        // extract vulnerability results and add to collection
@@ -191,10 +203,11 @@ class CrawlSecurityCenterVulns extends Command
     	    //echo 'next endOffset: '.$endoffset.PHP_EOL;
 
 	        // these vars may end up holding a massive amount of data per request,
-	        // so set them to null at the end of each iteration - supposed to help
-        	// with memory usage, but we'll see
+	        // so set them to null at the end of each iteration
     	    $response = NULL;
 	        $resp = NULL;
+
+			$page++;
 
 	        // wait a second before hammering the Security Center API again
         	//sleep(1);

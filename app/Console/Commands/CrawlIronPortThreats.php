@@ -2,8 +2,11 @@
 
 namespace App\Console\Commands;
 
-require_once(dirname(__DIR__).'/globals.php');
-require_once(CRAWLERS.'Crawler.php');
+//require_once(dirname(__DIR__).'/globals.php');
+//require_once(CRAWLERS.'Crawler.php');
+
+require_once(getenv('CRAWLERS').'Crawler.php');
+
 
 use Illuminate\Console\Command;
 
@@ -43,10 +46,10 @@ class CrawlIronPortThreats extends Command
 		$username = getenv('IRONPORT_USERNAME');
 		$password = getenv('IRONPORT_PASSWORD');
 
-		$outputfile = '/opt/application/collections/threat_details.csv';
+		$outputfile = getenv('COLLECTIONS').'threat_details.csv';
 
 		// setup cookiejar file
-		$cookiejar = CRAWLERS.'cookies/ironport_cookie.txt';
+		$cookiejar = getenv('COOKIES').'ironport_cookie.txt';
 		echo 'Storing cookies at '.$cookiejar.PHP_EOL;
 
 		// instantiate crawler object
@@ -101,12 +104,16 @@ class CrawlIronPortThreats extends Command
 
 		// if we made it here then we've successfully logged in, so tell someone about it
 		echo 'Logged In'.PHP_EOL;
+		file_put_contents(getenv('RESPONSES').'ironport_dashboard.dump', $response);
 
 		// set url to go to Email
 		$url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email/user_report';
 
-		// capture response and try to extract new CSRF token, otherwise die
+		// capture response and dump to file
 		$response = $crawler->get($url);
+		file_put_contents(getenv('RESPONSES').'ironport_userreport.dump', $response);
+
+		// try to extract new CSRF token, otherwise die
 		$regex = "/CSRFKey = '(.+)'/";
 		if(preg_match($regex, $response, $hits))
 		{
@@ -163,9 +170,7 @@ class CrawlIronPortThreats extends Command
 		}
 
 		// JSON encode data and dump to file
-		$jsonfilename = '/opt/application/collections/threat_details.json';
-		file_put_contents($jsonfilename, \Metaclassing\Utility::encodeJson($newArray));
-		echo 'Finished - JSON formatted email data stored in '.$jsonfilename.PHP_EOL;
+		file_put_contents(getenv('COLLECTIONS').'threat_details.json', \Metaclassing\Utility::encodeJson($newArray));
     }
 
 	/**

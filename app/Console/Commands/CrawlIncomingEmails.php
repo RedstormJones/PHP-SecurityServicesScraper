@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
-require_once(dirname(__DIR__).'/globals.php');
-require_once(CRAWLERS.'Crawler.php');
+//require_once(dirname(__DIR__).'/globals.php');
+//require_once(CRAWLERS.'Crawler.php');
+
+require_once(getenv('CRAWLERS').'Crawler.php');
 
 use Illuminate\Console\Command;
 
@@ -43,10 +45,10 @@ class CrawlIncomingEmails extends Command
 		$username = getenv('IRONPORT_USERNAME');
 		$password = getenv('IRONPORT_PASSWORD');
 
-		$outputfile = '/opt/application/collections/incoming_email.csv';
+		$outputfile = getenv('COLLECTIONS').'incoming_email.csv';
 
 		// setup cookiejar file
-		$cookiejar = CRAWLERS.'cookies/ironport_cookie.txt';
+		$cookiejar = getenv('COOKIES').'ironport_cookie.txt';
 		echo 'Storing cookies at '.$cookiejar.PHP_EOL;
 
 		// instantiate crawler object
@@ -66,13 +68,10 @@ class CrawlIncomingEmails extends Command
 		{
 		    // find CSRFKey value
 		    $regex = '/CSRFKey=([\w-]+)/';
-		    //$regex = '/CSRFKey=(.+\b&)/';
-		    //echo $regex.PHP_EOL;
 
 		    if(preg_match($regex, $response, $hits))
 		    {
 		        $csrftoken = $hits[1];
-        		//$csrftoken = rtrim($csrftoken, '&');
 		        echo 'Found CSRF token: '.$csrftoken.PHP_EOL;
 		    }
 		    else {
@@ -105,11 +104,17 @@ class CrawlIncomingEmails extends Command
 		// if we made it here then we've successfully logged in, so tell someone about it
 		echo 'Logged In'.PHP_EOL;
 
+		// dump response to file
+		file_put_contents(getenv('RESPONSES').'ironport_dashboard.dump', $response);
+
 		// set url to go to Email
 		$url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email/user_report';
 
-		// capture response and try to extract new CSRF token, otherwise die
+		// capture response and dump to file
 		$response = $crawler->get($url);
+		file_put_contents(getenv('RESPONSES').'ironport_userreport.dump', $response);
+
+		// try to extract new CSRF token, otherwise die
 		$regex = "/CSRFKey = '(.+)'/";
 		if(preg_match($regex, $response, $hits))
 		{
@@ -166,9 +171,7 @@ class CrawlIncomingEmails extends Command
 		}
 
 		// JSON encode data and dump to file
-		$jsonfilename = '/opt/application/collections/incoming_email.json';
-		file_put_contents($jsonfilename, json_encode($newArray));
-		echo 'Finished - JSON formatted email data stored in '.$jsonfilename.PHP_EOL;
+		file_put_contents(getenv('COLLECTIONS').'incoming_email.json', json_encode($newArray));
     }
 
 	/**

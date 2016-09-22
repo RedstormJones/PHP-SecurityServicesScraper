@@ -39,11 +39,8 @@ class ProcessSecurityCenterCriticals extends Command
     public function handle()
     {
 		// get critical vulnerability data and JSON decode it
-		$contents = file_get_contents('/opt/application/collections/sc_criticalvulns_collection.json');
+		$contents = file_get_contents(getenv('COLLECTIONS').'sc_criticalvulns_collection.json');
 		$criticalvulns = \Metaclassing\Utility::decodeJson($contents);
-
-		// the array we need is the next level down
-		//$criticalvulns = $contents_arr[0];
 
 	    // setup severity array, values never change
 	    $severity = [

@@ -38,7 +38,7 @@ class ProcessSpamEmail extends Command
      */
     public function handle()
     {
-		$contents = file_get_contents('/opt/application/collections/spam.json');
+		$contents = file_get_contents(getenv('COLLECTIONS').'spam.json');
 		$spam_emails = \Metaclassing\Utility::decodeJson($contents);
 
 		foreach($spam_emails as $spam)
@@ -54,8 +54,11 @@ class ProcessSpamEmail extends Command
         		$reasons .= $reason_str.'; ';
 		    }
 
-		    // strip crap from time_added and convert other arrays to ';' separated strings
+		    // strip crap from time_added
 		    $timeadded = rtrim((string)$spam['time_added'], ' (GMT -05:00)');
+
+			// we need to check that timeadded is formatted correctly and, if not,
+			// append 0's for either the seconds or for both the seconds and minutes
 		    if(!strstr($timeadded, ':')) {
 		        if(strlen($timeadded) == 11) {
         		    $timeadded .= '00:00';
@@ -67,15 +70,16 @@ class ProcessSpamEmail extends Command
 		    else {
         		$timeadded = str_pad($timeadded, 17, '0');
 		    }
-		    //echo 'timeadded: '.$timeadded.PHP_EOL;
-		    $date = \DateTime::createFromFormat('d M Y H:i', $timeadded);
-		    //var_dump(DateTime::getLastErrors());
-		    $datetime = $date->format('Y-m-d H:i');
-		    //echo $datetime.PHP_EOL;
 
+			// now we can use timeadded to create a datetime object
+		    $date = \DateTime::createFromFormat('d M Y H:i', $timeadded);
+		    $datetime = $date->format('Y-m-d H:i');
+
+			// convert quarantine names and recipients arrays to strings
 		    $quarantines = implode("; ", $spam['quarantine_names']);
 		    $recipients = implode("; ", $spam['recipients']);
 
+			// attempt to find existing record and update
 			$updated = IronPortSpamEmail::where('mid', $spam['mid'])->update([
 				'mid'				=> $spam['mid'],
 				'subject'			=> $spam['subject'],
@@ -89,6 +93,7 @@ class ProcessSpamEmail extends Command
 				'data'				=> \Metaclassing\Utility::encodeJson($spam)
 			]);
 
+			// if not updated then create new
 			if(!$updated)
 			{
 				echo 'creating spam record for: '.$spam['sender'].PHP_EOL;

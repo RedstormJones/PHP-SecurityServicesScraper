@@ -2,8 +2,11 @@
 
 namespace App\Console\Commands;
 
-require_once(dirname(__DIR__).'/globals.php');
-require_once(CRAWLERS.'Crawler.php');
+//require_once(dirname(__DIR__).'/globals.php');
+//require_once(CRAWLERS.'Crawler.php');
+
+require_once(getenv('CRAWLERS').'Crawler.php');
+
 
 use Illuminate\Console\Command;
 
@@ -44,7 +47,7 @@ class CrawlCylanceThreats extends Command
 		$password = getenv('CYLANCE_PASSWORD');
 
 		// setup file to hold cookie
-		$cookiejar = CRAWLERS.'cookies/cookie.txt';
+		$cookiejar = getenv('COOKIES').'cylance_cookie.txt';
 		echo 'storing cookies at '.$cookiejar.PHP_EOL;
 
 		// create crawler object
@@ -65,19 +68,18 @@ class CrawlCylanceThreats extends Command
 		    // if we find the RequestVerificationToken then assign it to $csrftoken
 		    if (preg_match($regex, $response, $hits)) {
         		$csrftoken = $hits[1];
-		        var_dump($csrftoken);
     		}
 		    else {
         		// otherwise, dump response and die
-		        file_put_contents(CRAWLERS.'responses/response.dump', $response);
+		        file_put_contents(getenv('RESPONSES').'cylancethreats_error.dump', $response);
         		die('Error: could not extract CSRF token from response!'.PHP_EOL);
 		    }
 
 		    // use csrftoken and credentials to create post data
 		    $post = [
         	    '__RequestVerificationToken' => $csrftoken,
-            	'Email' => $username,
-	            'Password' => $password,
+            	'Email' 					 => $username,
+	            'Password' 					 => $password,
             ];
 
 		    // try and post login data to the website
@@ -96,7 +98,7 @@ class CrawlCylanceThreats extends Command
 		}
 
 		// dump dashboard html to a file
-		//file_put_contents('dashboard.dump', $response);
+		file_put_contents(getenv('RESPONSES').'cylance_dashboard.dump', $response);
 
 		// look for javascript token
 		$regex = '/var\s+token\s+=\s+"(.+)"/';
@@ -116,8 +118,6 @@ class CrawlCylanceThreats extends Command
             'X-Request-Verification-Token: '.$token,
             'X-Requested-With: XMLHttpRequest',
         ];
-
-		//echo 'using special headers:'.PHP_EOL; var_dump($headers);echo PHP_EOL;
 
 		// setup curl HTTP headers with $headers
 		curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
@@ -151,7 +151,7 @@ class CrawlCylanceThreats extends Command
 		    $response = $crawler->post($url, 'https:/'.'/my-vs0.cylance.com/Threats', $this->postArrayToString($post));
 
 		    // dump raw response to threats.dump.* file where * is the page number
-		    file_put_contents(CRAWLERS.'responses/threats.dump.'.$page, $response);
+		    file_put_contents(getenv('RESPONSES').'threats.dump.'.$page, $response);
 
 		    // json decode the response
 		    $threats = json_decode($response, true);
@@ -161,7 +161,7 @@ class CrawlCylanceThreats extends Command
 
 		    // set count to the total number of devices returned with each response.
 		    // this should not change from response to response
-		    $count = $threats['Total']; //Total : 7813
+		    $count = $threats['Total'];
 
 		    echo 'scrape for page '.$page.' complete - got '.count($threats).' threat records'.PHP_EOL;
 
@@ -170,8 +170,6 @@ class CrawlCylanceThreats extends Command
 
 		    sleep(1);   // wait a second before hammering on their webserver again
 		} while ($i < $count);
-
-		//file_put_contents(APP.'collections/threat_collection.json', json_encode($collection));
 
 		$cylance_threats = [];
 
@@ -188,7 +186,7 @@ class CrawlCylanceThreats extends Command
 		// Now we ahve a simple array [1,2,3] of all the threat records,
 		// each threat record is a key=>value pair collection / assoc array
 		//\Metaclassing\Utility::dumper($threats);
-		file_put_contents('/opt/application/collections/threats.json', \Metaclassing\Utility::encodeJson($cylance_threats));
+		file_put_contents(getenv('COLLECTIONS').'threats.json', \Metaclassing\Utility::encodeJson($cylance_threats));
     }
 
 	/**

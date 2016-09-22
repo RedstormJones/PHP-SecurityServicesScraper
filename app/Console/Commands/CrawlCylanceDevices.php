@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
-require_once(dirname(__DIR__).'/globals.php');
-require_once(CRAWLERS.'Crawler.php');
+//require_once(dirname(__DIR__).'/globals.php');
+//require_once(CRAWLERS.'Crawler.php');
+
+require_once(getenv('CRAWLERS').'Crawler.php');
 
 use Illuminate\Console\Command;
 
@@ -44,7 +46,7 @@ class CrawlCylanceDevices extends Command
 		$password = getenv('CYLANCE_PASSWORD');
 
 		// setup file to hold cookie
-		$cookiejar = CRAWLERS.'cookies/cylancecookie.txt';
+		$cookiejar = getenv('COOKIES').'cylancecookie.txt';
 		echo 'storing cookies at '.$cookiejar.PHP_EOL;
 
 		// create crawler object
@@ -65,19 +67,18 @@ class CrawlCylanceDevices extends Command
 	        // if we find the RequestVerificationToken then assign it to $csrftoken
     	    if (preg_match($regex, $response, $hits)) {
                 $csrftoken = $hits[1];
-                var_dump($csrftoken);
         	}
 	        else {
                 // otherwise, dump response and die
-                file_put_contents(CRAWLERS.'responses/response.dump', $response);
+                file_put_contents(getenv('RESPONSES').'cylance_error.dump', $response);
                 die('Error: could not extract CSRF token from response!'.PHP_EOL);
     	    }
 
         	// use csrftoken and credentials to create post data
 	        $post = [
             	'__RequestVerificationToken' => $csrftoken,
-                'Email' => $username,
-                'Password' => $password,
+                'Email' 					 => $username,
+                'Password' 					 => $password,
             ];
 
     	    // try and post login data to the website
@@ -96,7 +97,7 @@ class CrawlCylanceDevices extends Command
 		}
 
 		// dump dashboard html to a file
-		//file_put_contents('dashboard.dump', $response);
+		file_put_contents(getenv('RESPONSES').'cylance_dashboard.dump', $response);
 
 		// look for javascript token
 		$regex = '/var\s+token\s+=\s+"(.+)"/';
@@ -104,7 +105,6 @@ class CrawlCylanceDevices extends Command
 		// if we find the javascript token then set it to $token
 		if (preg_match($regex, $response, $hits)) {
         	$token = $hits[1];
-	        print 'found javascript token: '.$token.PHP_EOL;
 		}
 		else{
         	// otherwise die
@@ -116,8 +116,6 @@ class CrawlCylanceDevices extends Command
             'X-Request-Verification-Token: '.$token,
             'X-Requested-With: XMLHttpRequest',
         ];
-
-		//echo 'using special headers:'.PHP_EOL; var_dump($headers);echo PHP_EOL;
 
 		// setup curl HTTP headers with $headers
 		curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
@@ -152,7 +150,7 @@ class CrawlCylanceDevices extends Command
 	        $response = $crawler->post($url, 'https:/'.'/my-vs0.cylance.com/Device', $this->postArrayToString($post));
 
 	        // dump raw response to devices.dump.* file where * is the page number
-    	    file_put_contents(CRAWLERS.'responses/devices.dump.'.$page, $response);
+    	    file_put_contents(getenv('RESPONSES').'devices.dump.'.$page, $response);
 
         	// json decode the response
 	        $devices = json_decode($response, true);
@@ -162,7 +160,7 @@ class CrawlCylanceDevices extends Command
 
 	        // set count to the total number of devices returned with each response.
     	    // this should not change from response to response
-        	$count = $devices['Total']; //Total : 15363
+        	$count = $devices['Total'];
 
 	        echo 'scrape for page '.$page.' complete - got '.count($devices).' device records'.PHP_EOL;
 
@@ -171,9 +169,6 @@ class CrawlCylanceDevices extends Command
 
 	        sleep(1);       // wait a second before hammering on their webserver again
 		} while ($i < $count);
-
-		// json encode and dump data to collections file
-		//file_put_contents(APP.'collections/device_collection.json', json_encode($collection));
 
 		$cylance_devices = [];
 
@@ -190,7 +185,7 @@ class CrawlCylanceDevices extends Command
 		// Now we have a simple array [1,2,3] of all the threat records,
 		// each threat record is a key=>value pair collection / assoc array
 		//\Metaclassing\Utility::dumper($threats);
-		file_put_contents('/opt/application/collections/devices.json', \Metaclassing\Utility::encodeJson($cylance_devices));
+		file_put_contents(getenv('COLLECTIONS').'devices.json', \Metaclassing\Utility::encodeJson($cylance_devices));
 
     }
 
