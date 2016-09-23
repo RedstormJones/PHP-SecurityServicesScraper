@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\SecurityCenter\SecurityCenterMedium;
+use Illuminate\Console\Command;
 
 class ProcessSecurityCenterMediums extends Command
 {
@@ -49,8 +49,7 @@ class ProcessSecurityCenterMediums extends Command
         ];
 
         // cycle through vulnerabilities to create and update models
-        foreach($mediumvulns as $vuln)
-        {
+        foreach ($mediumvulns as $vuln) {
             // extract timestamp values that we care about and convert them to datetimes
             $firstdate = new \DateTime('@'.$vuln['firstSeen']);
             $first_seen = $firstdate->format('Y-m-d H:i:s');
@@ -60,26 +59,24 @@ class ProcessSecurityCenterMediums extends Command
 
             // if vulnPubDate or patchPubDate equals -1 then just set it to null
             // otherwise, convert timestamp to datetime
-            if($vuln['vulnPubDate'] == "-1") {
-                $vuln_pub_date = NULL;
-            }
-            else {
+            if ($vuln['vulnPubDate'] == '-1') {
+                $vuln_pub_date = null;
+            } else {
                 $vulnpubdate = new \DateTime('@'.$vuln['vulnPubDate']);
                 $vuln_pub_date = $vulnpubdate->format('Y-m-d H:i:s');
             }
 
-            if($vuln['patchPubDate'] == "-1") {
-                $patch_pub_date = NULL;
-            }
-            else {
+            if ($vuln['patchPubDate'] == '-1') {
+                $patch_pub_date = null;
+            } else {
                 $patchpubdate = new \ DateTime('@'.$vuln['patchPubDate']);
                 $patch_pub_date = $patchpubdate->format('Y-m-d H:i:s');
             }
 
-			// create new medium vulnerability record
-			echo 'creating vulnerability record: '.$vuln['pluginName'].PHP_EOL;
+            // create new medium vulnerability record
+            echo 'creating vulnerability record: '.$vuln['pluginName'].PHP_EOL;
 
-            $new_vuln = new SecurityCenterMedium;
+            $new_vuln = new SecurityCenterMedium();
 
             $new_vuln->dns_name = $vuln['dnsName'];
             $new_vuln->severity_id = $severity['id'];
@@ -93,7 +90,7 @@ class ProcessSecurityCenterMediums extends Command
             $new_vuln->mac_address = $vuln['macAddress'];
             $new_vuln->exploit_available = $vuln['exploitAvailable'];
             $new_vuln->exploit_ease = $vuln['exploitEase'];
-			$new_vuln->exploit_frameworks = $vuln['exploitFrameworks'];
+            $new_vuln->exploit_frameworks = $vuln['exploitFrameworks'];
             $new_vuln->vuln_public_date = $vuln_pub_date;
             $new_vuln->patch_public_date = $patch_pub_date;
             $new_vuln->has_been_mitigated = $vuln['hasBeenMitigated'];
@@ -102,21 +99,21 @@ class ProcessSecurityCenterMediums extends Command
             $new_vuln->plugin_name = $vuln['pluginName'];
             $new_vuln->synopsis = $vuln['synopsis'];
             $new_vuln->cpe = $vuln['cpe'];
-			$new_vuln->data = \Metaclassing\Utility::encodeJson($vuln);
+            $new_vuln->data = \Metaclassing\Utility::encodeJson($vuln);
 
             $new_vuln->save();
+        }
 
-		}
+        $this->processDeletes();
+    }
 
-		$this->processDeletes();
-
-    }	// end of handle()
+    // end of handle()
 
     /**
-    * Function to soft delete vulnerabilities older than 3 months
-    *
-    * @return null
-    */
+     * Function to soft delete vulnerabilities older than 3 months.
+     *
+     * @return null
+     */
     public function processDeletes()
     {
         $today = new \DateTime();
@@ -125,11 +122,9 @@ class ProcessSecurityCenterMediums extends Command
 
         $mediumvulns = SecurityCenterMedium::where('updated_at', '<=', $delete_date)->get();
 
-        foreach($mediumvulns as $vuln)
-        {
+        foreach ($mediumvulns as $vuln) {
             echo 'deleting old vulnerability: '.$vuln->plugin_id.PHP_EOL;
             $vuln->delete();
         }
     }
-
-}	// end of ProcessSecurityCenterMediums command class
+}    // end of ProcessSecurityCenterMediums command class

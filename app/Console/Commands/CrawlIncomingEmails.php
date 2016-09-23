@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-require_once(app_path('Console/Crawler/Crawler.php'));
+require_once app_path('Console/Crawler/Crawler.php');
 
 use Illuminate\Console\Command;
 
@@ -39,178 +39,168 @@ class CrawlIncomingEmails extends Command
      */
     public function handle()
     {
-		$username = getenv('IRONPORT_USERNAME');
-		$password = getenv('IRONPORT_PASSWORD');
+        $username = getenv('IRONPORT_USERNAME');
+        $password = getenv('IRONPORT_PASSWORD');
 
-		$response_path = storage_path('logs/responses/');
+        $response_path = storage_path('logs/responses/');
 
-		// setup cookiejar file
-		$cookiejar = storage_path('logs/cookies/ironport_cookie.txt');
-		echo 'Storing cookies at '.$cookiejar.PHP_EOL;
+        // setup cookiejar file
+        $cookiejar = storage_path('logs/cookies/ironport_cookie.txt');
+        echo 'Storing cookies at '.$cookiejar.PHP_EOL;
 
-		// instantiate crawler object
-		$crawler = new \Crawler\Crawler($cookiejar);
+        // instantiate crawler object
+        $crawler = new \Crawler\Crawler($cookiejar);
 
-		// set url
-		$url = 'https:/'.'/dh1146-sma1.iphmx.com';
+        // set url
+        $url = 'https:/'.'/dh1146-sma1.iphmx.com';
 
-		// hit webpage and try to capture CSRF token, otherwise die
-		$response = $crawler->get($url);
+        // hit webpage and try to capture CSRF token, otherwise die
+        $response = $crawler->get($url);
 
-		// set regex string to dashboard page <title> element
-		$regex = '/(<title>        Cisco         Content Security Management Appliance   M804 \(dh1146-sma1\.iphmx\.com\) -         Centralized Services &gt; System Status <\/title>)/';
-		$tries = 0;
-		// while NOT at the dashboard page
-		while(!preg_match($regex, $response, $hits) && $tries <= 3)
-		{
-		    // find CSRFKey value
-		    $regex = '/CSRFKey=([\w-]+)/';
+        // set regex string to dashboard page <title> element
+        $regex = '/(<title>        Cisco         Content Security Management Appliance   M804 \(dh1146-sma1\.iphmx\.com\) -         Centralized Services &gt; System Status <\/title>)/';
+        $tries = 0;
+        // while NOT at the dashboard page
+        while (!preg_match($regex, $response, $hits) && $tries <= 3) {
+            // find CSRFKey value
+            $regex = '/CSRFKey=([\w-]+)/';
 
-		    if(preg_match($regex, $response, $hits))
-		    {
-		        $csrftoken = $hits[1];
-		        echo 'Found CSRF token: '.$csrftoken.PHP_EOL;
-		    }
-		    else {
-		        die('Error: could not get CSRF token'.PHP_EOL);
-		    }
+            if (preg_match($regex, $response, $hits)) {
+                $csrftoken = $hits[1];
+                echo 'Found CSRF token: '.$csrftoken.PHP_EOL;
+            } else {
+                die('Error: could not get CSRF token'.PHP_EOL);
+            }
 
-		    // set login url and post data
-		    $url = 'https:/'.'/dh1146-sma1.iphmx.com/login';
+            // set login url and post data
+            $url = 'https:/'.'/dh1146-sma1.iphmx.com/login';
 
-		    $post = [
-        	    'action'    => 'Login',
-            	'referrer'  => 'https:/'.'/dh1146-sma1.iphmx.com/default',
-	            'screen'    => 'login',
-    	        'username'  => $username,
-        	    'password'  => $password,
+            $post = [
+                'action'    => 'Login',
+                'referrer'  => 'https:/'.'/dh1146-sma1.iphmx.com/default',
+                'screen'    => 'login',
+                'username'  => $username,
+                'password'  => $password,
             ];
 
-		    // try to login
-		    $response = $crawler->post($url, $url, $this->postArrayToString($post));
+            // try to login
+            $response = $crawler->post($url, $url, $this->postArrayToString($post));
 
-		    // increment tries and set regex back to dashboard <title>
-		    $tries++;
-		    $regex = '/(<title>        Cisco         Content Security Management Appliance   M804 \(dh1146-sma1\.iphmx\.com\) -         Centralized Services &gt; System Status <\/title>)/';
-		}
-		// once out of the login loop, if tries is > 3 then we didn't login so die
-		if($tries > 3) {
-		    die('Error: could not post successful login within 3 attempts'.PHP_EOL);
-		}
+            // increment tries and set regex back to dashboard <title>
+            $tries++;
+            $regex = '/(<title>        Cisco         Content Security Management Appliance   M804 \(dh1146-sma1\.iphmx\.com\) -         Centralized Services &gt; System Status <\/title>)/';
+        }
+        // once out of the login loop, if tries is > 3 then we didn't login so die
+        if ($tries > 3) {
+            die('Error: could not post successful login within 3 attempts'.PHP_EOL);
+        }
 
-		// if we made it here then we've successfully logged in, so tell someone about it
-		echo 'Logged In'.PHP_EOL;
+        // if we made it here then we've successfully logged in, so tell someone about it
+        echo 'Logged In'.PHP_EOL;
 
-		// dump response to file
-		file_put_contents($response_path.'ironport_dashboard.dump', $response);
+        // dump response to file
+        file_put_contents($response_path.'ironport_dashboard.dump', $response);
 
-		// set url to go to Email
-		$url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email/user_report';
+        // set url to go to Email
+        $url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email/user_report';
 
-		// capture response and dump to file
-		$response = $crawler->get($url);
-		file_put_contents($response_path.'ironport_userreport.dump', $response);
+        // capture response and dump to file
+        $response = $crawler->get($url);
+        file_put_contents($response_path.'ironport_userreport.dump', $response);
 
-		// try to extract new CSRF token, otherwise die
-		$regex = "/CSRFKey = '(.+)'/";
-		if(preg_match($regex, $response, $hits))
-		{
-		    $csrftoken = $hits[1];
-		}
-		else {
-		    die('Error: could not get CSRF Token'.PHP_EOL);
-		}
+        // try to extract new CSRF token, otherwise die
+        $regex = "/CSRFKey = '(.+)'/";
+        if (preg_match($regex, $response, $hits)) {
+            $csrftoken = $hits[1];
+        } else {
+            die('Error: could not get CSRF Token'.PHP_EOL);
+        }
 
-		echo 'Starting incoming email scrape'.PHP_EOL;
+        echo 'Starting incoming email scrape'.PHP_EOL;
 
-		// set incoming email download url and post data
-		$url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email/mail_reports/incoming_mail';
+        // set incoming email download url and post data
+        $url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email/mail_reports/incoming_mail';
 
-		$post = [
-        	'profile_type'      => 'domain',
-	        'format'            => 'csv',
-    	    'CSRFKey'           => $csrftoken,
-        	'report_query_id'   => 'sma_incoming_mail_domain_search',
-	        'date_range'        => 'current_day',
-    	    'report_def_id'     => 'sma_incoming_mail',
+        $post = [
+            'profile_type'      => 'domain',
+            'format'            => 'csv',
+            'CSRFKey'           => $csrftoken,
+            'report_query_id'   => 'sma_incoming_mail_domain_search',
+            'date_range'        => 'current_day',
+            'report_def_id'     => 'sma_incoming_mail',
         ];
 
-		// capture reponse and dump to file
-		$response = $crawler->post($url, $url, $this->postArrayToString($post));
-		file_put_contents(storage_path('logs/responses/incoming_email.csv'), $response);
+        // capture reponse and dump to file
+        $response = $crawler->post($url, $url, $this->postArrayToString($post));
+        file_put_contents(storage_path('logs/responses/incoming_email.csv'), $response);
 
-		// Arrays we'll use later
-		$keys = array();
-		$newArray = array();
+        // Arrays we'll use later
+        $keys = [];
+        $newArray = [];
 
-		// Do it
-		$data = $this->csvToArray(storage_path('logs/responses/incoming_email.csv'), ',');
+        // Do it
+        $data = $this->csvToArray(storage_path('logs/responses/incoming_email.csv'), ',');
 
-		// Set number of elements (minus 1 because we shift off the first row)
-		$count = count($data) - 1;
-		echo 'Read '.$count.' incoming email records'.PHP_EOL;
+        // Set number of elements (minus 1 because we shift off the first row)
+        $count = count($data) - 1;
+        echo 'Read '.$count.' incoming email records'.PHP_EOL;
 
-		//Use first row for names
-		$labels = array_shift($data);
+        //Use first row for names
+        $labels = array_shift($data);
 
-		echo 'Creating keys..'.PHP_EOL;
-		foreach ($labels as $label)
-		{
-		    $keys[] = $label;
-		}
+        echo 'Creating keys..'.PHP_EOL;
+        foreach ($labels as $label) {
+            $keys[] = $label;
+        }
 
-		// Bring it all together
-		echo 'Building associative array..'.PHP_EOL;
-		for ($j = 0; $j < $count; $j++)
-		{
-		    $d = array_combine($keys, $data[$j]);
-		    $newArray[$j] = $d;
-		}
+        // Bring it all together
+        echo 'Building associative array..'.PHP_EOL;
+        for ($j = 0; $j < $count; $j++) {
+            $d = array_combine($keys, $data[$j]);
+            $newArray[$j] = $d;
+        }
 
-		// JSON encode data and dump to file
-		file_put_contents(storage_path('logs/collections/incoming_email.json'), json_encode($newArray));
+        // JSON encode data and dump to file
+        file_put_contents(storage_path('logs/collections/incoming_email.json'), json_encode($newArray));
     }
 
-	/**
-	* Function to convert post information from an assoc array to a string
-	*
-	* @return string
-	*/
-	public function postArrayToString($post)
-	{
-		$postarray = [];
-		foreach($post as $key => $value) { $postarray[] = $key . '=' . $value; }
+    /**
+     * Function to convert post information from an assoc array to a string.
+     *
+     * @return string
+     */
+    public function postArrayToString($post)
+    {
+        $postarray = [];
+        foreach ($post as $key => $value) {
+            $postarray[] = $key.'='.$value;
+        }
 
-		$poststring = implode('&', $postarray);
+        $poststring = implode('&', $postarray);
 
-		return $poststring;
-	}
+        return $poststring;
+    }
 
+    /**
+     * Function to convert CSV into associative array.
+     *
+     * @return array
+     */
+    public function csvToArray($file, $delimiter)
+    {
+        if (($handle = fopen($file, 'r')) !== false) {
+            $i = 0;
 
-	/**
-	* Function to convert CSV into associative array
-	*
-	* @return array
-	*/
-	function csvToArray($file, $delimiter)
-	{
-    	if (($handle = fopen($file, 'r')) !== FALSE)
-	    {
-    	    $i = 0;
+            while (($lineArray = fgetcsv($handle, 4000, $delimiter, '"')) !== false) {
+                for ($j = 0; $j < count($lineArray); $j++) {
+                    $arr[$i][$j] = $lineArray[$j];
+                }
+                $i++;
+            }
 
-        	while (($lineArray = fgetcsv($handle, 4000, $delimiter, '"')) !== FALSE)
-	        {
-    	        for ($j = 0; $j < count($lineArray); $j++)
-        	    {
-            	    $arr[$i][$j] = $lineArray[$j];
-	            }
-    	        $i++;
-        	}
+            fclose($handle);
+        }
 
-	        fclose($handle);
-    	}
-
-	    return $arr;
-	}
-
+        return $arr;
+    }
 }
