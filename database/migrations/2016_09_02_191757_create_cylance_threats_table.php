@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCylanceThreatsTable extends Migration
 {
@@ -17,7 +17,7 @@ class CreateCylanceThreatsTable extends Migration
             $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
-            $table->text('threat_id');		// MAKE THIS UNIQUE
+            $table->text('threat_id');        // MAKE THIS UNIQUE
             $table->text('common_name');
             $table->integer('cylance_score');
             $table->integer('active_in_devices');

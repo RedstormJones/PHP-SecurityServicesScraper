@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateCylanceDevicesTable extends Migration
 {
@@ -17,7 +17,7 @@ class CreateCylanceDevicesTable extends Migration
             $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
-            $table->text('device_id');		// MAKE THIS UNIQUE
+            $table->text('device_id');        // MAKE THIS UNIQUE
             $table->text('device_name');
             $table->text('zones_text');
             $table->integer('files_unsafe');

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateIronPortThreatsTable extends Migration
 {
@@ -17,7 +17,7 @@ class CreateIronPortThreatsTable extends Migration
             $table->increments('id');
             $table->timestamps();
             $table->softDeletes();
-            $table->dateTime('begin_date');		// MAKE THIS UNIQUE
+            $table->dateTime('begin_date');        // MAKE THIS UNIQUE
             $table->dateTime('end_date');
             $table->text('category');
             $table->text('threat_type');
