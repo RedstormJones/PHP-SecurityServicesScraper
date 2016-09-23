@@ -38,7 +38,7 @@ class ProcessCylanceThreats extends Command
      */
     public function handle()
     {
-        $threats_content = file_get_contents(storage_path('logs/collections/threats.json'));
+        $threats_content = file_get_contents(storage_path('app/collections/threats.json'));
         $threats = json_decode($threats_content);
 
         foreach ($threats as $threat) {

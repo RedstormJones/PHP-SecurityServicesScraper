@@ -42,10 +42,10 @@ class CrawlCylanceThreats extends Command
         $username = getenv('CYLANCE_USERNAME');
         $password = getenv('CYLANCE_PASSWORD');
 
-        $response_path = storage_path('logs/responses/');
+        $response_path = storage_path('app/responses/');
 
         // setup file to hold cookie
-        $cookiejar = storage_path('logs/cookies/cylance_cookie.txt');
+        $cookiejar = storage_path('app/cookies/cylance_cookie.txt');
         echo 'storing cookies at '.$cookiejar.PHP_EOL;
 
         // create crawler object
@@ -182,7 +182,7 @@ class CrawlCylanceThreats extends Command
         // Now we ahve a simple array [1,2,3] of all the threat records,
         // each threat record is a key=>value pair collection / assoc array
         //\Metaclassing\Utility::dumper($threats);
-        file_put_contents(storage_path('logs/collections/threats.json'), \Metaclassing\Utility::encodeJson($cylance_threats));
+        file_put_contents(storage_path('app/collections/threats.json'), \Metaclassing\Utility::encodeJson($cylance_threats));
     }
 
     /**

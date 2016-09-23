@@ -40,10 +40,10 @@ class CrawlSecurityCenterVulns extends Command
      */
     public function handle()
     {
-        $response_path = storage_path('logs/responses/');
+        $response_path = storage_path('app/responses/');
 
         // setup cookie jar to store cookies
-        $cookiejar = storage_path('logs/cookies/securitycenter_cookie.txt');
+        $cookiejar = storage_path('app/cookies/securitycenter_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // build post assoc array using authentication info
@@ -109,9 +109,9 @@ class CrawlSecurityCenterVulns extends Command
         /**/
 
         // dump data to file
-        file_put_contents(storage_path('logs/collections/sc_medvulns_collection.json'), \Metaclassing\Utility::encodeJson($medium_vulns));
-        file_put_contents(storage_path('logs/collections/sc_highvulns_collection.json'), \Metaclassing\Utility::encodeJson($high_vulns));
-        file_put_contents(storage_path('logs/collections/sc_criticalvulns_collection.json'), \Metaclassing\Utility::encodeJson($critical_vulns));
+        file_put_contents(storage_path('app/collections/sc_medvulns_collection.json'), \Metaclassing\Utility::encodeJson($medium_vulns));
+        file_put_contents(storage_path('app/collections/sc_highvulns_collection.json'), \Metaclassing\Utility::encodeJson($high_vulns));
+        file_put_contents(storage_path('app/collections/sc_criticalvulns_collection.json'), \Metaclassing\Utility::encodeJson($critical_vulns));
     }
 
     /**
@@ -174,7 +174,7 @@ class CrawlSecurityCenterVulns extends Command
 
             // send request for resource, capture response and dump to file
             $response = $crawler->post($url, $url, \Metaclassing\Utility::encodeJson($post));
-            file_put_contents(storage_path('logs/responses/SC_vulns.dump'.$page), $response);
+            file_put_contents(storage_path('app/responses/SC_vulns.dump'.$page), $response);
 
             // JSON decode response
             $resp = \Metaclassing\Utility::decodeJson($response);

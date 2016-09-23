@@ -38,7 +38,7 @@ class ProcessIncomingEmail extends Command
      */
     public function handle()
     {
-        $contents = file_get_contents(storage_path('logs/collections/incoming_email.json'));
+        $contents = file_get_contents(storage_path('app/collections/incoming_email.json'));
         $incomingemails = \Metaclassing\Utility::decodeJson($contents);
 
         foreach ($incomingemails as $email) {

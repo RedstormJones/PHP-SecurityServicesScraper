@@ -39,7 +39,7 @@ class ProcessSecurityCenterHighs extends Command
     public function handle()
     {
         // get critical vulnerability data and JSON decode it
-        $contents = file_get_contents(storage_path('logs/collections/sc_highvulns_collection.json'));
+        $contents = file_get_contents(storage_path('app/collections/sc_highvulns_collection.json'));
         $highvulns = \Metaclassing\Utility::decodeJson($contents);
 
         // setup severity array, values never change

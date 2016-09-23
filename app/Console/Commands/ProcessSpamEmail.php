@@ -38,7 +38,7 @@ class ProcessSpamEmail extends Command
      */
     public function handle()
     {
-        $contents = file_get_contents(storage_path('logs/collections/spam.json'));
+        $contents = file_get_contents(storage_path('app/collections/spam.json'));
         $spam_emails = \Metaclassing\Utility::decodeJson($contents);
 
         foreach ($spam_emails as $spam) {

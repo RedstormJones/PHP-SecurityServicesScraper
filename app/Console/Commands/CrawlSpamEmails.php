@@ -42,10 +42,10 @@ class CrawlSpamEmails extends Command
         $username = getenv('IRONPORT_USERNAME');
         $password = getenv('IRONPORT_PASSWORD');
 
-        $response_path = storage_path('logs/responses/');
+        $response_path = storage_path('app/responses/');
 
         // setup cookiejar file
-        $cookiejar = storage_path('logs/cookies/ironport_cookie.txt');
+        $cookiejar = storage_path('app/cookies/ironport_cookie.txt');
         echo 'Storing cookies at '.$cookiejar.PHP_EOL;
 
         // instantiate crawler object
@@ -209,7 +209,7 @@ class CrawlSpamEmails extends Command
         // Now we ahve a simple array [1,2,3] of all the threat records,
         // each threat record is a key=>value pair collection / assoc array
         //\Metaclassing\Utility::dumper($spam_emails);
-        file_put_contents(storage_path('logs/collections/spam.json'), \Metaclassing\Utility::encodeJson($spam_emails));
+        file_put_contents(storage_path('app/collections/spam.json'), \Metaclassing\Utility::encodeJson($spam_emails));
     }
 
     /**

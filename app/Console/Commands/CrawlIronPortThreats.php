@@ -42,10 +42,10 @@ class CrawlIronPortThreats extends Command
         $username = getenv('IRONPORT_USERNAME');
         $password = getenv('IRONPORT_PASSWORD');
 
-        $response_path = storage_path('logs/responses/');
+        $response_path = storage_path('app/responses/');
 
         // setup cookiejar file
-        $cookiejar = storage_path('logs/cookies/ironport_cookie.txt');
+        $cookiejar = storage_path('app/cookies/ironport_cookie.txt');
         echo 'Storing cookies at '.$cookiejar.PHP_EOL;
 
         // instantiate crawler object
@@ -129,14 +129,14 @@ class CrawlIronPortThreats extends Command
 
         // capture reponse and dump to file
         $response = $crawler->post($url, $url, $this->postArrayToString($post));
-        file_put_contents(storage_path('logs/responses/threat_details.csv'), $response);
+        file_put_contents(storage_path('app/responses/threat_details.csv'), $response);
 
         // Arrays we'll use later
         $keys = [];
         $newArray = [];
 
         // Do it
-        $data = $this->csvToArray(storage_path('logs/responses/threat_details.csv'), ',');
+        $data = $this->csvToArray(storage_path('app/responses/threat_details.csv'), ',');
 
         // Set number of elements (minus 1 because we shift off the first row)
         $count = count($data) - 1;
@@ -159,7 +159,7 @@ class CrawlIronPortThreats extends Command
         }
 
         // JSON encode data and dump to file
-        file_put_contents(storage_path('logs/collections/threat_details.json'), \Metaclassing\Utility::encodeJson($newArray));
+        file_put_contents(storage_path('app/collections/threat_details.json'), \Metaclassing\Utility::encodeJson($newArray));
     }
 
     /**
