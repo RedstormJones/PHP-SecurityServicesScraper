@@ -2,10 +2,7 @@
 
 namespace App\Console\Commands;
 
-//require_once(dirname(__DIR__).'/globals.php');
-//require_once(CRAWLERS.'Crawler.php');
-
-require_once(getenv('CRAWLERS').'Crawler.php');
+require_once(app_path('Console/Crawler/Crawler.php'));
 
 use Illuminate\Console\Command;
 
@@ -45,8 +42,10 @@ class CrawlCylanceDevices extends Command
 		$username = getenv('CYLANCE_USERNAME');
 		$password = getenv('CYLANCE_PASSWORD');
 
+		$response_path = storage_path('logs/responses/');
+
 		// setup file to hold cookie
-		$cookiejar = getenv('COOKIES').'cylancecookie.txt';
+		$cookiejar = storage_path('logs/cookies/cylancecookie.txt');
 		echo 'storing cookies at '.$cookiejar.PHP_EOL;
 
 		// create crawler object
@@ -70,7 +69,7 @@ class CrawlCylanceDevices extends Command
         	}
 	        else {
                 // otherwise, dump response and die
-                file_put_contents(getenv('RESPONSES').'cylance_error.dump', $response);
+                file_put_contents($response_path.'cylance_error.dump', $response);
                 die('Error: could not extract CSRF token from response!'.PHP_EOL);
     	    }
 
@@ -97,7 +96,7 @@ class CrawlCylanceDevices extends Command
 		}
 
 		// dump dashboard html to a file
-		file_put_contents(getenv('RESPONSES').'cylance_dashboard.dump', $response);
+		file_put_contents($response_path.'cylance_dashboard.dump', $response);
 
 		// look for javascript token
 		$regex = '/var\s+token\s+=\s+"(.+)"/';
@@ -150,7 +149,7 @@ class CrawlCylanceDevices extends Command
 	        $response = $crawler->post($url, 'https:/'.'/my-vs0.cylance.com/Device', $this->postArrayToString($post));
 
 	        // dump raw response to devices.dump.* file where * is the page number
-    	    file_put_contents(getenv('RESPONSES').'devices.dump.'.$page, $response);
+    	    file_put_contents($response_path.'devices.dump.'.$page, $response);
 
         	// json decode the response
 	        $devices = json_decode($response, true);
@@ -185,7 +184,7 @@ class CrawlCylanceDevices extends Command
 		// Now we have a simple array [1,2,3] of all the threat records,
 		// each threat record is a key=>value pair collection / assoc array
 		//\Metaclassing\Utility::dumper($threats);
-		file_put_contents(getenv('COLLECTIONS').'devices.json', \Metaclassing\Utility::encodeJson($cylance_devices));
+		file_put_contents(storage_path('logs/collections/devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices));
 
     }
 

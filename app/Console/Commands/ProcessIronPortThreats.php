@@ -38,7 +38,7 @@ class ProcessIronPortThreats extends Command
      */
     public function handle()
     {
-		$contents = file_get_contents(getenv('COLLECTIONS').'threat_details.json');
+		$contents = file_get_contents(storage_path('logs/collections/threat_details.json'));
 		$threatdetails = \Metaclassing\Utility::decodeJson($contents);
 
 		foreach($threatdetails as $threat)

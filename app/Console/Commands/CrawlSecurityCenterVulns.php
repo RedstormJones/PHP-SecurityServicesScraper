@@ -2,10 +2,7 @@
 
 namespace App\Console\Commands;
 
-//require_once(dirname(__DIR__).'/globals.php');
-//require_once(CRAWLERS.'Crawler.php');
-
-require_once(getenv('CRAWLERS').'Crawler.php');
+require_once(app_path('Console/Crawler/Crawler.php'));
 
 
 use Illuminate\Console\Command;
@@ -43,8 +40,10 @@ class CrawlSecurityCenterVulns extends Command
      */
     public function handle()
     {
+		$response_path = storage_path('logs/responses/');
+
 		// setup cookie jar to store cookies
-		$cookiejar = getenv('COOKIES').'securitycenter_cookie.txt';
+		$cookiejar = storage_path('logs/cookies/securitycenter_cookie.txt');
 		$crawler = new \Crawler\Crawler($cookiejar);
 
 		// build post assoc array using authentication info
@@ -58,7 +57,7 @@ class CrawlSecurityCenterVulns extends Command
 
 		// post authentication data, capture response and dump to file
 		$response = $crawler->post($url, "", $post);
-		file_put_contents(getenv('RESPONSES').'SC_login.dump', $response);
+		file_put_contents($response_path.'SC_login.dump', $response);
 
 		// JSON decode response
 		$resp = \Metaclassing\Utility::decodeJson($response);
@@ -116,9 +115,9 @@ class CrawlSecurityCenterVulns extends Command
 		/**/
 
 		// dump data to file
-		file_put_contents(getenv('COLLECTIONS').'sc_medvulns_collection.json', \Metaclassing\Utility::encodeJson($medium_vulns));
-		file_put_contents(getenv('COLLECTIONS').'sc_highvulns_collection.json', \Metaclassing\Utility::encodeJson($high_vulns));
-		file_put_contents(getenv('COLLECTIONS').'sc_criticalvulns_collection.json', \Metaclassing\Utility::encodeJson($critical_vulns));
+		file_put_contents(storage_path('logs/collections/sc_medvulns_collection.json'), \Metaclassing\Utility::encodeJson($medium_vulns));
+		file_put_contents(storage_path('logs/collections/sc_highvulns_collection.json'), \Metaclassing\Utility::encodeJson($high_vulns));
+		file_put_contents(storage_path('logs/collections/sc_criticalvulns_collection.json'), \Metaclassing\Utility::encodeJson($critical_vulns));
     }
 
 	/**
@@ -179,7 +178,7 @@ class CrawlSecurityCenterVulns extends Command
 
 	        // send request for resource, capture response and dump to file
         	$response = $crawler->post($url, $url, \Metaclassing\Utility::encodeJson($post));
-			file_put_contents(getenv('RESPONSES').'SC_vulns.dump'.$page, $response);
+			file_put_contents(storage_path('logs/responses/SC_vulns.dump'.$page), $response);
 
 			// JSON decode response
     	    $resp = \Metaclassing\Utility::decodeJson($response);
@@ -215,7 +214,7 @@ class CrawlSecurityCenterVulns extends Command
 	    while($count < $total);
 
     	// tell the world you're done
-	    echo 'Done - total sev'.$severity.' records: '.count($collection).PHP_EOL;
+		//echo 'Done - total sev'.$severity.' records: '.count($collection).PHP_EOL;
 
     	return $collection;
 	}

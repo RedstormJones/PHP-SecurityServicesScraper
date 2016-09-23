@@ -38,7 +38,7 @@ class ProcessCylanceDevices extends Command
      */
     public function handle()
     {
-        $devices_content = file_get_contents(getenv('COLLECTIONS').'devices.json');
+        $devices_content = file_get_contents(storage_path('logs/collections/devices.json'));
         $devices = json_decode($devices_content);
 
         foreach($devices as $device)

@@ -2,11 +2,7 @@
 
 namespace App\Console\Commands;
 
-//require_once(dirname(__DIR__).'/globals.php');
-//require_once(CRAWLERS.'Crawler.php');
-
-require_once(getenv('CRAWLERS').'Crawler.php');
-
+require_once(app_path('Console/Crawler/Crawler.php'));
 
 use Illuminate\Console\Command;
 
@@ -46,10 +42,10 @@ class CrawlIronPortThreats extends Command
 		$username = getenv('IRONPORT_USERNAME');
 		$password = getenv('IRONPORT_PASSWORD');
 
-		$outputfile = getenv('COLLECTIONS').'threat_details.csv';
+		$response_path = storage_path('logs/responses/');
 
 		// setup cookiejar file
-		$cookiejar = getenv('COOKIES').'ironport_cookie.txt';
+		$cookiejar = storage_path('logs/cookies/ironport_cookie.txt');
 		echo 'Storing cookies at '.$cookiejar.PHP_EOL;
 
 		// instantiate crawler object
@@ -104,14 +100,14 @@ class CrawlIronPortThreats extends Command
 
 		// if we made it here then we've successfully logged in, so tell someone about it
 		echo 'Logged In'.PHP_EOL;
-		file_put_contents(getenv('RESPONSES').'ironport_dashboard.dump', $response);
+		file_put_contents($response_path.'ironport_dashboard.dump', $response);
 
 		// set url to go to Email
 		$url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email/user_report';
 
 		// capture response and dump to file
 		$response = $crawler->get($url);
-		file_put_contents(getenv('RESPONSES').'ironport_userreport.dump', $response);
+		file_put_contents($response_path.'ironport_userreport.dump', $response);
 
 		// try to extract new CSRF token, otherwise die
 		$regex = "/CSRFKey = '(.+)'/";
@@ -138,14 +134,14 @@ class CrawlIronPortThreats extends Command
 
 		// capture reponse and dump to file
 		$response = $crawler->post($url, $url, $this->postArrayToString($post));
-		file_put_contents($outputfile, $response);
+		file_put_contents(storage_path('logs/responses/threat_details.csv'), $response);
 
 		// Arrays we'll use later
 		$keys = array();
 		$newArray = array();
 
 		// Do it
-		$data = $this->csvToArray($outputfile, ',');
+		$data = $this->csvToArray(storage_path('logs/responses/threat_details.csv'), ',');
 
 		// Set number of elements (minus 1 because we shift off the first row)
 		$count = count($data) - 1;
@@ -170,7 +166,7 @@ class CrawlIronPortThreats extends Command
 		}
 
 		// JSON encode data and dump to file
-		file_put_contents(getenv('COLLECTIONS').'threat_details.json', \Metaclassing\Utility::encodeJson($newArray));
+		file_put_contents(storage_path('logs/collections/threat_details.json'), \Metaclassing\Utility::encodeJson($newArray));
     }
 
 	/**

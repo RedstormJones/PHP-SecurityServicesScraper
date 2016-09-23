@@ -2,11 +2,7 @@
 
 namespace App\Console\Commands;
 
-//require_once(dirname(__DIR__).'/globals.php');
-//require_once(CRAWLERS.'Crawler.php');
-
-require_once(getenv('CRAWLERS').'Crawler.php');
-
+require_once(app_path('Console/Crawler/Crawler.php'));
 
 use Illuminate\Console\Command;
 
@@ -46,8 +42,10 @@ class CrawlSpamEmails extends Command
 		$username = getenv('IRONPORT_USERNAME');
 		$password = getenv('IRONPORT_PASSWORD');
 
+		$response_path = storage_path('logs/responses/');
+
 		// setup cookiejar file
-		$cookiejar = getenv('COOKIES').'ironport_cookie.txt';
+		$cookiejar = storage_path('logs/cookies/ironport_cookie.txt');
 		echo 'Storing cookies at '.$cookiejar.PHP_EOL;
 
 		// instantiate crawler object
@@ -58,7 +56,7 @@ class CrawlSpamEmails extends Command
 
 		// hit webpage and try to capture CSRF token, otherwise die
 		$response = $crawler->get($url);
-		file_put_contents(getenv('RESPONSES').'ironport_login.spam.dump', $response);
+		file_put_contents($response_path.'ironport_login.spam.dump', $response);
 
 		// set regex string to dashboard page <title> element
 		$regex = '/(<title>        Cisco         Content Security Management Appliance   M804 \(dh1146-sma1\.iphmx\.com\) -         Centralized Services &gt; System Status <\/title>)/';
@@ -105,7 +103,7 @@ class CrawlSpamEmails extends Command
 		echo 'Login successful...'.PHP_EOL;
 
 		// dump dashboard to file
-		file_put_contents(getenv('RESPONSES').'ironport_dashboard.dump', $response);
+		file_put_contents($response_path.'ironport_dashboard.dump', $response);
 
 		// now that we're in head over to the local quarantines
 		$url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email_quarantine/local_quarantines';
@@ -138,7 +136,7 @@ class CrawlSpamEmails extends Command
 		// append GET parameters to url and send request to web server
 		$spam_url = $url . $this->postArrayToString($refparams);
 		$response = $crawler->get($spam_url, $referer);
-		file_put_contents(getenv('RESPONSES').'ironport_localquarantines.dump', $response);
+		file_put_contents($response_path.'ironport_localquarantines.dump', $response);
 
 		// find time_stamp value in response
 		$regex = "/time_stamp=(\d+.\d+)/";
@@ -185,7 +183,7 @@ class CrawlSpamEmails extends Command
 
 		    // capture reponse and dump to file
 		    $response = $crawler->get($geturl, $referer);
-		    file_put_contents(getenv('RESPONSES').'spam.dump.'.$page, $response);
+		    file_put_contents($response_path.'spam.dump.'.$page, $response);
 
 		    // JSON decode the response and add it to the spam collection
 		    $spam = \Metaclassing\Utility::decodeJson($response);
@@ -204,9 +202,6 @@ class CrawlSpamEmails extends Command
 		}
 		while($i < $count);
 
-		// JSON encode and dump spam collection to file
-		//file_put_contents('/opt/application/collections/spam_collection.json', \Metaclassing\Utility::encodeJson($collection));
-
 		$spam_emails = [];
 
 		// first level is simple sequencail array of 1,2,3
@@ -222,7 +217,7 @@ class CrawlSpamEmails extends Command
 		// Now we ahve a simple array [1,2,3] of all the threat records,
 		// each threat record is a key=>value pair collection / assoc array
 		//\Metaclassing\Utility::dumper($spam_emails);
-		file_put_contents(getenv('COLLECTIONS').'spam.json', \Metaclassing\Utility::encodeJson($spam_emails));
+		file_put_contents(storage_path('logs/collections/spam.json'), \Metaclassing\Utility::encodeJson($spam_emails));
     }
 
 	/**
