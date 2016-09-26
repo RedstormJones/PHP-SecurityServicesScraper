@@ -49,8 +49,8 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on weekly schedule
         */
-		$schedule->command('crawl:securitycenterassetvulns')->weekly()->thursdays()->at('17:30');
-		$schedule->command('process:securitycenterassetvulns')->weekly()->thursdays()->at('17:45');
+        $schedule->command('crawl:securitycenterassetvulns')->weekly()->thursdays()->at('17:30');
+        $schedule->command('process:securitycenterassetvulns')->weekly()->thursdays()->at('17:45');
         $schedule->command('crawl:securitycentervulns')->weekly()->thursdays()->at('18:00');
         $schedule->command('process:securitycentercriticals')->weekly()->thursdays()->at('18:15');
         $schedule->command('process:securitycenterhighs')->weekly()->thursdays()->at('19:30');
