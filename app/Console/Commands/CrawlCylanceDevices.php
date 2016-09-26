@@ -68,7 +68,7 @@ class CrawlCylanceDevices extends Command
                 $csrftoken = $hits[1];
             } else {
                 // otherwise, dump response and die
-                file_put_contents($response_path.'cylance_error.dump', $response);
+                file_put_contents($response_path.'cylance_login.dump', $response);
                 die('Error: could not extract CSRF token from response!'.PHP_EOL);
             }
 
