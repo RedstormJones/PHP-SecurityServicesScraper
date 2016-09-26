@@ -38,13 +38,8 @@ class ProcessSecurityCenterAssetVulns extends Command
      */
     public function handle()
     {
-<<<<<<< HEAD
 		$contents = file_get_contents(storage_path('app/collections/sc_asset_summary.json'));
 		$asset_sum = \Metaclassing\Utility::decodeJson($contents);
-=======
-        $contents = file_get_contents('/opt/application/tmp/assetsummary.json');
-        $asset_sum = \Metaclassing\Utility::decodeJson($contents);
->>>>>>> ac4df4fb600ed9a66abd7fff42d9ebada1ed1bcb
 
         foreach ($asset_sum as $asset_data) {
             $asset_name = $asset_data['asset']['name'];
