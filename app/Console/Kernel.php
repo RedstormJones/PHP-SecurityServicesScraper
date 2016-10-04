@@ -22,6 +22,7 @@ class Kernel extends ConsoleKernel
         Commands\ProcessSecurityCenterHighs::class,
         Commands\ProcessSecurityCenterMediums::class,
         Commands\ProcessSecurityCenterAssetVulns::class,
+        Commands\ProcessPhishMeScenarios::class,
         Commands\CrawlCylanceDevices::class,
         Commands\CrawlCylanceThreats::class,
         Commands\CrawlIncomingEmails::class,
@@ -29,6 +30,7 @@ class Kernel extends ConsoleKernel
         Commands\CrawlIronPortThreats::class,
         Commands\CrawlSecurityCenterVulns::class,
         Commands\CrawlSecurityCenterAssetVulns::class,
+		Commands\CrawlPhishMeScenarios::class,
     ];
 
     /**
