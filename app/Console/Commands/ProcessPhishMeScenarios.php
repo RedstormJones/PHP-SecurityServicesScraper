@@ -74,217 +74,209 @@ class ProcessPhishMeScenarios extends Command
             switch ($result['scenario_type']) {
                 case 'App\PhishMe\AttachmentScenario':
 
-					$exists = AttachmentScenario::where('scenario_id', $result['scenario_id'])->first();
+                    $exists = AttachmentScenario::where('scenario_id', $result['scenario_id'])->first();
 
-					if(!$exists)
-					{
-	                    // handle viewed education timestamp values of ''
-    	                if ($result['Viewed Education Timestamp'] == '') {
-        	                $viewededucation_timestamp = null;
-            	        } else {
-                	        // convert viewed education timestamp to acceptable format
-                    	    $viewededucation_timestamp = strtotime($result['Viewed Education Timestamp']);
-                        	$date = new \DateTime('@'.$viewededucation_timestamp);
-	                        $viewededucation_timestamp = $date->format('Y-m-d H:i:s');
-    	                }
+                    if (!$exists) {
+                        // handle viewed education timestamp values of ''
+                        if ($result['Viewed Education Timestamp'] == '') {
+                            $viewededucation_timestamp = null;
+                        } else {
+                            // convert viewed education timestamp to acceptable format
+                            $viewededucation_timestamp = strtotime($result['Viewed Education Timestamp']);
+                            $date = new \DateTime('@'.$viewededucation_timestamp);
+                            $viewededucation_timestamp = $date->format('Y-m-d H:i:s');
+                        }
 
-	                    echo 'creating new attachment scenario: '.$result['scenario_id'].PHP_EOL;
-    	                $attachment = new AttachmentScenario();
+                        echo 'creating new attachment scenario: '.$result['scenario_id'].PHP_EOL;
+                        $attachment = new AttachmentScenario();
 
-	                    $attachment->scenario_id = $result['scenario_id'];
-    	                $attachment->scenario_type = $result['scenario_type'];
-        	            $attachment->email = $result['Email'];
-            	        $attachment->recipient_name = $result['Recipient Name'];
-                	    $attachment->recipient_group = $result['Recipient Group'];
-                    	$attachment->department = $result['Department'];
-	                    $attachment->location = $result['Location'];
-    	                $attachment->viewed_education = $result['Viewed Education?'];
-        	            $attachment->viewed_education_timestamp = $viewededucation_timestamp;
-            	        $attachment->reported_phish = $result['Reported Phish?'];
-                	    $attachment->new_repeat_reporter = $result['New/Repeat Reporter'];
-                    	$attachment->reported_phish_timestamp = $reportedphish_timestamp;
-	                    $attachment->time_to_report = $timetoreport;
-    	                $attachment->remote_ip = $result['Remote IP'];
-        	            $attachment->geoip_country = $result['GeoIP Country'];
-            	        $attachment->geoip_city = $result['GeoIP City'];
-                	    $attachment->geoip_organization = $result['GeoIP Organization'];
-                    	$attachment->last_dsn = $result['Last DSN'];
-	                    $attachment->last_email_status = $result['Last Email Status'];
-    	                $attachment->last_email_status_timestamp = $lastemaildate;
-        	            $attachment->language = $result['Language'];
-            	        $attachment->browser = $result['Browser'];
-                	    $attachment->user_agent = $result['User-Agent'];
-                    	$attachment->mobile = $result['Mobile?'];
-	                    $attachment->data = \Metaclassing\Utility::encodeJson($result);
+                        $attachment->scenario_id = $result['scenario_id'];
+                        $attachment->scenario_type = $result['scenario_type'];
+                        $attachment->email = $result['Email'];
+                        $attachment->recipient_name = $result['Recipient Name'];
+                        $attachment->recipient_group = $result['Recipient Group'];
+                        $attachment->department = $result['Department'];
+                        $attachment->location = $result['Location'];
+                        $attachment->viewed_education = $result['Viewed Education?'];
+                        $attachment->viewed_education_timestamp = $viewededucation_timestamp;
+                        $attachment->reported_phish = $result['Reported Phish?'];
+                        $attachment->new_repeat_reporter = $result['New/Repeat Reporter'];
+                        $attachment->reported_phish_timestamp = $reportedphish_timestamp;
+                        $attachment->time_to_report = $timetoreport;
+                        $attachment->remote_ip = $result['Remote IP'];
+                        $attachment->geoip_country = $result['GeoIP Country'];
+                        $attachment->geoip_city = $result['GeoIP City'];
+                        $attachment->geoip_organization = $result['GeoIP Organization'];
+                        $attachment->last_dsn = $result['Last DSN'];
+                        $attachment->last_email_status = $result['Last Email Status'];
+                        $attachment->last_email_status_timestamp = $lastemaildate;
+                        $attachment->language = $result['Language'];
+                        $attachment->browser = $result['Browser'];
+                        $attachment->user_agent = $result['User-Agent'];
+                        $attachment->mobile = $result['Mobile?'];
+                        $attachment->data = \Metaclassing\Utility::encodeJson($result);
 
-	                    $attachment->save();
+                        $attachment->save();
 
-    	                // create new scenario model
-        	            $scenario = new PhishMeScenario();
-            	        $scenario->reportable_id = $result['scenario_id'];
-                	    $scenario->reportable_type = $result['scenario_type'];
-                    	$scenario->data = \Metaclassing\Utility::encodeJson($result);
+                        // create new scenario model
+                        $scenario = new PhishMeScenario();
+                        $scenario->reportable_id = $result['scenario_id'];
+                        $scenario->reportable_type = $result['scenario_type'];
+                        $scenario->data = \Metaclassing\Utility::encodeJson($result);
 
-	                    $attachment->reports()->save($scenario);
-					}
-					else {
-						echo 'scenario record already exists for: '.$result['scenario_id'].PHP_EOL;
-					}
+                        $attachment->reports()->save($scenario);
+                    } else {
+                        echo 'scenario record already exists for: '.$result['scenario_id'].PHP_EOL;
+                    }
 
                     break;
 
                 case 'App\PhishMe\ClickOnlyScenario':
 
-					$exists = ClickOnlyScenario::where('scenario_id', $result['scenario_id'])->first();
+                    $exists = ClickOnlyScenario::where('scenario_id', $result['scenario_id'])->first();
 
-					if(!$exists)
-					{
-	                    // handle clicked link timestamp values of ''
-    	                if ($result['Clicked Link Timestamp'] == '') {
-        	                $clickedlink_timestamp = null;
-            	        } else {
-                	        // convert clicked link timestamp to acceptable format
-                    	    $clickedlink_timestamp = strtotime($result['Clicked Link Timestamp']);
-                        	$date = new \DateTime('@'.$clickedlink_timestamp);
-	                        $clickedlink_timestamp = $date->format('Y-m-d H:i:s');
-    	                }
+                    if (!$exists) {
+                        // handle clicked link timestamp values of ''
+                        if ($result['Clicked Link Timestamp'] == '') {
+                            $clickedlink_timestamp = null;
+                        } else {
+                            // convert clicked link timestamp to acceptable format
+                            $clickedlink_timestamp = strtotime($result['Clicked Link Timestamp']);
+                            $date = new \DateTime('@'.$clickedlink_timestamp);
+                            $clickedlink_timestamp = $date->format('Y-m-d H:i:s');
+                        }
 
-        	            // handle seconds spent on education page values of ''
-            	        if ($result['Seconds Spent on Education Page'] == '') {
-                	        $education_seconds = 0;
-                    	} else {
-                        	$education_seconds = $result['Seconds Spent on Education Page'];
-	                    }
+                        // handle seconds spent on education page values of ''
+                        if ($result['Seconds Spent on Education Page'] == '') {
+                            $education_seconds = 0;
+                        } else {
+                            $education_seconds = $result['Seconds Spent on Education Page'];
+                        }
 
-    	                echo 'creating new click only scenario: '.$result['scenario_id'].PHP_EOL;
-        	            $clickonly = new ClickOnlyScenario();
+                        echo 'creating new click only scenario: '.$result['scenario_id'].PHP_EOL;
+                        $clickonly = new ClickOnlyScenario();
 
-            	        $clickonly->scenario_id = $result['scenario_id'];
-                	    $clickonly->scenario_type = $result['scenario_type'];
-                    	$clickonly->email = $result['Email'];
-	                    $clickonly->recipient_name = $result['Recipient Name'];
-    	                $clickonly->recipient_group = $result['Recipient Group'];
-        	            $clickonly->department = $result['Department'];
-            	        $clickonly->location = $result['Location'];
-                	    $clickonly->clicked_link = $result['Clicked Link?'];
-                    	$clickonly->clicked_link_timestamp = $clickedlink_timestamp;
-	                    $clickonly->reported_phish = $result['Reported Phish?'];
-    	                $clickonly->new_repeat_reporter = $result['New/Repeat Reporter'];
-        	            $clickonly->reported_phish_timestamp = $reportedphish_timestamp;
-            	        $clickonly->time_to_report = $timetoreport;
-                	    $clickonly->remote_ip = $result['Remote IP'];
-                    	$clickonly->geoip_country = $result['GeoIP Country'];
-	                    $clickonly->geoip_city = $result['GeoIP City'];
-    	                $clickonly->geoip_organization = $result['GeoIP Organization'];
-        	            $clickonly->last_dsn = $result['Last DSN'];
-            	        $clickonly->last_email_status = $result['Last Email Status'];
-                	    $clickonly->last_email_status_timestamp = $lastemaildate;
-                    	$clickonly->language = $result['Language'];
-	                    $clickonly->browser = $result['Browser'];
-    	                $clickonly->user_agent = $result['User-Agent'];
-        	            $clickonly->mobile = $result['Mobile?'];
-            	        $clickonly->seconds_spent_on_education = $education_seconds;
-                	    $clickonly->data = \Metaclassing\Utility::encodeJson($result);
+                        $clickonly->scenario_id = $result['scenario_id'];
+                        $clickonly->scenario_type = $result['scenario_type'];
+                        $clickonly->email = $result['Email'];
+                        $clickonly->recipient_name = $result['Recipient Name'];
+                        $clickonly->recipient_group = $result['Recipient Group'];
+                        $clickonly->department = $result['Department'];
+                        $clickonly->location = $result['Location'];
+                        $clickonly->clicked_link = $result['Clicked Link?'];
+                        $clickonly->clicked_link_timestamp = $clickedlink_timestamp;
+                        $clickonly->reported_phish = $result['Reported Phish?'];
+                        $clickonly->new_repeat_reporter = $result['New/Repeat Reporter'];
+                        $clickonly->reported_phish_timestamp = $reportedphish_timestamp;
+                        $clickonly->time_to_report = $timetoreport;
+                        $clickonly->remote_ip = $result['Remote IP'];
+                        $clickonly->geoip_country = $result['GeoIP Country'];
+                        $clickonly->geoip_city = $result['GeoIP City'];
+                        $clickonly->geoip_organization = $result['GeoIP Organization'];
+                        $clickonly->last_dsn = $result['Last DSN'];
+                        $clickonly->last_email_status = $result['Last Email Status'];
+                        $clickonly->last_email_status_timestamp = $lastemaildate;
+                        $clickonly->language = $result['Language'];
+                        $clickonly->browser = $result['Browser'];
+                        $clickonly->user_agent = $result['User-Agent'];
+                        $clickonly->mobile = $result['Mobile?'];
+                        $clickonly->seconds_spent_on_education = $education_seconds;
+                        $clickonly->data = \Metaclassing\Utility::encodeJson($result);
 
-                    	$clickonly->save();
+                        $clickonly->save();
 
-	                    // create new scenario model
-    	                $scenario = new PhishMeScenario();
-        	            $scenario->reportable_id = $result['scenario_id'];
-            	        $scenario->reportable_type = $result['scenario_type'];
-                	    $scenario->data = \Metaclassing\Utility::encodeJson($result);
+                        // create new scenario model
+                        $scenario = new PhishMeScenario();
+                        $scenario->reportable_id = $result['scenario_id'];
+                        $scenario->reportable_type = $result['scenario_type'];
+                        $scenario->data = \Metaclassing\Utility::encodeJson($result);
 
-                    	$clickonly->reports()->save($scenario);
-					}
-					else
-					{
-						echo 'scenario record already exists for: '.$result['scenario_id'].PHP_EOL;
-					}
+                        $clickonly->reports()->save($scenario);
+                    } else {
+                        echo 'scenario record already exists for: '.$result['scenario_id'].PHP_EOL;
+                    }
 
                     break;
 
                 case 'App\PhishMe\DataEntryScenario':
 
-					$exists = DataEntryScenario::where('scenario_id', $result['scenario_id'])->first();
+                    $exists = DataEntryScenario::where('scenario_id', $result['scenario_id'])->first();
 
-					if(!$exists)
-					{
-	                    // handle clicked link timestamp values of ''
-    	                if ($result['Clicked Link Timestamp'] == '') {
-        	                $clickedlink_timestamp = null;
-            	        } else {
-                	        // convert clicked link timestamp to acceptable format
-                    	    $clickedlink_timestamp = strtotime($result['Clicked Link Timestamp']);
-                        	$date = new \DateTime('@'.$clickedlink_timestamp);
-	                        $clickedlink_timestamp = $date->format('Y-m-d H:i:s');
-    	                }
+                    if (!$exists) {
+                        // handle clicked link timestamp values of ''
+                        if ($result['Clicked Link Timestamp'] == '') {
+                            $clickedlink_timestamp = null;
+                        } else {
+                            // convert clicked link timestamp to acceptable format
+                            $clickedlink_timestamp = strtotime($result['Clicked Link Timestamp']);
+                            $date = new \DateTime('@'.$clickedlink_timestamp);
+                            $clickedlink_timestamp = $date->format('Y-m-d H:i:s');
+                        }
 
-        	            // handle submitted form timestamp values of ''
-            	        if ($result['Submitted Form Timestamp'] == '') {
-                	        $submittedform_timestamp = null;
-                    	} else {
-                        	// convert submitted form timestamp to acceptable format
-	                        $submittedform_timestamp = strtotime($result['Submitted Form Timestamp']);
-    	                    $date = new \DateTime('@'.$submittedform_timestamp);
-        	                $submittedform_timestamp = $date->format('Y-m-d H:i:s');
-            	        }
+                        // handle submitted form timestamp values of ''
+                        if ($result['Submitted Form Timestamp'] == '') {
+                            $submittedform_timestamp = null;
+                        } else {
+                            // convert submitted form timestamp to acceptable format
+                            $submittedform_timestamp = strtotime($result['Submitted Form Timestamp']);
+                            $date = new \DateTime('@'.$submittedform_timestamp);
+                            $submittedform_timestamp = $date->format('Y-m-d H:i:s');
+                        }
 
-                	    // handle seconds spent on education page values of ''
-                    	if ($result['Seconds Spent on Education Page'] == '') {
-                        	$education_seconds = 0;
-	                    } else {
-    	                    $education_seconds = $result['Seconds Spent on Education Page'];
-        	            }
+                        // handle seconds spent on education page values of ''
+                        if ($result['Seconds Spent on Education Page'] == '') {
+                            $education_seconds = 0;
+                        } else {
+                            $education_seconds = $result['Seconds Spent on Education Page'];
+                        }
 
-	                    echo 'creating new data entry scenario: '.$result['scenario_id'].PHP_EOL;
-    	                $dataentry = new DataEntryScenario();
+                        echo 'creating new data entry scenario: '.$result['scenario_id'].PHP_EOL;
+                        $dataentry = new DataEntryScenario();
 
-	                    $dataentry->scenario_id = $result['scenario_id'];
-    	                $dataentry->scenario_type = $result['scenario_type'];
-        	            $dataentry->email = $result['Email'];
-            	        $dataentry->recipient_name = $result['Recipient Name'];
-                	    $dataentry->recipient_group = $result['Recipient Group'];
-                    	$dataentry->department = $result['Department'];
-	                    $dataentry->location = $result['Location'];
-    	                $dataentry->clicked_link = $result['Clicked Link?'];
-        	            $dataentry->clicked_link_timestamp = $clickedlink_timestamp;
-            	        $dataentry->submitted_form = $result['Submitted Form'];
-                	    $dataentry->submitted_form_timestamp = $submittedform_timestamp;
-                    	$dataentry->submitted_data = $result['Submitted Data'];
-	                    $dataentry->phished_username = $result['Username'];
-    	                $dataentry->entered_password = $result['Entered Password?'];
-        	            $dataentry->reported_phish = $result['Reported Phish?'];
-            	        $dataentry->new_repeat_reporter = $result['New/Repeat Reporter'];
-                	    $dataentry->reported_phish_timestamp = $reportedphish_timestamp;
-                    	$dataentry->time_to_report = $timetoreport;
-	                    $dataentry->remote_ip = $result['Remote IP'];
-    	                $dataentry->geoip_country = $result['GeoIP Country'];
-        	            $dataentry->geoip_city = $result['GeoIP City'];
-            	        $dataentry->geoip_organization = $result['GeoIP Organization'];
-                	    $dataentry->last_dsn = $result['Last DSN'];
-	                    $dataentry->last_email_status = $result['Last Email Status'];
-    	                $dataentry->last_email_status_timestamp = $lastemaildate;
-        	            $dataentry->language = $result['Language'];
-            	        $dataentry->browser = $result['Browser'];
-                	    $dataentry->user_agent = $result['User-Agent'];
-                    	$dataentry->mobile = $result['Mobile?'];
-	                    $dataentry->seconds_spent_on_education = $education_seconds;
-    	                $dataentry->data = \Metaclassing\Utility::encodeJson($result);
+                        $dataentry->scenario_id = $result['scenario_id'];
+                        $dataentry->scenario_type = $result['scenario_type'];
+                        $dataentry->email = $result['Email'];
+                        $dataentry->recipient_name = $result['Recipient Name'];
+                        $dataentry->recipient_group = $result['Recipient Group'];
+                        $dataentry->department = $result['Department'];
+                        $dataentry->location = $result['Location'];
+                        $dataentry->clicked_link = $result['Clicked Link?'];
+                        $dataentry->clicked_link_timestamp = $clickedlink_timestamp;
+                        $dataentry->submitted_form = $result['Submitted Form'];
+                        $dataentry->submitted_form_timestamp = $submittedform_timestamp;
+                        $dataentry->submitted_data = $result['Submitted Data'];
+                        $dataentry->phished_username = $result['Username'];
+                        $dataentry->entered_password = $result['Entered Password?'];
+                        $dataentry->reported_phish = $result['Reported Phish?'];
+                        $dataentry->new_repeat_reporter = $result['New/Repeat Reporter'];
+                        $dataentry->reported_phish_timestamp = $reportedphish_timestamp;
+                        $dataentry->time_to_report = $timetoreport;
+                        $dataentry->remote_ip = $result['Remote IP'];
+                        $dataentry->geoip_country = $result['GeoIP Country'];
+                        $dataentry->geoip_city = $result['GeoIP City'];
+                        $dataentry->geoip_organization = $result['GeoIP Organization'];
+                        $dataentry->last_dsn = $result['Last DSN'];
+                        $dataentry->last_email_status = $result['Last Email Status'];
+                        $dataentry->last_email_status_timestamp = $lastemaildate;
+                        $dataentry->language = $result['Language'];
+                        $dataentry->browser = $result['Browser'];
+                        $dataentry->user_agent = $result['User-Agent'];
+                        $dataentry->mobile = $result['Mobile?'];
+                        $dataentry->seconds_spent_on_education = $education_seconds;
+                        $dataentry->data = \Metaclassing\Utility::encodeJson($result);
 
-	                    $dataentry->save();
+                        $dataentry->save();
 
-    	                // create new scenario model
-        	            $scenario = new PhishMeScenario();
-            	        $scenario->reportable_id = $result['scenario_id'];
-                	    $scenario->reportable_type = $result['scenario_type'];
-                    	$scenario->data = \Metaclassing\Utility::encodeJson($result);
+                        // create new scenario model
+                        $scenario = new PhishMeScenario();
+                        $scenario->reportable_id = $result['scenario_id'];
+                        $scenario->reportable_type = $result['scenario_type'];
+                        $scenario->data = \Metaclassing\Utility::encodeJson($result);
 
-	                    $dataentry->reports()->save($scenario);
-					}
-					else
-					{
-						echo 'scenario record already exists for: '.$result['scenario_id'].PHP_EOL;
-					}
+                        $dataentry->reports()->save($scenario);
+                    } else {
+                        echo 'scenario record already exists for: '.$result['scenario_id'].PHP_EOL;
+                    }
 
                     break;
 
