@@ -36,18 +36,17 @@ class AttachmentScenario extends Model
         'browser',
         'user_agent',
         'mobile',
-		'seconds_spent_on_eduation',
+        'seconds_spent_on_eduation',
         'data',
     ];
 
     /**
-    * Get all of the attachment scenarios
-    *
-    * @return mixed
-    */
+     * Get all of the attachment scenarios.
+     *
+     * @return mixed
+     */
     public function reports()
     {
         return $this->morphMany('App\PhishMe\PhishMeScenario', 'reportable');
     }
-
-}	// end of AttachmentScenario class
+}    // end of AttachmentScenario class

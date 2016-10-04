@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateClickOnlyScenariosTable extends Migration
 {
@@ -16,7 +16,7 @@ class CreateClickOnlyScenariosTable extends Migration
         Schema::create('click_only_scenarios', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-			$table->softDeletes();
+            $table->softDeletes();
             $table->text('scenario_id');
             $table->text('scenario_type');
             $table->text('email');
@@ -41,9 +41,8 @@ class CreateClickOnlyScenariosTable extends Migration
             $table->text('browser')->nullable();
             $table->text('user_agent')->nullable();
             $table->text('mobile')->nullable();
-			$table->integer('seconds_spent_on_education')->nullable();
+            $table->integer('seconds_spent_on_education')->nullable();
             $table->json('data');
-
         });
     }
 

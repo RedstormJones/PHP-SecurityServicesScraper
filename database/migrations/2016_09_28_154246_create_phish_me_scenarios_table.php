@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreatePhishMeScenariosTable extends Migration
 {
@@ -16,10 +16,10 @@ class CreatePhishMeScenariosTable extends Migration
         Schema::create('phish_me_scenarios', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-			$table->softDeletes();
-			$table->text('reportable_id');
-			$table->string('reportable_type');
-			$table->json('data');
+            $table->softDeletes();
+            $table->text('reportable_id');
+            $table->string('reportable_type');
+            $table->json('data');
         });
     }
 
