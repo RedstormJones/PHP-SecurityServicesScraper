@@ -40,15 +40,13 @@ class ClickOnlyScenario extends Model
         'data',
     ];
 
-
     /**
-    * Get all of the click only reports
-    *
-    * @return mixed
-    */
-	public function reports()
+     * Get all of the click only reports.
+     *
+     * @return mixed
+     */
+    public function reports()
     {
         return $this->morphMany('App\PhishMe\PhishMeScenario', 'reportable');
     }
-
-}	// end of ClickOnlyScenario class
+}    // end of ClickOnlyScenario class

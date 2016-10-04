@@ -46,13 +46,12 @@ class DataEntryScenario extends Model
     ];
 
     /**
-    * Get all of the data entry reports
-    *
-    * @return mixed
-    */
-	public function reports()
+     * Get all of the data entry reports.
+     *
+     * @return mixed
+     */
+    public function reports()
     {
         return $this->morphMany('App\PhishMe\PhishMeScenario', 'reportable');
     }
-
-}	// end of DataEntryScenario class
+}    // end of DataEntryScenario class

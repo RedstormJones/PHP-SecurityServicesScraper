@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
         Commands\CrawlIronPortThreats::class,
         Commands\CrawlSecurityCenterVulns::class,
         Commands\CrawlSecurityCenterAssetVulns::class,
-		Commands\CrawlPhishMeScenarios::class,
+        Commands\CrawlPhishMeScenarios::class,
     ];
 
     /**

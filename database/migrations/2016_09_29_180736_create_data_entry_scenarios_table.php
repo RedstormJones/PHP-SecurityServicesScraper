@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateDataEntryScenariosTable extends Migration
 {
@@ -16,7 +16,7 @@ class CreateDataEntryScenariosTable extends Migration
         Schema::create('data_entry_scenarios', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-			$table->softDeletes();
+            $table->softDeletes();
             $table->text('scenario_id');
             $table->text('scenario_type');
             $table->text('email');
@@ -26,11 +26,11 @@ class CreateDataEntryScenariosTable extends Migration
             $table->text('location')->nullable();
             $table->text('clicked_link');
             $table->timestamp('clicked_link_timestamp')->nullable();
-			$table->text('submitted_form');
-			$table->timestamp('submitted_form_timestamp')->nullable();
-			$table->text('submitted_data');
-			$table->text('phished_username')->nullable();
-			$table->text('entered_password');
+            $table->text('submitted_form');
+            $table->timestamp('submitted_form_timestamp')->nullable();
+            $table->text('submitted_data');
+            $table->text('phished_username')->nullable();
+            $table->text('entered_password');
             $table->text('reported_phish');
             $table->text('new_repeat_reporter');
             $table->timestamp('reported_phish_timestamp')->nullable();
