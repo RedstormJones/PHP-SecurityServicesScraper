@@ -45,8 +45,10 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on monthly schedule
         */
-        $schedule->command('crawl:ironportthreats')->monthlyOn(1, '22:00');        // runs every month on the 1st at 10:00pm
-        $schedule->command('process:ironportthreats')->monthlyOn(1, '22:30');    // runs every month on the 1st at 10:30pm
+        $schedule->command('crawl:ironportthreats')->monthlyOn(1, '21:00');     // runs every month on the 1st at 09:00pm
+        $schedule->command('process:ironportthreats')->monthlyOn(1, '21:30');	// runs every month on the 1st at 09:30pm
+		$schedule->command('crawl:phishmescenarios')->monthlyOn(1, '22:30');	// runs every month on the 1st at 10:30pm
+		$schedule->command('process:phishmescenarios')->monthlyOn(1, '23:00');	// runs every month on the 1st at 11:00pm
 
         /*
         * Commands run on weekly schedule
