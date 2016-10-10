@@ -15,7 +15,7 @@ class HomeController extends Controller
     }
 
     /**
-     * Show the application dashboard.
+     * Show the application home page.
      *
      * @return \Illuminate\Http\Response
      */
@@ -23,4 +23,14 @@ class HomeController extends Controller
     {
         return view('home');
     }
+
+	/**
+	* Show the application dashboard page.
+	*
+	* @return \Illuminate\Http\Response
+	*/
+	public function dashboard()
+	{
+		return view('dashboard');
+	}
 }

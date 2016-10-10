@@ -167,6 +167,10 @@ class CrawlCylanceDevices extends Command
             sleep(1);       // wait a second before hammering on their webserver again
         } while ($i < $count);
 
+		// Pop off empty array element
+		array_pop($collection);
+
+		// instantiate cylance device list
         $cylance_devices = [];
 
         // first level is simple sequencail array of 1,2,3
