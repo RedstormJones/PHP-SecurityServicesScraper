@@ -24,13 +24,13 @@ class HomeController extends Controller
         return view('home');
     }
 
-	/**
-	* Show the application dashboard page.
-	*
-	* @return \Illuminate\Http\Response
-	*/
-	public function dashboard()
-	{
-		return view('dashboard');
-	}
+    /**
+     * Show the application dashboard page.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function dashboard()
+    {
+        return view('dashboard');
+    }
 }
