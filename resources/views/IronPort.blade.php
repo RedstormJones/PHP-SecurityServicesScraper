@@ -5,14 +5,13 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
-                <div class="panel-heading">Home Page</div>
+                <div class="panel-heading">IronPort Dashboard</div>
 
+<!--
                 <div class="panel-body">
-                    You are logged in!
+					Cylance Dashboard
                 </div>
-                <div class="panel-body">
-                    <a href="{{ url('/dashboard') }}">Main Dashboard</a>
-                </div>
+-->
             </div>
         </div>
     </div>

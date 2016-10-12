@@ -34,9 +34,12 @@
                 </button>
 
                 <!-- Branding Image -->
-                <a class="navbar-brand" href="{{ url('/') }}">
+                <a class="navbar-brand" href="{{ url('/home') }}">
                     {{ config('app.name', 'Laravel') }}
                 </a>
+
+				<!-- Dashboard Link -->
+				<a class="navbar-brand" href="{{ url('/dashboard') }}">Main Dashboard</a>
             </div>
 
             <div class="collapse navbar-collapse" id="app-navbar-collapse">

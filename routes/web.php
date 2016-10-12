@@ -17,6 +17,14 @@ Route::get('/', function () {
 
 Auth::routes();
 
+
 Route::get('/home', 'HomeController@index');
 
+
 Route::get('/dashboard', 'HomeController@dashboard');
+
+
+Route::get('/Cylance', 'CylanceController@index');
+Route::get('/IronPort', 'IronPortController@index');
+Route::get('/SecurityCenter', 'SecurityCenterController@index');
+Route::get('/PhishMe', 'PhishMeController@index');

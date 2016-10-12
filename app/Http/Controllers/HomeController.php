@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Cylance;
+use App\IronPort;
+use App\SecurityCenter;
+use App\PhishMe;
+
+
 class HomeController extends Controller
 {
     /**
@@ -31,6 +37,13 @@ class HomeController extends Controller
      */
     public function dashboard()
     {
-        return view('dashboard');
+		$tools = [
+			'Cylance',
+			'IronPort',
+			'SecurityCenter',
+			'PhishMe',
+		];
+
+        return view('dashboard', compact('tools'));
     }
 }
