@@ -16,6 +16,7 @@ class CylanceController extends Controller
         $this->middleware('auth');
     }
 
+
     /**
      * Show Cylance Dashboard page.
      *
@@ -30,4 +31,18 @@ class CylanceController extends Controller
 
         return view('Cylance', compact('bad_devices'));
     }
+
+
+	/**
+	* Show Cylance device page.
+	*
+	* @return \Illuminate\Http\Response
+	*/
+	public function show_device($device_id)
+	{
+		$device = CylanceDevice::where('device_id', $device_id)->get();
+
+		return view('CylanceDevice', compact('device'));
+	}
+
 }    // end of CylanceController class
