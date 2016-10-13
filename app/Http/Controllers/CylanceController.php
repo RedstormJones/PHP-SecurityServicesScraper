@@ -26,9 +26,9 @@ class CylanceController extends Controller
         $bad_devices = CylanceDevice::whereNull('deleted_at')
                             ->orderBy('files_unsafe', 'desc')
                             ->limit(10)
-							->get();
+                            ->get();
 
-		$bad_devices->toArray();
+        $bad_devices->toArray();
 
         return view('Cylance', compact('bad_devices'));
     }
