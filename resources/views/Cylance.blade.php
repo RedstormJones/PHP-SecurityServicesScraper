@@ -15,22 +15,29 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-md-4 col-md-offset-0">
+        <div class="col-md-2 col-md-offset-0">
             <div class="panel panel-default">
-                <div class="panel-heading">Naughty Devices by Files Unsafe</div>
+                <div class="panel-heading">Unsafe Devices</div>
 
                 @if (count($bad_devices))
 
-                    @foreach($bad_devices as $device_name => $files_unsafe)
+					<table>
 
-                        <div class="panel-body">
-                            {{$device_name}} &nbsp {{$files_unsafe}}
-                        </div>
+					@foreach($bad_devices as $bad_device)
 
-                    @endforeach
+						<tr>
+
+							<td><a href="{{ url('/Cylance/'.$bad_device['device_id']) }}">{{$bad_device['device_name']}}</a></td>
+
+							<td>{{$bad_device['files_unsafe']}}</td>
+
+						</tr>
+
+					@endforeach
+
+					</table>
 
                 @endif
-
 
             </div>
         </div>

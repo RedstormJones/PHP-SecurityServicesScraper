@@ -26,7 +26,9 @@ class CylanceController extends Controller
         $bad_devices = CylanceDevice::whereNull('deleted_at')
                             ->orderBy('files_unsafe', 'desc')
                             ->limit(10)
-                            ->pluck('files_unsafe', 'device_name');
+							->get();
+
+		$bad_devices->toArray();
 
         return view('Cylance', compact('bad_devices'));
     }
@@ -38,7 +40,7 @@ class CylanceController extends Controller
      */
     public function show_device($device_id)
     {
-        $device = CylanceDevice::where('device_id', $device_id)->get();
+        $device = CylanceDevice::where('device_id', $device_id)->first();
 
         return view('CylanceDevice', compact('device'));
     }
