@@ -63,14 +63,14 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on daily schedule
         */
+        $schedule->command('crawl:spamemails')->dailyAt('10:30');
+        $schedule->command('process:spamemail')->dailyAt('11:00');
         $schedule->command('crawl:cylancedevices')->daily();                    // runs at midnight (00:00)
         $schedule->command('process:cylancedevices')->dailyAt('01:00');
-        $schedule->command('crawl:cylancethreats')->dailyAt('02:00');
-        $schedule->command('process:cylancethreats')->dailyAt('03:00');
-        $schedule->command('crawl:incomingemail')->dailyAt('04:00');
-        $schedule->command('process:incomingemail')->dailyAt('04:15');
-        $schedule->command('crawl:spamemails')->dailyAt('05:30');
-        $schedule->command('process:spamemail')->dailyAt('06:30');
+        $schedule->command('crawl:cylancethreats')->dailyAt('03:30');
+        $schedule->command('process:cylancethreats')->dailyAt('04:00');
+        $schedule->command('crawl:incomingemail')->dailyAt('05:00');
+        $schedule->command('process:incomingemail')->dailyAt('05:15');
     }
 
     /**
