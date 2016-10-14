@@ -164,7 +164,7 @@ class CrawlCylanceDevices extends Command
             $i += 50;       // Increase i by PAGESIZE!
             $page++;        // Increase the page number
 
-            sleep(1);       // wait a second before hammering on their webserver again
+            //sleep(1);       // wait a second before hammering on their webserver again
         } while ($i < $count);
 
         // Pop off empty array element
