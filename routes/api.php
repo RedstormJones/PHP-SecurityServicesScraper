@@ -25,7 +25,7 @@ Route::get('/user', function (Request $request) {
 $api->version('v1', function ($api) {
 
     // Authenticate returns a JWT upon success to authenticate additional API calls.
-    /**
+    /*
      * @SWG\Get(
      *     path="/telephony/api/authenticate",
      *     tags={"Authentication"},
@@ -38,7 +38,7 @@ $api->version('v1', function ($api) {
      * )
      **/
     $api->get('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
-    /**
+    /*
      * @SWG\Post(
      *     path="/telephony/api/authenticate",
      *     tags={"Authentication"},
@@ -65,6 +65,4 @@ $api->version('v1', function ($api) {
      * )
      **/
     $api->post('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
-
-
 });
