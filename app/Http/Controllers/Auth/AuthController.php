@@ -9,20 +9,21 @@
  * enterprise directory integrated single-sign-on
  *
  * @category  default
+ *
  * @author    Metaclassing <Metaclassing@SecureObscure.com>
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
 namespace App\Http\Controllers\Auth;
 
-use App\User;
-use Validator;
 use App\Http\Controllers\Controller;
-//use Illuminate\Foundation\Auth\ThrottlesLogins;
+use App\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-// added by 3
+//use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\Request;
+// added by 3
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Validator;
 
 class AuthController extends Controller
 {
@@ -64,7 +65,7 @@ class AuthController extends Controller
     {
         $error = '';
         // Only authenticate users based on CERTIFICATE info passed from webserver
-        if($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
+        if ($_SERVER['SSL_CLIENT_VERIFY'] == 'SUCCESS') {
             try {
                 return $this->goodauth($this->certauth());
             } catch (\Exception $e) {
@@ -86,7 +87,7 @@ class AuthController extends Controller
     protected function certauth()
     {
         // Make sure we got a client certificate from the web server
-        if (! $_SERVER['SSL_CLIENT_CERT']) {
+        if (!$_SERVER['SSL_CLIENT_CERT']) {
             throw new \Exception('TLS client certificate missing');
         }
         // try to parse the certificate we got
@@ -96,7 +97,7 @@ class AuthController extends Controller
         $cert = $x509->loadX509($asciicert);
         $cnarray = \Metaclassing\Utility::recursiveArrayTypeValueSearch($x509->getDN(), 'id-at-commonName');
         $cn = reset($cnarray);
-        if (! $cn) {
+        if (!$cn) {
             throw new \Exception('Authentication failure, could not extract CN from TLS client certificate');
         }
         $dnparts = $x509->getDN();
@@ -129,14 +130,14 @@ class AuthController extends Controller
 
     protected function ldapauth(Request $request)
     {
-        if (! $request->has('username') || ! $request->has('password')) {
+        if (!$request->has('username') || !$request->has('password')) {
             throw new \Exception('Missing username or password');
         }
         $username = $request->input('username');
         $password = $request->input('password');
         //print "Auth testing for {$username} / {$password}\n";
         $this->ldapinit();
-        if (! $this->ldap->authenticate($username, $password)) {
+        if (!$this->ldap->authenticate($username, $password)) {
             throw new \Exception('LDAP authentication failure');
         }
         // get the username and DN and return them in the data array
@@ -181,7 +182,7 @@ class AuthController extends Controller
         $credentials = ['dn' => $data['dn'], 'password' => ''];
         try {
             // This should NEVER fail.
-            if (! $token = JWTAuth::attempt($credentials)) {
+            if (!$token = JWTAuth::attempt($credentials)) {
                 abort(401, 'JWT Authentication failure');
             }
         } catch (JWTException $e) {
@@ -201,7 +202,7 @@ class AuthController extends Controller
 
     protected function ldapinit()
     {
-        if (! $this->ldap) {
+        if (!$this->ldap) {
             // Load the ldap library that pre-dates autoloaders
             require_once base_path().'/vendor/adldap/adldap/src/adLDAP.php';
             try {
@@ -276,7 +277,8 @@ class AuthController extends Controller
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
+     * @param array $data
+     *
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
@@ -291,7 +293,8 @@ class AuthController extends Controller
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
+     * @param array $data
+     *
      * @return User
      */
     protected function create(array $data)

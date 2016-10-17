@@ -1,4 +1,5 @@
 <?php
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -179,7 +180,7 @@ return [
     |
     */
     'defaultFormat' => env('API_DEFAULT_FORMAT', 'json'),
-    'formats' => [
+    'formats'       => [
         'json' => Dingo\Api\Http\Response\Format\Json::class,
     ],
 ];
