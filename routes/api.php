@@ -68,7 +68,6 @@ $api->version('v1', function ($api) {
 
     // Get your user info.
     $api->get('userinfo', 'App\Http\Controllers\Auth\AuthController@userinfo');
-
 });
 
 

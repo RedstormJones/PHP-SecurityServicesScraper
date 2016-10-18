@@ -1,9 +1,8 @@
 <?php
 
-use Silber\Bouncer\Database\Models;
-
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Silber\Bouncer\Database\Models;
 
 class CreateBouncerTables extends Migration
 {
