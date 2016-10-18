@@ -3,8 +3,8 @@
 namespace App;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Silber\Bouncer\Database\HasRolesAndAbilities;
 use Illuminate\Notifications\Notifiable;
+use Silber\Bouncer\Database\HasRolesAndAbilities;
 
 class User extends Authenticatable implements \Tymon\JWTAuth\Contracts\JWTSubject
 {
@@ -33,7 +33,6 @@ class User extends Authenticatable implements \Tymon\JWTAuth\Contracts\JWTSubjec
         'password', 'remember_token',
     ];
 
-
     public function getJWTIdentifier()
     {
         return $this->getKey(); // Eloquent model method
@@ -43,5 +42,4 @@ class User extends Authenticatable implements \Tymon\JWTAuth\Contracts\JWTSubjec
     {
         return [];
     }
-
 }
