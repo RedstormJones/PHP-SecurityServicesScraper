@@ -18,7 +18,8 @@
         "adldap/adldap": "4.0.4.x-dev",
         "phpseclib/phpseclib": "^2.0",
         "tymon/jwt-auth": "^1.0",
-        "silber/bouncer": "^1.0"
+        "silber/bouncer": "^1.0",
+        "doctrine/dbal": "^2.5"
     },
     "minimum-stability": "dev",
     "require-dev": {

@@ -14,7 +14,7 @@
         return service;
 
         function Login(username, password, callback) {
-            $http.post('../api/authenticate', { username: username, password: password })                               // *** Point the Authenticate URL to your API Location****
+            $http.post('../api/authenticate', { username: username, password: password })      // *** Point the Authenticate URL to your API Location****
                 .success(function (response) {
                     // login successful if there's a token in the response
                     if (response.token) {

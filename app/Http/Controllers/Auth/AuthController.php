@@ -46,7 +46,7 @@ class AuthController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/';
     private $ldap = 0;
 
     /**
@@ -133,13 +133,17 @@ class AuthController extends Controller
         if (!$request->has('username') || !$request->has('password')) {
             throw new \Exception('Missing username or password');
         }
+
         $username = $request->input('username');
         $password = $request->input('password');
-        //print "Auth testing for {$username} / {$password}\n";
+        print "Auth testing for {$username} / {$password}\n";
+
         $this->ldapinit();
-        if (!$this->ldap->authenticate($username, $password)) {
+
+                                        if (!$this->ldap->authenticate($username, $password)) {
             throw new \Exception('LDAP authentication failure');
         }
+
         // get the username and DN and return them in the data array
         $ldapuser = $this->ldap->user()->info($username, ['*'])[0];
 

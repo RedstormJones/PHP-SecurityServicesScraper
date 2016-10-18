@@ -7,9 +7,9 @@
         .controller('Login.IndexController', controller);
 
     function controller ($location, AuthenticationService) {
-        var loginController = this;
+        var LoginController = this;
 
-        loginController.login = login;
+        LoginController.login = login;
 
         initController();
 
@@ -19,26 +19,26 @@
         };
 
         function login() {
-            loginController.loading = true;
+            LoginController.loading = true;
 
-            AuthenticationService.Login(loginController.username, loginController.password, function (result) {
+            AuthenticationService.Login(LoginController.username, LoginController.password, function (result) {
                 if (result === true) {
                     $location.path('/home');
                 } else {
-                    loginController.error = 'Username or password is incorrect';
-                    loginController.loading = false;
+                    LoginController.error = 'Username or password is incorrect';
+                    LoginController.loading = false;
                 }
              });
         };
 
         // attempt to auto-authenticate
-        loginController.loading = true;
+        LoginController.loading = true;
         AuthenticationService.Login('', '', function (result){
             if (result === true) {
                 $location.path('/home');
             } else {
-                loginController.error = 'Automatic certificate authentication failed, please login with LDAP credentials';
-                loginController.loading = false;
+                LoginController.error = 'Automatic certificate authentication failed, please login with LDAP credentials';
+                LoginController.loading = false;
             }
         });
 

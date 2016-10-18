@@ -188,6 +188,11 @@ return [
         */
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
 
+        /*
+        * Bouncer for user authorization
+        */
+        Silber\Bouncer\BouncerServiceProvider::class,
+
     ],
 
     /*
@@ -239,6 +244,8 @@ return [
         'JWTAuth'    => Tymon\JWTAuth\Facades\JWTAuth::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
 
+        // Bouncer user authorization
+        'Bouncer'   => Silber\Bouncer\BouncerFacade::class,
     ],
 
 ];

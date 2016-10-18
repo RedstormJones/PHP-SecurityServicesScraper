@@ -65,4 +65,11 @@ $api->version('v1', function ($api) {
      * )
      **/
     $api->post('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
+
+    // Get your user info.
+    $api->get('userinfo', 'App\Http\Controllers\Auth\AuthController@userinfo');
+
 });
+
+
+Route::auth();
