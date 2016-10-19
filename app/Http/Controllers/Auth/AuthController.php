@@ -136,7 +136,7 @@ class AuthController extends Controller
 
         $username = $request->input('username');
         $password = $request->input('password');
-        echo "Auth testing for {$username} / {$password}\n";
+        //echo "Auth testing for {$username} / {$password}\n";
 
         $this->ldapinit();
 

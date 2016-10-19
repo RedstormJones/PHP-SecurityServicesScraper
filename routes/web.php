@@ -13,7 +13,7 @@
 
 Route::get('/', function () {
     //return view('welcome');
-    return redirect('angular');
+    return redirect('ui');
 });
 
 
