@@ -72,7 +72,7 @@ class ProcessIncomingEmail extends Command
             $new_email->save();
         }
 
-        //$this->processDeletes();
+        $this->processDeletes();
     }
 
     /**
@@ -83,13 +83,15 @@ class ProcessIncomingEmail extends Command
     public function processDeletes()
     {
         $today = new \DateTime('now');
-        $yesterday = $today->modify('-1 day');
+        $yesterday = $today->modify('-3 months');
         $delete_date = $yesterday->format('Y-m-d H:i:s');
 
-        $incomingemails = IncomingEmail::where('updated_at', '<=', $delete_date)->get();
+        // get collection of incoming email models that are older than 90 days
+        $incomingemails = IncomingEmail::where('updated_at', '<', $delete_date)->get();
 
+        // cycle through the models in the returned collection and soft delete them
         foreach ($incomingemails as $email) {
-            echo 'deleting email: '.$email->id.PHP_EOL;
+            echo 'deleting email record: '.$email->id.PHP_EOL;
             $email->delete();
         }
     }
