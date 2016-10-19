@@ -30,9 +30,15 @@
                 templateUrl: 'login/login.view.html',
                 controller: 'Login.IndexController',
                 controllerAs: 'LoginController',
+            })
+            .state('dashboard', {
+                url: '/dashboard',
+                templateUrl: 'dashboard/dashboard.view.html',
+                controller: 'Dashboard.IndexController',
+                controllerAs: 'DashboardController',
             });
 
-    }   // end of function config()
+    };   // end of function config()
 
     function run($rootScope, $http, $location, $localStorage, jwtHelper){
 

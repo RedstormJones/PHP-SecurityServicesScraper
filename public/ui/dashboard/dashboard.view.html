@@ -1,0 +1,29 @@
+<div class="container">
+
+    <div ng-if="DashboardController.username">
+
+        <h3>Logged in as: {{DashboardController.username}}</h3>
+
+        <div ng-if="DashboardController.photo">
+
+            <img style="background-repeat: no-repeat; background-position: 50%; border-radius: 50%; width: 80px; height: 95px;" class="pull-right" src="data:image/png;base64,{{DashboardController.photo}}">
+
+        </div>
+
+    </div>
+
+
+    <div style="margin-top: 10px"></div>
+
+
+    <div class="jumbotron">
+
+        <h2 style="-webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(255, 255, 255, 0.05)));}">Kiewit Security Dashboard</h2>
+
+        <div style="margin-top: -15px"></div>
+        <hr>
+        <div style="margin-top: 50px"></div>
+
+    </div>
+
+</div>

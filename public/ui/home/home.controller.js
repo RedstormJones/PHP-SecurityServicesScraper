@@ -8,25 +8,27 @@
 
 
     function controller ($location, UserService) {
-        var homeController = this;
+        var HomeController = this;
 
 
         initController();
 
-        homeController.messages = 'Loading user info...';
-        homeController.userinfo = {};
+        HomeController.messages = 'Loading user info...';
+        HomeController.userinfo = {};
 
         function initController() {
 
             UserService.Getuserinfo(function (result) {
                 console.log('callback from UserService.userinfo responded ' + result);
 
-                homeController.userinfo = UserService.userinfo;
-                homeController.username = homeController.userinfo.cn[0];
-                homeController.title = homeController.userinfo.title[0];
-                homeController.photo = homeController.userinfo.thumbnailphoto[0];
+                HomeController.userinfo = UserService.userinfo;
+                HomeController.username = HomeController.userinfo.cn[0];
+                HomeController.title = HomeController.userinfo.title[0];
+                HomeController.photo = HomeController.userinfo.thumbnailphoto[0];
+                HomeController.company = HomeController.userinfo.company[0];
+                HomeController.department = HomeController.userinfo.department[0];
 
-                homeController.messages = JSON.stringify(homeController.userinfo, null, "    ");
+                HomeController.messages = JSON.stringify(HomeController.userinfo, null, "    ");
 
             });
 

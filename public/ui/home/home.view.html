@@ -1,10 +1,11 @@
 <div class="container">
         <div ng-if="HomeController.username">
         <!-- Populate User info if avaible -->
-            <h3 >Welcome {{HomeController.username}}<br>  
+            <h3>Welcome {{HomeController.username}}</h3>
             <h5>{{HomeController.title}}</h5>
+            <h5>{{HomeController.company}}  {{HomeController.department}}</h5>
             <div ng-if="HomeController.photo">
-                <img style="background-repeat: no-repeat; background-position: 50%; border-radius: 50%; width: 80px; height: 95px;" class="pull-right"src=data:image/png;base64,{{HomeController.photo}}></h3>
+                <img style="background-repeat: no-repeat; background-position: 50%; border-radius: 50%; width: 80px; height: 95px;" class="pull-right" src="data:image/png;base64,{{HomeController.photo}}">
             </div>
         </div>
         
@@ -14,10 +15,14 @@
 
     <div class="jumbotron">
 
-        <h1 style="-webkit-box-reflect: below 10px -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(255, 255, 255, 0.05)));}">Homepage</h1>
+        <h2 style="-webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(255, 255, 255, 0.05)));}">Homepage</h2>
         <div style="margin-top: -15px"></div>   
         <hr>
         <div style="margin-top: 50px"></div>
+
+        <!--
+        <h3 style="-webkit-box-reflect: below 10px -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(255, 255, 255, 0.05)));}"><a href="#/dashboard">Main Dashboard</a></h3>
+        -->
     
         
         <!--Include Company Splash Page Content Here-->

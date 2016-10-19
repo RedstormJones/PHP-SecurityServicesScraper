@@ -43,6 +43,6 @@
         });
 
 
-    }   // end of function controller()
+    };   // end of function controller()
 
 })();
