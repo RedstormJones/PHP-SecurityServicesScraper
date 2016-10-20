@@ -1,17 +1,23 @@
+
 <div class="container">
-        <div ng-if="HomeController.username">
+
+    <!-- include navbar -->
+    <!-- <ng-include src="'../app_content/navbar.html'"></ng-include> -->
+
+    <div ng-if="HomeController.username">
+    
         <!-- Populate User info if avaible -->
-            <h3>Welcome {{HomeController.username}}</h3>
-            <h5>{{HomeController.title}}</h5>
-            <h5>{{HomeController.company}}  {{HomeController.department}}</h5>
-            <div ng-if="HomeController.photo">
-                <img style="background-repeat: no-repeat; background-position: 50%; border-radius: 50%; width: 80px; height: 95px;" class="pull-right" src="data:image/png;base64,{{HomeController.photo}}">
-            </div>
+        <h3>Welcome, {{HomeController.username}}</h3>
+        <h5>{{HomeController.title}}</h5>
+        <h5>{{HomeController.company}}  {{HomeController.department}}</h5>
+
+        <div ng-if="HomeController.photo">
+            <img style="background-repeat: no-repeat; background-position: 50%; border-radius: 50%; width: 80px; height: 95px;" class="pull-right" src="data:image/png;base64,{{HomeController.photo}}">
         </div>
+
+    </div>
         
-        <div style="margin-top: 10px"></div>
-        
-        <p><a href="#/login">Logout</a></p>
+    <div style="margin-top: 10px"></div>
 
     <div class="jumbotron">
 
@@ -28,8 +34,7 @@
         <!--Include Company Splash Page Content Here-->
         <!-- <ng-include src="'company-content/splashpage.html'"></ng-include> -->
         
-        <div style="margin-top: 50px"></div>
-        
+        <div style="margin-top: 50px"></div>        
         
     </div>
 

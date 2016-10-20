@@ -17,9 +17,6 @@
             <!-- Add Link to Company Logo -->
             <!-- <a class="navbar-brand" href="#"><ng-include src="'company-content/logo.html'"></ng-include></a> -->
 
-            <li><a href="#/home">Homepage</a></li>
-            <li><a href="#/dashboard">Main Dashboard</a></li>
-
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -27,7 +24,8 @@
 
             <ul class="nav navbar-nav">
 
-                &nbsp;
+                <li><a href="#/home">Homepage</a></li>
+                <li><a href="#/dashboard">Main Dashboard</a></li>
 
                 <!--
                 <li class="dropdown">
@@ -43,7 +41,7 @@
             <ul class="nav navbar-nav navbar-right">
 
                 <div style="margin-top: 10px"></div>
-                <p><a href="#/login">Logout</a></p>
+                <li><a href="#/login">Logout</a></li>
 
             <!--
             <li><a href="#">Link</a></li>
@@ -62,7 +60,7 @@
             <!---
             <li>
                 <div ng-controller="Home.IndexController as vm">
-                    <p class="navbar-text" ng-if="vm.username">Signed in as {{vm.username}}</p>
+                    <p class="navbar-text" ng-if="vm.username">Hello, {{vm.username}}</p>
                 </div>
             </li>
             -->
