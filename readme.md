@@ -1,6 +1,6 @@
 # PHP-SecurityServicesScraper
 
-PHP-SecurityServicesScraper is a data collection and metrics reporting application aimed at solving data centralization and transparency issues that occur from having multiple, indepedent security tools deployed through an environment. 
+PHP-SecurityServicesScraper is a data collection and metrics reporting application aimed at solving data centralization and transparency issues that occur from having multiple, indepedent security tools deployed throughout an environment. 
 
 Data collection is either performed by a web crawler or an API client, depending on what the security tool has to offer. The crawlers authenticate and format requests to their tool to collect and dump various sets of data to file. 
 
