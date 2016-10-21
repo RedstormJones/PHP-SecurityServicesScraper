@@ -54,8 +54,7 @@ class CrawlSiteSubnets extends Command
 
         $collection = [];
 
-        foreach($site_subnets as $site_subnet)
-        {
+        foreach ($site_subnets as $site_subnet) {
             $data = [];
 
             $pieces = explode(',', $site_subnet);
@@ -63,10 +62,10 @@ class CrawlSiteSubnets extends Command
 
             echo 'found subnet for site: '.$pieces[1].PHP_EOL;
 
-            $data['ip_prefix']  = trim($pieces[0]);
-            $data['site']       = trim($pieces[1]);
+            $data['ip_prefix'] = trim($pieces[0]);
+            $data['site'] = trim($pieces[1]);
             $data['ip_address'] = trim($ip_pieces[0]);
-            $data['netmask']    = trim($ip_pieces[1]);
+            $data['netmask'] = trim($ip_pieces[1]);
 
             $collection[] = $data;
         }
