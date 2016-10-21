@@ -31,6 +31,7 @@ class Kernel extends ConsoleKernel
         Commands\CrawlSecurityCenterVulns::class,
         Commands\CrawlSecurityCenterAssetVulns::class,
         Commands\CrawlPhishMeScenarios::class,
+        Commands\CrawlSiteSubnets::class,
     ];
 
     /**
