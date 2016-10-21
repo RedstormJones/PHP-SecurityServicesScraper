@@ -20,5 +20,4 @@ class SiteSubnet extends Model
         'site',
         'data',
     ];
-
 }
