@@ -27,7 +27,7 @@ $api->version('v1', function ($api) {
     // Authenticate returns a JWT upon success to authenticate additional API calls.
     /*
      * @SWG\Get(
-     *     path="/telephony/api/authenticate",
+     *     path="/api/authenticate",
      *     tags={"Authentication"},
      *     summary="Get JSON web token by TLS client certificate authentication",
      *     @SWG\Response(
@@ -40,7 +40,7 @@ $api->version('v1', function ($api) {
     $api->get('authenticate', 'App\Http\Controllers\Auth\AuthController@authenticate');
     /*
      * @SWG\Post(
-     *     path="/telephony/api/authenticate",
+     *     path="/api/authenticate",
      *     tags={"Authentication"},
      *     summary="Get JSON web token by LDAP user authentication",
      *     @SWG\Parameter(
