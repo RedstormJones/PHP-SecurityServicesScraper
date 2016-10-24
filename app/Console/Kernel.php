@@ -24,6 +24,8 @@ class Kernel extends ConsoleKernel
         Commands\ProcessSecurityCenterAssetVulns::class,
         Commands\ProcessPhishMeScenarios::class,
         Commands\ProcessSiteSubnets::class,
+        Commands\ProcessInsideHostTrafficSnapshots::class,
+        Commands\ProcessOutsideHostTrafficSnapshots::class,
         Commands\CrawlCylanceDevices::class,
         Commands\CrawlCylanceThreats::class,
         Commands\CrawlIncomingEmails::class,
@@ -33,6 +35,8 @@ class Kernel extends ConsoleKernel
         Commands\CrawlSecurityCenterAssetVulns::class,
         Commands\CrawlPhishMeScenarios::class,
         Commands\CrawlSiteSubnets::class,
+        Commands\CrawlInsideHostTrafficSnapshots::class,
+        Commands\CrawlOutsideHostTrafficSnapshots::class,
     ];
 
     /**
@@ -76,6 +80,14 @@ class Kernel extends ConsoleKernel
         $schedule->command('process:cylancethreats')->dailyAt('04:00');
         $schedule->command('crawl:incomingemail')->dailyAt('05:00');
         $schedule->command('process:incomingemail')->dailyAt('05:15');
+
+        /*
+        * Commands run multiple times a day
+        */
+        $schedule->command('crawl:insidehosttrafficsnapshots')->twiceDaily(6,12);    // runs twice every day at 6:00am and 12:00pm
+        $schedule->command('process:insidehosttrafficsnapshots')->twiceDaily(7,13);  // runs twice every day at 7:00am and 1:00pm
+        $schedule->command('crawl:outsidehosttrafficsnapshots')->twiceDaily(8,14);   // runs twice every day at 8:00am and 2:00pm
+        $schedule->command('process:outsidehosttrafficsnapshots')->twiceDaily(9,15); // runs twice every day at 9:00am and 3:00pm
     }
 
     /**
