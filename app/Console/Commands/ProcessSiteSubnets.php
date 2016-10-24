@@ -40,24 +40,19 @@ class ProcessSiteSubnets extends Command
     {
         $site_subnets = SiteSubnet::all();
 
-        if(!$site_subnets->isEmpty())
-        {
-            foreach($site_subnets as $site_subnet)
-            {
+        if (!$site_subnets->isEmpty()) {
+            foreach ($site_subnets as $site_subnet) {
                 echo 'deleting record for '.$site_subnet->site.' with id '.$site_subnet->id.PHP_EOL;
                 $site_subnet->delete();
             }
-        }
-        else
-        {
+        } else {
             echo 'site subnet collection came back empty'.PHP_EOL;
         }
 
         $contents = file_get_contents(storage_path('app/collections/subnet_collection.json'));
         $new_site_subnets = \Metaclassing\Utility::decodeJson($contents);
 
-        foreach($new_site_subnets as $site_subnet)
-        {
+        foreach ($new_site_subnets as $site_subnet) {
             echo 'creating new record for '.$site_subnet['site'].' with prefix of '.$site_subnet['ip_prefix'].PHP_EOL;
             $site = new SiteSubnet();
 
@@ -69,6 +64,5 @@ class ProcessSiteSubnets extends Command
 
             $site->save();
         }
-
     }
 }
