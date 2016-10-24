@@ -50,8 +50,8 @@ class CrawlInsideHostTrafficSnapshots extends Command
 
         // put authentication data together
         $post = [
-            'j_username'    =>  getenv('LANCOPE_USERNAME'),
-            'j_password'    =>  getenv('LANCOPE_PASSWORD'),
+            'j_username'    => getenv('LANCOPE_USERNAME'),
+            'j_password'    => getenv('LANCOPE_PASSWORD'),
         ];
 
         // post authentication data to service, capture response and dump to file
@@ -76,8 +76,7 @@ class CrawlInsideHostTrafficSnapshots extends Command
         $replace_regex = '/T/';
 
         // cycle through response array
-        foreach($response_arr as $response)
-        {
+        foreach ($response_arr as $response) {
             // grab the data we care about and the time period value
             $app_dashboard = $response['applicationTrafficPerApplication'];
             $timePeriod = $response['timePeriod'];
@@ -87,8 +86,7 @@ class CrawlInsideHostTrafficSnapshots extends Command
             $time_period = preg_replace($replace_regex, ' ', $hits[1]);
 
             // cycle through data and build collections array
-            foreach($app_dashboard as $app)
-            {
+            foreach ($app_dashboard as $app) {
                 $app['timePeriod'] = $time_period;
                 $app_dashboard_collection[] = $app;
             }
@@ -99,14 +97,15 @@ class CrawlInsideHostTrafficSnapshots extends Command
 
         // JSON encode and dump collection to file
         file_put_contents(storage_path('app/collections/insidehost_apptraffic.json'), \Metaclassing\Utility::encodeJson($app_dashboard_collection));
-    }   // end of function handle()
+    }
 
+   // end of function handle()
 
     /**
-    * Function to convert post information from an assoc array to a string.
-    *
-    * @return string
-    */
+     * Function to convert post information from an assoc array to a string.
+     *
+     * @return string
+     */
     public function postArrayToString($post)
     {
         $postarray = [];
@@ -118,6 +117,7 @@ class CrawlInsideHostTrafficSnapshots extends Command
         $poststring = implode('&', $postarray);
 
         return $poststring;
-    }   // end of function postArrayToString()
+    }
 
+   // end of function postArrayToString()
 }   // end of command class CrawlInsideHostTrafficSnapshots

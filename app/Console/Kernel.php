@@ -84,10 +84,10 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run multiple times a day
         */
-        $schedule->command('crawl:insidehosttrafficsnapshots')->twiceDaily(6,12);    // runs twice every day at 6:00am and 12:00pm
-        $schedule->command('process:insidehosttrafficsnapshots')->twiceDaily(7,13);  // runs twice every day at 7:00am and 1:00pm
-        $schedule->command('crawl:outsidehosttrafficsnapshots')->twiceDaily(8,14);   // runs twice every day at 8:00am and 2:00pm
-        $schedule->command('process:outsidehosttrafficsnapshots')->twiceDaily(9,15); // runs twice every day at 9:00am and 3:00pm
+        $schedule->command('crawl:insidehosttrafficsnapshots')->twiceDaily(6, 12);    // runs twice every day at 6:00am and 12:00pm
+        $schedule->command('process:insidehosttrafficsnapshots')->twiceDaily(7, 13);  // runs twice every day at 7:00am and 1:00pm
+        $schedule->command('crawl:outsidehosttrafficsnapshots')->twiceDaily(8, 14);   // runs twice every day at 8:00am and 2:00pm
+        $schedule->command('process:outsidehosttrafficsnapshots')->twiceDaily(9, 15); // runs twice every day at 9:00am and 3:00pm
     }
 
     /**
