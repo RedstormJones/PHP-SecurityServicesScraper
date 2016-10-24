@@ -14,10 +14,10 @@ class InsideHostTrafficSnapshot extends Model
     protected $dates = ['deleted_at'];
 
     /**
-    * The attributes that are mass assignable
-    *
-    * @var array
-    */
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'application_id',
         'application_name',

@@ -41,8 +41,7 @@ class ProcessOutsideHostTrafficSnapshots extends Command
         $contents = file_get_contents(storage_path('app/collections/outsidehost_apptraffic.json'));
         $apptraffic = \Metaclassing\Utility::decodeJson($contents);
 
-        foreach($apptraffic as $app)
-        {
+        foreach ($apptraffic as $app) {
             echo 'creating new record for '.$app['applicationName'].' during '.$app['timePeriod'].PHP_EOL;
             $snapshot = new OutsideHostTrafficSnapshot();
 
@@ -61,10 +60,10 @@ class ProcessOutsideHostTrafficSnapshots extends Command
     }
 
     /**
-    * Function to process softdeletes on application traffic snapshots
-    *
-    * @return void
-    */
+     * Function to process softdeletes on application traffic snapshots.
+     *
+     * @return void
+     */
     public function processDeletes()
     {
         $today = new \DateTime('now');
@@ -73,11 +72,11 @@ class ProcessOutsideHostTrafficSnapshots extends Command
 
         $apptraffic_snapshots = OutsideHostTrafficSnapshot::where('updated_at', '<', $delete_date)->get();
 
-        foreach($apptraffic_snapshots as $snapshot)
-        {
+        foreach ($apptraffic_snapshots as $snapshot) {
             echo 'deleting record for '.$snapshot->application_name.' during time period '.$snapshot->time_period.PHP_EOL;
             $snapshot->delete();
         }
-    }   // end of function processDeletes()
+    }
 
+   // end of function processDeletes()
 }

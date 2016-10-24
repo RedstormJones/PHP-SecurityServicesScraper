@@ -22,5 +22,4 @@ class OutsideHostTrafficSnapshot extends Model
         'traffic_within_Bps',
         'data',
     ];
-
 }
