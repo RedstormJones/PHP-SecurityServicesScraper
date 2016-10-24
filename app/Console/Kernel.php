@@ -23,6 +23,7 @@ class Kernel extends ConsoleKernel
         Commands\ProcessSecurityCenterMediums::class,
         Commands\ProcessSecurityCenterAssetVulns::class,
         Commands\ProcessPhishMeScenarios::class,
+        Commands\ProcessSiteSubnets::class,
         Commands\CrawlCylanceDevices::class,
         Commands\CrawlCylanceThreats::class,
         Commands\CrawlIncomingEmails::class,
@@ -47,19 +48,22 @@ class Kernel extends ConsoleKernel
         * Commands run on monthly schedule
         */
         $schedule->command('crawl:ironportthreats')->monthlyOn(1, '21:00');     // runs every month on the 1st at 09:00pm
-        $schedule->command('process:ironportthreats')->monthlyOn(1, '21:30');    // runs every month on the 1st at 09:30pm
+        $schedule->command('process:ironportthreats')->monthlyOn(1, '21:30');   // runs every month on the 1st at 09:30pm
         $schedule->command('crawl:phishmescenarios')->monthlyOn(1, '22:30');    // runs every month on the 1st at 10:30pm
-        $schedule->command('process:phishmescenarios')->monthlyOn(1, '23:00');    // runs every month on the 1st at 11:00pm
+        $schedule->command('process:phishmescenarios')->monthlyOn(1, '23:00');  // runs every month on the 1st at 11:00pm
 
         /*
         * Commands run on weekly schedule
         */
-        $schedule->command('crawl:securitycenterassetvulns')->weekly()->thursdays()->at('17:30');
-        $schedule->command('process:securitycenterassetvulns')->weekly()->thursdays()->at('17:45');
-        $schedule->command('crawl:securitycentervulns')->weekly()->thursdays()->at('18:00');
-        $schedule->command('process:securitycentercriticals')->weekly()->thursdays()->at('18:15');
-        $schedule->command('process:securitycenterhighs')->weekly()->thursdays()->at('19:30');
-        $schedule->command('process:securitycentermediums')->weekly()->thursdays()->at('21:00');
+        $schedule->command('crawl:securitycenterassetvulns')->weekly()->thursdays()->at('17:30');   // runs weekly on Thursdays at 5:30pm
+        $schedule->command('process:securitycenterassetvulns')->weekly()->thursdays()->at('17:45'); // runs weekly on Thursdays at 5:45pm
+        $schedule->command('crawl:securitycentervulns')->weekly()->thursdays()->at('18:00');        // runs weekly on Thursdays at 6:00pm
+        $schedule->command('process:securitycentercriticals')->weekly()->thursdays()->at('18:15');  // runs weekly on Thursdays at 6:15pm
+        $schedule->command('process:securitycenterhighs')->weekly()->thursdays()->at('19:30');      // runs weekly on Thursdays at 7:30pm
+        $schedule->command('process:securitycentermediums')->weekly()->thursdays()->at('21:00');    // runs weekly on Thursdays at 9:00pm
+
+        $schedule->command('crawl:sitesubnets')->weekly()->fridays()->at('22:00');      // runs weekly on Fridays at 10:00pm
+        $schedule->command('process:sitesubnets')->weekly()->fridays()->at('22:15');    // runs weekly on Fridays at 10:15pm
 
         /*
         * Commands run on daily schedule
