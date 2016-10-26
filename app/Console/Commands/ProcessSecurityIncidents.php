@@ -45,14 +45,12 @@ class ProcessSecurityIncidents extends Command
         $security_incidents = \Metaclassing\Utility::decodeJson($contents);
 
         // cycle through security incidents and add the new ones
-        foreach($security_incidents as $incident)
-        {
+        foreach ($security_incidents as $incident) {
             // try to find existing record with matching sys_id
             $exists = ServiceNowIncident::where('sys_id', $incident['sys_id'])->value('id');
 
             // if the incident already exists give it an update and a touch and move on
-            if($exists)
-            {
+            if ($exists) {
                 // handle null values
                 $closed_at = $this->handleNull($incident['closed_at']);
                 $updated_on = $this->handleNull($incident['sys_updated_on']);
@@ -82,16 +80,14 @@ class ProcessSecurityIncidents extends Command
                     'reassignment_count'    => $incident['reassignment_count'],
                     'calendar_duration'     => $incident['calendar_duration'],
                     'escalation'            => $incident['escalation'],
-                    'modified_count'        => $incident['sys_mod_count']
+                    'modified_count'        => $incident['sys_mod_count'],
                 ]);
 
                 // touch incident model to update the 'updated_at' timestamp in case nothing was changed
                 $incidentmodel->touch();
 
                 echo 'incident already exists: '.$incident['number'].PHP_EOL;
-            }
-            else
-            {
+            } else {
                 // otherwise, create a new security incident record
                 echo 'creating new security incident: '.$incident['number'].PHP_EOL;
 
@@ -225,41 +221,41 @@ class ProcessSecurityIncidents extends Command
                 $new_incident->save();
             }   // end of if/else
         }   // end of foreach
-    }   // end of function handle()
+    }
+
+   // end of function handle()
 
     /**
-    * Function to handle null values
-    *
-    * @return array
-    */
+     * Function to handle null values.
+     *
+     * @return array
+     */
     public function handleNull($data)
     {
         // if data is not null then check if 'display_value' is set
-        if($data)
-        {
+        if ($data) {
             // if 'display_value' is set then just return data
-            if(isset($data['display_value']))
-            {
+            if (isset($data['display_value'])) {
                 return $data;
-            }
-            else
-            {
+            } else {
                 /*
                 * otherwise we're dealing with a date string, so create a variable
                 * and set the key 'display_value' to the date string
                 */
                 $some_date['display_value'] = $data;
+
                 return $some_date;
             }
-        }
-        else
-        {
+        } else {
             /*
             * otherwise if data is null then create and set the key
             * 'display_value' to the literal string 'null' and return it
             */
             $data['display_value'] = 'null';
+
             return $data;
         }
-    }   // end of function handleNull()
+    }
+
+   // end of function handleNull()
 }   // end of ProcessSecurityIncidents command class

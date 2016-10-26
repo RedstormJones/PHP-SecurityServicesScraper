@@ -50,6 +50,6 @@ class ServiceNowIncident extends Model
         'opened_by',
         'escalation',
         'modified_count',
-        'data'
+        'data',
     ];
 }
