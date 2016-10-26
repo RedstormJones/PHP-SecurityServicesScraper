@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
         Commands\ProcessSiteSubnets::class,
         Commands\ProcessInsideHostTrafficSnapshots::class,
         Commands\ProcessOutsideHostTrafficSnapshots::class,
+        Commands\ProcessSecurityIncidents::class,
         Commands\CrawlCylanceDevices::class,
         Commands\CrawlCylanceThreats::class,
         Commands\CrawlIncomingEmails::class,
@@ -37,6 +38,7 @@ class Kernel extends ConsoleKernel
         Commands\CrawlSiteSubnets::class,
         Commands\CrawlInsideHostTrafficSnapshots::class,
         Commands\CrawlOutsideHostTrafficSnapshots::class,
+        Commands\CrawlSecurityIncidents::class,
     ];
 
     /**
@@ -72,8 +74,10 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on daily schedule
         */
-        $schedule->command('crawl:spamemails')->dailyAt('10:30')->timezone('America/Chicago');
-        $schedule->command('process:spamemail')->dailyAt('11:00')->timezone('America/Chicago');
+        $schedule->command('crawl:securityincidents')->dailyAt('22:00')->timezone('America/Chicago');
+        $schedule->command('process:securityincidents')->dailyAt('22:15')->timezone('America/Chicago');
+        $schedule->command('crawl:spamemails')->dailyAt('22:30')->timezone('America/Chicago');
+        $schedule->command('process:spamemail')->dailyAt('23:00')->timezone('America/Chicago');
         $schedule->command('crawl:cylancedevices')->daily()->timezone('America/Chicago');                    // runs at midnight (00:00)
         $schedule->command('process:cylancedevices')->dailyAt('01:00')->timezone('America/Chicago');
         $schedule->command('crawl:cylancethreats')->dailyAt('03:30')->timezone('America/Chicago');
