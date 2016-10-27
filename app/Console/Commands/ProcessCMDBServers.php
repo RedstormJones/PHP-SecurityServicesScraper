@@ -158,9 +158,9 @@ class ProcessCMDBServers extends Command
                 $new_server->save();
             }
         }
-    }
 
-   // end of function handle()
+        $this->processDeletes();
+    }   // end of function handle()
 
     /**
      * Function to handle null values.
@@ -180,6 +180,26 @@ class ProcessCMDBServers extends Command
             $data['display_value'] = 'null';
 
             return $data;
+        }
+    }
+
+    /**
+     * Delete old CylanceDevice models.
+     *
+     * @return void
+     */
+    public function processDeletes()
+    {
+        $today = new \DateTime('now');
+        $yesterday = $today->modify('-1 day');
+        $delete_date = $yesterday->format('Y-m-d H:i:s');
+
+        $servers = cmdbServer::where('updated_at', '<', $delete_date)->get();
+
+        foreach($servers as $server)
+        {
+            echo 'deleting server: '.$server->name.PHP_EOL;
+            $server->delete();
         }
     }
 }
