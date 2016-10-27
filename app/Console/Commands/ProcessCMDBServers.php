@@ -160,7 +160,9 @@ class ProcessCMDBServers extends Command
         }
 
         $this->processDeletes();
-    }   // end of function handle()
+    }
+
+   // end of function handle()
 
     /**
      * Function to handle null values.
@@ -196,8 +198,7 @@ class ProcessCMDBServers extends Command
 
         $servers = cmdbServer::where('updated_at', '<', $delete_date)->get();
 
-        foreach($servers as $server)
-        {
+        foreach ($servers as $server) {
             echo 'deleting server: '.$server->name.PHP_EOL;
             $server->delete();
         }
