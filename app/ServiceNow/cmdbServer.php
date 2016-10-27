@@ -14,10 +14,10 @@ class cmdbServer extends Model
     protected $table = 'cmdb_servers';
 
     /**
-    * These are the fields that are mass assignable
-    *
-    * @var array
-    */
+     * These are the fields that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'cmdb_id',
         'name',
