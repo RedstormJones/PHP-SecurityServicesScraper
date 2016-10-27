@@ -42,12 +42,10 @@ class ProcessCMDBServers extends Command
 
         $cmdb_servers = \Metaclassing\Utility::decodeJson($contents);
 
-        foreach($cmdb_servers as $server)
-        {
+        foreach ($cmdb_servers as $server) {
             $exists = cmdbServer::where('cmdb_id', $server['sys_id'])->value('id');
 
-            if($exists)
-            {
+            if ($exists) {
                 $managed_by = $this->handleNull($server['managed_by']);
                 $owned_by = $this->handleNull($server['owned_by']);
                 $supported_by = $this->handleNull($server['supported_by']);
@@ -75,9 +73,7 @@ class ProcessCMDBServers extends Command
                 $servermodel->touch();
 
                 echo 'server already exists: '.$server['name'].PHP_EOL;
-            }
-            else
-            {
+            } else {
                 echo 'creating new server record: '.$server['name'].PHP_EOL;
 
                 $managed_by = $this->handleNull($server['managed_by']);
@@ -110,10 +106,10 @@ class ProcessCMDBServers extends Command
 
                 $new_server->save();
             }
-
         }
+    }
 
-    }   // end of function handle()
+   // end of function handle()
 
     /**
      * Function to handle null values.
@@ -123,17 +119,15 @@ class ProcessCMDBServers extends Command
     public function handleNull($data)
     {
         // if data is not null then just return it
-        if($data)
-        {
+        if ($data) {
             return $data;
-        }
-        else
-        {
+        } else {
             /*
             * otherwise, create and set the key 'display_vaue'
             * to the literal string 'null' and return it
             */
             $data['display_value'] = 'null';
+
             return $data;
         }
     }
