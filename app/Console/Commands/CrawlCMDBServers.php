@@ -46,12 +46,12 @@ class CrawlCMDBServers extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // point url to CMDB server list
-        $url = 'https:/'.'/kiewit.service-now.com/api/now/v1/table/cmdb?sysparm_display_value=true&sys_class_name=Server';
+        $url = 'https:/'.'/kiewit.service-now.com/api/now/v1/table/cmdb_ci_server?sysparm_display_value=true';
 
         // setup HTTP headers and add them to crawler
         $headers = [
             'accept: application/json',
-            'authorization: Basic T0RCQ1JlcG9ydDpPREJDUmVwb3J0',
+            'authorization: Basic '.getenv('SERVICENOW_AUTH'),
             'cache-control: no-cache',
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
