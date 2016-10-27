@@ -81,6 +81,7 @@ class ProcessSecurityIncidents extends Command
                     'calendar_duration'     => $incident['calendar_duration'],
                     'escalation'            => $incident['escalation'],
                     'modified_count'        => $incident['sys_mod_count'],
+                    'data'                  => \Metaclassing\Utility::encodeJson($incident),
                 ]);
 
                 // touch incident model to update the 'updated_at' timestamp in case nothing was changed
