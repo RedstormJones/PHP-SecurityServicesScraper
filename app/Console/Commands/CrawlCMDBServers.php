@@ -50,9 +50,9 @@ class CrawlCMDBServers extends Command
 
         // setup HTTP headers and add them to crawler
         $headers = [
-            "accept: application/json",
-            "authorization: Basic T0RCQ1JlcG9ydDpPREJDUmVwb3J0",
-            "cache-control: no-cache",
+            'accept: application/json',
+            'authorization: Basic '.getenv('SERVICENOW_AUTH'),
+            'cache-control: no-cache',
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
