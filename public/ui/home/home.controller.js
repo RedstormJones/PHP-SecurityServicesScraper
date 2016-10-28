@@ -7,7 +7,7 @@
         .controller('Home.IndexController', controller);
 
 
-    function controller ($location, UserService) {
+    function controller ($scope, UserService) {
         var HomeController = this;
 
 

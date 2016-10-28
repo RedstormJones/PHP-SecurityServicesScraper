@@ -7,10 +7,10 @@
 (function() {
     'use strict';
 
-    angular
-        .module('PHP-SecurityServicesScraper', ['ui.router', 'ngMessages', 'ngStorage', 'angular-jwt'])
-        .config(config)
-        .run(run);
+    var phpsss = angular
+                .module('PHP-SecurityServicesScraper', ['ui.router', 'ngMessages', 'ngStorage', 'angular-jwt'])
+                .config(config)
+                .run(run);
 
     function config($stateProvider, $urlRouterProvider){
 
