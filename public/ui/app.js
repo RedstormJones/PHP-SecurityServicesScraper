@@ -8,9 +8,9 @@
     'use strict';
 
     var phpsss = angular
-                .module('PHP-SecurityServicesScraper', ['ui.router', 'ngMessages', 'ngStorage', 'angular-jwt'])
-                .config(config)
-                .run(run);
+                    .module('PHP-SecurityServicesScraper', ['ui.router', 'ngMessages', 'ngStorage', 'angular-jwt'])
+                    .config(config)
+                    .run(run);
 
     function config($stateProvider, $urlRouterProvider){
 

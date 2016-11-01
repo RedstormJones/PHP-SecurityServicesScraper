@@ -3,67 +3,31 @@
     <div ng-if="HomeController.username">
     
         <!-- Populate User info if avaible -->
-        <h3>Welcome, {{HomeController.username}}</h3>
+        <h4>Welcome, {{HomeController.username}}</h4>
         <h5>{{HomeController.title}}</h5>
         <h5>{{HomeController.company}}  {{HomeController.department}}</h5>
 
         <div ng-if="HomeController.photo">
-            <img style="background-repeat: no-repeat; background-position: 50%; border-radius: 50%; width: 80px; height: 95px;" class="pull-right" src="data:image/png;base64,{{HomeController.photo}}">
+            <img style="background-repeat: no-repeat; background-position: 50%; border-radius: 5%; width: 6em; height: 8em; margin-top: 1em; margin-right: 0.25em" class="pull-right" ng-src="data:image/png;base64,{{HomeController.photo}}">
         </div>
 
     </div>
         
-    <div style="margin-top: 10px"></div>
+    <div style="margin-top: 1.5em"></div>
 
     <div class="jumbotron">
 
         <h2 style="-webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(255, 255, 255, 0.05)));}">Kiewit Security - Landing Page</h2>
-        <div style="margin-top: -15px"></div>   
         <hr>
-        <div style="margin-top: 50px"></div>
+        <div style="margin-top: 2em"></div>
         
-        <a href='https://login.cylance.com/Login'>Cylance Dashboard</a>
+        <a href='https://login.cylance.com/Login'>Cylance Console</a>
         <br>
-        <a href='https://securitycenter.kiewitplaza.com'>SecurityCenter Dashboard</a>
+        <a href='https://securitycenter.kiewitplaza.com'>SecurityCenter Console</a>
         
-        <div style="margin-top: 50px"></div>        
+        <div style="margin-top: 2em"></div>        
         
     </div>
 
 </div>
 
-<!--    
-<div class="container">
-
-    <rss version="2.0">
-        <channel>
-            <title>Cisco Security Advisories</title>
-            <link>http://www.cisco.com</link>
-            <description>Cisco Security Advisories</description>
-            <language/>
-            <copyright>1992-2009 Cisco Systems, Inc. All rights reserved.</copyright>
-            <pubDate>Tue, 25 Oct 2016 19:46:05 GMT</pubDate>
-            <ttl>120</ttl>
-            <lastBuildDate/>
-            <category>Security Advisories</category>
-            <generator>CNS RSS Script</generator>
-            <image>
-                <title>News@Cisco</title>
-                <url>http://cisco.com/web/fw/i/logo.gif</url>
-                <link>http://newsroom.cisco.com</link>
-                <width>107</width>
-                <height>70</height>
-            </image>
-            <item>
-                <title/>
-                <link/>
-                <description/>
-                <pubDate/>
-                <guid/>
-            </item>
-        </channel>
-    </rss>
-
-
-</div>
--->
