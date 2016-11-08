@@ -150,7 +150,6 @@ class ProcessIdmIncidents extends Command
         }   // end of foreach
     }
 
-
     /**
      * Function to handle null values.
      *
@@ -182,5 +181,4 @@ class ProcessIdmIncidents extends Command
             return $data;
         }
     }
-
 }   // end of ProcessIdmIncidents command class
