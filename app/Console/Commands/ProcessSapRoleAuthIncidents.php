@@ -150,7 +150,6 @@ class ProcessSapRoleAuthIncidents extends Command
         }   // end of foreach
     }
 
-
     /**
      * Function to handle null values.
      *

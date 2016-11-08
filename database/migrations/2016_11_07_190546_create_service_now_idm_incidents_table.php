@@ -62,4 +62,3 @@ class CreateServiceNowIdmIncidentsTable extends Migration
         Schema::dropIfExists('service_now_idm_incidents');
     }
 }
-
