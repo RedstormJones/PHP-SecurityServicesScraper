@@ -28,6 +28,8 @@ class Kernel extends ConsoleKernel
         Commands\ProcessOutsideHostTrafficSnapshots::class,
         Commands\ProcessSecurityIncidents::class,
         Commands\ProcessCMDBServers::class,
+        Commands\ProcessIdmIncidents::class,
+        Commands\ProcessSapRoleAuthIncidents::class,
         Commands\CrawlCylanceDevices::class,
         Commands\CrawlCylanceThreats::class,
         Commands\CrawlIncomingEmails::class,
@@ -41,6 +43,8 @@ class Kernel extends ConsoleKernel
         Commands\CrawlOutsideHostTrafficSnapshots::class,
         Commands\CrawlSecurityIncidents::class,
         Commands\CrawlCMDBServers::class,
+        Commands\CrawlIdmIncidents::class,
+        Commands\CrawlSapRoleAuthIncidents::class,
     ];
 
     /**
@@ -76,8 +80,12 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on daily schedule
         */
-        $schedule->command('crawl:cmdbservers')->dailyAt('21:30')->timezone('America/Chicago');             // runs daily at 09:30pm
-        $schedule->command('process:cmdbservers')->dailyAt('21:45')->timezone('America/Chicago');           // runs daily at 09:45pm
+        $schedule->command('crawl:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');             // runs daily at 08:30pm
+        $schedule->command('process:cmdbservers')->dailyAt('20:45')->timezone('America/Chicago');           // runs daily at 08:45pm
+        $schedule->command('crawl:saproleauthincidents')->dailyAt('21:00')->timezone('America/Chicago');    // runs daily at 09:00pm
+        $schedule->command('process:saproleauthincidents')->dailyAt('21:15')->timezone('America/Chicago');  // runs daily at 09:15pm
+        $schedule->command('crawl:idmincidents')->dailyAt('21:30')->timezone('America/Chicago');            // runs daily at 09:30pm
+        $schedule->command('process:idmincidents')->dailyAt('21:45')->timezone('America/Chicago');          // runs daily at 09:45pm
         $schedule->command('crawl:securityincidents')->dailyAt('22:00')->timezone('America/Chicago');       // runs daily at 10:00pm
         $schedule->command('process:securityincidents')->dailyAt('22:15')->timezone('America/Chicago');     // runs daily at 10:15pm
         $schedule->command('crawl:spamemails')->dailyAt('22:30')->timezone('America/Chicago');              // runs daily at 10:30pm

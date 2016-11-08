@@ -122,7 +122,7 @@ class CrawlCylanceDevices extends Command
 
         // setup necessary post data
         $post = [
-            'sort'      => 'Created-desc',
+            'sort'      => 'Name-asc',
             'page'      => '1',
             'pageSize'  => '50',
             'group'     => '',
@@ -159,12 +159,12 @@ class CrawlCylanceDevices extends Command
             // this should not change from response to response
             $count = $devices['Total'];
 
-            echo 'scrape for page '.$page.' complete - got '.count($devices).' device records'.PHP_EOL;
+            echo 'scrape for page '.$page.' complete - got '.count($devices['Data']).' device records'.PHP_EOL;
 
             $i += 50;       // Increase i by PAGESIZE!
             $page++;        // Increase the page number
 
-            //sleep(1);       // wait a second before hammering on their webserver again
+            sleep(1);       // wait a second before hammering on their webserver again
         } while ($i < $count);
 
         // Pop off empty array element
