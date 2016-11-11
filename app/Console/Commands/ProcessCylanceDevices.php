@@ -113,15 +113,28 @@ class ProcessCylanceDevices extends Command
      */
     public function processDeletes()
     {
+        // create new datetime object and subtract one day to get delete_date
         $today = new \DateTime('now');
         $yesterday = $today->modify('-1 day');
-        $delete_date = $yesterday->format('Y-m-d H:i:s');
+        $delete_date = $yesterday->format('Y-m-d');
 
-        $devices = CylanceDevice::where('updated_at', '<=', $delete_date)->get();
+        // get all the devices
+        $devices = CylanceDevice::all();
 
-        foreach ($devices as $device) {
-            echo 'deleting device: '.$device->device_name.PHP_EOL;
-            $device->delete();
+        /*
+        * For each device, get its updated_at timestamp, remove the time of day portion, and check
+        * it against delete_date to determine if its a stale record or not. If yes, delete it.
+        **/
+        foreach ($devices as $device)
+        {
+            $updated_at = substr($device->updated_at, 0, -9);
+
+            // if updated_at is less than or equal to delete_date then we soft delete the device
+            if($updated_at <= $delete_date)
+            {
+                echo 'deleting device: '.$device->device_name.PHP_EOL;
+                $device->delete();
+            }
         }
     }
 } // end of ProcessCylanceDevices command class
