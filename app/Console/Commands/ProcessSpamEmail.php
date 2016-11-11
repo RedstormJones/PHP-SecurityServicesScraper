@@ -53,7 +53,7 @@ class ProcessSpamEmail extends Command
             }
 
             // strip crap from time_added
-            $timeadded = rtrim((string) $spam['time_added'], ' (GMT -05:00)');
+            $timeadded = substr($spam['time_added'], 0, -13);
 
             // we need to check that timeadded is formatted correctly and, if not,
             // append 0's for either the seconds or for both the seconds and minutes
@@ -66,6 +66,8 @@ class ProcessSpamEmail extends Command
             } else {
                 $timeadded = str_pad($timeadded, 17, '0');
             }
+
+            echo 'timeadded: '.$timeadded.PHP_EOL;
 
             // now we can use timeadded to create a datetime object
             $date = \DateTime::createFromFormat('d M Y H:i', $timeadded);
