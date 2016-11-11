@@ -67,8 +67,6 @@ class ProcessSpamEmail extends Command
                 $timeadded = str_pad($timeadded, 17, '0');
             }
 
-            echo 'timeadded: '.$timeadded.PHP_EOL;
-
             // now we can use timeadded to create a datetime object
             $date = \DateTime::createFromFormat('d M Y H:i', $timeadded);
             $datetime = $date->format('Y-m-d H:i');
