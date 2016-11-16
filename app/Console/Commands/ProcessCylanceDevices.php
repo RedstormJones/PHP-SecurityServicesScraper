@@ -181,21 +181,18 @@ class ProcessCylanceDevices extends Command
     }
 
     /**
-    * Function to convert string timestamps to datetimes
-    *
-    * @return string
-    */
+     * Function to convert string timestamps to datetimes.
+     *
+     * @return string
+     */
     public function stringToDate($date_str)
     {
-        if($date_str != NULL)
-        {
+        if ($date_str != null) {
             $date_regex = '/\/Date\((\d+)\)\//';
             preg_match($date_regex, $date_str, $date_hits);
             $datetime = date('Y-m-d H:i:s', (intval($date_hits[1]) / 1000));
-        }
-        else
-        {
-            $datetime = NULL;
+        } else {
+            $datetime = null;
         }
 
         return $datetime;
