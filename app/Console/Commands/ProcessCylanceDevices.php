@@ -38,6 +38,8 @@ class ProcessCylanceDevices extends Command
      */
     public function handle()
     {
+        $date_regex = '/\/Date\((\d+)\)\//';
+
         $devices_content = file_get_contents(storage_path('app/collections/devices.json'));
         $devices = json_decode($devices_content);
 
@@ -46,7 +48,25 @@ class ProcessCylanceDevices extends Command
 
             // if the device record exists then update it, otherwise create a new one
             if ($exists) {
-                $updated = CylanceDevice::where('device_id', $device->DeviceId)->update([
+                // format datetimes for updating device record
+                $created_date = $this->stringToDate($device->Created);
+                $offline_date = $this->stringToDate($device->OfflineDate);
+
+                /*
+                $created = $device->Created;
+                preg_match($date_regex, $created, $created_hits);
+                $created_date = date('Y-m-d H:i:s', (intval($created_hits[1]) / 1000));
+
+                $offline_date = $device->OfflineDate;
+
+                if($offline_date != NULL)
+                {
+                    preg_match($date_regex, $offline_date, $offline_hits);
+                    $offline_date = date('Y-m-d H:i:s', (intval($offline_hits[1]) / 1000));
+                }
+                /**/
+
+                $updated = CylanceDevice::where('id', $exists)->update([
                     'device_name'          => $device->Name,
                     'zones_text'           => $device->ZonesText,
                     'files_unsafe'         => $device->Unsafe,
@@ -60,6 +80,8 @@ class ProcessCylanceDevices extends Command
                     'ip_addresses_text'    => $device->IPAddressesText,
                     'mac_addresses_text'   => $device->MacAddressesText,
                     'policy_name'          => $device->PolicyName,
+                    'device_created_at'    => $created_date,
+                    'device_offline_date'  => $offline_date,
                     'data'                 => json_encode($device),
                 ]);
 
@@ -85,6 +107,26 @@ class ProcessCylanceDevices extends Command
      */
     public function createDevice($device)
     {
+        // format datetimes for new device record
+        $created_date = $this->stringToDate($device->Created);
+        $offline_date = $this->stringToDate($device->OfflineDate);
+
+        /*
+        $date_regex = '/\/Date\((\d+)\)\//';
+
+        $created = $device->Created;
+        preg_match($date_regex, $created, $created_hits);
+        $created_date = date('Y-m-d H:i:s', (intval($created_hits[1]) / 1000));
+
+        $offline_date = $device->OfflineDate;
+
+        if($offline_date != NULL)
+        {
+            preg_match($date_regex, $offline_date, $offline_hits);
+            $offline_date = date('Y-m-d H:i:s', (intval($offline_hits[1]) / 1000));
+        }
+        /**/
+
         $new_device = new CylanceDevice();
 
         $new_device->device_id = $device->DeviceId;
@@ -101,6 +143,8 @@ class ProcessCylanceDevices extends Command
         $new_device->ip_addresses_text = $device->IPAddressesText;
         $new_device->mac_addresses_text = $device->MacAddressesText;
         $new_device->policy_name = $device->PolicyName;
+        $new_device->device_created_at = $created_date;
+        $new_device->device_offline_date = $offline_date;
         $new_device->data = json_encode($device);
 
         $new_device->save();
@@ -135,4 +179,25 @@ class ProcessCylanceDevices extends Command
             }
         }
     }
-} // end of ProcessCylanceDevices command class
+
+    /**
+    * Function to convert string timestamps to datetimes
+    *
+    * @return string
+    */
+    public function stringToDate($date_str)
+    {
+        if($date_str != NULL)
+        {
+            $date_regex = '/\/Date\((\d+)\)\//';
+            preg_match($date_regex, $date_str, $date_hits);
+            $datetime = date('Y-m-d H:i:s', (intval($date_hits[1]) / 1000));
+        }
+        else
+        {
+            $datetime = NULL;
+        }
+
+        return $datetime;
+    }
+}
