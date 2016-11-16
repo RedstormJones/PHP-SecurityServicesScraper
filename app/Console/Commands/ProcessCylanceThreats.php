@@ -44,7 +44,7 @@ class ProcessCylanceThreats extends Command
         foreach ($threats as $threat) {
             $exists = CylanceThreat::where('threat_id', $threat->Id)->whereNull('deleted_at')->value('id');
 
-            if($exists) {
+            if ($exists) {
                 // format datetimes for updating threat record
                 $first_found = $this->stringToDate($threat->FirstFound);
                 $last_found = $this->stringToDate($threat->LastFound);
@@ -82,12 +82,10 @@ class ProcessCylanceThreats extends Command
                 $threatmodel->touch();
 
                 echo 'updated threat: '.$threat->CommonName.PHP_EOL;
-            }
-            else {
+            } else {
                 echo 'creating threat: '.$threat->CommonName.PHP_EOL;
                 $this->createThreat($threat);
             }
-
         }
 
         // process soft deletes for old records
@@ -95,10 +93,10 @@ class ProcessCylanceThreats extends Command
     }
 
     /**
-    * Function to create a new Cylance Threat model
-    *
-    * @return void
-    */
+     * Function to create a new Cylance Threat model.
+     *
+     * @return void
+     */
     public function createThreat($threat)
     {
         // format datetimes for new threat record
@@ -139,10 +137,10 @@ class ProcessCylanceThreats extends Command
     }
 
     /**
-    * Function to soft delete expired threat records
-    *
-    * @return void
-    */
+     * Function to soft delete expired threat records.
+     *
+     * @return void
+     */
     public function processDeletes()
     {
         $today = new \DateTime('now');
@@ -155,8 +153,7 @@ class ProcessCylanceThreats extends Command
         foreach ($threats as $threat) {
             $updated_at = substr($threat->updated_at, 0, -9);
 
-            if($updated_at <= $delete_date)
-            {
+            if ($updated_at <= $delete_date) {
                 echo 'deleting threat: '.$threat->common_name.PHP_EOL;
                 $threat->delete();
             }
@@ -164,21 +161,18 @@ class ProcessCylanceThreats extends Command
     }
 
     /**
-    * Function to convert string timestamps to datetimes
-    *
-    * @return string
-    */
+     * Function to convert string timestamps to datetimes.
+     *
+     * @return string
+     */
     public function stringToDate($date_str)
     {
-        if($date_str != NULL)
-        {
+        if ($date_str != null) {
             $date_regex = '/\/Date\((\d+)\)\//';
             preg_match($date_regex, $date_str, $date_hits);
             $datetime = date('Y-m-d H:i:s', (intval($date_hits[1]) / 1000));
-        }
-        else
-        {
-            $datetime = NULL;
+        } else {
+            $datetime = null;
         }
 
         return $datetime;
