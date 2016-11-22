@@ -163,7 +163,6 @@ class CrawlCylanceDevices extends Command
 
             // wait a second before hammering on their webserver again
             sleep(1);
-
         } while ($i < $count);
 
         // Pop off empty array element
