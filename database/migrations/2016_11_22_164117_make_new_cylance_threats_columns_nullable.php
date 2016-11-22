@@ -13,7 +13,7 @@ class MakeNewCylanceThreatsColumnsNullable extends Migration
      */
     public function up()
     {
-        DB::statement("ALTER TABLE cylance_threats MODIFY signed BOOL DEFAULT NULL");
+        DB::statement('ALTER TABLE cylance_threats MODIFY signed BOOL DEFAULT NULL');
 
         /*
         Schema::table('cylance_threats', function (Blueprint $table) {
@@ -34,4 +34,3 @@ class MakeNewCylanceThreatsColumnsNullable extends Migration
         });
     }
 }
-
