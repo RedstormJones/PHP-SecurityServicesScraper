@@ -85,9 +85,6 @@ class CrawlCylanceDevices extends Command
             // increment tries and set regex back to Dashboard title
             $tries++;
             $regex = '/<title>CylancePROTECT \| Dashboard<\/title>/';
-
-            // add error handling logic if login STILL failed after attempt.
-            // while !preg_match -> and tries < 3 or whatever
         }
         // once out of the login loop, if $tries is >= to 3 then we couldn't get logged in
         if ($tries > 3) {
@@ -117,7 +114,7 @@ class CrawlCylanceDevices extends Command
         // setup curl HTTP headers with $headers
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-        // change url to point to the devices list
+        // point url to the devices list API endpoint
         $url = 'https:/'.'/my-vs0.cylance.com/Grids/DevicesList_Ajax';
 
         // setup necessary post data
@@ -144,7 +141,6 @@ class CrawlCylanceDevices extends Command
             $post['page'] = $page;
 
             // post data to webpage and capture response, which is hopefully a list of devices
-            //$response = $crawler->post($url, 'https:/'.'/my-vs0.cylance.com/Device', $this->postArrayToString($post));
             $response = $crawler->post($url, '', $this->postArrayToString($post));
 
             // dump raw response to devices.dump.* file where * is the page number
@@ -162,10 +158,12 @@ class CrawlCylanceDevices extends Command
 
             echo 'scrape for page '.$page.' complete - got '.count($devices['Data']).' device records'.PHP_EOL;
 
-            $i += count($devices['Data']);       // Increase i by PAGESIZE!
-            $page++;        // Increase the page number
+            $i += count($devices['Data']);  // Increase i by PAGESIZE!
+            $page++;                        // Increase the page number
 
-            sleep(1);       // wait a second before hammering on their webserver again
+            // wait a second before hammering on their webserver again
+            sleep(1);
+
         } while ($i < $count);
 
         // Pop off empty array element
@@ -174,7 +172,7 @@ class CrawlCylanceDevices extends Command
         // instantiate cylance device list
         $cylance_devices = [];
 
-        // first level is simple sequencail array of 1,2,3
+        // first level is simple sequencial array of 1,2,3
         foreach ($collection as $response) {
             // next level down is associative, the KEY we care about is 'Data'
             $results = $response['Data'];
@@ -184,8 +182,8 @@ class CrawlCylanceDevices extends Command
             }
         }
 
-        // Now we have a simple array [1,2,3] of all the threat records,
-        // each threat record is a key=>value pair collection / assoc array
+        // Now we have a simple array [1,2,3] of all the device records,
+        // each device record is a key=>value pair collection / assoc array
         //\Metaclassing\Utility::dumper($threats);
         file_put_contents(storage_path('app/collections/devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices));
     }
