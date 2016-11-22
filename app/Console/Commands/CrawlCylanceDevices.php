@@ -144,7 +144,8 @@ class CrawlCylanceDevices extends Command
             $post['page'] = $page;
 
             // post data to webpage and capture response, which is hopefully a list of devices
-            $response = $crawler->post($url, 'https:/'.'/my-vs0.cylance.com/Device', $this->postArrayToString($post));
+            //$response = $crawler->post($url, 'https:/'.'/my-vs0.cylance.com/Device', $this->postArrayToString($post));
+            $response = $crawler->post($url, '', $this->postArrayToString($post));
 
             // dump raw response to devices.dump.* file where * is the page number
             file_put_contents($response_path.'devices.dump.'.$page, $response);
@@ -161,7 +162,7 @@ class CrawlCylanceDevices extends Command
 
             echo 'scrape for page '.$page.' complete - got '.count($devices['Data']).' device records'.PHP_EOL;
 
-            $i += 50;       // Increase i by PAGESIZE!
+            $i += count($devices['Data']);       // Increase i by PAGESIZE!
             $page++;        // Increase the page number
 
             sleep(1);       // wait a second before hammering on their webserver again

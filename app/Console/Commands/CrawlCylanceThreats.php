@@ -159,7 +159,7 @@ class CrawlCylanceThreats extends Command
             // this should not change from response to response
             $count = $threats['Total'];
 
-            echo 'scrape for page '.$page.' complete - got '.count($threats).' threat records'.PHP_EOL;
+            echo 'scrape for page '.$page.' complete - got '.count($threats['Data']).' threat records'.PHP_EOL;
 
             $i += 50;   // Increase i by PAGESIZE!
             $page++;    // Increase the page number

@@ -51,6 +51,7 @@ class ProcessCylanceThreats extends Command
                 $active_last_found = $this->stringToDate($threat->ActiveLastFound);
                 $allowed_last_found = $this->stringToDate($threat->AllowedLastFound);
                 $blocked_last_found = $this->stringToDate($threat->BlockedLastFound);
+                $cert_timestamp = $this->stringToDate($threat->CertTimeStamp);
 
                 $updated = CylanceThreat::where('id', $exists)->update([
                     'common_name'              => $threat->CommonName,
@@ -66,14 +67,20 @@ class ProcessCylanceThreats extends Command
                     'last_found_blocked'       => $blocked_last_found,
                     'md5'                      => $threat->MD5,
                     'virustotal'               => $threat->VirusTotal,
+                    'is_virustotal_threat'     => $threat->IsVirusTotalThreat,
                     'full_classification'      => $threat->FullClassification,
                     'is_unique_to_cylance'     => $threat->IsUniqueToCylance,
+                    'is_safelisted'            => $threat->IsSafelisted,
                     'detected_by'              => $threat->DetectedBy,
                     'threat_priority'          => $threat->ThreatPriority,
                     'current_model'            => $threat->CurrentModel,
                     'priority'                 => $threat->Priority,
                     'file_size'                => $threat->FileSize,
-                    'global_quarantined'       => $threat->GlobalQuarantined,
+                    'global_quarantined'       => $threat->IsGlobalQuarantined,
+                    'signed'                   => $threat->Signed,
+                    'cert_issuer'              => $threat->CertIssuer,
+                    'cert_publisher'           => $threat->CertPublisher,
+                    'cert_timestamp'           => $cert_timestamp,
                     'data'                     => json_encode($threat),
                 ]);
 
@@ -105,6 +112,7 @@ class ProcessCylanceThreats extends Command
         $active_last_found = $this->stringToDate($threat->ActiveLastFound);
         $allowed_last_found = $this->stringToDate($threat->AllowedLastFound);
         $blocked_last_found = $this->stringToDate($threat->BlockedLastFound);
+        $cert_timestamp = $this->stringToDate($threat->CertTimeStamp);
 
         // create new Cylance threat record and assign values
         $new_threat = new CylanceThreat();
@@ -123,14 +131,20 @@ class ProcessCylanceThreats extends Command
         $new_threat->last_found_blocked = $blocked_last_found;
         $new_threat->md5 = $threat->MD5;
         $new_threat->virustotal = $threat->VirusTotal;
+        $new_threat->is_virustotal_threat = $threat->IsVirusTotalThreat;
         $new_threat->full_classification = $threat->FullClassification;
         $new_threat->is_unique_to_cylance = $threat->IsUniqueToCylance;
+        $new_threat->is_safelisted = $threat->IsSafelisted;
         $new_threat->detected_by = $threat->DetectedBy;
         $new_threat->threat_priority = $threat->ThreatPriority;
         $new_threat->current_model = $threat->CurrentModel;
         $new_threat->priority = $threat->Priority;
         $new_threat->file_size = $threat->FileSize;
-        $new_threat->global_quarantined = $threat->GlobalQuarantined;
+        $new_threat->global_quarantined = $threat->IsGlobalQuarantined;
+        $new_threat->signed = $threat->Signed;
+        $new_threat->cert_issuer = $threat->CertIssuer;
+        $new_threat->cert_publisher = $threat->CertPublisher;
+        $new_threat->cert_timestamp = $cert_timestamp;
         $new_threat->data = json_encode($threat);
 
         $new_threat->save();
@@ -160,7 +174,7 @@ class ProcessCylanceThreats extends Command
         }
     }
 
-    /**
+     /**
      * Function to convert string timestamps to datetimes.
      *
      * @return string
