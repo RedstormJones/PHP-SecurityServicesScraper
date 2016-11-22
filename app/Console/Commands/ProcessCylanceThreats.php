@@ -174,7 +174,7 @@ class ProcessCylanceThreats extends Command
         }
     }
 
-     /**
+    /**
      * Function to convert string timestamps to datetimes.
      *
      * @return string
