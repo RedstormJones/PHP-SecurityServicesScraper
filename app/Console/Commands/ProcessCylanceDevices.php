@@ -52,20 +52,6 @@ class ProcessCylanceDevices extends Command
                 $created_date = $this->stringToDate($device->Created);
                 $offline_date = $this->stringToDate($device->OfflineDate);
 
-                /*
-                $created = $device->Created;
-                preg_match($date_regex, $created, $created_hits);
-                $created_date = date('Y-m-d H:i:s', (intval($created_hits[1]) / 1000));
-
-                $offline_date = $device->OfflineDate;
-
-                if($offline_date != NULL)
-                {
-                    preg_match($date_regex, $offline_date, $offline_hits);
-                    $offline_date = date('Y-m-d H:i:s', (intval($offline_hits[1]) / 1000));
-                }
-                /**/
-
                 $updated = CylanceDevice::where('id', $exists)->update([
                     'device_name'          => $device->Name,
                     'zones_text'           => $device->ZonesText,
@@ -110,22 +96,6 @@ class ProcessCylanceDevices extends Command
         // format datetimes for new device record
         $created_date = $this->stringToDate($device->Created);
         $offline_date = $this->stringToDate($device->OfflineDate);
-
-        /*
-        $date_regex = '/\/Date\((\d+)\)\//';
-
-        $created = $device->Created;
-        preg_match($date_regex, $created, $created_hits);
-        $created_date = date('Y-m-d H:i:s', (intval($created_hits[1]) / 1000));
-
-        $offline_date = $device->OfflineDate;
-
-        if($offline_date != NULL)
-        {
-            preg_match($date_regex, $offline_date, $offline_hits);
-            $offline_date = date('Y-m-d H:i:s', (intval($offline_hits[1]) / 1000));
-        }
-        /**/
 
         $new_device = new CylanceDevice();
 

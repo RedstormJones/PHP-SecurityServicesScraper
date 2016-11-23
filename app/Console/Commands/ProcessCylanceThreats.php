@@ -42,7 +42,7 @@ class ProcessCylanceThreats extends Command
         $threats = json_decode($threats_content);
 
         foreach ($threats as $threat) {
-            $exists = CylanceThreat::where('threat_id', $threat->Id)->whereNull('deleted_at')->value('id');
+            $exists = CylanceThreat::where('threat_id', $threat->Id)->withTrashed()->value('id');
 
             if ($exists) {
                 // format datetimes for updating threat record
@@ -84,9 +84,18 @@ class ProcessCylanceThreats extends Command
                     'data'                     => json_encode($threat),
                 ]);
 
-                // touch threat model to update 'updated_at' timestamp (in case nothing was changed)
+                // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
                 $threatmodel = CylanceThreat::find($exists);
-                $threatmodel->touch();
+                if($threatmodel != NULL)
+                {
+                    $threatmodel->touch();
+
+                    /*
+                    * do a restore to set the 'deleted_at' timestamp back to NULL in case this threat model
+                    * had been soft deleted at some point.
+                    */
+                    $threatmodel->restore();
+                }
 
                 echo 'updated threat: '.$threat->CommonName.PHP_EOL;
             } else {

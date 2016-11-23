@@ -33,6 +33,8 @@ class CylanceDevice extends Model
         'ip_addresses_text',
         'mac_addresses_text',
         'policy_name',
+        'device_created_at',
+        'device_offline_date',
         'data',
     ];
 }
