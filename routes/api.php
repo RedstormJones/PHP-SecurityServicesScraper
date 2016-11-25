@@ -36,5 +36,3 @@ $api->version('v1', function ($api) {
 
     require __DIR__.'/api.cylance.php';
 });
-
-

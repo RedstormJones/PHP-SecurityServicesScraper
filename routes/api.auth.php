@@ -11,7 +11,7 @@ $options = [
 
 $api->group($options, function ($api) {
 
-        /**
+        /*
          * @SWG\Get(
          *     path="/api/authenticate",
          *     tags={"Authentication"},
@@ -26,7 +26,7 @@ $api->group($options, function ($api) {
     $api->get('', 'AuthController@authenticate');
 
 
-        /**
+        /*
          * @SWG\Post(
          *     path="/api/authenticate",
          *     tags={"Authentication"},
@@ -53,5 +53,4 @@ $api->group($options, function ($api) {
          * )
          **/
     $api->post('', 'AuthController@authenticate');
-
 });
