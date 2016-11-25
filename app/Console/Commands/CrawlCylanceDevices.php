@@ -156,6 +156,8 @@ class CrawlCylanceDevices extends Command
             // this should not change from response to response
             $count = $devices['Total'];
 
+            //echo 'total device count: '.$count.PHP_EOL;
+
             echo 'scrape for page '.$page.' complete - got '.count($devices['Data']).' device records'.PHP_EOL;
 
             $i += count($devices['Data']);  // Increase i by PAGESIZE!
@@ -165,8 +167,10 @@ class CrawlCylanceDevices extends Command
             sleep(1);
         } while ($i < $count);
 
+
         // Pop off empty array element
         array_pop($collection);
+
 
         // instantiate cylance device list
         $cylance_devices = [];
@@ -180,6 +184,8 @@ class CrawlCylanceDevices extends Command
                 $cylance_devices[] = $device;
             }
         }
+
+        echo 'devices successfully collected: '.count($cylance_devices).PHP_EOL;
 
         // Now we have a simple array [1,2,3] of all the device records,
         // each device record is a key=>value pair collection / assoc array

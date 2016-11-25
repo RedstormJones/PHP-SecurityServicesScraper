@@ -150,6 +150,7 @@ class AuthController extends Controller
         return [
                 'username' => $ldapuser['cn'][0],
                 'dn'       => $ldapuser['dn'],
+                'email'    => $ldapuser['mail'][0],
                 ];
     }
 
@@ -307,6 +308,7 @@ class AuthController extends Controller
         return User::create([
             'username' => $data['username'],
             'dn'       => $data['dn'],
+            'email'    => $data['email'],
             'password' => bcrypt(''),
         ]);
     }
