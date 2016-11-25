@@ -58,7 +58,5 @@ $api->group($options, function ($api) {
 
         // searched for a particular threat by SHA256
         $api->get('/sha256/{sha256}', 'CylanceController@getThreatBySHA256');
-
     });
-
 });
