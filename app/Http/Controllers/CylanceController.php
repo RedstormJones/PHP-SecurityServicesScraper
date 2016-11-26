@@ -276,7 +276,9 @@ class CylanceController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $threats = CylanceThreat::where('current_model', '=', 'Unsafe')->orderBy('cylance_score', 'desc')->get();
+        $threats = CylanceThreat::where('current_model', '=', 'Unsafe')
+                    ->orderBy('cylance_score', 'desc')
+                    ->get();
 
         if (count($threats) > 0) {
             $data = [];
