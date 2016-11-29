@@ -12,22 +12,14 @@ $options = [
 ];
 
 
-$api->group($options, function($api) {
+$api->group($options, function ($api) {
+    $api->group(['prefix' => 'incoming_email'], function ($api) {
+        $api->get('/total_count', 'IronPortController@getTotalCount');
 
-	$api->group(['prefix' => 'incoming_email'], function ($api) {
+        $api->get('/count/from/{from_date}/to/{to_date}', 'IronPortController@getEmailCountInDateRange');
 
-		$api->get('/total_count', 'IronPortController@getTotalCount');
+        $api->get('/sending_domain/{sending_domain}', 'IronPortController@getEmailsBySendingDomain');
 
-		$api->get('/count/from/{from_date}/to/{to_date}', 'IronPortController@getEmailCountInDateRange');
-
-		$api->get('/sending_domain/{sending_domain}', 'IronPortController@getEmailsBySendingDomain');
-
-		$api->get('/from/{from_date}/to/{to_date}', 'IronPortController@getEmailsInDateRange');
-
-
-
-	});
-
-
-
+        $api->get('/from/{from_date}/to/{to_date}', 'IronPortController@getEmailsInDateRange');
+    });
 });
