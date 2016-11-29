@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\IronPort\IncomingEmail;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-
 class IronPortController extends Controller
 {
     /**
@@ -18,11 +17,9 @@ class IronPortController extends Controller
         $this->middleware('auth');
     }
 
-
-
     /**
-     * Get total count of incoming email
-     * 
+     * Get total count of incoming email.
+     *
      * @return \Illuminate\Http\Response
      */
     public function getTotalCount()
@@ -33,13 +30,12 @@ class IronPortController extends Controller
             $incoming_email_count = IncomingEmail::count();
 
             $response = [
-                'success'   => true,
-                'message'   => '',
-                'total'     => count($incoming_email_count),
+                'success'               => true,
+                'message'               => '',
+                'total'                 => count($incoming_email_count),
                 'incoming_email_count'  => $incoming_email_count,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get count of incoming email',
@@ -49,10 +45,9 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get count of incoming email in a particular date range
-     * 
+     * Get count of incoming email in a particular date range.
+     *
      * @return \Illuminate\Http\Response
      */
     public function getEmailCountInDateRange($from_date, $to_date)
@@ -68,13 +63,12 @@ class IronPortController extends Controller
                 ])->count();
 
             $response = [
-                'success'   => true,
-                'message'   => '',
-                'total'     => count($incoming_emails_count),
-                'incoming_emails_count'   => $incoming_emails_count
+                'success'                 => true,
+                'message'                 => '',
+                'total'                   => count($incoming_emails_count),
+                'incoming_emails_count'   => $incoming_emails_count,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get count of incoming email in specified date range: '.$from_date.' - '.$to_date,
@@ -84,10 +78,9 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get incoming email sent by a particular sending domain
-     * 
+     * Get incoming email sent by a particular sending domain.
+     *
      * @return \Illuminate\Http\Response
      */
     public function getEmailsBySendingDomain($sending_domain)
@@ -99,19 +92,17 @@ class IronPortController extends Controller
 
             $incoming_emails = IncomingEmail::where('sender_domain', '=', $sending_domain)->pluck('data');
 
-            foreach($incoming_emails as $incoming_email)
-            {
+            foreach ($incoming_emails as $incoming_email) {
                 $data[] = \Metaclassing\Utility::decodeJson($incoming_email);
             }
 
             $response = [
-                'success'   => true,
-                'message'   => '',
-                'total'     => count($data),
-                'incoming_emails_count'   => $data
+                'success'                 => true,
+                'message'                 => '',
+                'total'                   => count($data),
+                'incoming_emails_count'   => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get incoming email from sending domain: '.$sending_domain,
@@ -121,10 +112,9 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get incoming email sent within a particular date range
-     * 
+     * Get incoming email sent within a particular date range.
+     *
      * @return \Illuminate\Http\Response
      */
     public function getEmailsInDateRange($from_date, $to_date)
@@ -146,22 +136,20 @@ class IronPortController extends Controller
             }
             /**/
 
-            foreach(IncomingEmail::where([
+            foreach (IncomingEmail::where([
                     ['begin_date', '>=', $from_date],
                     ['end_date', '<=', $to_date],
-                ])->cursor() as $incoming_email)
-            {
+                ])->cursor() as $incoming_email) {
                 $data[] = \Metaclassing\Utility::decodeJson($incoming_email);
             }
 
             $response = [
-                'success'   => true,
-                'message'   => '',
-                'total'     => count($data),
+                'success'           => true,
+                'message'           => '',
+                'total'             => count($data),
                 'incoming_emails'   => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get count of incoming email in specified date range: '.$from_date.' - '.$to_date,
@@ -170,5 +158,4 @@ class IronPortController extends Controller
 
         return response()->json($response);
     }
-
 }
