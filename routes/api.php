@@ -37,4 +37,6 @@ $api->version('v1', function ($api) {
     require __DIR__.'/api.cylance.php';
 
     require __DIR__.'/api.netman.php';
+
+    require __DIR__.'/api.ironport.php';
 });
