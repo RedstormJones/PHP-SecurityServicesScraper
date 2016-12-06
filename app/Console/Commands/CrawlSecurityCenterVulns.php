@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-
 use Illuminate\Console\Command;
 
 class CrawlSecurityCenterVulns extends Command

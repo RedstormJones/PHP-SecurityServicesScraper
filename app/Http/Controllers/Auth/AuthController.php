@@ -14,6 +14,7 @@
  * @copyright 2015-2016 @authors
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  */
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;

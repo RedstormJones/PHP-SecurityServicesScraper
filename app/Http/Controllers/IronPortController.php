@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\IronPort\IncomingEmail;
 use App\IronPort\IronPortThreat;
-use App\IronPort\IronPortSpamEmail;
-
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class IronPortController extends Controller
@@ -133,8 +131,7 @@ class IronPortController extends Controller
                     ['end_date', '<=', $to_date],
                 ])->paginate(100);
 
-            foreach($incoming_emails as $incoming_email)
-            {
+            foreach ($incoming_emails as $incoming_email) {
                 $data[] = \Metaclassing\Utility::decodeJson($incoming_email['data']);
             }
 
@@ -157,14 +154,11 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
-
-
     /**
-    * Get all IronPort threats
-    *
-    * @return \Illuminate\Http\Response
-    */
+     * Get all IronPort threats.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function getAllThreats()
     {
         $user = JWTAuth::parseToken()->authenticate();
@@ -174,8 +168,7 @@ class IronPortController extends Controller
 
             $threats = IronPortThreat::all();
 
-            foreach($threats as $threat)
-            {
+            foreach ($threats as $threat) {
                 $data[] = \Metaclassing\Utility::decodeJson($threat['data']);
             }
 
@@ -184,8 +177,7 @@ class IronPortController extends Controller
                 'total'     => count($data),
                 'threats'   => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get IronPort threats.',
@@ -196,10 +188,10 @@ class IronPortController extends Controller
     }
 
     /**
-    * Get total count of IronPort threats
-    *
-    * @return \Illuminate\Http\Response
-    */
+     * Get total count of IronPort threats.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function getTotalThreatCount()
     {
         $user = JWTAuth::parseToken()->authenticate();
@@ -209,8 +201,7 @@ class IronPortController extends Controller
 
             $threats = IronPortThreat::all();
 
-            foreach($threats as $threat)
-            {
+            foreach ($threats as $threat) {
                 $count += $threat['total_messages'];
             }
 
@@ -218,8 +209,7 @@ class IronPortController extends Controller
                 'success'       => true,
                 'threat_count'  => $count,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get IronPort threat count.',
@@ -229,13 +219,11 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
-
     /**
-    * Get count of IronPort threats for a specific month
-    *
-    * @return \Illuminate\Http\Response
-    */
+     * Get count of IronPort threats for a specific month.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function getThreatCountByDate($date)
     {
         $user = JWTAuth::parseToken()->authenticate();
@@ -244,11 +232,10 @@ class IronPortController extends Controller
             $threat_count = IronPortThreat::where('begin_date', 'like', $date.'%')->pluck('total_messages');
 
             $response = [
-                'success'   => true,
+                'success'       => true,
                 'threat_count'  => $threat_count[0],
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get threat count for date: '.$date,
@@ -257,8 +244,4 @@ class IronPortController extends Controller
 
         return response()->json($response);
     }
-
-
-
-
 }

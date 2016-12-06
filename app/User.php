@@ -9,7 +9,6 @@ use Silber\Bouncer\Database\HasRolesAndAbilities;
 class User extends Authenticatable implements \Tymon\JWTAuth\Contracts\JWTSubject
 {
     use Notifiable;
-
     use HasRolesAndAbilities;
 
     /**

@@ -11,9 +11,7 @@ $options = [
     'expires'          => 5,
 ];
 
-
 $api->group($options, function ($api) {
-
     $api->group(['prefix' => 'incoming_email'], function ($api) {
         $api->get('/total_count', 'IronPortController@getTotalCount');
 
@@ -24,16 +22,11 @@ $api->group($options, function ($api) {
         $api->get('/from/{from_date}/to/{to_date}', 'IronPortController@getEmailsInDateRange');
     });
 
-
     $api->group(['prefix' => 'threats'], function ($api) {
-
         $api->get('/all_threats', 'IronPortController@getAllThreats');
 
         $api->get('/total_threat_count', 'IronPortController@getTotalThreatCount');
 
         $api->get('/threat_count_by_date/{date}', 'IronPortController@getThreatCountByDate');
-
     });
-
-
 });

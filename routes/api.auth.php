@@ -8,7 +8,6 @@ $options = [
     'expires'       => 1,
 ];
 
-
 $api->group($options, function ($api) {
 
         /*
@@ -24,7 +23,6 @@ $api->group($options, function ($api) {
          * )
          **/
     $api->get('', 'AuthController@authenticate');
-
 
         /*
          * @SWG\Post(
