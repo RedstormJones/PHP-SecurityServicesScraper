@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\IronPort\IncomingEmail;
+use App\IronPort\IronPortThreat;
+use App\IronPort\IronPortSpamEmail;
+
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class IronPortController extends Controller
@@ -31,7 +34,6 @@ class IronPortController extends Controller
 
             $response = [
                 'success'               => true,
-                'message'               => '',
                 'total'                 => count($incoming_email_count),
                 'incoming_email_count'  => $incoming_email_count,
             ];
@@ -64,7 +66,6 @@ class IronPortController extends Controller
 
             $response = [
                 'success'                 => true,
-                'message'                 => '',
                 'total'                   => count($incoming_emails_count),
                 'incoming_emails_count'   => $incoming_emails_count,
             ];
@@ -90,17 +91,20 @@ class IronPortController extends Controller
         try {
             $data = [];
 
-            $incoming_emails = IncomingEmail::where('sender_domain', '=', $sending_domain)->pluck('data');
+            $incoming_emails = IncomingEmail::where('sender_domain', '=', $sending_domain)->paginate(100);
 
             foreach ($incoming_emails as $incoming_email) {
-                $data[] = \Metaclassing\Utility::decodeJson($incoming_email);
+                $data[] = \Metaclassing\Utility::decodeJson($incoming_email['data']);
             }
 
             $response = [
-                'success'                 => true,
-                'message'                 => '',
-                'total'                   => count($data),
-                'incoming_emails_count'   => $data,
+                'success'           => true,
+                'total'             => $incoming_emails->total(),
+                'current_page'      => $incoming_emails->currentPage(),
+                'next_page_url'     => $incoming_emails->nextPageUrl(),
+                'results_per_page'  => $incoming_emails->perPage(),
+                'has_more_pages'    => $incoming_emails->hasMorePages(),
+                'incoming_emails'   => $data,
             ];
         } catch (\Exception $e) {
             $response = [
@@ -124,29 +128,23 @@ class IronPortController extends Controller
         try {
             $data = [];
 
-            /*
             $incoming_emails = IncomingEmail::where([
                     ['begin_date', '>=', $from_date],
                     ['end_date', '<=', $to_date],
-                ])->pluck('data');
+                ])->paginate(100);
 
             foreach($incoming_emails as $incoming_email)
             {
-                $data[] = \Metaclassing\Utility::decodeJson($incoming_email);
-            }
-            /**/
-
-            foreach (IncomingEmail::where([
-                    ['begin_date', '>=', $from_date],
-                    ['end_date', '<=', $to_date],
-                ])->cursor() as $incoming_email) {
-                $data[] = \Metaclassing\Utility::decodeJson($incoming_email);
+                $data[] = \Metaclassing\Utility::decodeJson($incoming_email['data']);
             }
 
             $response = [
                 'success'           => true,
-                'message'           => '',
-                'total'             => count($data),
+                'total'             => $incoming_emails->total(),
+                'current_page'      => $incoming_emails->currentPage(),
+                'next_page_url'     => $incoming_emails->nextPageUrl(),
+                'results_per_page'  => $incoming_emails->perPage(),
+                'has_more_pages'    => $incoming_emails->hasMorePages(),
                 'incoming_emails'   => $data,
             ];
         } catch (\Exception $e) {
@@ -158,4 +156,109 @@ class IronPortController extends Controller
 
         return response()->json($response);
     }
+
+
+
+
+    /**
+    * Get all IronPort threats
+    *
+    * @return \Illuminate\Http\Response
+    */
+    public function getAllThreats()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $threats = IronPortThreat::all();
+
+            foreach($threats as $threat)
+            {
+                $data[] = \Metaclassing\Utility::decodeJson($threat['data']);
+            }
+
+            $response = [
+                'success'   => true,
+                'total'     => count($data),
+                'threats'   => $data,
+            ];
+        }
+        catch (\Exception $e) {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get IronPort threats.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+    * Get total count of IronPort threats
+    *
+    * @return \Illuminate\Http\Response
+    */
+    public function getTotalThreatCount()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $count = 0;
+
+            $threats = IronPortThreat::all();
+
+            foreach($threats as $threat)
+            {
+                $count += $threat['total_messages'];
+            }
+
+            $response = [
+                'success'       => true,
+                'threat_count'  => $count,
+            ];
+        }
+        catch (\Exception $e) {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get IronPort threat count.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+
+    /**
+    * Get count of IronPort threats for a specific month
+    *
+    * @return \Illuminate\Http\Response
+    */
+    public function getThreatCountByDate($date)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $threat_count = IronPortThreat::where('begin_date', 'like', $date.'%')->pluck('total_messages');
+
+            $response = [
+                'success'   => true,
+                'threat_count'  => $threat_count[0],
+            ];
+        }
+        catch (\Exception $e) {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get threat count for date: '.$date,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+
+
 }

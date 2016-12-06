@@ -121,7 +121,7 @@ class CrawlCylanceDevices extends Command
         $post = [
             'sort'      => 'Name-asc',
             'page'      => '1',
-            'pageSize'  => '50',
+            'pageSize'  => '100',
             'group'     => '',
             'aggregate' => '',
             'filter'    => '',
@@ -164,7 +164,7 @@ class CrawlCylanceDevices extends Command
             $page++;                        // Increase the page number
 
             // wait a second before hammering on their webserver again
-            sleep(1);
+            sleep(3);
         } while ($i < $count);
 
 
