@@ -69,7 +69,6 @@ class ProcessPhishMeScenarios extends Command
                 $timetoreport = $result['Time to Report (in seconds)'];
             }
 
-
             // create scenario records based off scenario type
             switch ($result['scenario_type']) {
                 case 'App\PhishMe\AttachmentScenario':

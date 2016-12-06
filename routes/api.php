@@ -15,7 +15,6 @@ use Illuminate\Http\Request;
 
 $api = app('Dingo\Api\Routing\Router');
 
-
 /*
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -24,12 +23,10 @@ Route::get('/user', function (Request $request) {
 Route::auth();
 /**/
 
-
 $api->version('v1', function ($api) {
 
     // Get your user info.
     $api->get('userinfo', 'App\Http\Controllers\Auth\AuthController@userinfo');
-
 
     // include authentication routes
     require __DIR__.'/api.auth.php';

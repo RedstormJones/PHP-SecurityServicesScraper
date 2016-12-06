@@ -11,8 +11,6 @@ $options = [
     'expires'          => 5,
 ];
 
-
-
 $api->group($options, function ($api) {
     $api->group(['prefix' => 'site_subnets'], function ($api) {
         $api->get('/list', 'NetmanSiteSubnetController@listAll');

@@ -48,7 +48,6 @@ class CylanceController extends Controller
             ];
         }
 
-
         return response()->json($response);
     }
 

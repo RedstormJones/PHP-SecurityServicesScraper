@@ -11,21 +11,15 @@ $options = [
     'expires'       => 5,
 ];
 
-
 $api->group($options, function ($api) {
     $api->group(['prefix' => 'cmdbservers'], function ($api) {
     });
 
-
     $api->group(['prefix' => 'serviceNowIncidnt'], function ($apit) {
     });
 
-
-
     $api->group(['prefix' => 'serviceNowIdmIncidnt'], function ($apit) {
     });
-
-
 
     $api->group(['prefix' => 'serviceNowSapRoleAuthIncidnt'], function ($apit) {
     });

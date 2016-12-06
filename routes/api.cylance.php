@@ -12,7 +12,6 @@ $options = [
     'expires'       => 5,
 ];
 
-
 $api->group($options, function ($api) {
 
     // Cylance Devices route group
@@ -36,7 +35,6 @@ $api->group($options, function ($api) {
         // queries for any device with at least one MAC address matching the MAC address provided
         $api->get('/mac/{mac}', 'CylanceController@getDeviceByMAC');
     });
-
 
     // Cylance Threats route group
     $api->group(['prefix' => 'threats'], function ($api) {
