@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\IronPort\IncomingEmail;
-use App\IronPort\IronPortThreat;
 use App\IronPort\IronPortSpamEmail;
+use App\IronPort\IronPortThreat;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class IronPortController extends Controller
@@ -246,9 +246,8 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get count of IronPort spam emails
+     * Get count of IronPort spam emails.
      *
      * @return \Illuminate\Http\Response
      */
@@ -263,8 +262,7 @@ class IronPortController extends Controller
                 'success'       => true,
                 'spam_count'    => $spam_count,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get IronPort spam count.',
