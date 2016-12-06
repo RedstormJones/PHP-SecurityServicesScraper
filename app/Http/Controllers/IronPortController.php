@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\IronPort\IncomingEmail;
 use App\IronPort\IronPortThreat;
+use App\IronPort\IronPortSpamEmail;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class IronPortController extends Controller
@@ -239,6 +240,34 @@ class IronPortController extends Controller
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get threat count for date: '.$date,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+    /**
+     * Get count of IronPort spam emails
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getTotalSpamCount()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $spam_count = IronPortSpamEmail::count();
+
+            $response = [
+                'success'       => true,
+                'spam_count'    => $spam_count,
+            ];
+        }
+        catch (\Exception $e) {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get IronPort spam count.',
             ];
         }
 
