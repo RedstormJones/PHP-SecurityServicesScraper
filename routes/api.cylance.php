@@ -17,6 +17,9 @@ $api->group($options, function ($api) {
     // Cylance Devices route group
     $api->group(['prefix' => 'devices'], function ($api) {
 
+        // get all Cylance Devices
+        $api->get('/all_devices', 'CylanceController@getAllDevices');
+
         // searches for a particular device by name
         $api->get('/{device_name}', 'CylanceController@getDevice');
 

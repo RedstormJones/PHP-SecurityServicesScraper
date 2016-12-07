@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\SecurityCenter\SecurityCenterAssetVuln;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
+
 class SecurityCenterController extends Controller
 {
     /**
@@ -14,13 +18,39 @@ class SecurityCenterController extends Controller
         $this->middleware('auth');
     }
 
+
     /**
-     * Show SecurityCenter dashboard.
+     * Get all SecurityCenter asset vulnerabilities
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function getAllAssetVulns()
     {
-        return view('SecurityCenter');
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $asset_vulns = SecurityCenterAssetVuln::all();
+
+            foreach($asset_vulns as $asset)
+            {
+                $data[] = \Metaclassing\Utility::decodeJson($asset['data']);
+            }
+
+            $response = [
+                'success'       => true,
+                'asset_vulns'   => $data,
+            ];
+        }
+        catch (\Exception $e) {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get SecurityCenter asset vulnerabilities.',
+            ];
+        }
+
+        return response()->json($response);
     }
+
 }

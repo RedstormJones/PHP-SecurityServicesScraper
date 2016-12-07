@@ -21,9 +21,49 @@ class CylanceController extends Controller
     /*
     *   API ENDPOINTS - CYLANCE DEVICES
     */
+   
 
     /**
-     * Show Cylance device page.
+     * Get all Cylance devices
+     *
+     * @return \Illuminate\Http\Response
+     */
+   public function getAllDevices()
+   {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $devices = CylanceDevice::paginate(100);
+
+            foreach($devices as $device)
+            {
+                $data[] = \Metaclassing\Utility::decodeJson($device['data']);
+            }
+
+            $response = [
+                'success'           => true,
+                'total'             => $devices->total(),
+                'current_page'      => $devices->currentPage(),
+                'next_page_url'     => $devices->nextPageUrl(),
+                'results_per_page'  => $devices->perPage(),
+                'has_more_pages'    => $devices->hasMorePages(),
+                'devices'           => $data,
+            ];
+        }
+        catch (\Exception $e) {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get Cylance devices.',
+            ];
+        }
+
+        return response()->json($response);
+   }
+
+    /**
+     * Search for a particular Cylance device
      *
      * @return \Illuminate\Http\Response
      */
@@ -252,7 +292,6 @@ class CylanceController extends Controller
 
             $response = [
                 'success'    => true,
-                'message'    => '',
                 'total'      => count($threats),
                 'threats'    => $data,
             ];
@@ -288,7 +327,6 @@ class CylanceController extends Controller
 
             $response = [
                 'success'   => true,
-                'message'   => '',
                 'total'     => count($threats),
                 'threats'   => $data,
             ];
@@ -322,7 +360,6 @@ class CylanceController extends Controller
 
             $response = [
                 'success'   => true,
-                'message'   => '',
                 'total'     => count($threats),
                 'threats'   => $data,
             ];
@@ -356,7 +393,6 @@ class CylanceController extends Controller
 
             $response = [
                 'success'   => true,
-                'message'   => '',
                 'total'     => count($threats),
                 'threats'   => $data,
             ];
@@ -386,7 +422,6 @@ class CylanceController extends Controller
 
             $response = [
                 'success'   => true,
-                'message'   => '',
                 'threat'    => $data,
             ];
         } catch (\Exception $e) {
@@ -415,7 +450,6 @@ class CylanceController extends Controller
 
             $response = [
                 'success'   => true,
-                'message'   => '',
                 'threat'    => $data,
             ];
         } catch (\Exception $e) {

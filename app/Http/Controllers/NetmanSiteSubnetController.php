@@ -37,7 +37,6 @@ class NetmanSiteSubnetController extends Controller
         if (count($site_subnets) > 0) {
             $response = [
                 'success'          => true,
-                'message'          => '',
                 'total'            => count($data),
                 'site_subnets'     => $data,
             ];
@@ -71,7 +70,6 @@ class NetmanSiteSubnetController extends Controller
 
             $response = [
                 'success'          => true,
-                'message'          => '',
                 'total'            => count($data),
                 'site_subnets'     => $data,
             ];
@@ -105,7 +103,6 @@ class NetmanSiteSubnetController extends Controller
 
             $response = [
                 'success'          => true,
-                'message'          => '',
                 'total'            => count($data),
                 'site_subnets'     => $data,
             ];
@@ -139,7 +136,6 @@ class NetmanSiteSubnetController extends Controller
 
             $response = [
                 'success'          => true,
-                'message'          => '',
                 'total'            => count($data),
                 'site_subnets'     => $data,
             ];
