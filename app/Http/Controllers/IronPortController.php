@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\IronPort\IncomingEmail;
-use App\IronPort\IronPortThreat;
 use App\IronPort\IronPortSpamEmail;
+use App\IronPort\IronPortThreat;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class IronPortController extends Controller
@@ -246,9 +246,8 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get count of IronPort spam emails
+     * Get count of IronPort spam emails.
      *
      * @return \Illuminate\Http\Response
      */
@@ -263,8 +262,7 @@ class IronPortController extends Controller
                 'success'       => true,
                 'spam_count'    => $spam_count,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get IronPort spam count.',
@@ -274,9 +272,8 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get IronPort spam emails sent by a specific sender address
+     * Get IronPort spam emails sent by a specific sender address.
      *
      * @return \Illuminate\Http\Response
      */
@@ -289,8 +286,7 @@ class IronPortController extends Controller
 
             $spam_emails = IronPortSpamEmail::where('sender', 'like', $sender)->paginate(100);
 
-            foreach($spam_emails as $spam)
-            {
+            foreach ($spam_emails as $spam) {
                 $data[] = \Metaclassing\Utility::decodeJson($spam['data']);
             }
 
@@ -303,8 +299,7 @@ class IronPortController extends Controller
                 'has_more_pages'    => $spam_emails->hasMorePages(),
                 'spam_emails'       => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get IronPort spam emails for sender: '.$sender,
@@ -314,10 +309,8 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
-
     /**
-     * Get IronPort spam emails recieved by a specific recipient
+     * Get IronPort spam emails recieved by a specific recipient.
      *
      * @return \Illuminate\Http\Response
      */
@@ -330,8 +323,7 @@ class IronPortController extends Controller
 
             $spam_emails = IronPortSpamEmail::where('recipients', 'like', '%'.$recipient.'%')->paginate(100);
 
-            foreach($spam_emails as $spam)
-            {
+            foreach ($spam_emails as $spam) {
                 $data[] = \Metaclassing\Utility::decodeJson($spam['data']);
             }
 
@@ -344,8 +336,7 @@ class IronPortController extends Controller
                 'has_more_pages'    => $spam_emails->hasMorePages(),
                 'spam_emails'       => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get IronPort spam emails for recipient: '.$recipient,
@@ -355,9 +346,8 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get IronPort spam emails caught by a specific quarantine
+     * Get IronPort spam emails caught by a specific quarantine.
      *
      * @return \Illuminate\Http\Response
      */
@@ -370,8 +360,7 @@ class IronPortController extends Controller
 
             $spam_emails = IronPortSpamEmail::where('quarantine_names', 'like', '%'.$quarantine.'%')->paginate(100);
 
-            foreach($spam_emails as $spam)
-            {
+            foreach ($spam_emails as $spam) {
                 $data[] = \Metaclassing\Utility::decodeJson($spam['data']);
             }
 
@@ -384,8 +373,7 @@ class IronPortController extends Controller
                 'has_more_pages'    => $spam_emails->hasMorePages(),
                 'spam_emails'       => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get IronPort spam emails for quarantine: '.$quarantine,
@@ -395,9 +383,8 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get IronPort spam emails with a containing a specific subject
+     * Get IronPort spam emails with a containing a specific subject.
      *
      * @return \Illuminate\Http\Response
      */
@@ -410,8 +397,7 @@ class IronPortController extends Controller
 
             $spam_emails = IronPortSpamEmail::where('subject', 'like', '%'.$subject.'%')->paginate(100);
 
-            foreach($spam_emails as $spam)
-            {
+            foreach ($spam_emails as $spam) {
                 $data[] = \Metaclassing\Utility::decodeJson($spam['data']);
             }
 
@@ -424,8 +410,7 @@ class IronPortController extends Controller
                 'has_more_pages'    => $spam_emails->hasMorePages(),
                 'spam_emails'       => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get IronPort spam emails for subject: '.$subject,
@@ -435,10 +420,8 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
-
     /**
-     * Get IronPort spam emails by a specific reason
+     * Get IronPort spam emails by a specific reason.
      *
      * @return \Illuminate\Http\Response
      */
@@ -451,8 +434,7 @@ class IronPortController extends Controller
 
             $spam_emails = IronPortSpamEmail::where('reason', 'like', '%'.$reason.'%')->paginate(100);
 
-            foreach($spam_emails as $spam)
-            {
+            foreach ($spam_emails as $spam) {
                 $data[] = \Metaclassing\Utility::decodeJson($spam['data']);
             }
 
@@ -465,8 +447,7 @@ class IronPortController extends Controller
                 'has_more_pages'    => $spam_emails->hasMorePages(),
                 'spam_emails'       => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get IronPort spam emails for reason: '.$reason,
