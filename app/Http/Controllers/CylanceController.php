@@ -21,28 +21,26 @@ class CylanceController extends Controller
     /*
     *   API ENDPOINTS - CYLANCE DEVICES
     */
-   
 
-    /**
-     * Get all Cylance devices
-     *
-     * @return \Illuminate\Http\Response
-     */
+   /**
+    * Get all Cylance devices.
+    *
+    * @return \Illuminate\Http\Response
+    */
    public function getAllDevices()
    {
-        $user = JWTAuth::parseToken()->authenticate();
+       $user = JWTAuth::parseToken()->authenticate();
 
-        try {
-            $data = [];
+       try {
+           $data = [];
 
-            $devices = CylanceDevice::paginate(100);
+           $devices = CylanceDevice::paginate(100);
 
-            foreach($devices as $device)
-            {
-                $data[] = \Metaclassing\Utility::decodeJson($device['data']);
-            }
+           foreach ($devices as $device) {
+               $data[] = \Metaclassing\Utility::decodeJson($device['data']);
+           }
 
-            $response = [
+           $response = [
                 'success'           => true,
                 'total'             => $devices->total(),
                 'current_page'      => $devices->currentPage(),
@@ -51,19 +49,18 @@ class CylanceController extends Controller
                 'has_more_pages'    => $devices->hasMorePages(),
                 'devices'           => $data,
             ];
-        }
-        catch (\Exception $e) {
-            $response = [
+       } catch (\Exception $e) {
+           $response = [
                 'success'   => false,
                 'message'   => 'Failed to get Cylance devices.',
             ];
-        }
+       }
 
-        return response()->json($response);
+       return response()->json($response);
    }
 
     /**
-     * Search for a particular Cylance device
+     * Search for a particular Cylance device.
      *
      * @return \Illuminate\Http\Response
      */

@@ -11,14 +11,8 @@ $options = [
     'expires'          => 5,
 ];
 
-
 $api->group($options, function ($api) {
-
-	$api->group(['prefix' => 'asset_vulns'], function ($api) {
-
-		$api->get('/all_assets', 'SecurityCenterController@getAllAssetVulns');
-
-	});
-
-
+    $api->group(['prefix' => 'asset_vulns'], function ($api) {
+        $api->get('/all_assets', 'SecurityCenterController@getAllAssetVulns');
+    });
 });
