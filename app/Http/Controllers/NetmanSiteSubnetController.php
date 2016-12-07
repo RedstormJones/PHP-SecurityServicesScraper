@@ -27,22 +27,22 @@ class NetmanSiteSubnetController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
 
         try {
-        	$data = [];
+            $data = [];
 
-        	$site_subnets = SiteSubnet::paginate(100);
+            $site_subnets = SiteSubnet::paginate(100);
 
-	        foreach ($site_subnets as $site_subnet) {
-	            $data[] = \Metaclassing\Utility::decodeJson($site_subnet['data']);
-	        }
+            foreach ($site_subnets as $site_subnet) {
+                $data[] = \Metaclassing\Utility::decodeJson($site_subnet['data']);
+            }
 
             $response = [
-                'success'           => true,
-                'total'             => $site_subnets->total(),
-                'count'             => $site_subnets->count(),
-                'current_page'      => $site_subnets->currentPage(),
-                'next_page_url'     => $site_subnets->nextPageUrl(),
-                'has_more_pages'	=> $site_subnets->hasMorePages(),
-                'site_subnets'    	=> $data,
+                'success'             => true,
+                'total'               => $site_subnets->total(),
+                'count'               => $site_subnets->count(),
+                'current_page'        => $site_subnets->currentPage(),
+                'next_page_url'       => $site_subnets->nextPageUrl(),
+                'has_more_pages'      => $site_subnets->hasMorePages(),
+                'site_subnets'        => $data,
             ];
         } catch (\Exception $e) {
             $response = [
