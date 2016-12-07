@@ -26,21 +26,25 @@ class NetmanSiteSubnetController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $data = [];
+        try {
+        	$data = [];
 
-        $site_subnets = SiteSubnet::pluck('data');
+        	$site_subnets = SiteSubnet::paginate(100);
 
-        foreach ($site_subnets as $site_subnet) {
-            $data[] = \Metaclassing\Utility::decodeJson($site_subnet);
-        }
+	        foreach ($site_subnets as $site_subnet) {
+	            $data[] = \Metaclassing\Utility::decodeJson($site_subnet['data']);
+	        }
 
-        if (count($site_subnets) > 0) {
             $response = [
-                'success'          => true,
-                'total'            => count($data),
-                'site_subnets'     => $data,
+                'success'           => true,
+                'total'             => $site_subnets->total(),
+                'count'             => $site_subnets->count(),
+                'current_page'      => $site_subnets->currentPage(),
+                'next_page_url'     => $site_subnets->nextPageUrl(),
+                'has_more_pages'	=> $site_subnets->hasMorePages(),
+                'site_subnets'    	=> $data,
             ];
-        } else {
+        } catch (\Exception $e) {
             $response = [
                 'success'    => false,
                 'message'    => 'Failed to get list of job site subnets',

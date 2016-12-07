@@ -42,6 +42,9 @@ $api->group($options, function ($api) {
     // Cylance Threats route group
     $api->group(['prefix' => 'threats'], function ($api) {
 
+        // get all Cylance threats
+        $api->get('/all_threats', 'CylanceController@getAllThreats');
+
         // searches for a particular threat by name
         $api->get('/filename/{file_name}', 'CylanceController@getThreatsByName');
 

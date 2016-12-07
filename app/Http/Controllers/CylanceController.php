@@ -21,46 +21,48 @@ class CylanceController extends Controller
     /*
     *   API ENDPOINTS - CYLANCE DEVICES
     */
-
-   /**
-    * Get all Cylance devices.
-    *
-    * @return \Illuminate\Http\Response
-    */
+   
+    /**
+     * Get all Cylance devices
+     *
+     * @return \Illuminate\Http\Response
+     */
    public function getAllDevices()
    {
-       $user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
 
-       try {
-           $data = [];
+        try {
+            $data = [];
 
-           $devices = CylanceDevice::paginate(100);
+            $devices = CylanceDevice::paginate(100);
 
-           foreach ($devices as $device) {
-               $data[] = \Metaclassing\Utility::decodeJson($device['data']);
-           }
+            foreach($devices as $device)
+            {
+                $data[] = \Metaclassing\Utility::decodeJson($device['data']);
+            }
 
-           $response = [
+            $response = [
                 'success'           => true,
                 'total'             => $devices->total(),
+                'count'             => $devices->count(),
                 'current_page'      => $devices->currentPage(),
                 'next_page_url'     => $devices->nextPageUrl(),
-                'results_per_page'  => $devices->perPage(),
                 'has_more_pages'    => $devices->hasMorePages(),
                 'devices'           => $data,
             ];
-       } catch (\Exception $e) {
-           $response = [
+        }
+        catch (\Exception $e) {
+            $response = [
                 'success'   => false,
                 'message'   => 'Failed to get Cylance devices.',
             ];
-       }
+        }
 
-       return response()->json($response);
+        return response()->json($response);
    }
 
     /**
-     * Search for a particular Cylance device.
+     * Search for a particular Cylance device
      *
      * @return \Illuminate\Http\Response
      */
@@ -97,10 +99,10 @@ class CylanceController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $devices = CylanceDevice::where('last_users_text', 'like', '%'.strtoupper($user_name))->orderBy('device_created_at')->get();
-
-        if (count($devices) > 0) {
+        try {
             $data = [];
+
+            $devices = CylanceDevice::where('last_users_text', 'like', '%'.strtoupper($user_name))->orderBy('device_created_at')->get();
 
             foreach ($devices as $device) {
                 $data[] = \Metaclassing\Utility::decodeJson($device->data);
@@ -112,7 +114,7 @@ class CylanceController extends Controller
                     'total'     => count($devices),
                     'devices'   => $data,
             ];
-        } else {
+        } catch (\Exception $e) {
             $response = [
                 'success' => false,
                 'message' => 'Could not find any devices for user: '.$user_name,
@@ -131,22 +133,25 @@ class CylanceController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $devices = CylanceDevice::where('files_unsafe', '>', 0)->orderBy('files_unsafe', 'desc')->get();
-
-        if (count($devices) > 0) {
+        try {
             $data = [];
+
+            $devices = CylanceDevice::where('files_unsafe', '>', 0)->paginate(100);
 
             foreach ($devices as $device) {
                 $data[] = \Metaclassing\Utility::decodeJson($device->data);
             }
 
             $response = [
-                'success'   => true,
-                'message'   => '',
-                'total'     => count($devices),
-                'devices'   => $data,
+                'success'           => true,
+                'total'             => $devices->total(),
+                'count'             => $devices->count(),
+                'current_page'      => $devices->currentPage(),
+                'next_page_url'     => $devices->nextPageUrl(),
+                'has_more_pages'    => $devices->hasMorePages(),
+                'devices'           => $data,
             ];
-        } else {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get list of top unsafe devices',
@@ -163,7 +168,7 @@ class CylanceController extends Controller
      */
     public function listDevicesByDistrict($district)
     {
-        if ($district != 'KU' && strlen($district) < 3) {
+        if (strlen($district) < 3 && $district != 'KU') {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to find any devices belonging to '.$district,
@@ -171,22 +176,25 @@ class CylanceController extends Controller
         } else {
             $user = JWTAuth::parseToken()->authenticate();
 
-            $devices = CylanceDevice::where('zones_text', 'like', '%'.$district.'%')->orderBy('device_created_at', 'desc')->get();
-
-            if (count($devices) > 0) {
+            try {
                 $data = [];
+
+                $devices = CylanceDevice::where('zones_text', 'like', '%'.$district.'%')->paginate(100);
 
                 foreach ($devices as $device) {
                     $data[] = \Metaclassing\Utility::decodeJson($device->data);
                 }
 
                 $response = [
-                    'success'   => true,
-                    'message'   => '',
-                    'total'     => count($devices),
-                    'devices'   => $data,
+                    'success'           => true,
+                    'total'             => $devices->total(),
+                    'count'             => $devices->count(),
+                    'current_page'      => $devices->currentPage(),
+                    'next_page_url'     => $devices->nextPageUrl(),
+                    'has_more_pages'    => $devices->hasMorePages(),
+                    'devices'           => $data,
                 ];
-            } else {
+            } catch (\Exception $e) {
                 $response = [
                     'success'   => false,
                     'message'   => 'Failed to find any devices belonging to '.$district,
@@ -206,10 +214,10 @@ class CylanceController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $devices = CylanceDevice::where('ip_addresses_text', 'like', '%'.$ip.'%')->orderBy('device_created_at', 'desc')->get();
-
-        if (count($devices) > 0) {
+        try {
             $data = [];
+
+            $devices = CylanceDevice::where('ip_addresses_text', 'like', '%'.$ip.'%')->orderBy('device_created_at', 'desc')->get();
 
             foreach ($devices as $device) {
                 $data[] = \Metaclassing\Utility::decodeJson($device->data);
@@ -217,11 +225,10 @@ class CylanceController extends Controller
 
             $response = [
                 'success'   => true,
-                'message'   => '',
                 'total'     => count($devices),
                 'devices'   => $data,
             ];
-        } else {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to find any device with an IP address matching '.$ip,
@@ -240,10 +247,10 @@ class CylanceController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $devices = CylanceDevice::where('mac_addresses_text', 'like', '%'.$mac.'%')->orderBy('device_created_at', 'desc')->get();
-
-        if (count($devices) > 0) {
+        try {
             $data = [];
+
+            $devices = CylanceDevice::where('mac_addresses_text', 'like', '%'.$mac.'%')->orderBy('device_created_at', 'desc')->get();
 
             foreach ($devices as $device) {
                 $data[] = \Metaclassing\Utility::decodeJson($device->data);
@@ -251,11 +258,10 @@ class CylanceController extends Controller
 
             $response = [
                 'success'   => true,
-                'message'   => '',
                 'total'     => count($devices),
                 'devices'   => $data,
             ];
-        } else {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to find any device with a MAC address matching '.$mac,
@@ -270,6 +276,46 @@ class CylanceController extends Controller
     */
 
     /**
+     * Get all Cylance threats
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getAllThreats()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $threats = CylanceThreat::paginate(100);
+
+            foreach($threats as $threat)
+            {
+                $data[] = \Metaclassing\Utility::decodeJson($threat['data']);
+            }
+
+            $response = [
+                'success'           => true,
+                'total'             => $threats->total(),
+                'count'             => $threats->count(),
+                'current_page'      => $threats->currentPage(),
+                'next_page_url'     => $threats->nextPageUrl(),
+                'has_more_pages'    => $threats->hasMorePages(),
+                'threats'           => $data,
+            ];
+        }
+        catch (\Exception $e) {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get Cylance threats.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+    /**
      * Returns a list of threats matching the filename provided.
      *
      * @return \Illuminate\Http\Response
@@ -278,10 +324,10 @@ class CylanceController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $threats = CylanceThreat::where('common_name', '=', $threat_name)->get();
-
-        if (count($threats) > 0) {
+        try {
             $data = [];
+
+            $threats = CylanceThreat::where('common_name', '=', $threat_name)->get();
 
             foreach ($threats as $threat) {
                 $data[] = \Metaclassing\Utility::decodeJson($threat->data);
@@ -292,7 +338,7 @@ class CylanceController extends Controller
                 'total'      => count($threats),
                 'threats'    => $data,
             ];
-        } else {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Could not find any threats named: '.$threat_name,
@@ -311,23 +357,25 @@ class CylanceController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $threats = CylanceThreat::where('current_model', '=', 'Unsafe')
-                    ->orderBy('cylance_score', 'desc')
-                    ->get();
-
-        if (count($threats) > 0) {
+        try {
             $data = [];
+
+            $threats = CylanceThreat::where('current_model', '=', 'Unsafe')->paginate(100);
 
             foreach ($threats as $threat) {
                 $data[] = \Metaclassing\Utility::decodeJson($threat->data);
             }
 
             $response = [
-                'success'   => true,
-                'total'     => count($threats),
-                'threats'   => $data,
+                'success'           => true,
+                'total'             => $threats->total(),
+                'count'             => $threats->count(),
+                'current_page'      => $threats->currentPage(),
+                'next_page_url'     => $threats->nextPageUrl(),
+                'has_more_pages'    => $threats->hasMorePages(),
+                'unsafe_threats'    => $data,
             ];
-        } else {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get list of top threats',
@@ -346,21 +394,25 @@ class CylanceController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $threats = CylanceThreat::where('current_model', '=', $current_model)->get();
-
-        if (count($threats) > 0) {
+        try {
             $data = [];
+
+            $threats = CylanceThreat::where('current_model', '=', $current_model)->paginate(100);
 
             foreach ($threats as $threat) {
                 $data[] = \Metaclassing\Utility::decodeJson($threat->data);
             }
 
             $response = [
-                'success'   => true,
-                'total'     => count($threats),
-                'threats'   => $data,
+                'success'           => true,
+                'total'             => $threats->total(),
+                'count'             => $threats->count(),
+                'current_page'      => $threats->currentPage(),
+                'next_page_url'     => $threats->nextPageUrl(),
+                'has_more_pages'    => $threats->hasMorePages(),
+                'unsafe_threats'    => $data,
             ];
-        } else {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'No threats found for model: '.$current_model,
@@ -379,21 +431,25 @@ class CylanceController extends Controller
     {
         $user = JWTAuth::parseToken()->authenticate();
 
-        $threats = CylanceThreat::where('detected_by', '=', $detected_by)->get();
-
-        if (count($threats) > 0) {
+        try {
             $data = [];
+
+            $threats = CylanceThreat::where('detected_by', '=', $detected_by)->paginate(100);
 
             foreach ($threats as $threat) {
                 $data[] = \Metaclassing\Utility::decodeJson($threat->data);
             }
 
             $response = [
-                'success'   => true,
-                'total'     => count($threats),
-                'threats'   => $data,
+                'success'           => true,
+                'total'             => $threats->total(),
+                'count'             => $threats->count(),
+                'current_page'      => $threats->currentPage(),
+                'next_page_url'     => $threats->nextPageUrl(),
+                'has_more_pages'    => $threats->hasMorePages(),
+                'unsafe_threats'    => $data,
             ];
-        } else {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'No threats found to be detected by: '.$detected_by,
