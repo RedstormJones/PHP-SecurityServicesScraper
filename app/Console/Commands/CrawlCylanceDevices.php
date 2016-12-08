@@ -147,7 +147,7 @@ class CrawlCylanceDevices extends Command
             file_put_contents($response_path.'devices.dump.'.$page, $response);
 
             // json decode the response
-            $devices = json_decode($response, true);
+            $devices = \Metaclassing\Utility::decodeJson($response);
 
             // save this pages response array to our collection
             $collection[] = $devices;
@@ -159,16 +159,19 @@ class CrawlCylanceDevices extends Command
             //echo 'total device count: '.$count.PHP_EOL;
 
             echo 'scrape for page '.$page.' complete - got '.count($devices['Data']).' device records'.PHP_EOL;
+            echo 'total devices: '.$count.PHP_EOL;
 
             $i += count($devices['Data']);  // Increase i by PAGESIZE!
             $page++;                        // Increase the page number
 
             // wait a second before hammering on their webserver again
-            sleep(3);
+            sleep(1);
         } while ($i < $count);
 
+
         // Pop off empty array element
-        array_pop($collection);
+        //array_pop($collection);
+
 
         // instantiate cylance device list
         $cylance_devices = [];
