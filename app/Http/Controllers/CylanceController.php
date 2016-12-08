@@ -21,27 +21,26 @@ class CylanceController extends Controller
     /*
     *   API ENDPOINTS - CYLANCE DEVICES
     */
-   
-    /**
-     * Get all Cylance devices
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+   /**
+    * Get all Cylance devices.
+    *
+    * @return \Illuminate\Http\Response
+    */
    public function getAllDevices()
    {
-        $user = JWTAuth::parseToken()->authenticate();
+       $user = JWTAuth::parseToken()->authenticate();
 
-        try {
-            $data = [];
+       try {
+           $data = [];
 
-            $devices = CylanceDevice::paginate(1000);
+           $devices = CylanceDevice::paginate(1000);
 
-            foreach($devices as $device)
-            {
-                $data[] = \Metaclassing\Utility::decodeJson($device['data']);
-            }
+           foreach ($devices as $device) {
+               $data[] = \Metaclassing\Utility::decodeJson($device['data']);
+           }
 
-            $response = [
+           $response = [
                 'success'           => true,
                 'total'             => $devices->total(),
                 'count'             => $devices->count(),
@@ -50,19 +49,18 @@ class CylanceController extends Controller
                 'has_more_pages'    => $devices->hasMorePages(),
                 'devices'           => $data,
             ];
-        }
-        catch (\Exception $e) {
-            $response = [
+       } catch (\Exception $e) {
+           $response = [
                 'success'   => false,
                 'message'   => 'Failed to get Cylance devices.',
             ];
-        }
+       }
 
-        return response()->json($response);
+       return response()->json($response);
    }
 
     /**
-     * Search for a particular Cylance device
+     * Search for a particular Cylance device.
      *
      * @return \Illuminate\Http\Response
      */
@@ -161,9 +159,8 @@ class CylanceController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Returns unsafe devices for each District
+     * Returns unsafe devices for each District.
      *
      * @return \Illuminate\Http\Response
      */
@@ -176,13 +173,10 @@ class CylanceController extends Controller
 
             $devices = CylanceDevice::where('files_unsafe', '>', 0)->get();
 
-            foreach($devices as $device)
-            {
-                if(array_key_exists($device['zones_text'], $data))
-                {
+            foreach ($devices as $device) {
+                if (array_key_exists($device['zones_text'], $data)) {
                     $data[$device['zones_text']]++;
-                }
-                else {
+                } else {
                     $data[$device['zones_text']] = 1;
                 }
             }
@@ -190,9 +184,8 @@ class CylanceController extends Controller
             $keys = array_keys($data);
 
             $district_data = [];
-            
-            foreach($keys as $key)
-            {
+
+            foreach ($keys as $key) {
                 $district_data[] = [
                     'district_name' => $key,
                     'device_count'  => $data[$key],
@@ -204,8 +197,7 @@ class CylanceController extends Controller
                 'count'     => count($data),
                 'devices'   => $district_data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get unsafe devices for each district.',
@@ -214,8 +206,6 @@ class CylanceController extends Controller
 
         return response()->json($response);
     }
-
-
 
     /**
      * Returns a list of devices specific to a District.
@@ -332,7 +322,7 @@ class CylanceController extends Controller
     */
 
     /**
-     * Get all Cylance threats
+     * Get all Cylance threats.
      *
      * @return \Illuminate\Http\Response
      */
@@ -345,8 +335,7 @@ class CylanceController extends Controller
 
             $threats = CylanceThreat::paginate(100);
 
-            foreach($threats as $threat)
-            {
+            foreach ($threats as $threat) {
                 $data[] = \Metaclassing\Utility::decodeJson($threat['data']);
             }
 
@@ -359,8 +348,7 @@ class CylanceController extends Controller
                 'has_more_pages'    => $threats->hasMorePages(),
                 'threats'           => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get Cylance threats.',
@@ -369,7 +357,6 @@ class CylanceController extends Controller
 
         return response()->json($response);
     }
-
 
     /**
      * Returns a list of threats matching the filename provided.
