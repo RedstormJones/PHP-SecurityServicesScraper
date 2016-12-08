@@ -140,6 +140,8 @@ class ProcessCylanceDevices extends Command
         * it against delete_date to determine if its a stale record or not. If yes, delete it.
         **/
         foreach ($devices as $device) {
+            echo 'processing deletes...'.PHP_EOL;
+
             $updated_at = substr($device->updated_at, 0, -9);
 
             // if updated_at is less than or equal to delete_date then we soft delete the device
