@@ -27,7 +27,10 @@ $api->group($options, function ($api) {
         $api->get('/user/{user_name}', 'CylanceController@listUsersDevices');
 
         // queries for all unsafe devices, ordered by count of unsafe files
-        $api->get('/unsafe/list', 'CylanceController@listTopUnsafeDevices');
+        $api->get('/unsafe/list', 'CylanceController@getAllUnsafeDevices');
+
+        // get unsafe devices count for each District
+        $api->get('/unsafe/by_district', 'CylanceController@getUnsafeDevicesForDistricts');
 
         // queries for all devices belonging to a particular District
         $api->get('/district/{district}', 'CylanceController@listDevicesByDistrict');
