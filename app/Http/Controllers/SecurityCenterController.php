@@ -8,7 +8,6 @@ use App\SecurityCenter\SecurityCenterHigh;
 use App\SecurityCenter\SecurityCenterMedium;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
-
 class SecurityCenterController extends Controller
 {
     /**
@@ -22,7 +21,7 @@ class SecurityCenterController extends Controller
     }
 
     /**
-     * Get all SecurityCenter asset vulnerabilities
+     * Get all SecurityCenter asset vulnerabilities.
      *
      * @return \Illuminate\Http\Response
      */
@@ -36,9 +35,8 @@ class SecurityCenterController extends Controller
 
             $asset_vulns = SecurityCenterAssetVuln::orderBy('asset_name', 'asc')->get();
 
-            foreach($asset_vulns as $asset)
-            {
-                if(preg_match($regex, $asset['asset_name'])) {
+            foreach ($asset_vulns as $asset) {
+                if (preg_match($regex, $asset['asset_name'])) {
                     $data[] = \Metaclassing\Utility::decodeJson($asset['data']);
                 }
             }
@@ -48,8 +46,7 @@ class SecurityCenterController extends Controller
                 'count'         => count($data),
                 'asset_vulns'   => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get SecurityCenter asset vulnerabilities.',
@@ -60,7 +57,7 @@ class SecurityCenterController extends Controller
     }
 
     /**
-     * Get SecurityCenter asset vulnerabilities by asset score
+     * Get SecurityCenter asset vulnerabilities by asset score.
      *
      * @return \Illuminate\Http\Response
      */
@@ -74,9 +71,8 @@ class SecurityCenterController extends Controller
 
             $asset_vulns = SecurityCenterAssetVuln::orderBy('asset_score', 'desc')->get();
 
-            foreach($asset_vulns as $asset)
-            {
-                if(preg_match($regex, $asset['asset_name'])) {
+            foreach ($asset_vulns as $asset) {
+                if (preg_match($regex, $asset['asset_name'])) {
                     $data[] = \Metaclassing\Utility::decodeJson($asset['data']);
                 }
             }
@@ -86,8 +82,7 @@ class SecurityCenterController extends Controller
                 'count'         => count($data),
                 'asset_vulns'   => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get asset vulnerabilities.',
@@ -97,9 +92,8 @@ class SecurityCenterController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get SecurityCenter asset vulnerabilities by asset name
+     * Get SecurityCenter asset vulnerabilities by asset name.
      *
      * @return \Illuminate\Http\Response
      */
@@ -116,8 +110,7 @@ class SecurityCenterController extends Controller
                 'success'       => true,
                 'asset_vulns'   => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get asset vulnerabilities for asset: '.$asset,
@@ -127,9 +120,8 @@ class SecurityCenterController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get SecurityCenter vulnerabilities for a particular severity
+     * Get SecurityCenter vulnerabilities for a particular severity.
      *
      * @return \Illuminate\Http\Response
      */
@@ -157,7 +149,7 @@ class SecurityCenterController extends Controller
                     throw new \Exception();
             }
 
-            foreach($vulns as $vuln) {
+            foreach ($vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
@@ -170,8 +162,7 @@ class SecurityCenterController extends Controller
                 'has_more_pages'    => $vulns->hasMorePages(),
                 'vulns'             => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get SecurityCenter vulnerabilities for severity: '.$severity,
@@ -181,9 +172,8 @@ class SecurityCenterController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get SecurityCenter vulnerabilities of a particular severity for a particular device by device name
+     * Get SecurityCenter vulnerabilities of a particular severity for a particular device by device name.
      *
      * @return \Illuminate\Http\Response
      */
@@ -231,7 +221,7 @@ class SecurityCenterController extends Controller
                     throw new \Exception();
             }
 
-            foreach($vulns as $vuln) {
+            foreach ($vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
@@ -244,8 +234,7 @@ class SecurityCenterController extends Controller
                 'has_more_pages'    => $vulns->hasMorePages(),
                 'vulns'             => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get '.$severity.' vulnerabilities for device: '.$device,
@@ -256,7 +245,7 @@ class SecurityCenterController extends Controller
     }
 
     /**
-     * Get SecurityCenter vulnerabilities of a particular severity for a particular device by IP
+     * Get SecurityCenter vulnerabilities of a particular severity for a particular device by IP.
      *
      * @return \Illuminate\Http\Response
      */
@@ -304,7 +293,7 @@ class SecurityCenterController extends Controller
                     throw new \Exception();
             }
 
-            foreach($vulns as $vuln) {
+            foreach ($vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
@@ -317,8 +306,7 @@ class SecurityCenterController extends Controller
                 'has_more_pages'    => $vulns->hasMorePages(),
                 'vulns'             => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get '.$severity.' vulnerabilities for ip: '.$ip,
@@ -328,10 +316,8 @@ class SecurityCenterController extends Controller
         return response()->json($response);
     }
 
-
-
     /**
-     * Get all SecurityCenter vulnerabilities for a particular device by device name
+     * Get all SecurityCenter vulnerabilities for a particular device by device name.
      *
      * @return array
      */
@@ -357,19 +343,18 @@ class SecurityCenterController extends Controller
                     ['dns_name', 'like', $device.'%'],
                 ])->get();
 
-            foreach($critical_vulns as $vuln) {
+            foreach ($critical_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
-            foreach($high_vulns as $vuln) {
+            foreach ($high_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
-            foreach($medium_vulns as $vuln) {
+            foreach ($medium_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $data = [
                 'success'   => false,
                 'message'   => 'Failed to get vulnerabilities for device: '.$device,
@@ -379,9 +364,8 @@ class SecurityCenterController extends Controller
         return $data;
     }
 
-
     /**
-     * Get all SecurityCenter vulnerabilities for a particular device by IP
+     * Get all SecurityCenter vulnerabilities for a particular device by IP.
      *
      * @return array
      */
@@ -407,19 +391,18 @@ class SecurityCenterController extends Controller
                     ['ip_address', '=', $ip],
                 ])->get();
 
-            foreach($critical_vulns as $vuln) {
+            foreach ($critical_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
-            foreach($high_vulns as $vuln) {
+            foreach ($high_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
-            foreach($medium_vulns as $vuln) {
+            foreach ($medium_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $data = [
                 'success'   => false,
                 'message'   => 'Failed to get vulnerabilities for ip: '.$ip,
@@ -430,8 +413,8 @@ class SecurityCenterController extends Controller
     }
 
     /**
-     * Get SecurityCenter vulnerabilities of a particular severity 
-     * (or all severities) that have exploits available
+     * Get SecurityCenter vulnerabilities of a particular severity
+     * (or all severities) that have exploits available.
      *
      * @return \Illuminate\Http\Response
      */
@@ -481,7 +464,7 @@ class SecurityCenterController extends Controller
                     throw new \Exception();
             }
 
-            foreach($vulns as $vuln) {
+            foreach ($vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
@@ -494,8 +477,7 @@ class SecurityCenterController extends Controller
                 'has_more_pages'    => $vulns->hasMorePages(),
                 'vulns'             => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get '.$severity.' vulnerabilities with exploits available.',
@@ -505,10 +487,9 @@ class SecurityCenterController extends Controller
         return response()->json($response);
     }
 
-
     /**
      * Get SecurityCenter vulnerabilities of a particular severity (or all severities) that have
-     * exploits available, for a particular device by device name
+     * exploits available, for a particular device by device name.
      *
      * @return \Illuminate\Http\Response
      */
@@ -559,7 +540,7 @@ class SecurityCenterController extends Controller
                     throw new \Exception();
             }
 
-            foreach($vulns as $vuln) {
+            foreach ($vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
@@ -572,8 +553,7 @@ class SecurityCenterController extends Controller
                 'has_more_pages'    => $vulns->hasMorePages(),
                 'vulns'             => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get '.$severity.' vulnerabilities with exploits available for device: '.$device,
@@ -583,10 +563,9 @@ class SecurityCenterController extends Controller
         return response()->json($response);
     }
 
-
     /**
      * Get SecurityCenter vulnerabilities of a particular severity (or all severities) that have
-     * exploits available, for a particular device by IP
+     * exploits available, for a particular device by IP.
      *
      * @return \Illuminate\Http\Response
      */
@@ -637,7 +616,7 @@ class SecurityCenterController extends Controller
                     throw new \Exception();
             }
 
-            foreach($vulns as $vuln) {
+            foreach ($vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
@@ -650,8 +629,7 @@ class SecurityCenterController extends Controller
                 'has_more_pages'    => $vulns->hasMorePages(),
                 'vulns'             => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get '.$severity.' vulnerabilities with exploits available for IP: '.$ip,
@@ -662,7 +640,7 @@ class SecurityCenterController extends Controller
     }
 
     /**
-     * Get all SecurityCenter vulnerabilities with an exploit available
+     * Get all SecurityCenter vulnerabilities with an exploit available.
      *
      * @return array
      */
@@ -688,19 +666,18 @@ class SecurityCenterController extends Controller
                     ['exploit_available', '=', 'Yes'],
                 ])->get();
 
-            foreach($critical_vulns as $vuln) {
+            foreach ($critical_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
-            foreach($high_vulns as $vuln) {
+            foreach ($high_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
-            foreach($medium_vulns as $vuln) {
+            foreach ($medium_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $data = [
                 'success'   => false,
                 'message'   => 'Failed to get vulnerabilities with exploits available.',
@@ -710,10 +687,9 @@ class SecurityCenterController extends Controller
         return $data;
     }
 
-
     /**
      * Get all SecurityCenter vulnerabilities with an exploit available
-     * for a particular device, by device name
+     * for a particular device, by device name.
      *
      * @return array
      */
@@ -742,19 +718,18 @@ class SecurityCenterController extends Controller
                     ['dns_name', 'like', $device.'%'],
                 ])->get();
 
-            foreach($critical_vulns as $vuln) {
+            foreach ($critical_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
-            foreach($high_vulns as $vuln) {
+            foreach ($high_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
-            foreach($medium_vulns as $vuln) {
+            foreach ($medium_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $data = [
                 'success'   => false,
                 'message'   => 'Failed to get vulnerabilities with exploits available for device: '.$device,
@@ -764,10 +739,9 @@ class SecurityCenterController extends Controller
         return $data;
     }
 
-
     /**
      * Get all SecurityCenter vulnerabilities with an exploit available
-     * for a particular device, by IP
+     * for a particular device, by IP.
      *
      * @return array
      */
@@ -796,19 +770,18 @@ class SecurityCenterController extends Controller
                     ['ip_address', '=', $ip],
                 ])->get();
 
-            foreach($critical_vulns as $vuln) {
+            foreach ($critical_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
-            foreach($high_vulns as $vuln) {
+            foreach ($high_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
 
-            foreach($medium_vulns as $vuln) {
+            foreach ($medium_vulns as $vuln) {
                 $data[] = \Metaclassing\Utility::decodeJson($vuln['data']);
             }
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $data = [
                 'success'   => false,
                 'message'   => 'Failed to get vulnerabilities with exploits available for IP: '.$ip,
