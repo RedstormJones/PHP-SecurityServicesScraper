@@ -30,7 +30,6 @@ $api->group($options, function ($api) {
 
         // get CMDB servers by District
         $api->get('/district/{district}', 'ServiceNowController@getCMDBServersByDistrict');
-
     });
 
     // ServiceNow Security incidents route group

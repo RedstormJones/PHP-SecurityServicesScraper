@@ -18,23 +18,22 @@ class ServiceNowController extends Controller
     }
 
     /**
-     * Get all CMDB servers
+     * Get all CMDB servers.
      *
      * @return void
      */
     public function getCMDBServers()
     {
-    	$user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
 
-    	try {
-    		$data = [];
+        try {
+            $data = [];
 
-    		$servers = cmdbServer::paginate(100);
+            $servers = cmdbServer::paginate(100);
 
-    		foreach($servers as $server)
-    		{
-    			$data[] = \Metaclassing\Utility::decodeJson($server['data']);
-    		}
+            foreach ($servers as $server) {
+                $data[] = \Metaclassing\Utility::decodeJson($server['data']);
+            }
 
             $response = [
                 'success'           => true,
@@ -45,152 +44,143 @@ class ServiceNowController extends Controller
                 'has_more_pages'    => $servers->hasMorePages(),
                 'vulns'             => $data,
             ];
-    	}
-    	catch (\Exception $e) {
-    		$response = [
-    			'success'	=> false,
-    			'message'	=> 'Failed to get CMDB servers.',
-    		];
-    	}
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get CMDB servers.',
+            ];
+        }
 
-    	return response()->json($response);
+        return response()->json($response);
     }
 
-
     /**
-     * Get CMDB server by name
+     * Get CMDB server by name.
      *
      * @return void
      */
     public function getCMDBServerByName($name)
     {
-    	$user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
 
-    	try {
-    		$data = [];
+        try {
+            $data = [];
 
-    		$server = cmdbServer::where('name', '=', $name)->firstOrFail();
+            $server = cmdbServer::where('name', '=', $name)->firstOrFail();
 
-    		$data = \Metaclassing\Utility::decodeJson($server['data']);
+            $data = \Metaclassing\Utility::decodeJson($server['data']);
 
-    		$response = [
-    			'success'	=> true,
-    			'server'	=> $data,
-    		];
-    	}
-    	catch (\Exception $e) {
-    		$response = [
-    			'success'	=> false,
-    			'message'	=> 'Failed to get CMDB server: '.$name,
-    		];
-    	}
+            $response = [
+                'success'    => true,
+                'server'     => $data,
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get CMDB server: '.$name,
+            ];
+        }
 
-    	return response()->json($response);
+        return response()->json($response);
     }
 
     /**
-     * Get CMDB server by IP
+     * Get CMDB server by IP.
      *
      * @return void
      */
     public function getCMDBServerByIP($ip)
     {
-    	$user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
 
-    	try {
-    		$data = [];
+        try {
+            $data = [];
 
-    		$server = cmdbServer::where('ip_address', '=', $ip)->firstOrFail();
+            $server = cmdbServer::where('ip_address', '=', $ip)->firstOrFail();
 
-    		$data = \Metaclassing\Utility::decodeJson($server['data']);
+            $data = \Metaclassing\Utility::decodeJson($server['data']);
 
-    		$response = [
-    			'success'	=> true,
-    			'server'	=> $data,
-    		];
-    	}
-    	catch (\Exception $e) {
-    		$response = [
-    			'success'	=> false,
-    			'message'	=> 'Failed to get CMDB server for IP: '.$ip,
-    		];
-    	}
+            $response = [
+                'success'    => true,
+                'server'     => $data,
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get CMDB server for IP: '.$ip,
+            ];
+        }
 
-    	return response()->json($response);
+        return response()->json($response);
     }
 
-
     /**
-     * Get CMDB servers by OS
+     * Get CMDB servers by OS.
      *
      * @return void
      */
     public function getCMDBServersByOS($os)
     {
-    	$user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
 
-    	try {
-    		$data = [];
+        try {
+            $data = [];
 
-    		$servers = cmdbServer::where('os', 'like', '%'.$os.'%')->get();
+            $servers = cmdbServer::where('os', 'like', '%'.$os.'%')->get();
 
-    		foreach($servers as $server) {
-    			$data[] = \Metaclassing\Utility::decodeJson($server['data']);
-    		}
+            foreach ($servers as $server) {
+                $data[] = \Metaclassing\Utility::decodeJson($server['data']);
+            }
 
-    		$response = [
-    			'success'	=> true,
-    			'count'		=> count($data),
-    			'servers'	=> $data,
-    		];
-    	}
-    	catch (\Exception $e) {
-    		$response = [
-    			'success'	=> false,
-    			'message'	=> 'Failed to get CMDB servers for operating system: '.$os,
-    		];
-    	}
+            $response = [
+                'success'      => true,
+                'count'        => count($data),
+                'servers'      => $data,
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get CMDB servers for operating system: '.$os,
+            ];
+        }
 
-    	return response()->json($response);
+        return response()->json($response);
     }
 
-
     /**
-     * Get CMDB servers by District
+     * Get CMDB servers by District.
      *
      * @return void
      */
     public function getCMDBServersByDistrict($district)
     {
-    	$user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
 
-    	try {
-    		$data = [];
+        try {
+            $data = [];
 
-    		$servers = cmdbServer::where('district', 'like', $district.'%')->get();
+            $servers = cmdbServer::where('district', 'like', $district.'%')->get();
 
-    		if(count($servers) == 0) {
-    			throw new \Exception();
-    		}
-    		else {
-	    		foreach($servers as $server) {
-	    			$data[] = \Metaclassing\Utility::decodeJson($server['data']);
-	    		}
+            if (count($servers) == 0) {
+                throw new \Exception();
+            } else {
+                foreach ($servers as $server) {
+                    $data[] = \Metaclassing\Utility::decodeJson($server['data']);
+                }
 
-	    		$response = [
-	    			'success'	=> true,
-	    			'count'		=> count($data),
-	    			'servers'	=> $data,
-	    		];
-	    	}
-    	}
-    	catch (\Exception $e) {
-    		$response = [
-    			'success'	=> false,
-    			'message'	=> 'Failed to get CMDB servers for District: '.$district,
-    		];
-    	}
+                $response = [
+                    'success'      => true,
+                    'count'        => count($data),
+                    'servers'      => $data,
+                ];
+            }
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get CMDB servers for District: '.$district,
+            ];
+        }
 
-    	return response()->json($response);
+        return response()->json($response);
     }
 }
