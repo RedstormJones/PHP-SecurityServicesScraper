@@ -38,4 +38,6 @@ $api->version('v1', function ($api) {
     require __DIR__.'/api.ironport.php';
 
     require __DIR__.'/api.securitycenter.php';
+
+    require __DIR__.'/api.servicenow.php';
 });

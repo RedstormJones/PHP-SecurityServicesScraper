@@ -12,15 +12,36 @@ $options = [
 ];
 
 $api->group($options, function ($api) {
+
+    // ServiceNow CMDB servers route group
     $api->group(['prefix' => 'cmdbservers'], function ($api) {
+
+        // get all CMDB servers
+        $api->get('/all', 'ServiceNowController@getCMDBServers');
+
+        // get CMDB server by name
+        $api->get('/server/{name}', 'ServiceNowController@getCMDBServerByName');
+
+        // get CMDB server by IP
+        $api->get('/ip/{ip}', 'ServiceNowController@getCMDBServerByIP');
+
+        // get CMDB servers by OS
+        $api->get('/os/{os}', 'ServiceNowController@getCMDBServersByOS');
+
+        // get CMDB servers by District
+        $api->get('/district/{district}', 'ServiceNowController@getCMDBServersByDistrict');
+
     });
 
+    // ServiceNow Security incidents route group
     $api->group(['prefix' => 'serviceNowIncidnt'], function ($api) {
     });
 
+    // ServiceNow IDM incidents route group
     $api->group(['prefix' => 'serviceNowIdmIncidnt'], function ($api) {
     });
 
+    // ServiceNow SAP Role Auth incidents route group
     $api->group(['prefix' => 'serviceNowSapRoleAuthIncidnt'], function ($api) {
     });
 });
