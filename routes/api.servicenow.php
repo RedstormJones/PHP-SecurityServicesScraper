@@ -15,12 +15,12 @@ $api->group($options, function ($api) {
     $api->group(['prefix' => 'cmdbservers'], function ($api) {
     });
 
-    $api->group(['prefix' => 'serviceNowIncidnt'], function ($apit) {
+    $api->group(['prefix' => 'serviceNowIncidnt'], function ($api) {
     });
 
-    $api->group(['prefix' => 'serviceNowIdmIncidnt'], function ($apit) {
+    $api->group(['prefix' => 'serviceNowIdmIncidnt'], function ($api) {
     });
 
-    $api->group(['prefix' => 'serviceNowSapRoleAuthIncidnt'], function ($apit) {
+    $api->group(['prefix' => 'serviceNowSapRoleAuthIncidnt'], function ($api) {
     });
 });
