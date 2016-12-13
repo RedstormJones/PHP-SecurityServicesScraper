@@ -78,6 +78,7 @@ class CylanceController extends Controller
             $response = [
                 'success'   => true,
                 'message'   => '',
+                'device_name'   => $device_name,
                 'device'    => $data,
             ];
         } catch (\Exception $e) {
