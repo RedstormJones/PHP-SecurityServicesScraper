@@ -185,24 +185,23 @@ class ServiceNowController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * Get all Security incidents in ServiceNow
+     * Get all Security incidents in ServiceNow.
      *
      * @return void
      */
     public function getAllSecurityIncidents()
     {
-    	$user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
 
-    	try {
-    		$data = [];
+        try {
+            $data = [];
 
-    		$incidents = ServiceNowIncident::paginate(100);
+            $incidents = ServiceNowIncident::paginate(100);
 
-    		foreach($incidents as $incident) {
-    			$data[] = \Metaclassing\Utility::decodeJson($incident['data']);
-    		}
+            foreach ($incidents as $incident) {
+                $data[] = \Metaclassing\Utility::decodeJson($incident['data']);
+            }
 
             $response = [
                 'success'           => true,
@@ -213,53 +212,46 @@ class ServiceNowController extends Controller
                 'has_more_pages'    => $incidents->hasMorePages(),
                 'incidents'         => $data,
             ];
-    	}
-    	catch (\Exception $e) {
-    		$response = [
-    			'success'	=> false,
-    			'message'	=> 'Failed to get Security incidents.',
-    		];
-    	}
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get Security incidents.',
+            ];
+        }
 
-    	return response()->json($response);
+        return response()->json($response);
     }
 
-
     /**
-     * Get active Security incidents in ServiceNow
+     * Get active Security incidents in ServiceNow.
      *
      * @return void
      */
     public function getActiveSecurityIncidents()
     {
-    	$user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
 
-    	try {
-    		$data = [];
+        try {
+            $data = [];
 
-    		$incidents = ServiceNowIncident::where('state', '!=', 'Closed')->get();
+            $incidents = ServiceNowIncident::where('state', '!=', 'Closed')->get();
 
-    		foreach($incidents as $incident) {
-    			$data[] = \Metaclassing\Utility::decodeJson($incident['data']);
-    		}
+            foreach ($incidents as $incident) {
+                $data[] = \Metaclassing\Utility::decodeJson($incident['data']);
+            }
 
             $response = [
-                'success'	=> true,
-                'total'     => count($data),
-                'incidents'	=> $data,
+                'success'      => true,
+                'total'        => count($data),
+                'incidents'    => $data,
             ];
-    	}
-    	catch (\Exception $e) {
-    		$response = [
-    			'success'	=> false,
-    			'message'	=> 'Failed to get active Security incidents.',
-    		];
-    	}
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get active Security incidents.',
+            ];
+        }
 
-    	return response()->json($response);
+        return response()->json($response);
     }
-
-
-
-
 }
