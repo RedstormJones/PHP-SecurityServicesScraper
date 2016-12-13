@@ -70,7 +70,7 @@ class CylanceController extends Controller
 
         try {
             $data = [];
-            
+
             $device = CylanceDevice::where('device_name', '=', $device_name)->firstOrFail();
 
             $data = \Metaclassing\Utility::decodeJson($device['data']);
