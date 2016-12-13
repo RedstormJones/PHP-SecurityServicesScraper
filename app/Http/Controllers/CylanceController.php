@@ -76,10 +76,10 @@ class CylanceController extends Controller
             $data[] = \Metaclassing\Utility::decodeJson($device['data']);
 
             $response = [
-                'success'   => true,
-                'message'   => '',
+                'success'       => true,
+                'message'       => '',
                 'device_name'   => $device_name,
-                'device'    => $data,
+                'device'        => $data,
             ];
         } catch (\Exception $e) {
             $response = [
