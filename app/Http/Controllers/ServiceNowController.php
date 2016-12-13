@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ServiceNow\cmdbServer;
+use App\ServiceNow\ServiceNowIncident;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ServiceNowController extends Controller
@@ -183,4 +184,82 @@ class ServiceNowController extends Controller
 
         return response()->json($response);
     }
+
+
+    /**
+     * Get all Security incidents in ServiceNow
+     *
+     * @return void
+     */
+    public function getAllSecurityIncidents()
+    {
+    	$user = JWTAuth::parseToken()->authenticate();
+
+    	try {
+    		$data = [];
+
+    		$incidents = ServiceNowIncident::paginate(100);
+
+    		foreach($incidents as $incident) {
+    			$data[] = \Metaclassing\Utility::decodeJson($incident['data']);
+    		}
+
+            $response = [
+                'success'           => true,
+                'total'             => $incidents->total(),
+                'count'             => $incidents->count(),
+                'current_page'      => $incidents->currentPage(),
+                'next_page_url'     => $incidents->nextPageUrl(),
+                'has_more_pages'    => $incidents->hasMorePages(),
+                'incidents'         => $data,
+            ];
+    	}
+    	catch (\Exception $e) {
+    		$response = [
+    			'success'	=> false,
+    			'message'	=> 'Failed to get Security incidents.',
+    		];
+    	}
+
+    	return response()->json($response);
+    }
+
+
+    /**
+     * Get active Security incidents in ServiceNow
+     *
+     * @return void
+     */
+    public function getActiveSecurityIncidents()
+    {
+    	$user = JWTAuth::parseToken()->authenticate();
+
+    	try {
+    		$data = [];
+
+    		$incidents = ServiceNowIncident::where('state', '!=', 'Closed')->get();
+
+    		foreach($incidents as $incident) {
+    			$data[] = \Metaclassing\Utility::decodeJson($incident['data']);
+    		}
+
+            $response = [
+                'success'	=> true,
+                'total'     => count($data),
+                'incidents'	=> $data,
+            ];
+    	}
+    	catch (\Exception $e) {
+    		$response = [
+    			'success'	=> false,
+    			'message'	=> 'Failed to get active Security incidents.',
+    		];
+    	}
+
+    	return response()->json($response);
+    }
+
+
+
+
 }

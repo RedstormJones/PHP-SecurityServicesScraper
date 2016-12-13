@@ -33,14 +33,19 @@ $api->group($options, function ($api) {
     });
 
     // ServiceNow Security incidents route group
-    $api->group(['prefix' => 'serviceNowIncidnt'], function ($api) {
+    $api->group(['prefix' => 'security_incident'], function ($api) {
+
+        $api->get('/all', 'ServiceNowController@getAllSecurityIncidents');
+
+        $api->get('/active', 'ServiceNowController@getActiveSecurityIncidents');
+
     });
 
     // ServiceNow IDM incidents route group
-    $api->group(['prefix' => 'serviceNowIdmIncidnt'], function ($api) {
+    $api->group(['prefix' => 'idm_incident'], function ($api) {
     });
 
     // ServiceNow SAP Role Auth incidents route group
-    $api->group(['prefix' => 'serviceNowSapRoleAuthIncidnt'], function ($api) {
+    $api->group(['prefix' => 'sap_roleauth_incident'], function ($api) {
     });
 });
