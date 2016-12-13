@@ -69,6 +69,8 @@ class CylanceController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
 
         try {
+            $data = [];
+            
             $device = CylanceDevice::where('device_name', '=', $device_name)->firstOrFail();
 
             $data = \Metaclassing\Utility::decodeJson($device['data']);
