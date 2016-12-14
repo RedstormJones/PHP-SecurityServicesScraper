@@ -34,11 +34,9 @@ $api->group($options, function ($api) {
 
     // ServiceNow Security incidents route group
     $api->group(['prefix' => 'security_incidents'], function ($api) {
-
         $api->get('/all', 'ServiceNowController@getAllSecurityIncidents');
 
         $api->get('/active', 'ServiceNowController@getActiveSecurityIncidents');
-
     });
 
     // ServiceNow IDM incidents route group

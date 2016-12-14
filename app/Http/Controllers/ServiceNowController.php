@@ -235,9 +235,9 @@ class ServiceNowController extends Controller
             $data = [];
 
             $incidents = ServiceNowIncident::where([
-            	['state', '!=', 'Closed'],
-            	['state', '!=', 'Resolved'],
-            	['state', '!=', 'Cancelled'],
+                ['state', '!=', 'Closed'],
+                ['state', '!=', 'Resolved'],
+                ['state', '!=', 'Cancelled'],
             ])->get();
 
             foreach ($incidents as $incident) {
