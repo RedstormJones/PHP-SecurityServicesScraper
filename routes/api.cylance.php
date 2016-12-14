@@ -20,6 +20,9 @@ $api->group($options, function ($api) {
         // get all Cylance Devices
         $api->get('/all_devices', 'CylanceController@getAllDevices');
 
+        // queries for devices with the most quarantined files (top 10)
+        $api->get('/top_quarantined', 'CylanceController@getTopQuarantined');
+
         // searches for a particular device by name
         $api->get('/{device_name}', 'CylanceController@getDevice');
 
