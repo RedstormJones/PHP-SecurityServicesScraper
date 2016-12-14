@@ -126,7 +126,7 @@ class CylanceController extends Controller
     }
 
     /**
-     * Get the top 10 devices by quarantined files
+     * Get the top 10 devices by quarantined files.
      *
      * @return \Illuminate\Http\Response
      */
@@ -139,8 +139,7 @@ class CylanceController extends Controller
 
             $devices = CylanceDevice::orderBy('files_quarantined', 'desc')->take(10)->get();
 
-            foreach($devices as $device)
-            {
+            foreach ($devices as $device) {
                 $data[] = \Metaclassing\Utility::decodeJson($device['data']);
             }
 
@@ -149,8 +148,7 @@ class CylanceController extends Controller
                 'total'     => count($data),
                 'devices'   => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get Cylance devices by quaraninted files count.',
@@ -159,7 +157,6 @@ class CylanceController extends Controller
 
         return response()->json($response);
     }
-
 
     /**
      * Returns all unsafe devices.
