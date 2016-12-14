@@ -234,7 +234,11 @@ class ServiceNowController extends Controller
         try {
             $data = [];
 
-            $incidents = ServiceNowIncident::where('state', '!=', 'Closed')->get();
+            $incidents = ServiceNowIncident::where([
+            	['state', '!=', 'Closed'],
+            	['state', '!=', 'Resolved'],
+            	['state', '!=', 'Cancelled'],
+            ])->get();
 
             foreach ($incidents as $incident) {
                 $data[] = \Metaclassing\Utility::decodeJson($incident['data']);
