@@ -428,6 +428,11 @@ class CylanceController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * Get agent version distribution.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function getDeviceAgentVersions()
     {
         $user = JWTAuth::parseToken()->authenticate();
@@ -436,7 +441,7 @@ class CylanceController extends Controller
             $data = [];
             $agent_data = [];
 
-            $devices = CylanceDevice::select('device_name', 'agent_version_text', 'os_versions_text', 'policy_name')->get();
+            $devices = CylanceDevice::select('agent_version_text')->get();
 
             foreach ($devices as $device) {
                 if (array_key_exists($device['agent_version_text'], $data)) {
@@ -469,6 +474,62 @@ class CylanceController extends Controller
 
         return response()->json($response);
     }
+
+    /**
+     * Get count of devices over time.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getDevicesCountOverTime()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+            $device_count_over_time = [];
+
+            $devices = CylanceDevice::select('device_created_at')->get();
+
+            foreach ($devices as $device)
+            {
+                $created_date_key = date('M Y', strtotime($device['device_created_at']));
+
+                if (array_key_exists($created_date_key, $data))
+                {
+                    $data[$created_date_key]++;
+                }
+                else {
+                    $data[$created_date_key] = 1;
+                }
+            }
+
+            $keys = array_keys($data);
+
+            foreach($keys as $key)
+            {
+                $device_count_over_time[] = [
+                    'created_at_date'  => $key,
+                    'created_at_count' => $data[$key],
+                ];
+            }
+
+            $response = [
+                'success'                   => true,
+                'count'                     => count($device_count_over_time),
+                'device_count_over_time'    => $device_count_over_time,
+            ];
+        }
+        catch (\Exception $e) {
+            $response = [
+                    'success'   => false,
+                    'message'   => 'Failed to get devices count over time.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
 
     /**********************************
     *   CYLANCE THREATS - ENDPOINTS   *

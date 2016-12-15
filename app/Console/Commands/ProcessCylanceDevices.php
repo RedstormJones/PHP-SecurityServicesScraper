@@ -129,8 +129,8 @@ class ProcessCylanceDevices extends Command
     {
         // create new datetime object and subtract one day to get delete_date
         $today = new \DateTime('now');
-        $yesterday = $today->modify('-1 day');
-        $delete_date = $yesterday->format('Y-m-d');
+        //$yesterday = $today->modify('-1 day');
+        $delete_date = $today->format('Y-m-d');
 
         // get all the devices
         $devices = CylanceDevice::all();
@@ -140,12 +140,11 @@ class ProcessCylanceDevices extends Command
         * it against delete_date to determine if its a stale record or not. If yes, delete it.
         **/
         foreach ($devices as $device) {
-            echo 'processing deletes...'.PHP_EOL;
-
             $updated_at = substr($device->updated_at, 0, -9);
+            echo 'last updated: '.$updated_at.PHP_EOL;
 
             // if updated_at is less than or equal to delete_date then we soft delete the device
-            if ($updated_at <= $delete_date) {
+            if ($updated_at < $delete_date) {
                 echo 'deleting device: '.$device->device_name.PHP_EOL;
                 $device->delete();
             }

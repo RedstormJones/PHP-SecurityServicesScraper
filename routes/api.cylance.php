@@ -26,7 +26,10 @@ $api->group($options, function ($api) {
         // get per-device average of quarantined files for each District
         $api->get('/quarantined_averages', 'CylanceController@getQuarantinedAvgsByDistrict');
 
+        // get device count of all agent versions
         $api->get('/agent_versions', 'CylanceController@getDeviceAgentVersions');
+
+        $api->get('/device_count_over_time', 'CylanceController@getDevicesCountOverTime');
 
         // searches for a particular device by name
         $api->get('/{device_name}', 'CylanceController@getDevice');
