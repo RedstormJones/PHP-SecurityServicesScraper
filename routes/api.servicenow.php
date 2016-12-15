@@ -45,13 +45,14 @@ $api->group($options, function ($api) {
         $api->get('/district/{district}', 'ServiceNowController@getSecurityIncidentsByDistrict');
 
         $api->get('/initial_group/{initial_group}', 'ServiceNowController@getSecurityIncidentsByInitialAssignGroup');
+
     });
 
     // ServiceNow IDM incidents route group
-    $api->group(['prefix' => 'idm_incident'], function ($api) {
+    $api->group(['prefix' => 'idm_incidents'], function ($api) {
     });
 
     // ServiceNow SAP Role Auth incidents route group
-    $api->group(['prefix' => 'sap_roleauth_incident'], function ($api) {
+    $api->group(['prefix' => 'sap_roleauth_incidents'], function ($api) {
     });
 });
