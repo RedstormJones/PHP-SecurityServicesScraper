@@ -126,7 +126,7 @@ class CylanceController extends Controller
     }
 
     /**
-     * Get the top 10 devices by quarantined files
+     * Get the top 10 devices by quarantined files.
      *
      * @return \Illuminate\Http\Response
      */
@@ -139,8 +139,7 @@ class CylanceController extends Controller
 
             $devices = CylanceDevice::orderBy('files_quarantined', 'desc')->take(10)->get();
 
-            foreach($devices as $device)
-            {
+            foreach ($devices as $device) {
                 $data[] = \Metaclassing\Utility::decodeJson($device['data']);
             }
 
@@ -149,8 +148,7 @@ class CylanceController extends Controller
                 'total'     => count($data),
                 'devices'   => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get Cylance devices by quaraninted files count.',
@@ -159,7 +157,6 @@ class CylanceController extends Controller
 
         return response()->json($response);
     }
-
 
     /**
      * Returns all unsafe devices.
@@ -356,8 +353,6 @@ class CylanceController extends Controller
         return response()->json($response);
     }
 
-
-
     /**
      * Get per-device average of quarantined files for each District.
      *
@@ -375,40 +370,28 @@ class CylanceController extends Controller
 
             $devices = CylanceDevice::where('files_quarantined', '>', 0)->select('device_name', 'zones_text', 'files_quarantined')->get();
 
-            foreach ($devices as $device)
-            {
+            foreach ($devices as $device) {
                 // check that zones_text contains a three letter District code
-                if(preg_match($zone_regex, $device['zones_text'], $hits))
-                {
+                if (preg_match($zone_regex, $device['zones_text'], $hits)) {
                     // check for multiple hits
-                    if(count($hits) > 1)
-                    {
+                    if (count($hits) > 1) {
                         /* cycle through each hit and try to find one that
                          matchs the first three letters of the device_name */
-                        foreach($hits as $hit)
-                        {
-                            if (substr($device['device_name'], 0, 3) === $hit)
-                            {
+                        foreach ($hits as $hit) {
+                            if (substr($device['device_name'], 0, 3) === $hit) {
                                 $zone = $hit;
                             }
                         }
-                    }
-                    elseif (count($hits) === 1)
-                    {
+                    } elseif (count($hits) === 1) {
                         $zone = $hits[1];
                     }
 
-
                     // if a proper zone value was found then update the data array
-                    if($zone)
-                    {
-                        if (array_key_exists($zone, $data))
-                        {
+                    if ($zone) {
+                        if (array_key_exists($zone, $data)) {
                             $data[$zone]['count']++;
                             $data[$zone]['total'] += $device['files_quarantined'];
-                        }
-                        else
-                        {
+                        } else {
                             $data[$zone] = [
                                 'count' => 1,
                                 'total' => $device['files_quarantined'],
@@ -421,8 +404,7 @@ class CylanceController extends Controller
             $keys = array_keys($data);
 
             // cycle through the data array keys to calculate averages and build response data
-            foreach ($keys as $key)
-            {
+            foreach ($keys as $key) {
                 $district_avg = ($data[$key]['total'] / $data[$key]['count']);
 
                 $district_data[] = [
@@ -436,8 +418,7 @@ class CylanceController extends Controller
                 'total'             => count($district_data),
                 'district_averages' => $district_data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                     'success'   => false,
                     'message'   => 'Failed to get District quarantine averages',
@@ -447,10 +428,6 @@ class CylanceController extends Controller
 
         return response()->json($response);
     }
-
-
-
-
 
     /**********************************
     *   CYLANCE THREATS - ENDPOINTS   *
