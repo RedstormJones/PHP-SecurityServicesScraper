@@ -23,6 +23,9 @@ $api->group($options, function ($api) {
         // queries for devices with the most quarantined files (top 10)
         $api->get('/top_quarantined', 'CylanceController@getTopQuarantined');
 
+        // get per-device average of quarantined files for each District
+        $api->get('/quarantined_averages', 'CylanceController@getQuarantinedAvgsByDistrict');
+
         // searches for a particular device by name
         $api->get('/{device_name}', 'CylanceController@getDevice');
 
@@ -43,6 +46,7 @@ $api->group($options, function ($api) {
 
         // queries for any device with at least one MAC address matching the MAC address provided
         $api->get('/mac/{mac}', 'CylanceController@getDeviceByMAC');
+
     });
 
     // Cylance Threats route group
