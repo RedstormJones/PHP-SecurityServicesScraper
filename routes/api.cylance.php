@@ -48,7 +48,6 @@ $api->group($options, function ($api) {
 
         // queries for any device with at least one MAC address matching the MAC address provided
         $api->get('/mac/{mac}', 'CylanceController@getDeviceByMAC');
-
     });
 
     // Cylance Threats route group
