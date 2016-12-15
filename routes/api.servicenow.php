@@ -45,7 +45,6 @@ $api->group($options, function ($api) {
         $api->get('/district/{district}', 'ServiceNowController@getSecurityIncidentsByDistrict');
 
         $api->get('/initial_group/{initial_group}', 'ServiceNowController@getSecurityIncidentsByInitialAssignGroup');
-
     });
 
     // ServiceNow IDM incidents route group
