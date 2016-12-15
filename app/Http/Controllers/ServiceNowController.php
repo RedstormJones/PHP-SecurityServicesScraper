@@ -235,9 +235,9 @@ class ServiceNowController extends Controller
             $data = [];
 
             $incidents = ServiceNowIncident::where([
-            	['state', '!=', 'Closed'],
-            	['state', '!=', 'Resolved'],
-            	['state', '!=', 'Cancelled'],
+                ['state', '!=', 'Closed'],
+                ['state', '!=', 'Resolved'],
+                ['state', '!=', 'Cancelled'],
             ])->get();
 
             foreach ($incidents as $incident) {
@@ -259,7 +259,6 @@ class ServiceNowController extends Controller
         return response()->json($response);
     }
 
-
     /**
      * Get active Security incidents by District.
      *
@@ -267,43 +266,36 @@ class ServiceNowController extends Controller
      */
     public function getSecurityIncidentsByDistrict($district)
     {
-    	$user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
 
-    	try {
-    		$data = [];
-    		$district_regex = '/([A-Z][A-Z][A-Z] - .+)/';
+        try {
+            $data = [];
+            $district_regex = '/([A-Z][A-Z][A-Z] - .+)/';
 
-    		if (strlen($district) != 3 && $district !== 'KU' && $district !== 'ku')
-    		{
-    			throw new \Exception;
-    		}
-    		else
-    		{
-    			$tickets = ServiceNowIncident::where('district', 'like', $district.'%')->get();
+            if (strlen($district) != 3 && $district !== 'KU' && $district !== 'ku') {
+                throw new \Exception();
+            } else {
+                $tickets = ServiceNowIncident::where('district', 'like', $district.'%')->get();
 
-    			foreach($tickets as $ticket)
-    			{
-    				$data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
-    			}
+                foreach ($tickets as $ticket) {
+                    $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
+                }
 
-    			$response = [
-    				'success'	=> true,
-    				'count'		=> count($data),
-    				'incidents'	=> $data,
-    			];
-    		}
-    	}
-    	catch (\Exception $e) {
-    		$response = [
-    			'success'	=> false,
-    			'message'	=> 'Failed to get Security incidents for district: '.$district,
-    		];
-    	}
+                $response = [
+                    'success'      => true,
+                    'count'        => count($data),
+                    'incidents'    => $data,
+                ];
+            }
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get Security incidents for district: '.$district,
+            ];
+        }
 
-    	return response()->json($response);
+        return response()->json($response);
     }
-
-
 
     /**
      * Get active Security incidents by District.
@@ -312,31 +304,29 @@ class ServiceNowController extends Controller
      */
     public function getSecurityIncidentsByInitialAssignGroup($initial_group)
     {
-    	$user = JWTAuth::parseToken()->authenticate();
+        $user = JWTAuth::parseToken()->authenticate();
 
-    	try {
-    		$data = [];
+        try {
+            $data = [];
 
-			$tickets = ServiceNowIncident::where('initial_assignment_group', '=', $initial_group)->get();
+            $tickets = ServiceNowIncident::where('initial_assignment_group', '=', $initial_group)->get();
 
-			foreach($tickets as $ticket)
-			{
-				$data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
-			}
+            foreach ($tickets as $ticket) {
+                $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
+            }
 
-			$response = [
-				'success'	=> true,
-				'count'		=> count($data),
-				'incidents'	=> $data,
-			];
-    	}
-    	catch (\Exception $e) {
-    		$response = [
-    			'success'	=> false,
-    			'message'	=> 'Failed to get Security incidents for initial assignment group: '.$initial_group,
-    		];
-    	}
+            $response = [
+                'success'      => true,
+                'count'        => count($data),
+                'incidents'    => $data,
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get Security incidents for initial assignment group: '.$initial_group,
+            ];
+        }
 
-    	return response()->json($response);
+        return response()->json($response);
     }
 }
