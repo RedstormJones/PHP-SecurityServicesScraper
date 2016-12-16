@@ -341,8 +341,6 @@ class ServiceNowController extends Controller
         return response()->json($response);
     }
 
-
-
     public function getSecurityIncidentsByPriority($priority)
     {
         $user = JWTAuth::parseToken()->authenticate();
@@ -352,8 +350,7 @@ class ServiceNowController extends Controller
 
             $tickets = ServiceNowIncident::where('priority', 'like', $priority.'%')->paginate(100);
 
-            foreach ($tickets as $ticket)
-            {
+            foreach ($tickets as $ticket) {
                 $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
             }
 
@@ -366,8 +363,7 @@ class ServiceNowController extends Controller
                 'has_more_pages'    => $tickets->hasMorePages(),
                 'incidents'         => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'    => false,
                 'message'    => 'Failed to get Security incidents for priority: '.$priority,
