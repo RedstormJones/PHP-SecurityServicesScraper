@@ -29,6 +29,7 @@ $api->group($options, function ($api) {
         // get device count of all agent versions
         $api->get('/agent_versions', 'CylanceController@getDeviceAgentVersions');
 
+        // get device count over time
         $api->get('/device_count_over_time', 'CylanceController@getDevicesCountOverTime');
 
         // searches for a particular device by name
