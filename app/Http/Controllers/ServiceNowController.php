@@ -197,19 +197,19 @@ class ServiceNowController extends Controller
         try {
             $data = [];
 
-            $incidents = ServiceNowIncident::paginate(100);
+            $tickets = ServiceNowIncident::paginate(100);
 
-            foreach ($incidents as $incident) {
-                $data[] = \Metaclassing\Utility::decodeJson($incident['data']);
+            foreach ($tickets as $ticket) {
+                $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
             }
 
             $response = [
                 'success'           => true,
-                'total'             => $incidents->total(),
-                'count'             => $incidents->count(),
-                'current_page'      => $incidents->currentPage(),
-                'next_page_url'     => $incidents->nextPageUrl(),
-                'has_more_pages'    => $incidents->hasMorePages(),
+                'total'             => $tickets->total(),
+                'count'             => $tickets->count(),
+                'current_page'      => $tickets->currentPage(),
+                'next_page_url'     => $tickets->nextPageUrl(),
+                'has_more_pages'    => $tickets->hasMorePages(),
                 'incidents'         => $data,
             ];
         } catch (\Exception $e) {
@@ -234,20 +234,24 @@ class ServiceNowController extends Controller
         try {
             $data = [];
 
-            $incidents = ServiceNowIncident::where([
+            $tickets = ServiceNowIncident::where([
                 ['state', '!=', 'Closed'],
                 ['state', '!=', 'Resolved'],
                 ['state', '!=', 'Cancelled'],
-            ])->get();
+            ])->paginate(100);
 
-            foreach ($incidents as $incident) {
-                $data[] = \Metaclassing\Utility::decodeJson($incident['data']);
+            foreach ($tickets as $ticket) {
+                $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
             }
 
             $response = [
-                'success'      => true,
-                'total'        => count($data),
-                'incidents'    => $data,
+                'success'           => true,
+                'total'             => $tickets->total(),
+                'count'             => $tickets->count(),
+                'current_page'      => $tickets->currentPage(),
+                'next_page_url'     => $tickets->nextPageUrl(),
+                'has_more_pages'    => $tickets->hasMorePages(),
+                'incidents'         => $data,
             ];
         } catch (\Exception $e) {
             $response = [
@@ -270,21 +274,24 @@ class ServiceNowController extends Controller
 
         try {
             $data = [];
-            $district_regex = '/([A-Z][A-Z][A-Z] - .+)/';
 
-            if (strlen($district) != 3 && $district !== 'KU' && $district !== 'ku') {
+            if (strlen($district) < 3 && $district != 'KU' && $district != 'ku') {
                 throw new \Exception();
             } else {
-                $tickets = ServiceNowIncident::where('district', 'like', $district.'%')->get();
+                $tickets = ServiceNowIncident::where('district', 'like', $district.'%')->paginate(100);
 
                 foreach ($tickets as $ticket) {
                     $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
                 }
 
                 $response = [
-                    'success'      => true,
-                    'count'        => count($data),
-                    'incidents'    => $data,
+                    'success'           => true,
+                    'total'             => $tickets->total(),
+                    'count'             => $tickets->count(),
+                    'current_page'      => $tickets->currentPage(),
+                    'next_page_url'     => $tickets->nextPageUrl(),
+                    'has_more_pages'    => $tickets->hasMorePages(),
+                    'incidents'         => $data,
                 ];
             }
         } catch (\Exception $e) {
@@ -309,21 +316,61 @@ class ServiceNowController extends Controller
         try {
             $data = [];
 
-            $tickets = ServiceNowIncident::where('initial_assignment_group', '=', $initial_group)->get();
+            $tickets = ServiceNowIncident::where('initial_assignment_group', 'like', $initial_group.'%')->paginate(100);
 
             foreach ($tickets as $ticket) {
                 $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
             }
 
             $response = [
-                'success'      => true,
-                'count'        => count($data),
-                'incidents'    => $data,
+                'success'           => true,
+                'total'             => $tickets->total(),
+                'count'             => $tickets->count(),
+                'current_page'      => $tickets->currentPage(),
+                'next_page_url'     => $tickets->nextPageUrl(),
+                'has_more_pages'    => $tickets->hasMorePages(),
+                'incidents'         => $data,
             ];
         } catch (\Exception $e) {
             $response = [
                 'success'    => false,
                 'message'    => 'Failed to get Security incidents for initial assignment group: '.$initial_group,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+
+    public function getSecurityIncidentsByPriority($priority)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $tickets = ServiceNowIncident::where('priority', 'like', $priority.'%')->paginate(100);
+
+            foreach ($tickets as $ticket)
+            {
+                $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
+            }
+
+            $response = [
+                'success'           => true,
+                'total'             => $tickets->total(),
+                'count'             => $tickets->count(),
+                'current_page'      => $tickets->currentPage(),
+                'next_page_url'     => $tickets->nextPageUrl(),
+                'has_more_pages'    => $tickets->hasMorePages(),
+                'incidents'         => $data,
+            ];
+        }
+        catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get Security incidents for priority: '.$priority,
             ];
         }
 
