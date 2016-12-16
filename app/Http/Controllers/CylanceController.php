@@ -492,23 +492,19 @@ class CylanceController extends Controller
                         ->orderBy('device_created_at')
                         ->get();
 
-            foreach ($devices as $device)
-            {
+            foreach ($devices as $device) {
                 $created_date_key = date('M Y', strtotime($device['device_created_at']));
 
-                if (array_key_exists($created_date_key, $data))
-                {
+                if (array_key_exists($created_date_key, $data)) {
                     $data[$created_date_key]++;
-                }
-                else {
+                } else {
                     $data[$created_date_key] = 1;
                 }
             }
 
             $keys = array_keys($data);
 
-            foreach($keys as $key)
-            {
+            foreach ($keys as $key) {
                 $device_count_over_time[] = [
                     'created_at_date'  => $key,
                     'created_at_count' => $data[$key],
@@ -520,8 +516,7 @@ class CylanceController extends Controller
                 'count'                     => count($device_count_over_time),
                 'device_count_over_time'    => $device_count_over_time,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                     'success'   => false,
                     'message'   => 'Failed to get devices count over time.',
@@ -530,8 +525,6 @@ class CylanceController extends Controller
 
         return response()->json($response);
     }
-
-
 
     /**********************************
     *   CYLANCE THREATS - ENDPOINTS   *
