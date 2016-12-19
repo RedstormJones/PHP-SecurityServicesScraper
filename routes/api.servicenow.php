@@ -49,6 +49,10 @@ $api->group($options, function ($api) {
 
         // get incident tickets by priority
         $api->get('/priority/{priority}', 'ServiceNowController@getSecurityIncidentsByPriority');
+
+        // get resolved incident tickets count by user
+        $api->get('/resolved_by/user_count', 'ServiceNowController@getResolvedByUserCount');
+
     });
 
     // ServiceNow IDM incidents route group

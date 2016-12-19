@@ -341,6 +341,11 @@ class ServiceNowController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * Get active Security incidents by priority.
+     *
+     * @return void
+     */
     public function getSecurityIncidentsByPriority($priority)
     {
         $user = JWTAuth::parseToken()->authenticate();
@@ -367,6 +372,49 @@ class ServiceNowController extends Controller
             $response = [
                 'success'    => false,
                 'message'    => 'Failed to get Security incidents for priority: '.$priority,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+    /**
+     * Get count of resolved tickets by user.
+     *
+     * @return void
+     */
+    public function getResolvedByUserCount()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $resolved_by = ServiceNowIncident::where('resolved_by', '!=', 'null')->pluck('resolved_by');
+
+            foreach ($resolved_by as $name)
+            {
+                if (array_key_exists($name, $data))
+                {
+                    $data[$name]++;
+                }
+                else
+                {
+                    $data[$name] = 1;
+                }
+            }
+
+            $response = [
+                'success'       => true,
+                'count'         => count($data),
+                'user_count'    => $data,
+            ];
+        }
+        catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get resolved by count for Security incidents.',
             ];
         }
 
