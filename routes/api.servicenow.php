@@ -52,7 +52,6 @@ $api->group($options, function ($api) {
 
         // get resolved incident tickets count by user
         $api->get('/resolved_by/user_count', 'ServiceNowController@getResolvedByUserCount');
-
     });
 
     // ServiceNow IDM incidents route group
