@@ -378,7 +378,6 @@ class ServiceNowController extends Controller
         return response()->json($response);
     }
 
-
     /**
      * Get count of resolved tickets by user.
      *
@@ -393,14 +392,10 @@ class ServiceNowController extends Controller
 
             $resolved_by = ServiceNowIncident::where('resolved_by', '!=', 'null')->pluck('resolved_by');
 
-            foreach ($resolved_by as $name)
-            {
-                if (array_key_exists($name, $data))
-                {
+            foreach ($resolved_by as $name) {
+                if (array_key_exists($name, $data)) {
                     $data[$name]++;
-                }
-                else
-                {
+                } else {
                     $data[$name] = 1;
                 }
             }
@@ -410,8 +405,7 @@ class ServiceNowController extends Controller
                 'count'         => count($data),
                 'user_count'    => $data,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response = [
                 'success'    => false,
                 'message'    => 'Failed to get resolved by count for Security incidents.',
