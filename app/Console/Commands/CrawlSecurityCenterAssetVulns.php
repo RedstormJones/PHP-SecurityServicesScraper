@@ -134,11 +134,13 @@ class CrawlSecurityCenterAssetVulns extends Command
                     'tool'      => 'sumasset',
                     'type'      => 'vuln',
                     'filters'   => [
+                        /*
                         [
-                        'filterName' => 'exploitAvailable',
-                        'operator'   => '=',
-                        'value'      => 'true',
+                            'filterName' => 'exploitAvailable',
+                            'operator'   => '=',
+                            'value'      => 'true',
                         ],
+                        */
                     ],
                     'startOffset'   => $count,
                     'endOffset'     => $endoffset,

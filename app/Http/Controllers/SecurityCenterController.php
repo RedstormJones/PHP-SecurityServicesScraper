@@ -134,15 +134,15 @@ class SecurityCenterController extends Controller
 
             switch ($severity) {
                 case 'critical':
-                    $vulns = SecurityCenterCritical::where('has_been_mitigated', '=', 0)->paginate(100);
+                    $vulns = SecurityCenterCritical::where('has_been_mitigated', '=', 0)->paginate(1000);
                     break;
 
                 case 'high':
-                    $vulns = SecurityCenterHigh::where('has_been_mitigated', '=', 0)->paginate(100);
+                    $vulns = SecurityCenterHigh::where('has_been_mitigated', '=', 0)->paginate(1000);
                     break;
 
                 case 'medium':
-                    $vulns = SecurityCenterMedium::where('has_been_mitigated', '=', 0)->paginate(100);
+                    $vulns = SecurityCenterMedium::where('has_been_mitigated', '=', 0)->paginate(1000);
                     break;
 
                 default:
