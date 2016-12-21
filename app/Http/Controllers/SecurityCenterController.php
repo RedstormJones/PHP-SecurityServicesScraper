@@ -173,6 +173,41 @@ class SecurityCenterController extends Controller
     }
 
     /**
+     * Get count of SecurityCenter vulnerabilities for each severity (critical, high, medium).
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getVulnerabilityCounts()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $medium_count = SecurityCenterMedium::where('has_been_mitigated', '=', 0)->count();
+            $high_count = SecurityCenterHigh::where('has_been_mitigated', '=', 0)->count();
+            $critical_count = SecurityCenterCritical::where('has_been_mitigated', '=', 0)->count();
+
+            $response = [
+                'success'               => true,
+                'has_more_pages'        => false,
+                'medium_vuln_count'     => $medium_count,
+                'high_vuln_count'       => $high_count,
+                'critical_vuln_count'   => $critical_count,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get vulnerability count for severity: '.$severity,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    /**
      * Get SecurityCenter vulnerabilities of a particular severity for a particular device by device name.
      *
      * @return \Illuminate\Http\Response

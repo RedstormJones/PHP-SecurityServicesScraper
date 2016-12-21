@@ -29,6 +29,9 @@ $api->group($options, function ($api) {
     // SecurityCenter vulnerability severity route group
     $api->group(['prefix' => 'severity'], function ($api) {
 
+        // get count of vulnerabilities for each severity (critical, high, medium)
+        $api->get('/counts', 'SecurityCenterController@getVulnerabilityCounts');
+
         // Get all vulnerabilities for a specific severity (critical, high, medium)
         $api->get('/{severity}/all', 'SecurityCenterController@getVulnerabilities');
 
