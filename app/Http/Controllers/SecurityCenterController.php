@@ -188,14 +188,21 @@ class SecurityCenterController extends Controller
             $high_count = SecurityCenterHigh::where('has_been_mitigated', '=', 0)->count();
             $critical_count = SecurityCenterCritical::where('has_been_mitigated', '=', 0)->count();
 
-            $response = [
-                'success'               => true,
-                'has_more_pages'        => false,
+            $data[] = [
                 'medium_vuln_count'     => $medium_count,
                 'high_vuln_count'       => $high_count,
                 'critical_vuln_count'   => $critical_count,
+                'total'                 => ($medium_count + $high_count + $critical_count),
             ];
-        } catch (\Exception $e) {
+
+            $response = [
+                'success'               => true,
+                'has_more_pages'        => false,
+                'vulnerability_counts'  => $data,
+            ];
+        }
+        catch (\Exception $e)
+        {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get vulnerability count for severity: '.$severity,
