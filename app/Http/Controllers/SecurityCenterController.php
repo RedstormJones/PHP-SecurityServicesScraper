@@ -195,9 +195,7 @@ class SecurityCenterController extends Controller
                 'high_vuln_count'       => $high_count,
                 'critical_vuln_count'   => $critical_count,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get vulnerability count for severity: '.$severity,
