@@ -200,9 +200,7 @@ class SecurityCenterController extends Controller
                 'has_more_pages'        => false,
                 'vulnerability_counts'  => $data,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get vulnerability count for severity: '.$severity,
