@@ -52,7 +52,6 @@ $api->group($options, function ($api) {
 
         // get resolved incident tickets count by user
         $api->get('/resolved_by/user_count', 'ServiceNowController@getResolvedByUserCount');
-
     });
 
     // ServiceNow IDM incidents route group
@@ -66,7 +65,6 @@ $api->group($options, function ($api) {
 
         // get resolved incident tickets count by user
         $api->get('/resolved_by/user_count', 'ServiceNowController@getResolvedByUserCount_IDM');
-
     });
 
     // ServiceNow SAP Role Auth incidents route group
@@ -80,6 +78,5 @@ $api->group($options, function ($api) {
 
         // get resolved incident tickets count by user
         $api->get('/resolved_by/user_count', 'ServiceNowController@getResolvedByUserCount_SAPRoleAuth');
-
     });
 });

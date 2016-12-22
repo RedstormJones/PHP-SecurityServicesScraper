@@ -20,13 +20,11 @@ class PhishMeController extends Controller
     }
 
     /**
-     * 
-     * Attachment scenario functions
-     * 
+     * Attachment scenario functions.
      */
-    
+
     /**
-     * Get attachment scenarios for a given user
+     * Get attachment scenarios for a given user.
      *
      * @return \Illuminate\Http\Response
      */
@@ -44,25 +42,20 @@ class PhishMeController extends Controller
 
             $scenarios = AttachmentScenario::where('recipient_name', '=', $user_name)->get();
 
-            foreach($scenarios as $scenario)
-            {
-                if ($scenario['viewed_education'] == 'Yes')
-                {
+            foreach ($scenarios as $scenario) {
+                if ($scenario['viewed_education'] == 'Yes') {
                     $clicked++;
                 }
 
-                if ($scenario['reported_phish'] == 'Yes')
-                {
+                if ($scenario['reported_phish'] == 'Yes') {
                     $reported++;
                 }
 
-                if ($scenario['mobile'])
-                {
+                if ($scenario['mobile']) {
                     $mobile++;
                 }
 
-                if ($scenario['new_repeat_reporter'] == 'Repeat')
-                {
+                if ($scenario['new_repeat_reporter'] == 'Repeat') {
                     $repeat++;
                 }
 
@@ -81,10 +74,7 @@ class PhishMeController extends Controller
                 'avg_education_time'    => ($education_time / count($data)),
                 'scenarios'             => $data,
             ];
-
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get attachment scenarios for user: '.$user_name,
@@ -94,16 +84,12 @@ class PhishMeController extends Controller
         return response()->json($response);
     }
 
-
     /**
-     * 
-     * Click only scenario functions
-     * 
+     * Click only scenario functions.
      */
 
-
     /**
-     * Get click only scenarios for a given user
+     * Get click only scenarios for a given user.
      *
      * @return \Illuminate\Http\Response
      */
@@ -121,25 +107,20 @@ class PhishMeController extends Controller
 
             $scenarios = ClickOnlyScenario::where('recipient_name', '=', $user_name)->get();
 
-            foreach($scenarios as $scenario)
-            {
-                if ($scenario['clicked_link'] == 'Yes')
-                {
+            foreach ($scenarios as $scenario) {
+                if ($scenario['clicked_link'] == 'Yes') {
                     $clicked++;
                 }
 
-                if ($scenario['reported_phish'] == 'Yes')
-                {
+                if ($scenario['reported_phish'] == 'Yes') {
                     $reported++;
                 }
 
-                if ($scenario['mobile'])
-                {
+                if ($scenario['mobile']) {
                     $mobile++;
                 }
 
-                if ($scenario['new_repeat_reporter'] == 'Repeat')
-                {
+                if ($scenario['new_repeat_reporter'] == 'Repeat') {
                     $repeat++;
                 }
 
@@ -158,10 +139,7 @@ class PhishMeController extends Controller
                 'avg_education_time'    => ($education_time / count($data)),
                 'scenarios'             => $data,
             ];
-
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get click only scenarios for user: '.$user_name,
@@ -171,19 +149,12 @@ class PhishMeController extends Controller
         return response()->json($response);
     }
 
-
-
-
-
     /**
-     * 
-     * Data entry scenario functions
-     * 
+     * Data entry scenario functions.
      */
-    
 
     /**
-     * Get data entry scenarios for a given user
+     * Get data entry scenarios for a given user.
      *
      * @return \Illuminate\Http\Response
      */
@@ -205,45 +176,36 @@ class PhishMeController extends Controller
 
             $scenarios = DataEntryScenario::where('recipient_name', '=', $user_name)->get();
 
-            foreach($scenarios as $scenario)
-            {
-                if ($scenario['clicked_link'] == 'Yes')
-                {
+            foreach ($scenarios as $scenario) {
+                if ($scenario['clicked_link'] == 'Yes') {
                     $clicked++;
                 }
 
-                if ($scenario['submitted_form'] == 'Yes')
-                {
+                if ($scenario['submitted_form'] == 'Yes') {
                     $submitted_form++;
                 }
 
-                if ($scenario['submitted_data'] == 'Yes')
-                {
+                if ($scenario['submitted_data'] == 'Yes') {
                     $submitted_data++;
                 }
 
-                if ($scenario['entered_password'] == 'Yes')
-                {
+                if ($scenario['entered_password'] == 'Yes') {
                     $entered_password++;
                 }
 
-                if ($scenario['reported_phish'] == 'Yes')
-                {
+                if ($scenario['reported_phish'] == 'Yes') {
                     $reported++;
                 }
 
-                if ($scenario['mobile'])
-                {
+                if ($scenario['mobile']) {
                     $mobile++;
                 }
 
-                if ($scenario['new_repeat_reporter'] == 'Repeat')
-                {
+                if ($scenario['new_repeat_reporter'] == 'Repeat') {
                     $repeat++;
                 }
 
-                if ($scenario['phished_username'])
-                {
+                if ($scenario['phished_username']) {
                     $phished_usernames[] = $scenario['phished_username'];
                 }
 
@@ -265,10 +227,7 @@ class PhishMeController extends Controller
                 'phished_usernames'     => $phished_usernames,
                 'scenarios'             => $data,
             ];
-
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get data entry scenarios for user: '.$user_name,

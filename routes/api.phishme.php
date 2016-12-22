@@ -11,32 +11,26 @@ $options = [
     'expires'          => 5,
 ];
 
-
 $api->group($options, function ($api) {
 
-	// Attachment scenarios route group
-	$api->group(['prefix' => 'attachment_scenarios'], function ($api) {
+    // Attachment scenarios route group
+    $api->group(['prefix' => 'attachment_scenarios'], function ($api) {
 
-		// get attachment scenarios for a given user
-		$api->get('/user/{user_name}', 'PhishMeController@getUserAttachmentScenarios');
+        // get attachment scenarios for a given user
+        $api->get('/user/{user_name}', 'PhishMeController@getUserAttachmentScenarios');
+    });
 
-	});
+    // Click only scenarios route group
+    $api->group(['prefix' => 'click_only_scenarios'], function ($api) {
 
-	// Click only scenarios route group
-	$api->group(['prefix' => 'click_only_scenarios'], function ($api) {
+        // get click only scenarios for a given user
+        $api->get('/user/{user_name}', 'PhishMeController@getUserClickOnlyScenarios');
+    });
 
-		// get click only scenarios for a given user
-		$api->get('/user/{user_name}', 'PhishMeController@getUserClickOnlyScenarios');
+    // Data entry scenarios route group
+    $api->group(['prefix' => 'data_entry_scenarios'], function ($api) {
 
-	});
-
-	// Data entry scenarios route group
-	$api->group(['prefix' => 'data_entry_scenarios'], function ($api) {
-
-		// get data entry scenarios for a given user
-		$api->get('/user/{user_name}', 'PhishMeController@getUserDataEntryScenarios');
-
-	});
-
-
+        // get data entry scenarios for a given user
+        $api->get('/user/{user_name}', 'PhishMeController@getUserDataEntryScenarios');
+    });
 });
