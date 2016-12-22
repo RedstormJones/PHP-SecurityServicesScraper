@@ -184,26 +184,22 @@ class SecurityCenterController extends Controller
             // get critical and high vulnerabilities
             $critical_vulns = SecurityCenterCritical::where([
                 ['has_been_mitigated', '=', 0],
-                ['exploit_available', '=', 'Yes']
+                ['exploit_available', '=', 'Yes'],
             ])->select('dns_name', 'ip_address', 'synopsis')->get();
 
             $high_vulns = SecurityCenterHigh::where([
                 ['has_been_mitigated', '=', 0],
-                ['exploit_available', '=', 'Yes']
+                ['exploit_available', '=', 'Yes'],
             ])->select('dns_name', 'ip_address', 'synopsis')->get();
 
             // cycle through critical vulnerabilities and build counts for each host
-            foreach ($critical_vulns as $vuln)
-            {
-                if (array_key_exists($vuln['dns_name'], $data))
-                {
+            foreach ($critical_vulns as $vuln) {
+                if (array_key_exists($vuln['dns_name'], $data)) {
                     $data[$vuln['dns_name']]['count']++;
-                }
-                else
-                {
+                } else {
                     $data[$vuln['dns_name']]['count'] = 1;
                 }
-                
+
                 // include host ip address and the synopsis provided by SecurityCenter
                 $data[$vuln['dns_name']]['ip_address'] = $vuln['ip_address'];
                 $data[$vuln['dns_name']]['synopsis'][] = $vuln['synopsis'];
@@ -213,8 +209,7 @@ class SecurityCenterController extends Controller
             $keys = array_keys($data);
 
             // cycle through the keys and build the critical hosts array
-            foreach ($keys as $key)
-            {
+            foreach ($keys as $key) {
                 $critical_hosts[] = [
                     'hostname'          => $key,
                     'critical_count'    => $data[$key]['count'],
@@ -222,7 +217,7 @@ class SecurityCenterController extends Controller
             }
 
             // sort that sucker by critical count
-            uasort($critical_hosts, function($a, $b) {
+            uasort($critical_hosts, function ($a, $b) {
                 return $b['critical_count'] <=> $a['critical_count'];
             });
 
@@ -230,8 +225,7 @@ class SecurityCenterController extends Controller
             $top_ten = array_slice($critical_hosts, 0, 10, true);
 
             // rebuild sorted top ten hosts array
-            foreach ($top_ten as $host)
-            {
+            foreach ($top_ten as $host) {
                 $top_ten_hosts[] = [
                     'hostname'          => $host['hostname'],
                     'critical_count'    => $host['critical_count'],
@@ -246,9 +240,7 @@ class SecurityCenterController extends Controller
                 'count'         => count($top_ten_hosts),
                 'top_ten_hosts' => $top_ten_hosts,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get top ten most vulnerable hosts.',
@@ -257,8 +249,6 @@ class SecurityCenterController extends Controller
 
         return response()->json($response);
     }
-
-
 
     /**
      * Get SecurityCenter vulnerabilities for a particular severity.
