@@ -12,16 +12,12 @@ $options = [
     'expires'       => 5,
 ];
 
-
 $api->group($options, function ($api) {
 
-	// Inside host traffic route group
-	$api->group(['prefix' => 'inside_host_traffic'], function ($api) {
+    // Inside host traffic route group
+    $api->group(['prefix' => 'inside_host_traffic'], function ($api) {
 
-		// get aggregate statistics on inside host traffic
-		$api->get('/aggregates', 'LancopeController@getInsideHostTrafficAggregates');
-
-	});
-
-
+        // get aggregate statistics on inside host traffic
+        $api->get('/aggregates', 'LancopeController@getInsideHostTrafficAggregates');
+    });
 });
