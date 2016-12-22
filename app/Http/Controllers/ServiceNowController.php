@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\ServiceNow\cmdbServer;
 use App\ServiceNow\ServiceNowIncident;
+use App\ServiceNow\ServiceNowIdmIncident;
+use App\ServiceNow\ServiceNowSapRoleAuthIncident;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ServiceNowController extends Controller
@@ -18,6 +20,13 @@ class ServiceNowController extends Controller
         $this->middleware('auth');
     }
 
+
+    /**
+     * 
+     * Service Now CMDB server functions
+     * 
+     */
+    
     /**
      * Get all CMDB servers.
      *
@@ -185,6 +194,13 @@ class ServiceNowController extends Controller
         return response()->json($response);
     }
 
+
+    /**
+     * 
+     * Service Now Security incident functions
+     * 
+     */
+    
     /**
      * Get all Security incidents in ServiceNow.
      *
@@ -409,6 +425,251 @@ class ServiceNowController extends Controller
             $response = [
                 'success'    => false,
                 'message'    => 'Failed to get resolved by count for Security incidents.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+    /**
+     * 
+     * Service Now IDM incident functions
+     * 
+     */
+    
+    /**
+     * Get all Security incidents in ServiceNow.
+     *
+     * @return void
+     */
+    public function getAllIDMIncidents()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $tickets = ServiceNowIdmIncident::paginate(100);
+
+            foreach ($tickets as $ticket) {
+                $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
+            }
+
+            $response = [
+                'success'           => true,
+                'total'             => $tickets->total(),
+                'count'             => $tickets->count(),
+                'current_page'      => $tickets->currentPage(),
+                'next_page_url'     => $tickets->nextPageUrl(),
+                'has_more_pages'    => $tickets->hasMorePages(),
+                'incidents'         => $data,
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get IDM incidents.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+     * Get active IDM incidents in ServiceNow.
+     *
+     * @return void
+     */
+    public function getActiveIDMIncidents()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $tickets = ServiceNowIdmIncident::where([
+                ['state', '!=', 'Closed'],
+                ['state', '!=', 'Resolved'],
+                ['state', '!=', 'Cancelled'],
+            ])->paginate(100);
+
+            foreach ($tickets as $ticket) {
+                $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
+            }
+
+            $response = [
+                'success'           => true,
+                'total'             => $tickets->total(),
+                'count'             => $tickets->count(),
+                'current_page'      => $tickets->currentPage(),
+                'next_page_url'     => $tickets->nextPageUrl(),
+                'has_more_pages'    => $tickets->hasMorePages(),
+                'incidents'         => $data,
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get active IDM incidents.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+    /**
+     * Get count of resolved tickets by user for IDM incidents.
+     *
+     * @return void
+     */
+    public function getResolvedByUserCount_IDM()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $resolved_by = ServiceNowIdmIncident::where('resolved_by', '!=', 'null')->pluck('resolved_by');
+
+            foreach ($resolved_by as $name) {
+                if (array_key_exists($name, $data)) {
+                    $data[$name]++;
+                } else {
+                    $data[$name] = 1;
+                }
+            }
+
+            $response = [
+                'success'       => true,
+                'count'         => count($data),
+                'user_count'    => $data,
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get resolved by count for IDM incidents.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+    /**
+     * 
+     * Service Now SAP role auth incident functions
+     * 
+     */
+    
+    /**
+     * Get all Security incidents in ServiceNow.
+     *
+     * @return void
+     */
+    public function getAllSAPRoleAuthIncidents()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $tickets = ServiceNowSapRoleAuthIncident::paginate(100);
+
+            foreach ($tickets as $ticket) {
+                $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
+            }
+
+            $response = [
+                'success'           => true,
+                'total'             => $tickets->total(),
+                'count'             => $tickets->count(),
+                'current_page'      => $tickets->currentPage(),
+                'next_page_url'     => $tickets->nextPageUrl(),
+                'has_more_pages'    => $tickets->hasMorePages(),
+                'incidents'         => $data,
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get SAP role auth incidents.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+     * Get active Security incidents in ServiceNow.
+     *
+     * @return void
+     */
+    public function getActiveSAPRoleAuthIncidents()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $tickets = ServiceNowSapRoleAuthIncident::where([
+                ['state', '!=', 'Closed'],
+                ['state', '!=', 'Resolved'],
+                ['state', '!=', 'Cancelled'],
+            ])->paginate(100);
+
+            foreach ($tickets as $ticket) {
+                $data[] = \Metaclassing\Utility::decodeJson($ticket['data']);
+            }
+
+            $response = [
+                'success'           => true,
+                'total'             => $tickets->total(),
+                'count'             => $tickets->count(),
+                'current_page'      => $tickets->currentPage(),
+                'next_page_url'     => $tickets->nextPageUrl(),
+                'has_more_pages'    => $tickets->hasMorePages(),
+                'incidents'         => $data,
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get active SAP role auth incidents.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+     * Get count of resolved tickets by user for SAP role auth incidents.
+     *
+     * @return void
+     */
+    public function getResolvedByUserCount_SAPRoleAuth()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $resolved_by = ServiceNowSapRoleAuthIncident::where('resolved_by', '!=', 'null')->pluck('resolved_by');
+
+            foreach ($resolved_by as $name) {
+                if (array_key_exists($name, $data)) {
+                    $data[$name]++;
+                } else {
+                    $data[$name] = 1;
+                }
+            }
+
+            $response = [
+                'success'       => true,
+                'count'         => count($data),
+                'user_count'    => $data,
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get resolved by count for SAP role auth incidents.',
             ];
         }
 
