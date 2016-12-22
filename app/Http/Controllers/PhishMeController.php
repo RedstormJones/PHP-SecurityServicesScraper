@@ -19,9 +19,9 @@ class PhishMeController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Attachment scenario functions.
-     */
+    /**********************************
+     * Attachment scenario functions. *
+     **********************************/
 
     /**
      * Get attachment scenarios for a given user.
@@ -84,9 +84,9 @@ class PhishMeController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Click only scenario functions.
-     */
+    /**********************************
+     * Click only scenario functions. *
+     **********************************/
 
     /**
      * Get click only scenarios for a given user.
@@ -149,9 +149,9 @@ class PhishMeController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Data entry scenario functions.
-     */
+    /**********************************
+     * Data entry scenario functions. *
+     **********************************/
 
     /**
      * Get data entry scenarios for a given user.

@@ -20,9 +20,9 @@ class ServiceNowController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Service Now CMDB server functions.
-     */
+    /**************************************
+     * Service Now CMDB server functions. *
+     **************************************/
 
     /**
      * Get all CMDB servers.
@@ -191,9 +191,9 @@ class ServiceNowController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Service Now Security incident functions.
-     */
+    /********************************************
+     * Service Now Security incident functions. *
+     ********************************************/
 
     /**
      * Get all Security incidents in ServiceNow.
@@ -425,9 +425,9 @@ class ServiceNowController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Service Now IDM incident functions.
-     */
+    /***************************************
+     * Service Now IDM incident functions. *
+     ***************************************/
 
     /**
      * Get all Security incidents in ServiceNow.
@@ -544,9 +544,9 @@ class ServiceNowController extends Controller
         return response()->json($response);
     }
 
-    /**
-     * Service Now SAP role auth incident functions.
-     */
+    /*************************************************
+     * Service Now SAP role auth incident functions. *
+     *************************************************/
 
     /**
      * Get all Security incidents in ServiceNow.
