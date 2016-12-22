@@ -20,6 +20,10 @@ class SecurityCenterController extends Controller
         $this->middleware('auth');
     }
 
+    /************************************************
+     * SecurityCenter asset vulnerability functions *
+     ************************************************/
+
     /**
      * Get all SecurityCenter asset vulnerabilities.
      *
@@ -120,6 +124,142 @@ class SecurityCenterController extends Controller
         return response()->json($response);
     }
 
+    /******************************************
+     * SecurityCenter vulnerability functions *
+     ******************************************/
+
+    /**
+     * Get count of SecurityCenter vulnerabilities for each severity (critical, high, medium).
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getVulnerabilityCounts()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            $medium_count = SecurityCenterMedium::where('has_been_mitigated', '=', 0)->count();
+            $high_count = SecurityCenterHigh::where('has_been_mitigated', '=', 0)->count();
+            $critical_count = SecurityCenterCritical::where('has_been_mitigated', '=', 0)->count();
+
+            $data[] = [
+                'medium_vuln_count'     => $medium_count,
+                'high_vuln_count'       => $high_count,
+                'critical_vuln_count'   => $critical_count,
+                'total'                 => ($medium_count + $high_count + $critical_count),
+            ];
+
+            $response = [
+                'success'               => true,
+                'has_more_pages'        => false,
+                'vulnerability_counts'  => $data,
+            ];
+        } catch (\Exception $e) {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get vulnerability count for severity: '.$severity,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+     * Get top ten most vulnerable hosts.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getTopTenVulnerableHosts()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+            $crticial_hosts = [];
+            $top_ten = [];
+            $top_ten_hosts = [];
+
+            // get critical and high vulnerabilities
+            $critical_vulns = SecurityCenterCritical::where([
+                ['has_been_mitigated', '=', 0],
+                ['exploit_available', '=', 'Yes']
+            ])->select('dns_name', 'ip_address', 'synopsis')->get();
+
+            $high_vulns = SecurityCenterHigh::where([
+                ['has_been_mitigated', '=', 0],
+                ['exploit_available', '=', 'Yes']
+            ])->select('dns_name', 'ip_address', 'synopsis')->get();
+
+            // cycle through critical vulnerabilities and build counts for each host
+            foreach ($critical_vulns as $vuln)
+            {
+                if (array_key_exists($vuln['dns_name'], $data))
+                {
+                    $data[$vuln['dns_name']]['count']++;
+                }
+                else
+                {
+                    $data[$vuln['dns_name']]['count'] = 1;
+                }
+                
+                // include host ip address and the synopsis provided by SecurityCenter
+                $data[$vuln['dns_name']]['ip_address'] = $vuln['ip_address'];
+                $data[$vuln['dns_name']]['synopsis'][] = $vuln['synopsis'];
+            }
+
+            // get the keys
+            $keys = array_keys($data);
+
+            // cycle through the keys and build the critical hosts array
+            foreach ($keys as $key)
+            {
+                $critical_hosts[] = [
+                    'hostname'          => $key,
+                    'critical_count'    => $data[$key]['count'],
+                ];
+            }
+
+            // sort that sucker by critical count
+            uasort($critical_hosts, function($a, $b) {
+                return $b['critical_count'] <=> $a['critical_count'];
+            });
+
+            // gimme the first 10 hosts
+            $top_ten = array_slice($critical_hosts, 0, 10, true);
+
+            // rebuild sorted top ten hosts array
+            foreach ($top_ten as $host)
+            {
+                $top_ten_hosts[] = [
+                    'hostname'          => $host['hostname'],
+                    'critical_count'    => $host['critical_count'],
+                    'ip_address'        => $data[$host['hostname']]['ip_address'],
+                    'synopsis'          => $data[$host['hostname']]['synopsis'],
+                ];
+            }
+
+            // respond
+            $response = [
+                'success'       => true,
+                'count'         => count($top_ten_hosts),
+                'top_ten_hosts' => $top_ten_hosts,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get top ten most vulnerable hosts.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+
     /**
      * Get SecurityCenter vulnerabilities for a particular severity.
      *
@@ -166,44 +306,6 @@ class SecurityCenterController extends Controller
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get SecurityCenter vulnerabilities for severity: '.$severity,
-            ];
-        }
-
-        return response()->json($response);
-    }
-
-    /**
-     * Get count of SecurityCenter vulnerabilities for each severity (critical, high, medium).
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function getVulnerabilityCounts()
-    {
-        $user = JWTAuth::parseToken()->authenticate();
-
-        try {
-            $data = [];
-
-            $medium_count = SecurityCenterMedium::where('has_been_mitigated', '=', 0)->count();
-            $high_count = SecurityCenterHigh::where('has_been_mitigated', '=', 0)->count();
-            $critical_count = SecurityCenterCritical::where('has_been_mitigated', '=', 0)->count();
-
-            $data[] = [
-                'medium_vuln_count'     => $medium_count,
-                'high_vuln_count'       => $high_count,
-                'critical_vuln_count'   => $critical_count,
-                'total'                 => ($medium_count + $high_count + $critical_count),
-            ];
-
-            $response = [
-                'success'               => true,
-                'has_more_pages'        => false,
-                'vulnerability_counts'  => $data,
-            ];
-        } catch (\Exception $e) {
-            $response = [
-                'success'   => false,
-                'message'   => 'Failed to get vulnerability count for severity: '.$severity,
             ];
         }
 

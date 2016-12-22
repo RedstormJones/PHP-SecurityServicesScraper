@@ -32,6 +32,9 @@ $api->group($options, function ($api) {
         // get count of vulnerabilities for each severity (critical, high, medium)
         $api->get('/counts', 'SecurityCenterController@getVulnerabilityCounts');
 
+        // get top ten most vulnerable hosts
+        $api->get('/top_ten_hosts', 'SecurityCenterController@getTopTenVulnerableHosts');
+
         // Get all vulnerabilities for a specific severity (critical, high, medium)
         $api->get('/{severity}/all', 'SecurityCenterController@getVulnerabilities');
 
