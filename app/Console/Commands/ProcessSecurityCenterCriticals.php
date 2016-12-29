@@ -117,7 +117,7 @@ class ProcessSecurityCenterCriticals extends Command
     public function processDeletes()
     {
         $today = new \DateTime();
-        $past = $today->modify('-3 months');
+        $past = $today->modify('-30 days');
         $delete_date = $past->format('Y-m-d H:i:s');
 
         $criticalvulns = SecurityCenterCritical::where('updated_at', '<=', $delete_date)->get();
