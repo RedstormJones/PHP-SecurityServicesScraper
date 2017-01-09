@@ -37,7 +37,6 @@ $api->group($options, function ($api) {
 
         // get incidents by caller
         $api->get('caller/{caller}', 'ServiceNowController@getIncidentsByCaller');
-
     });
 
     // ServiceNow Security incidents route group
