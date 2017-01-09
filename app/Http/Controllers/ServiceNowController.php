@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+require_once app_path('Console/Crawler/Crawler.php');
+
 use App\ServiceNow\cmdbServer;
 use App\ServiceNow\ServiceNowIdmIncident;
 use App\ServiceNow\ServiceNowIncident;
@@ -190,6 +192,73 @@ class ServiceNowController extends Controller
 
         return response()->json($response);
     }
+
+
+    /********************************************
+     * Service Now incident functions. *
+     ********************************************/
+
+    /**
+     * Get ServiceNow incidents by caller.
+     *
+     * @return void
+     */
+    public function getIncidentsByCaller($caller)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            // setup cookie jar
+            $cookiejar = storage_path('app/cookies/servicenow_cookie.txt');
+
+            // instantiate crawler
+            $crawler = new \Crawler\Crawler($cookiejar);
+
+            // point url to incidents table and add necessary query params
+            $url = 'https:/'.'/kiewit.service-now.com/api/now/v1/table/incident?sysparm_display_value=true&caller_id='.$caller;
+
+            // setup HTTP headers with basic auth
+            $headers = [
+                'accept: application/json',
+                'authorization: Basic '.getenv('SERVICENOW_AUTH'),
+                'cache-control: no-cache',
+            ];
+            curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+            // send request and capture response
+            $response = $crawler->get($url);
+
+            // dump response to file
+            file_put_contents(storage_path('app/responses/incidents.dump'), $response);
+
+            // JSON decode response
+            $incident_results = \Metaclassing\Utility::decodeJson($response);
+
+            // grab the data we care about and tell the world how many incidents we have
+            $incidents = $incident_results['result'];
+            //echo 'total incident count: '.count($incidents).PHP_EOL;
+
+            // JSON encode and dump incident collection to file
+            //file_put_contents(storage_path('app/collections/incidents_collection.json'), \Metaclassing\Utility::encodeJson($incidents));
+
+            $response = [
+                'success'   => true,
+                'count'     => count($incidents),
+                'incidents' => $incidents,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            $response = [
+                'success'    => false,
+                'message'    => 'Failed to get ServiceNow incidents for caller: '.$caller,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
 
     /********************************************
      * Service Now Security incident functions. *

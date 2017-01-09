@@ -32,6 +32,14 @@ $api->group($options, function ($api) {
         $api->get('/district/{district}', 'ServiceNowController@getCMDBServersByDistrict');
     });
 
+    // ServiceNow incidents route group
+    $api->group(['prefix' => 'incidents'], function ($api) {
+
+        // get incidents by caller
+        $api->get('caller/{caller}', 'ServiceNowController@getIncidentsByCaller');
+
+    });
+
     // ServiceNow Security incidents route group
     $api->group(['prefix' => 'security_incidents'], function ($api) {
 
