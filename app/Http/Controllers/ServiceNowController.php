@@ -193,7 +193,6 @@ class ServiceNowController extends Controller
         return response()->json($response);
     }
 
-
     /********************************************
      * Service Now incident functions. *
      ********************************************/
@@ -246,9 +245,7 @@ class ServiceNowController extends Controller
                 'count'     => count($incidents),
                 'incidents' => $incidents,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $response = [
                 'success'    => false,
                 'message'    => 'Failed to get ServiceNow incidents for caller: '.$caller,
@@ -257,8 +254,6 @@ class ServiceNowController extends Controller
 
         return response()->json($response);
     }
-
-
 
     /********************************************
      * Service Now Security incident functions. *
