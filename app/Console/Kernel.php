@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         Commands\GetCMDBServers::class,
         Commands\GetIncomingEmail::class,
         Commands\GetIDMIncidents::class,
+        Commands\GetInsideHostTrafficSnapshots::class,
 
         Commands\ProcessCylanceDevices::class,
         Commands\ProcessCylanceThreats::class,
@@ -117,8 +118,10 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run multiple times a day
         */
-        $schedule->command('crawl:insidehosttrafficsnapshots')->twiceDaily(6, 12)->timezone('America/Chicago');    // runs twice every day at 6:00am and 12:00pm
-        $schedule->command('process:insidehosttrafficsnapshots')->twiceDaily(7, 13)->timezone('America/Chicago');  // runs twice every day at 7:00am and 1:00pm
+        //$schedule->command('crawl:insidehosttrafficsnapshots')->twiceDaily(6, 12)->timezone('America/Chicago');    // runs twice every day at 6:00am and 12:00pm
+        //$schedule->command('process:insidehosttrafficsnapshots')->twiceDaily(7, 13)->timezone('America/Chicago');  // runs twice every day at 7:00am and 1:00pm
+        $schedule->command('get:insidehosttrafficsnapshots')->twiceDaily(6, 12)->timezone('America/Chicago');
+
         $schedule->command('crawl:outsidehosttrafficsnapshots')->twiceDaily(8, 14)->timezone('America/Chicago');   // runs twice every day at 8:00am and 2:00pm
         $schedule->command('process:outsidehosttrafficsnapshots')->twiceDaily(9, 15)->timezone('America/Chicago'); // runs twice every day at 9:00am and 3:00pm
     }
