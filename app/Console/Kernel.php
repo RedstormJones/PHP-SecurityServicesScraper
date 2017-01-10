@@ -13,6 +13,9 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
+        Commands\GetCylanceDevices::class,
+        Commands\GetCylanceThreats::class,
+
         Commands\ProcessCylanceDevices::class,
         Commands\ProcessCylanceThreats::class,
         Commands\ProcessIncomingEmail::class,
@@ -90,10 +93,15 @@ class Kernel extends ConsoleKernel
         $schedule->command('process:securityincidents')->dailyAt('22:30')->timezone('America/Chicago');     // runs daily at 10:15pm
         $schedule->command('crawl:spamemails')->dailyAt('22:45')->timezone('America/Chicago');              // runs daily at 10:30pm
         $schedule->command('process:spamemail')->dailyAt('23:00')->timezone('America/Chicago');             // runs daily at 11:00pm
-        $schedule->command('crawl:cylancedevices')->daily()->timezone('America/Chicago');                   // runs daily at midnight (00:00)
-        $schedule->command('process:cylancedevices')->dailyAt('01:00')->timezone('America/Chicago');        // runs daily at 01:00am
-        $schedule->command('crawl:cylancethreats')->dailyAt('03:30')->timezone('America/Chicago');          // runs daily at 03:30am
-        $schedule->command('process:cylancethreats')->dailyAt('04:00')->timezone('America/Chicago');        // runs daily at 04:00am
+        
+        //$schedule->command('crawl:cylancedevices')->daily()->timezone('America/Chicago');                   // runs daily at midnight (00:00)
+        //$schedule->command('process:cylancedevices')->dailyAt('01:00')->timezone('America/Chicago');        // runs daily at 01:00am
+        $schedule->command('get:cylancedevices')->daily()->timezone('America/Chicago');                   // runs daily at 00:00
+
+        //$schedule->command('crawl:cylancethreats')->dailyAt('03:30')->timezone('America/Chicago');          // runs daily at 03:30am
+        //$schedule->command('process:cylancethreats')->dailyAt('04:00')->timezone('America/Chicago');        // runs daily at 04:00am
+        $schedule->command('get:cylancethreats')->dailyAt('01:00')->timezone('America/Chicago');            // runs daily at 01:00
+
         $schedule->command('crawl:incomingemail')->dailyAt('05:00')->timezone('America/Chicago');           // runs daily at 05:00am
         $schedule->command('process:incomingemail')->dailyAt('05:15')->timezone('America/Chicago');         // runs daily at 05:15am
 
