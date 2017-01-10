@@ -18,7 +18,7 @@ class Kernel extends ConsoleKernel
         Commands\GetCMDBServers::class,
         Commands\GetIncomingEmail::class,
         Commands\GetIronPortThreats::class,
-        Commands\GetSecurityIncidents::class,        
+        Commands\GetSecurityIncidents::class,
         Commands\GetIDMIncidents::class,
         Commands\GetSAPRoleAuthIncidents::class,
         Commands\GetInsideHostTrafficSnapshots::class,
