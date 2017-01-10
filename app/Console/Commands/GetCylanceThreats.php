@@ -226,7 +226,7 @@ class GetCylanceThreats extends Command
                     'last_found_active'        => $active_last_found,
                     'last_found_allowed'       => $allowed_last_found,
                     'last_found_blocked'       => $blocked_last_found,
-                    'md5'                      => $threat['MD5'[,
+                    'md5'                      => $threat['MD5'],
                     'virustotal'               => $threat['VirusTotal'],
                     'is_virustotal_threat'     => $threat['IsVirusTotalThreat'],
                     'full_classification'      => $threat['FullClassification'],
