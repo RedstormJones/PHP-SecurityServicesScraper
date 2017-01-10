@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         Commands\GetCylanceDevices::class,
         Commands\GetCylanceThreats::class,
         Commands\GetCMDBServers::class,
+        Commands\GetIncomingEmail::class,
 
         Commands\ProcessCylanceDevices::class,
         Commands\ProcessCylanceThreats::class,
@@ -96,7 +97,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('process:securityincidents')->dailyAt('22:30')->timezone('America/Chicago');     // runs daily at 10:15pm
         $schedule->command('crawl:spamemails')->dailyAt('22:45')->timezone('America/Chicago');              // runs daily at 10:30pm
         $schedule->command('process:spamemail')->dailyAt('23:00')->timezone('America/Chicago');             // runs daily at 11:00pm
-
+        
         //$schedule->command('crawl:cylancedevices')->daily()->timezone('America/Chicago');                   // runs daily at midnight (00:00)
         //$schedule->command('process:cylancedevices')->dailyAt('01:00')->timezone('America/Chicago');        // runs daily at 01:00am
         $schedule->command('get:cylancedevices')->daily()->timezone('America/Chicago');                   // runs daily at 00:00

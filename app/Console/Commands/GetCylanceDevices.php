@@ -248,6 +248,8 @@ class GetCylanceDevices extends Command
 
         // process soft deletes for old records
         $this->processDeletes();
+
+        Log::info('* Cylance devices completed! *'.PHP_EOL);
     }
 
     /**
