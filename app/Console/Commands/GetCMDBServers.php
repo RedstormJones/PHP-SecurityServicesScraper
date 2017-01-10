@@ -140,7 +140,7 @@ class GetCMDBServers extends Command
 
                 // touch server model to update 'updated_at' timestamp in case nothing was changed
                 $servermodel->touch();
-               
+
                 Log::info('updated server: '.$server['name']);
             } else {
                 Log::info('creating new server record: '.$server['name']);
