@@ -249,7 +249,7 @@ class GetCylanceThreats extends Command
                 // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
                 $threatmodel = CylanceThreat::find($exists);
                 */
-               
+
                 //if ($threatmodel != null) {
                     //$threatmodel->touch();
 
