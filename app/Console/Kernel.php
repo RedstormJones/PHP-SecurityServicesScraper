@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
         Commands\GetIncomingEmail::class,
         Commands\GetIDMIncidents::class,
         Commands\GetInsideHostTrafficSnapshots::class,
+        Commands\GetSAPRoleAuthIncidents::class,
 
         Commands\ProcessCylanceDevices::class,
         Commands\ProcessCylanceThreats::class,
@@ -93,6 +94,7 @@ class Kernel extends ConsoleKernel
 
         //$schedule->command('crawl:saproleauthincidents')->dailyAt('21:00')->timezone('America/Chicago');    // runs daily at 09:00pm
         //$schedule->command('process:saproleauthincidents')->dailyAt('21:30')->timezone('America/Chicago');  // runs daily at 09:15pm
+        $schedule->command('get:saproleauthincidents')->dailyAt('21:00')->timezone('America/Chicago');      // runs daily at 09:00pm
 
         //$schedule->command('crawl:idmincidents')->dailyAt('21:45')->timezone('America/Chicago');            // runs daily at 09:30pm
         //$schedule->command('process:idmincidents')->dailyAt('22:00')->timezone('America/Chicago');          // runs daily at 09:45pm
