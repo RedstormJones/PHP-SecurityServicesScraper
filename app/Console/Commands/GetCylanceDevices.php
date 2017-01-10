@@ -5,8 +5,8 @@ namespace App\Console\Commands;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\Cylance\CylanceDevice;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class GetCylanceDevices extends Command
 {
@@ -198,7 +198,6 @@ class GetCylanceDevices extends Command
         //\Metaclassing\Utility::dumper($threats);
         file_put_contents(storage_path('app/collections/devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices));
 
-
         /*************************************
          * [2] Process devices into database *
          *************************************/
@@ -249,8 +248,6 @@ class GetCylanceDevices extends Command
 
         // process soft deletes for old records
         $this->processDeletes();
-
-
     }
 
     /**

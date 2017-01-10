@@ -5,8 +5,8 @@ namespace App\Console\Commands;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\Cylance\CylanceThreat;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class GetCylanceThreats extends Command
 {
@@ -247,12 +247,12 @@ class GetCylanceThreats extends Command
 
                 // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
                 $threatmodel = CylanceThreat::find($exists);
-               
+
                 if ($threatmodel != null) {
                     $threatmodel->touch();
 
                     /*
-                    * do a restore to set the 'deleted_at' timestamp back to NULL 
+                    * do a restore to set the 'deleted_at' timestamp back to NULL
                     * in case this threat model had been soft deleted at some point.
                     */
                     $threatmodel->restore();
@@ -378,5 +378,4 @@ class GetCylanceThreats extends Command
 
         return $datetime;
     }
-
 }
