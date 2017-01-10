@@ -122,8 +122,6 @@ class GetIncomingEmail extends Command
             die('Error: could not get CSRF token'.PHP_EOL);
         }
 
-        Log::info('starting incoming email scrape');
-
         // set incoming email download url and post data
         $url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email/mail_reports/incoming_mail';
 
@@ -174,12 +172,12 @@ class GetIncomingEmail extends Command
 
         Log::info(PHP_EOL.'***************************************'.PHP_EOL.'* Starting incoming email processing! *'.PHP_EOL.'***************************************');
 
+        Log::info('creating '.$count.' new email records...');
+
         foreach ($newArray as $email) {
             $begindate = rtrim($email['Begin Date'], ' GMT');
             $enddate = rtrim($email['End Date'], ' GMT');
 
-            Log::info('creating email record for: '.$email['Sender Domain']);
-            /*
             $new_email = new IncomingEmail();
 
             $new_email->begin_date = $begindate;
@@ -204,7 +202,6 @@ class GetIncomingEmail extends Command
             $new_email->data = json_encode($email);
 
             $new_email->save();
-            */
         }
 
         $this->processDeletes();
@@ -266,10 +263,11 @@ class GetIncomingEmail extends Command
         // get collection of incoming email models that are older than 90 days
         $incomingemails = IncomingEmail::where('updated_at', '<', $delete_date)->get();
 
+        Log::info('deleting stale email records...');
+
         // cycle through the models in the returned collection and soft delete them
         foreach ($incomingemails as $email) {
-            Log::info('deleting email record: '.$email->id);
-            //$email->delete();
+            $email->delete();
         }
     }
 }

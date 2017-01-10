@@ -206,7 +206,6 @@ class GetCylanceThreats extends Command
             $exists = CylanceThreat::where('threat_id', $threat['Id'])->withTrashed()->value('id');
 
             if ($exists) {
-                /*
                 // format datetimes for updating threat record
                 $first_found = $this->stringToDate($threat['FirstFound']);
                 $last_found = $this->stringToDate($threat['LastFound']);
@@ -248,22 +247,21 @@ class GetCylanceThreats extends Command
 
                 // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
                 $threatmodel = CylanceThreat::find($exists);
-                */
 
-                //if ($threatmodel != null) {
-                    //$threatmodel->touch();
+                if ($threatmodel != null) {
+                    $threatmodel->touch();
 
                     /*
                     * do a restore to set the 'deleted_at' timestamp back to NULL
                     * in case this threat model had been soft deleted at some point.
                     */
-                    //$threatmodel->restore();
-                //}
+                    $threatmodel->restore();
+                }
 
                 Log::info('updated threat: '.$threat['CommonName']);
             } else {
                 Log::info('creating threat: '.$threat['CommonName']);
-                //$this->createThreat($threat);
+                $this->createThreat($threat);
             }
         }
 
@@ -360,7 +358,7 @@ class GetCylanceThreats extends Command
 
             if ($updated_at <= $delete_date) {
                 Log::info('deleting threat: '.$threat->common_name);
-                //$threat->delete();
+                $threat->delete();
             }
         }
     }

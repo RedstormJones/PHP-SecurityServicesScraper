@@ -106,8 +106,9 @@ class Kernel extends ConsoleKernel
         //$schedule->command('process:cylancethreats')->dailyAt('04:00')->timezone('America/Chicago');        // runs daily at 04:00am
         $schedule->command('get:cylancethreats')->dailyAt('01:00')->timezone('America/Chicago');            // runs daily at 01:00
 
-        $schedule->command('crawl:incomingemail')->dailyAt('05:00')->timezone('America/Chicago');           // runs daily at 05:00am
-        $schedule->command('process:incomingemail')->dailyAt('05:15')->timezone('America/Chicago');         // runs daily at 05:15am
+        //$schedule->command('crawl:incomingemail')->dailyAt('05:00')->timezone('America/Chicago');           // runs daily at 05:00am
+        //$schedule->command('process:incomingemail')->dailyAt('05:15')->timezone('America/Chicago');         // runs daily at 05:15am
+        $schedule->command('get:incomingemail')->dailyAt('02:00')->timezone('America/Chicago');             // runs daily at 02:00am
 
         /*
         * Commands run multiple times a day
