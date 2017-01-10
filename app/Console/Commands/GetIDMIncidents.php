@@ -101,7 +101,6 @@ class GetIDMIncidents extends Command
                 $assigned_to = $this->handleNull($incident['assigned_to']);
                 $resolved_at = $this->handleNull($incident['resolved_at']);
 
-                /*
                 // get incident model and update the fields that could have changed
                 $incidentmodel = ServiceNowIdmIncident::find($exists);
                 $incidentmodel->update([
@@ -129,7 +128,6 @@ class GetIDMIncidents extends Command
 
                 // touch incident model to update the 'updated_at' timestamp in case nothing was changed
                 $incidentmodel->touch();
-                */
 
                 Log::info('IDM incident updated: '.$incident['number']);
             } else {
@@ -153,7 +151,6 @@ class GetIDMIncidents extends Command
                 $updated_on = $this->handleNull($incident['sys_updated_on']);
                 $resolved_at = $this->handleNull($incident['resolved_at']);
 
-                /*
                 // create the new incident record
                 $new_incident = new ServiceNowIdmIncident();
 
@@ -191,7 +188,6 @@ class GetIDMIncidents extends Command
                 $new_incident->data = \Metaclassing\Utility::encodeJson($incident);
 
                 $new_incident->save();
-                */
             }
         }
 
