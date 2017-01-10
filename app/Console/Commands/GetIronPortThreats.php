@@ -181,8 +181,7 @@ class GetIronPortThreats extends Command
 
             $exists = IronPortThreat::where('begin_date', $begindate)->value('id');
 
-            if ($exists)
-            {
+            if ($exists) {
                 // update threat record
                 $existing_threat = IronPortThreat::find($exists);
                 $existing_threat->update([
@@ -194,10 +193,9 @@ class GetIronPortThreats extends Command
 
                 // touch threat record to update the 'updated_at' timestamp in case nothing was changed
                 $existing_threat->touch();
-               
+
                 Log::info('updated IronPort threat record for '.$threat['Threat Name'].' during '.$begindate);
-            }
-            else {
+            } else {
                 // create new threat record
                 Log::info('creating IronPort threat record for '.$threat['Threat Name'].' during '.$begindate);
 
