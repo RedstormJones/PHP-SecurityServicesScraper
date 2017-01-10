@@ -45,7 +45,7 @@ class GetCylanceThreats extends Command
          * [1] Get all Cylance threats *
          *******************************/
 
-        Log::info('Starting Cylance threats crawler!');
+        Log::info(PHP_EOL.PHP_EOL.'*************************************'.PHP_EOL.'* Starting Cylance threats crawler! *'.PHP_EOL.'*************************************');
 
         $username = getenv('CYLANCE_USERNAME');
         $password = getenv('CYLANCE_PASSWORD');
@@ -200,7 +200,7 @@ class GetCylanceThreats extends Command
          * [2] Process threats into database *
          *************************************/
 
-        Log::info('Starting Cylance threats processing!');
+        Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance threats processing! *'.PHP_EOL.'****************************************');
 
         foreach ($cylance_threats as $threat) {
             $exists = CylanceThreat::where('threat_id', $threat['Id'])->withTrashed()->value('id');

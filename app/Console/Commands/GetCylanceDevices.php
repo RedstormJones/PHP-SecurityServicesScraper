@@ -45,7 +45,7 @@ class GetCylanceDevices extends Command
          * [1] Get all Cylance devices *
          *******************************/
 
-        Log::info('Starting Cylance devices crawler!');
+        Log::info(PHP_EOL.PHP_EOL.'*************************************'.PHP_EOL.'* Starting Cylance devices crawler! *'.PHP_EOL.'*************************************');
 
         $username = getenv('CYLANCE_USERNAME');
         $password = getenv('CYLANCE_PASSWORD');
@@ -202,7 +202,7 @@ class GetCylanceDevices extends Command
          * [2] Process devices into database *
          *************************************/
 
-        Log::info('Starting Cylance devices processing!');
+        Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance devices processing! *'.PHP_EOL.'****************************************');
 
         $date_regex = '/\/Date\((\d+)\)\//';
 
