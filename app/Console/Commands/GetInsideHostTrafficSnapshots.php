@@ -150,7 +150,6 @@ class GetInsideHostTrafficSnapshots extends Command
         return $poststring;
     }
 
-
     /**
      * Function to process softdeletes on application traffic snapshots.
      *
