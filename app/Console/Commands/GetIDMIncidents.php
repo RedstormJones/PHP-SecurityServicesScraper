@@ -41,7 +41,7 @@ class GetIDMIncidents extends Command
      */
     public function handle()
     {
-        /**
+        /*
          * [1] Get all IDM incidents email
          */
 
@@ -80,7 +80,7 @@ class GetIDMIncidents extends Command
         // JSON encode and dump incident collection to file
         file_put_contents(storage_path('app/collections/idm_incidents_collection.json'), \Metaclassing\Utility::encodeJson($incidents));
 
-        /**
+        /*
          * [2] Process IDM incidents into database
          */
 
