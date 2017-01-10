@@ -225,5 +225,4 @@ class GetSAPRoleAuthIncidents extends Command
             return $data;
         }
     }
-
 }
