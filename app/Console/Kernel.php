@@ -18,9 +18,10 @@ class Kernel extends ConsoleKernel
         Commands\GetCMDBServers::class,
         Commands\GetIncomingEmail::class,
         Commands\GetIronPortThreats::class,
+        Commands\GetSecurityIncidents::class,        
         Commands\GetIDMIncidents::class,
-        Commands\GetInsideHostTrafficSnapshots::class,
         Commands\GetSAPRoleAuthIncidents::class,
+        Commands\GetInsideHostTrafficSnapshots::class,
 
         Commands\ProcessCylanceDevices::class,
         Commands\ProcessCylanceThreats::class,
@@ -103,8 +104,10 @@ class Kernel extends ConsoleKernel
         //$schedule->command('process:idmincidents')->dailyAt('22:00')->timezone('America/Chicago');          // runs daily at 09:45pm
         $schedule->command('get:idmincidents')->dailyAt('21:30')->timezone('America/Chicago');              // runs daily at 09:30pm
 
-        $schedule->command('crawl:securityincidents')->dailyAt('22:15')->timezone('America/Chicago');       // runs daily at 10:00pm
-        $schedule->command('process:securityincidents')->dailyAt('22:30')->timezone('America/Chicago');     // runs daily at 10:15pm
+        //$schedule->command('crawl:securityincidents')->dailyAt('22:15')->timezone('America/Chicago');       // runs daily at 10:00pm
+        //$schedule->command('process:securityincidents')->dailyAt('22:30')->timezone('America/Chicago');     // runs daily at 10:15pm
+        $schedule->command('get:securityincidents')->dailyAt('22:00')->timezone('America/Chicago');         // runs daily at 10:00pm
+
         $schedule->command('crawl:spamemails')->dailyAt('22:45')->timezone('America/Chicago');              // runs daily at 10:30pm
         $schedule->command('process:spamemail')->dailyAt('23:00')->timezone('America/Chicago');             // runs daily at 11:00pm
 
