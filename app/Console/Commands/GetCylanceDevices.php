@@ -169,7 +169,7 @@ class GetCylanceDevices extends Command
             // this should not change from response to response
             $count = $devices['Total'];
 
-            Log::info('scrape for page '.$page.' complete - got '.count($devices['Data']));
+            Log::info('scrape for page '.$page.' complete - got '.count($devices['Data']).' devices');
 
             $i += count($devices['Data']);  // Increase i by PAGESIZE!
             $page++;                        // Increase the page number

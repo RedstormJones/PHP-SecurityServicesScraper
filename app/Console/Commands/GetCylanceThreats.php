@@ -169,9 +169,9 @@ class GetCylanceThreats extends Command
             // this should not change from response to response
             $count = $threats['Total'];
 
-            Log::info('scrape for page '.$page.' complete - got '.count($threats['Data']));
+            Log::info('scrape for page '.$page.' complete - got '.count($threats['Data']).' threats');
 
-            $i += count($threats);   // Increase i by PAGESIZE!
+            $i += 100;   // Increase i by PAGESIZE!
             $page++;    // Increase the page number
 
             sleep(1);   // wait a second before hammering on their webserver again
