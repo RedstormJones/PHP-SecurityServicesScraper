@@ -42,7 +42,7 @@ class CreateServiceNowSapRoleAuthTasksTable extends Migration
             $table->text('short_description');
             $table->text('description');
             $table->text('work_notes');
-            $table->text('comments');
+            $table->longText('comments');
             $table->integer('reassignment_count');
             $table->text('district');
             $table->text('company');
