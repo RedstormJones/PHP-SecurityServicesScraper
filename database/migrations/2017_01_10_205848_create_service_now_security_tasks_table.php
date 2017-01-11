@@ -28,7 +28,7 @@ class CreateServiceNowSecurityTasksTable extends Migration
             $table->text('updated_by')->nullable();
             $table->dateTime('opened_at');
             $table->text('opened_by');
-            $table->dateTime('closed_at')->nullable();
+            $table->text('closed_at')->nullable();
             $table->text('closed_by')->nullable();
             $table->text('close_notes');
             $table->text('initial_assignment_group');
