@@ -42,7 +42,7 @@ class GetInsideHostTrafficSnapshots extends Command
     public function handle()
     {
         /*
-         * [1] Get all IDM incidents email
+         * [1] Get inside host traffic snapshots
          */
 
         Log::info(PHP_EOL.PHP_EOL.'***************************************************'.PHP_EOL.'* Starting inside host traffic snapshots crawler! *'.PHP_EOL.'***************************************************');
@@ -106,7 +106,7 @@ class GetInsideHostTrafficSnapshots extends Command
         file_put_contents(storage_path('app/collections/insidehost_apptraffic.json'), \Metaclassing\Utility::encodeJson($app_dashboard_collection));
 
         /*
-         * [2] Process IDM incidents into database
+         * [2] Process inside host traffic snapshots into database
          */
 
         Log::info(PHP_EOL.'******************************************************'.PHP_EOL.'* Starting inside host traffic snapshots processing! *'.PHP_EOL.'******************************************************');

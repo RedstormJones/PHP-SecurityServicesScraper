@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
         Commands\GetIDMTasks::class,
         Commands\GetSAPRoleAuthTasks::class,
         Commands\GetInsideHostTrafficSnapshots::class,
+        Commands\GetOutsideHostTrafficSnapshots::class,
 
         Commands\ProcessCylanceDevices::class,
         Commands\ProcessCylanceThreats::class,
@@ -112,10 +113,8 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run multiple times a day
         */
-        $schedule->command('get:insidehosttrafficsnapshots')->twiceDaily(6, 12)->timezone('America/Chicago');
-
-        $schedule->command('crawl:outsidehosttrafficsnapshots')->twiceDaily(8, 14)->timezone('America/Chicago');   // runs twice every day at 8:00am and 2:00pm
-        $schedule->command('process:outsidehosttrafficsnapshots')->twiceDaily(9, 15)->timezone('America/Chicago'); // runs twice every day at 9:00am and 3:00pm
+        $schedule->command('get:insidehosttrafficsnapshots')->twiceDaily(6, 12)->timezone('America/Chicago');       // runs twice daily at 06:00am and 12:00pm
+        $schedule->command('get:outsidehosttrafficsnapshots')->twiceDaily(7, 13)->timezone('America/Chicago');      // runs twice daily at 07:00am and 01:00pm
     }
 
     /**
