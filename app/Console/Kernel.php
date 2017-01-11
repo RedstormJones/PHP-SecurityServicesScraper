@@ -92,18 +92,18 @@ class Kernel extends ConsoleKernel
         * Commands run on daily schedule
         */
 
-        $schedule->command('get:securitytasks')->dailyAt('19:00')->timezone('America/Chicago');
-        $schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');               // runs daily at 08:30pm
-        $schedule->command('get:saproleauthincidents')->dailyAt('21:00')->timezone('America/Chicago');      // runs daily at 09:00pm
-        $schedule->command('get:idmincidents')->dailyAt('21:30')->timezone('America/Chicago');              // runs daily at 09:30pm
-        $schedule->command('get:securityincidents')->dailyAt('22:00')->timezone('America/Chicago');         // runs daily at 10:00pm
+        $schedule->command('get:securitytasks')->dailyAt('19:00')->timezone('America/Chicago');         // runs daily at 07:00pm
+        $schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');           // runs daily at 08:30pm
+        $schedule->command('get:saproleauthincidents')->dailyAt('21:00')->timezone('America/Chicago');  // runs daily at 09:00pm
+        $schedule->command('get:idmincidents')->dailyAt('21:30')->timezone('America/Chicago');          // runs daily at 09:30pm
+        $schedule->command('get:securityincidents')->dailyAt('22:00')->timezone('America/Chicago');     // runs daily at 10:00pm
 
-        $schedule->command('crawl:spamemails')->dailyAt('22:45')->timezone('America/Chicago');              // runs daily at 10:30pm
-        $schedule->command('process:spamemail')->dailyAt('23:00')->timezone('America/Chicago');             // runs daily at 11:00pm
+        $schedule->command('crawl:spamemails')->dailyAt('22:45')->timezone('America/Chicago');          // runs daily at 10:30pm
+        $schedule->command('process:spamemail')->dailyAt('23:00')->timezone('America/Chicago');         // runs daily at 11:00pm
 
-        $schedule->command('get:cylancedevices')->daily()->timezone('America/Chicago');                   // runs daily at 00:00
-        $schedule->command('get:cylancethreats')->dailyAt('01:00')->timezone('America/Chicago');            // runs daily at 01:00
-        $schedule->command('get:incomingemail')->dailyAt('02:00')->timezone('America/Chicago');             // runs daily at 02:00am
+        $schedule->command('get:cylancedevices')->daily()->timezone('America/Chicago');                 // runs daily at 00:00
+        $schedule->command('get:cylancethreats')->dailyAt('01:00')->timezone('America/Chicago');        // runs daily at 01:00
+        $schedule->command('get:incomingemail')->dailyAt('02:00')->timezone('America/Chicago');         // runs daily at 02:00am
 
         /*
         * Commands run multiple times a day
