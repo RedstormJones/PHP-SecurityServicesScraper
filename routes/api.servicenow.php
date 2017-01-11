@@ -90,16 +90,25 @@ $api->group($options, function ($api) {
     // ServiceNow tasks route group
     $api->group(['prefix' => 'tasks'], function ($api) {
 
-        // get all InfoSec tasks
-        $api->get('/all', 'ServiceNowTaskController@getInfoSecTasks');
+        // get open InfoSec tasks
+        $api->get('/get_open_infosec_tasks', 'ServiceNowTaskController@getOpenInfoSecTasks');
 
+        // get all security tasks
+        $api->get('/security_tasks', 'ServiceNowTaskController@getAllSecurityTasks');
+
+        // get all IDM tasks
+        $api->get('/idm_tasks', 'ServiceNowTaskController@getAllIDMTasks');
+
+        // get all SAP role auth tasks
+        $api->get('/sap_roleauth_tasks', 'ServiceNowTaskController@getAllSAPRoleAuthTasks');
+
+        /*
         // ServiceNow Security tasks route group
         $api->group(['prefix' => 'security'], function ($api) {
 
             $api->get('/all', 'ServiceNowTaskController@getAllSecurityTasks');
         });
 
-        /*
         // ServiceNow IDM tasks route group
         $api->group(['prefix' => 'idm_tasks'], function ($api) {
 
