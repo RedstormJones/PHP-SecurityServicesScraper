@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\ServiceNow\ServiceNowSecurityTask;
 use App\ServiceNow\ServiceNowIdmTask;
 use App\ServiceNow\ServiceNowSapRoleAuthTask;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use App\ServiceNow\ServiceNowSecurityTask;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ServiceNowTaskController extends Controller
 {
-
     /**
      * Create a new Cylance Controller instance.
      *
@@ -21,7 +20,8 @@ class ServiceNowTaskController extends Controller
         $this->middleware('auth');
     }
 
-	/**
+
+    /**
      * Get all ServiceNow tasks.
      *
      * @return \Illuminate\Http\Response
@@ -192,8 +192,6 @@ class ServiceNowTaskController extends Controller
 		return response()->json($response);
 	}
 
-
-
 	/**
      * Get all IDM tasks.
      *
@@ -231,7 +229,6 @@ class ServiceNowTaskController extends Controller
 		return response()->json($response);
 	}
 
-
 	/**
      * Get all SAP role auth tasks.
      *
@@ -268,5 +265,4 @@ class ServiceNowTaskController extends Controller
 
 		return response()->json($response);
 	}
-
 }

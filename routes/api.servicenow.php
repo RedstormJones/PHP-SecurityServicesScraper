@@ -105,7 +105,6 @@ $api->group($options, function ($api) {
         /*
         // ServiceNow Security tasks route group
         $api->group(['prefix' => 'security'], function ($api) {
-
             $api->get('/all', 'ServiceNowTaskController@getAllSecurityTasks');
         });
 
@@ -122,5 +121,4 @@ $api->group($options, function ($api) {
         });
         */
     });
-
 });
