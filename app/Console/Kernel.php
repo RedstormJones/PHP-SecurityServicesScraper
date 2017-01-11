@@ -91,7 +91,7 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on daily schedule
         */
-       
+
         $schedule->command('get:securitytasks')->dailyAt('19:00')->timezone('America/Chicago');
         $schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');               // runs daily at 08:30pm
         $schedule->command('get:saproleauthincidents')->dailyAt('21:00')->timezone('America/Chicago');      // runs daily at 09:00pm
