@@ -22,6 +22,8 @@ class Kernel extends ConsoleKernel
         Commands\GetIDMIncidents::class,
         Commands\GetSAPRoleAuthIncidents::class,
         Commands\GetSecurityTasks::class,
+        Commands\GetIDMTasks::class,
+        Commands\GetSAPRoleAuthTasks::class,
         Commands\GetInsideHostTrafficSnapshots::class,
 
         Commands\ProcessCylanceDevices::class,
@@ -91,8 +93,9 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on daily schedule
         */
-
         $schedule->command('get:securitytasks')->dailyAt('19:00')->timezone('America/Chicago');         // runs daily at 07:00pm
+        $schedule->command('get:idmtasks')->dailyAt('19:30')->timezone('America/Chicago');              // runs daily at 07:30pm
+
         $schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');           // runs daily at 08:30pm
         $schedule->command('get:saproleauthincidents')->dailyAt('21:00')->timezone('America/Chicago');  // runs daily at 09:00pm
         $schedule->command('get:idmincidents')->dailyAt('21:30')->timezone('America/Chicago');          // runs daily at 09:30pm
