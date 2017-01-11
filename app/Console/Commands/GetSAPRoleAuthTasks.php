@@ -101,7 +101,6 @@ class GetSAPRoleAuthTasks extends Command
                 $comments = $this->handleNull($task['comments']);
                 $cause_code = $this->handleNull($task['u_cause_code']);
 
-                /*
                 $taskmodel = ServiceNowSapRoleAuthTask::find($exists);
                 $taskmodel->update([
                     'active'                => $task['active'],
@@ -127,7 +126,6 @@ class GetSAPRoleAuthTasks extends Command
 
                 // touch task model to update the 'updated_at' timestamps in case nothing was changed
                 $taskmodel->touch();
-                */
 
                 Log::info('IDM task updated: '.$task['number']);
             } else {
@@ -152,7 +150,6 @@ class GetSAPRoleAuthTasks extends Command
                 $location = $this->handleNull($task['location']);
                 $cause_code = $this->handleNull($task['u_cause_code']);
 
-                /*
                 $new_task = new ServiceNowSapRoleAuthTask();
 
                 $new_task->task_id = $task['number'];
@@ -191,7 +188,6 @@ class GetSAPRoleAuthTasks extends Command
                 $new_task->data = \Metaclassing\Utility::encodeJson($task);
 
                 $new_task->save();
-                */
             }
         }
 
