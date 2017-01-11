@@ -86,4 +86,32 @@ $api->group($options, function ($api) {
         // get resolved incident tickets count by user
         $api->get('/resolved_by/user_count', 'ServiceNowController@getResolvedByUserCount_SAPRoleAuth');
     });
+
+    // ServiceNow tasks route group
+    $api->group(['prefix' => 'tasks'], function ($api) {
+
+        // get all InfoSec tasks
+        $api->get('/all', 'ServiceNowTaskController@getInfoSecTasks');
+
+        // ServiceNow Security tasks route group
+        $api->group(['prefix' => 'security'], function ($api) {
+
+            $api->get('/all', 'ServiceNowTaskController@getAllSecurityTasks');
+        });
+
+        /*
+        // ServiceNow IDM tasks route group
+        $api->group(['prefix' => 'idm_tasks'], function ($api) {
+
+            $api->get('/all', 'ServiceNowTaskController@getAllIDMTasks');
+        });
+
+            // ServiceNow SAP role auth tasks route group
+        $api->group(['prefix' => 'sap_roleauth_tasks'], function ($api) {
+
+            $api->get('/all', 'ServiceNowTaskController@getAllSAPRoleAuthTasks');
+        });
+        */
+    });
+
 });
