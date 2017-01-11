@@ -70,7 +70,7 @@ class GetSecurityTasks extends Command
         // dump response to file
         file_put_contents(storage_path('app/responses/security_tasks.dump'), $response);
 
-        // JSON decode response and extract result data 
+        // JSON decode response and extract result data
         $security_tasks = json_decode($response, true);
 
         $tasks = $security_tasks['result'];
@@ -79,20 +79,16 @@ class GetSecurityTasks extends Command
         // JSON encode and dump incident collection to file
         file_put_contents(storage_path('app/collections/security_tasks_collection.json'), \Metaclassing\Utility::encodeJson($tasks));
 
-
         /*
          * [2] Process security tasks into database
          */
 
         Log::info(PHP_EOL.'***************************************'.PHP_EOL.'* Starting security tasks processing! *'.PHP_EOL.'***************************************');
 
-
-        foreach ($tasks as $task)
-        {
+        foreach ($tasks as $task) {
             $exists = ServiceNowSecurityTask::where('sys_id', $task['sys_id'])->value('id');
 
-            if ($exists)
-            {
+            if ($exists) {
                 $updated_on = $this->handleNull($task['sys_updated_on']);
                 $updated_by = $this->handleNull($task['sys_updated_by']);
                 $closed_at = $this->handleNull($task['closed_at']);
@@ -132,8 +128,7 @@ class GetSecurityTasks extends Command
                 $taskmodel->touch();
 
                 Log::info('security task updated: '.$task['number']);
-            }
-            else {
+            } else {
                 Log::info('creating new security task: '.$task['number']);
 
                 $parent = $this->handleNull($task['parent']);
