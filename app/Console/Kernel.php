@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
         Commands\GetSAPRoleAuthTasks::class,
         Commands\GetInsideHostTrafficSnapshots::class,
         Commands\GetOutsideHostTrafficSnapshots::class,
+        Commands\GetPhishMeScenarios::class,
 
         Commands\ProcessCylanceDevices::class,
         Commands\ProcessCylanceThreats::class,
@@ -74,9 +75,7 @@ class Kernel extends ConsoleKernel
         * Commands run on monthly schedule
         */
         $schedule->command('get:ironportthreats')->monthlyOn(1, '21:00')->timezone('America/Chicago');      // runs every month on the 1st at 09:00pm
-
-        $schedule->command('crawl:phishmescenarios')->monthlyOn(1, '22:30')->timezone('America/Chicago');    // runs every month on the 1st at 10:30pm
-        $schedule->command('process:phishmescenarios')->monthlyOn(1, '23:00')->timezone('America/Chicago');  // runs every month on the 1st at 11:00pm
+        $schedule->command('get:phishmescenarios')->monthlyOn(1, '22:00')->timezone('America/Chicago');     //runs every month on the 1st at 10:00pm
 
         /*
         * Commands run on weekly schedule
