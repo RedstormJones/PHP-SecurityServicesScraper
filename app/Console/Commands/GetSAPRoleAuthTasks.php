@@ -127,9 +127,9 @@ class GetSAPRoleAuthTasks extends Command
                 // touch task model to update the 'updated_at' timestamps in case nothing was changed
                 $taskmodel->touch();
 
-                Log::info('IDM task updated: '.$task['number']);
+                Log::info('SAP role auth task updated: '.$task['number']);
             } else {
-                Log::info('creating new IDM task: '.$task['number']);
+                Log::info('creating new SAP role auth task: '.$task['number']);
 
                 $parent = $this->handleNull($task['parent']);
                 $updated_on = $this->handleNull($task['sys_updated_on']);
