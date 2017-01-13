@@ -81,34 +81,185 @@ class ServiceNowTaskController extends Controller
             $today = $today->format('Y-m-d H:i:s');
 
             $age_array = [];
-            $age_array['2months'] = 0;
-            $age_array['1_2months'] = 0;
-            $age_array['2_4weeks'] = 0;
-            $age_array['1_2weeks'] = 0;
-            $age_array['5_7days'] = 0;
-            $age_array['2_5days'] = 0;
-            $age_array['1_2days'] = 0;
-            $age_array['same_day'] = 0;
+
+            $age_array['two_months']['count'] = 0;
+            $age_array['two_months']['project_count'] = 0;
+            $age_array['two_months']['project_task_count'] = 0;
+            $age_array['two_months']['catalog_task_count'] = 0;
+            
+            $age_array['oneTotwo_months']['count'] = 0;
+            $age_array['oneTotwo_months']['project_count'] = 0;
+            $age_array['oneTotwo_months']['project_task_count'] = 0;
+            $age_array['oneTotwo_months']['catalog_task_count'] = 0;
+
+            $age_array['twoTofour_weeks']['count'] = 0;
+            $age_array['twoTofour_weeks']['project_count'] = 0;
+            $age_array['twoTofour_weeks']['project_task_count'] = 0;
+            $age_array['twoTofour_weeks']['catalog_task_count'] = 0;
+
+            $age_array['oneTotwo_weeks']['count'] = 0;
+            $age_array['oneTotwo_weeks']['project_count'] = 0;
+            $age_array['oneTotwo_weeks']['project_task_count'] = 0;
+            $age_array['oneTotwo_weeks']['catalog_task_count'] = 0;
+
+            $age_array['fiveToseven_days']['count'] = 0;
+            $age_array['fiveToseven_days']['project_count'] = 0;
+            $age_array['fiveToseven_days']['project_task_count'] = 0;
+            $age_array['fiveToseven_days']['catalog_task_count'] = 0;
+
+            $age_array['twoTofive_days']['count'] = 0;
+            $age_array['twoTofive_days']['project_count'] = 0;
+            $age_array['twoTofive_days']['project_task_count'] = 0;
+            $age_array['twoTofive_days']['catalog_task_count'] = 0;
+
+            $age_array['oneTotwo_days']['count'] = 0;
+            $age_array['oneTotwo_days']['project_count'] = 0;
+            $age_array['oneTotwo_days']['project_task_count'] = 0;
+            $age_array['oneTotwo_days']['catalog_task_count'] = 0;
+
+            $age_array['same_day']['count'] = 0;
+            $age_array['same_day']['project_count'] = 0;
+            $age_array['same_day']['project_task_count'] = 0;
+            $age_array['same_day']['catalog_task_count'] = 0;
 
             foreach ($data as $task) {
                 $task_created_date = substr($task['sys_created_on'], 0, -9);
 
-                if ($task_created_date < $two_months) {
-                    $age_array['2months']++;
-                } elseif ($task_created_date < $four_weeks) {
-                    $age_array['1_2months']++;
-                } elseif ($task_created_date < $two_weeks) {
-                    $age_array['2_4weeks']++;
-                } elseif ($task_created_date < $seven_days) {
-                    $age_array['1_2weeks']++;
-                } elseif ($task_created_date < $five_days) {
-                    $age_array['5_7days']++;
-                } elseif ($task_created_date < $two_days) {
-                    $age_array['2_5days']++;
-                } elseif ($task_created_date < $today) {
-                    $age_array['1_2days']++;
-                } elseif ($task_created_date == $today) {
-                    $age_array['same_day']++;
+                if ($task_created_date < $two_months)
+                {
+                    $age_array['two_months']['count']++;
+
+                    if ($task['sys_class_name'] == 'Project')
+                    {
+                        $age_array['two_months']['project_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Project Task')
+                    {
+                        $age_array['two_months']['project_task_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Catalog Task')
+                    {
+                        $age_array['two_months']['catalog_task_count']++;
+                    }
+                }
+                elseif ($task_created_date < $four_weeks)
+                {
+                    $age_array['oneTotwo_months']['count']++;
+
+                    if ($task['sys_class_name'] == 'Project')
+                    {
+                        $age_array['oneTotwo_months']['project_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Project Task')
+                    {
+                        $age_array['oneTotwo_months']['project_task_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Catalog Task')
+                    {
+                        $age_array['oneTotwo_months']['catalog_task_count']++;
+                    }
+                }
+                elseif ($task_created_date < $two_weeks)
+                {
+                    $age_array['twoTofour_weeks']['count']++;
+
+                    if ($task['sys_class_name'] == 'Project')
+                    {
+                        $age_array['twoTofour_weeks']['project_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Project Task')
+                    {
+                        $age_array['twoTofour_weeks']['project_task_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Catalog Task')
+                    {
+                        $age_array['twoTofour_weeks']['catalog_task_count']++;
+                    }
+                }
+                elseif ($task_created_date < $seven_days)
+                {
+                    $age_array['oneTotwo_weeks']['count']++;
+
+                    if ($task['sys_class_name'] == 'Project')
+                    {
+                        $age_array['oneTotwo_weeks']['project_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Project Task')
+                    {
+                        $age_array['oneTotwo_weeks']['project_task_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Catalog Task')
+                    {
+                        $age_array['oneTotwo_weeks']['catalog_task_count']++;
+                    }
+                }
+                elseif ($task_created_date < $five_days)
+                {
+                    $age_array['fiveToseven_days']['count']++;
+
+                    if ($task['sys_class_name'] == 'Project')
+                    {
+                        $age_array['fiveToseven_days']['project_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Project Task')
+                    {
+                        $age_array['fiveToseven_days']['project_task_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Catalog Task')
+                    {
+                        $age_array['fiveToseven_days']['catalog_task_count']++;
+                    }
+                }
+                elseif ($task_created_date < $two_days)
+                {
+                    $age_array['twoTofive_days']['count']++;
+
+                    if ($task['sys_class_name'] == 'Project')
+                    {
+                        $age_array['twoTofive_days']['project_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Project Task')
+                    {
+                        $age_array['twoTofive_days']['project_task_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Catalog Task')
+                    {
+                        $age_array['twoTofive_days']['catalog_task_count']++;
+                    }
+                }
+                elseif ($task_created_date < $today)
+                {
+                    $age_array['oneTotwo_days']['count']++;
+
+                    if ($task['sys_class_name'] == 'Project')
+                    {
+                        $age_array['oneTotwo_days']['project_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Project Task')
+                    {
+                        $age_array['oneTotwo_days']['project_task_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Catalog Task')
+                    {
+                        $age_array['oneTotwo_days']['catalog_task_count']++;
+                    }
+                }
+                elseif ($task_created_date == $today)
+                {
+                    $age_array['same_day']['count']++;
+
+                    if ($task['sys_class_name'] == 'Project')
+                    {
+                        $age_array['same_day']['project_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Project Task')
+                    {
+                        $age_array['same_day']['project_task_count']++;
+                    }
+                    elseif ($task['sys_class_name'] == 'Catalog Task')
+                    {
+                        $age_array['same_day']['catalog_task_count']++;
+                    }
                 }
             }
 
