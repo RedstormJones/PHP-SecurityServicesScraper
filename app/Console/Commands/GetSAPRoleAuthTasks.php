@@ -68,16 +68,16 @@ class GetSAPRoleAuthTasks extends Command
         $response = $crawler->get($url);
 
         // dump response to file
-        file_put_contents(storage_path('app/responses/idm_tasks.dump'), $response);
+        file_put_contents(storage_path('app/responses/sap_roleauth_tasks.dump'), $response);
 
         // JSON decode response and extract result data
         $roleauth_tasks = json_decode($response, true);
 
         $tasks = $roleauth_tasks['result'];
-        Log::info('total IDM tasks count: '.count($tasks));
+        Log::info('total SAP role auth tasks count: '.count($tasks));
 
         // JSON encode and dump incident collection to file
-        file_put_contents(storage_path('app/collections/idm_tasks_collection.json'), \Metaclassing\Utility::encodeJson($tasks));
+        file_put_contents(storage_path('app/collections/sap_roleauth_tasks_collection.json'), \Metaclassing\Utility::encodeJson($tasks));
 
         /*
          * [2] Process SAP role auth tasks into database

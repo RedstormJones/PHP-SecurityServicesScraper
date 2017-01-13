@@ -119,7 +119,7 @@ class ServiceNowTaskController extends Controller
                 'sap_roleauth_tasks_count'     => count($sap_roleauth_tasks),
                 'total'                        => count($data),
                 'age_array'                    => $age_array,
-                'tasks'                        => $data,
+                //'tasks'                        => $data,
             ];
         } catch (\Exception $e) {
             $response = [
