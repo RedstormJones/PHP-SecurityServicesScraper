@@ -28,6 +28,7 @@ class Kernel extends ConsoleKernel
         Commands\GetOutsideHostTrafficSnapshots::class,
         Commands\GetPhishMeScenarios::class,
         Commands\GetSiteSubnets::class,
+        Commands\GetSpamEmail::class,
 
         Commands\ProcessCylanceDevices::class,
         Commands\ProcessCylanceThreats::class,
