@@ -105,7 +105,7 @@ class GetSiteSubnets extends Command
     }
 
     /**
-     * Delete existing site subnet records if any exist
+     * Delete existing site subnet records if any exist.
      *
      * @return void
      */
