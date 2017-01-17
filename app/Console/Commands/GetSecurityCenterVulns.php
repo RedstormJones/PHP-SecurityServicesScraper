@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use Carbon\Carbon;
 use App\SecurityCenter\SecurityCenterCritical;
 use App\SecurityCenter\SecurityCenterHigh;
 use App\SecurityCenter\SecurityCenterMedium;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -152,7 +152,6 @@ class GetSecurityCenterVulns extends Command
         return $poststring;
     }
 
-
     /**
      * Function to pull vulnerability data from Security Center 5.4.0 API.
      *
@@ -255,8 +254,7 @@ class GetSecurityCenterVulns extends Command
         foreach ($vulns as $vuln) {
             $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $vuln->updated_at)->toDateString();
 
-            if ($updated_at <= $delete_date)
-            {
+            if ($updated_at <= $delete_date) {
                 Log::info('deleting '.$vuln->severity_name.' vulnerability: '.$vuln->plugin_id);
                 //$vuln->delete();
             }
@@ -264,7 +262,7 @@ class GetSecurityCenterVulns extends Command
     }
 
     /**
-     * Process SecurityCenter vulnerabilities into database
+     * Process SecurityCenter vulnerabilities into database.
      *
      * @return null
      */
@@ -292,8 +290,7 @@ class GetSecurityCenterVulns extends Command
             }
 
             // switch on the provided severity id and create the corresponding new vulnerability
-            switch ($sev_id)
-            {
+            switch ($sev_id) {
                 case 2:
                     Log::info('creating medium severity vulnerability record for: '.$vuln['pluginName']);
                     //$new_vuln = new SecurityCenterMedium();
