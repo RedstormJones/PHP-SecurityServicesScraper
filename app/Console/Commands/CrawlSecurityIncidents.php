@@ -72,5 +72,4 @@ class CrawlSecurityIncidents extends Command
         // JSON encode and dump incident collection to file
         file_put_contents(storage_path('app/collections/security_incidents_collection.json'), \Metaclassing\Utility::encodeJson($incidents));
     }
-
 }
