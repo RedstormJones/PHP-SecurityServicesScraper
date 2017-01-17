@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use Carbon\Carbon;
 use App\IronPort\IronPortSpamEmail;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -258,11 +258,9 @@ class GetSpamEmail extends Command
             $quarantines = implode('; ', $spam['quarantine_names']);
             $recipients = implode('; ', $spam['recipients']);
 
-
             $exists = IronPortSpamEmail::where('mid', $spam['mid'])->value('id');
 
-            if ($exists)
-            {
+            if ($exists) {
                 $spam = IronPortSpamEmail::find($exists);
 
                 $spam->update([
@@ -282,9 +280,7 @@ class GetSpamEmail extends Command
                 $spam->touch();
 
                 Log::info('updated spam record for: '.$spam['sender']);
-            }
-            else
-            {
+            } else {
                 Log::info('creating spam record for sender: '.$spam['sender']);
 
                 $new_spam = new IronPortSpamEmail();
@@ -304,14 +300,13 @@ class GetSpamEmail extends Command
             }
         }
 
-        /**
+        /*
          * 2017-01-17 - Not deleting spam email records at this time to allow for trending visuals
          */
         //$this->processDeletes();
 
         Log::info('* Completed IronPort spam emails! *');
     }
-
 
     /**
      * Function to convert post information from an assoc array to a string.
@@ -330,7 +325,6 @@ class GetSpamEmail extends Command
 
         return $poststring;
     }
-
 
     /**
      * Function to process softdeletes for spam email.
