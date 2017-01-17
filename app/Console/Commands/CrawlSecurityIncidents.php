@@ -73,5 +73,4 @@ class CrawlSecurityIncidents extends Command
         file_put_contents(storage_path('app/collections/security_incidents_collection.json'), \Metaclassing\Utility::encodeJson($incidents));
     }
 
-   // end of function handle()
-}   // end of CrawlSecurityIncidents command class
+}
