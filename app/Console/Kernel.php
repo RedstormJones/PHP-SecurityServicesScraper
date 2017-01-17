@@ -29,6 +29,7 @@ class Kernel extends ConsoleKernel
         Commands\GetPhishMeScenarios::class,
         Commands\GetSiteSubnets::class,
         Commands\GetSpamEmail::class,
+        Commands\GetSecurityCenterAssetVulns::class,
 
         Commands\ProcessCylanceDevices::class,
         Commands\ProcessCylanceThreats::class,
@@ -82,8 +83,6 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on weekly schedule
         */
-        $schedule->command('crawl:securitycenterassetvulns')->weekly()->thursdays()->at('17:30')->timezone('America/Chicago');   // runs weekly on Thursdays at 5:30pm
-        $schedule->command('process:securitycenterassetvulns')->weekly()->thursdays()->at('17:45')->timezone('America/Chicago'); // runs weekly on Thursdays at 5:45pm
         $schedule->command('crawl:securitycentervulns')->weekly()->thursdays()->at('18:00')->timezone('America/Chicago');        // runs weekly on Thursdays at 6:00pm
         $schedule->command('process:securitycentercriticals')->weekly()->thursdays()->at('18:15')->timezone('America/Chicago');  // runs weekly on Thursdays at 6:15pm
         $schedule->command('process:securitycenterhighs')->weekly()->thursdays()->at('19:30')->timezone('America/Chicago');      // runs weekly on Thursdays at 7:30pm
@@ -92,16 +91,18 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on daily schedule
         */
-        $schedule->command('get:sitesubnets')->dailyAt('09:00')->timezone('America/Chicago');           // runs daily at 09:00am
+        $schedule->command('get:cylancedevices')->daily()->timezone('America/Chicago');                     // runs daily at 00:00
+        $schedule->command('get:cylancethreats')->dailyAt('01:00')->timezone('America/Chicago');            // runs daily at 01:00
+        $schedule->command('get:incomingemail')->dailyAt('02:00')->timezone('America/Chicago');             // runs daily at 02:00am
 
-        $schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');           // runs daily at 08:30pm
-        $schedule->command('get:saproleauthincidents')->dailyAt('21:00')->timezone('America/Chicago');  // runs daily at 09:00pm
-        $schedule->command('get:idmincidents')->dailyAt('21:30')->timezone('America/Chicago');          // runs daily at 09:30pm
-        $schedule->command('get:securityincidents')->dailyAt('22:00')->timezone('America/Chicago');     // runs daily at 10:00pm
+        $schedule->command('get:sitesubnets')->dailyAt('09:00')->timezone('America/Chicago');               // runs daily at 09:00am
 
-        $schedule->command('get:cylancedevices')->daily()->timezone('America/Chicago');                 // runs daily at 00:00
-        $schedule->command('get:cylancethreats')->dailyAt('01:00')->timezone('America/Chicago');        // runs daily at 01:00
-        $schedule->command('get:incomingemail')->dailyAt('02:00')->timezone('America/Chicago');         // runs daily at 02:00am
+        $schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');               // runs daily at 08:30pm
+        $schedule->command('get:saproleauthincidents')->dailyAt('21:00')->timezone('America/Chicago');      // runs daily at 09:00pm
+        $schedule->command('get:idmincidents')->dailyAt('21:30')->timezone('America/Chicago');              // runs daily at 09:30pm
+        $schedule->command('get:securityincidents')->dailyAt('22:00')->timezone('America/Chicago');         // runs daily at 10:00pm
+
+        $schedule->command('get:securitycenterassetvulns')->dailyAt('22:30')->timezone('America/Chicago');  // runs daily at 10:30pm
 
         /*
         * Commands run multiple times a day
