@@ -96,7 +96,6 @@ class GetSecurityCenterAssetVulns extends Command
         // JSON encode simple array and dump to file
         file_put_contents(storage_path('app/collections/sc_asset_summary.json'), \Metaclassing\Utility::encodeJson($assetsummary));
 
-
         /*
          * [2] Process asset vulnerabilities into database
          */
@@ -109,8 +108,7 @@ class GetSecurityCenterAssetVulns extends Command
 
             $exists = SecurityCenterAssetVuln::where('asset_id', $asset_id)->value('id');
 
-            if ($exists)
-            {
+            if ($exists) {
                 $asset_vuln = SecurityCenterAssetVuln::find($exists);
 
                 $asset_vuln->update([
@@ -127,9 +125,7 @@ class GetSecurityCenterAssetVulns extends Command
                 $asset_vuln->touch();
 
                 Log::info('updated asset vulnerability record for: '.$asset_name);
-            }
-            else
-            {
+            } else {
                 Log::info('creating new asset vulnerability record for: '.$asset_name);
 
                 $new_asset = new SecurityCenterAssetVuln();
@@ -150,7 +146,6 @@ class GetSecurityCenterAssetVulns extends Command
         Log::info('* Completed SecurityCenter asset vulnerabilities! *');
     }
 
-
     /**
      * Function to convert post information from an assoc array to a string.
      *
@@ -168,7 +163,6 @@ class GetSecurityCenterAssetVulns extends Command
 
         return $poststring;
     }
-
 
     /**
      * Function to pull vulnerability data from Security Center 5.4.0 API.
