@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\ServiceNow\ServiceNowIdmTask;
 use App\ServiceNow\ServiceNowSapRoleAuthTask;
 use App\ServiceNow\ServiceNowSecurityTask;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Log;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ServiceNowTaskController extends Controller
 {
@@ -36,7 +36,7 @@ class ServiceNowTaskController extends Controller
 
             // get security tasks
             $security_tasks = ServiceNowSecurityTask::where([
-                ['active', '=','true'],
+                ['active', '=', 'true'],
                 ['state', '!=', 'Resolved'],
                 ['class_name', '!=', 'Change Task'],
                 ['class_name', '!=', 'Request for Change'],
@@ -147,32 +147,23 @@ class ServiceNowTaskController extends Controller
                 // get task created date
                 $task_created_date = substr($task['sys_created_on'], 0, -9);
 
-                /**
-                * check task created date against time constraints, then check task 
+                /*
+                * check task created date against time constraints, then check task
                 * class name and increment the corresponding class name count
                 */
                 if ($two_months > $task_created_date) {
                     Log::info('task created date greater than 2 months');
                     $task_age_counts['two_months']['count']++;
 
-                    if ($task['sys_class_name'] == 'Project')
-                    {
+                    if ($task['sys_class_name'] == 'Project') {
                         $task_age_counts['two_months']['project_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Project Task')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Project Task') {
                         $task_age_counts['two_months']['project_task_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Catalog Task')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Catalog Task') {
                         $task_age_counts['two_months']['catalog_task_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident') {
                         $task_age_counts['two_months']['incident_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident Task')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident Task') {
                         $task_age_counts['two_months']['incident_task_count']++;
                     }
                 } elseif ($four_weeks > $task_created_date) {
@@ -184,13 +175,9 @@ class ServiceNowTaskController extends Controller
                         $task_age_counts['oneTotwo_months']['project_task_count']++;
                     } elseif ($task['sys_class_name'] == 'Catalog Task') {
                         $task_age_counts['oneTotwo_months']['catalog_task_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident') {
                         $task_age_counts['oneTotwo_months']['incident_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident Task')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident Task') {
                         $task_age_counts['oneTotwo_months']['incident_task_count']++;
                     }
                 } elseif ($two_weeks > $task_created_date) {
@@ -202,13 +189,9 @@ class ServiceNowTaskController extends Controller
                         $task_age_counts['twoTofour_weeks']['project_task_count']++;
                     } elseif ($task['sys_class_name'] == 'Catalog Task') {
                         $task_age_counts['twoTofour_weeks']['catalog_task_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident') {
                         $task_age_counts['twoTofour_weeks']['incident_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident Task')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident Task') {
                         $task_age_counts['twoTofour_weeks']['incident_task_count']++;
                     }
                 } elseif ($seven_days > $task_created_date) {
@@ -220,13 +203,9 @@ class ServiceNowTaskController extends Controller
                         $task_age_counts['oneTotwo_weeks']['project_task_count']++;
                     } elseif ($task['sys_class_name'] == 'Catalog Task') {
                         $task_age_counts['oneTotwo_weeks']['catalog_task_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident') {
                         $task_age_counts['oneTotwo_weeks']['incident_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident Task')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident Task') {
                         $task_age_counts['oneTotwo_weeks']['incident_task_count']++;
                     }
                 } elseif ($five_days > $task_created_date) {
@@ -238,13 +217,9 @@ class ServiceNowTaskController extends Controller
                         $task_age_counts['fiveToseven_days']['project_task_count']++;
                     } elseif ($task['sys_class_name'] == 'Catalog Task') {
                         $task_age_counts['fiveToseven_days']['catalog_task_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident') {
                         $task_age_counts['fiveToseven_days']['incident_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident Task')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident Task') {
                         $task_age_counts['fiveToseven_days']['incident_task_count']++;
                     }
                 } elseif ($two_days > $task_created_date) {
@@ -256,13 +231,9 @@ class ServiceNowTaskController extends Controller
                         $task_age_counts['twoTofive_days']['project_task_count']++;
                     } elseif ($task['sys_class_name'] == 'Catalog Task') {
                         $task_age_counts['twoTofive_days']['catalog_task_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident') {
                         $task_age_counts['twoTofive_days']['incident_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident Task')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident Task') {
                         $task_age_counts['twoTofive_days']['incident_task_count']++;
                     }
                 } elseif ($today > $task_created_date) {
@@ -274,13 +245,9 @@ class ServiceNowTaskController extends Controller
                         $task_age_counts['oneTotwo_days']['project_task_count']++;
                     } elseif ($task['sys_class_name'] == 'Catalog Task') {
                         $task_age_counts['oneTotwo_days']['catalog_task_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident') {
                         $task_age_counts['oneTotwo_days']['incident_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident Task')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident Task') {
                         $task_age_counts['oneTotwo_days']['incident_task_count']++;
                     }
                 } elseif ($today == $task_created_date) {
@@ -292,13 +259,9 @@ class ServiceNowTaskController extends Controller
                         $task_age_counts['same_day']['project_task_count']++;
                     } elseif ($task['sys_class_name'] == 'Catalog Task') {
                         $task_age_counts['same_day']['catalog_task_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident') {
                         $task_age_counts['same_day']['incident_count']++;
-                    }
-                    elseif ($task['sys_class_name'] == 'Incident Task')
-                    {
+                    } elseif ($task['sys_class_name'] == 'Incident Task') {
                         $task_age_counts['same_day']['incident_task_count']++;
                     }
                 }
