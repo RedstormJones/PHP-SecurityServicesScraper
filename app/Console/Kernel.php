@@ -82,15 +82,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:phishmescenarios')->monthlyOn(1, '22:00')->timezone('America/Chicago');     //runs every month on the 1st at 10:00pm
 
         /*
-        * Commands run on weekly schedule
+        * Commands run on weekly-ish schedule
         */
-        //$schedule->command('crawl:securitycentervulns')->weekly()->thursdays()->at('18:00')->timezone('America/Chicago');        // runs weekly on Thursdays at 6:00pm
-        //$schedule->command('process:securitycentercriticals')->weekly()->thursdays()->at('18:15')->timezone('America/Chicago');  // runs weekly on Thursdays at 6:15pm
-        //$schedule->command('process:securitycenterhighs')->weekly()->thursdays()->at('19:30')->timezone('America/Chicago');      // runs weekly on Thursdays at 7:30pm
-        //$schedule->command('process:securitycentermediums')->weekly()->thursdays()->at('21:00')->timezone('America/Chicago');    // runs weekly on Thursdays at 9:00pm
-
-        $schedule->command('get:securitycentervulns')->sundays()->between('18:00', '21:00')->timezone('America/Chicago');       // runs on Sundays between 06:00pm and 09:00pm
-        $schedule->command('get:securitycentervulns')->thursdays()->between('18:00', '21:00')->timezone('America/Chicago');    // runs on Thursdays between 06:00pm and 09:00pm
+        $schedule->command('get:securitycentervulns')->sundays()->between('18:00', '21:00')->timezone('America/Chicago');   // runs on Sundays between 06:00pm and 09:00pm
+        $schedule->command('get:securitycentervulns')->thursdays()->between('18:00', '21:00')->timezone('America/Chicago'); // runs on Thursdays between 06:00pm and 09:00pm
 
         /*
         * Commands run on daily schedule
