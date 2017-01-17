@@ -54,7 +54,7 @@ class GetIDMTasks extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // point url to incidents table and add necessary query params
-        $url = 'https://kiewit.service-now.com/api/now/v1/table/task?sysparm_display_value=true&assignment_group=KTG%20-%20Identity%20Management';
+        $url = 'https://kiewit.service-now.com/api/now/v1/table/task?sysparm_display_value=true&assignment_group=KTG%20-%20Identity%20Management&active=true';
 
         // setup HTTP headers with basic auth
         $headers = [

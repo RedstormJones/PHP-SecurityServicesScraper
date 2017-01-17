@@ -19,7 +19,8 @@
         "phpseclib/phpseclib": "^2.0",
         "tymon/jwt-auth": "^1.0",
         "silber/bouncer": "^1.0",
-        "doctrine/dbal": ">=2.5"
+        "doctrine/dbal": ">=2.5",
+        "nesbot/carbon": "~1.21"
     },
     "minimum-stability": "dev",
     "require-dev": {

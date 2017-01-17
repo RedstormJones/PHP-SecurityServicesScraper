@@ -54,7 +54,7 @@ class GetSAPRoleAuthTasks extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // point url to incidents table and add necessary query params
-        $url = 'https://kiewit.service-now.com/api/now/v1/table/task?sysparm_display_value=true&assignment_group=KTG%20-%20SAP%20Role%20Authorization';
+        $url = 'https://kiewit.service-now.com/api/now/v1/table/task?sysparm_display_value=true&assignment_group=KTG%20-%20SAP%20Role%20Authorization&active=true';
 
         // setup HTTP headers with basic auth
         $headers = [
