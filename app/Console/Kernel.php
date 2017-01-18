@@ -104,12 +104,6 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run multiple times a day
         */
-        /*
-        $schedule->command('get:securitytasks')->twiceDaily(7, 12)->timezone('America/Chicago');                    // runs twice daily at 07:00am and 12:00pm
-        $schedule->command('get:idmtasks')->twiceDaily(7, 12)->timezone('America/Chicago');                         // runs twice daily at 07:00am and 12:00pm
-        $schedule->command('get:saproleauthtasks')->twiceDaily(7, 12)->timezone('America/Chicago');                 // runs twice daily at 07:00am and 12:00pm
-        */
-
         $schedule->command('get:saproleauthincidents')->twiceDaily(8, 13)->timezone('America/Chicago');             // runs twice daily at 08:00am and 01:00pm
         $schedule->command('get:idmincidents')->twiceDaily(8, 13)->timezone('America/Chicago');                     // runs twice daily at 08:00am and 01:00pm
         $schedule->command('get:securityincidents')->twiceDaily(8, 13)->timezone('America/Chicago');                // runs twice daily at 08:00am and 01:00pm
