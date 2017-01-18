@@ -540,14 +540,10 @@ class CylanceController extends Controller
 
             $device_records = CylanceDevice::withTrashed()->where('device_name', $device_name)->get();
 
-            foreach ($device_records as $device)
-            {
-                if (!$device['deleted_at'])
-                {
+            foreach ($device_records as $device) {
+                if (!$device['deleted_at']) {
                     $current_owner = true;
-                }
-                else
-                {
+                } else {
                     $current_owner = false;
                 }
 
@@ -555,7 +551,7 @@ class CylanceController extends Controller
                     'owner'                 => $device['last_users_text'],
                     'current_owner'         => $current_owner,
                     'device_created_date'   => $device['device_created_at'],
-                    'device_offline_date'   => $device['device_offline_date']
+                    'device_offline_date'   => $device['device_offline_date'],
                 ];
             }
 
@@ -564,9 +560,7 @@ class CylanceController extends Controller
                 'total'     => count($ownership_history),
                 'devices'   => $ownership_history,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get device ownership history for '.$device_name,
