@@ -104,9 +104,11 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run multiple times a day
         */
+        /*
         $schedule->command('get:securitytasks')->twiceDaily(7, 12)->timezone('America/Chicago');                    // runs twice daily at 07:00am and 12:00pm
         $schedule->command('get:idmtasks')->twiceDaily(7, 12)->timezone('America/Chicago');                         // runs twice daily at 07:00am and 12:00pm
         $schedule->command('get:saproleauthtasks')->twiceDaily(7, 12)->timezone('America/Chicago');                 // runs twice daily at 07:00am and 12:00pm
+        */
 
         $schedule->command('get:saproleauthincidents')->twiceDaily(8, 13)->timezone('America/Chicago');             // runs twice daily at 08:00am and 01:00pm
         $schedule->command('get:idmincidents')->twiceDaily(8, 13)->timezone('America/Chicago');                     // runs twice daily at 08:00am and 01:00pm
@@ -116,6 +118,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:outsidehosttrafficsnapshots')->twiceDaily(9, 15)->timezone('America/Chicago');      // runs twice daily at 09:00am and 03:00pm
 
         $schedule->command('get:spamemail')->twiceDaily(9, 14)->timezone('America/Chicago');                        // runs twice daily at 09:00am and 02:00pm
+
+        /*
+        * Commands run on an hourly basis
+        */
+        $schedule->command('get:securitytasks')->hourly()->weekdays()->timezone('America/Chicago');                    // runs hourly during week days
+        $schedule->command('get:idmtasks')->hourly()->weekdays()->timezone('America/Chicago');                         // runs hourly during week days
+        $schedule->command('get:saproleauthtasks')->hourly()->weekdays()->timezone('America/Chicago');                 // runs hourly during week days
     }
 
     /**

@@ -52,6 +52,9 @@ $api->group($options, function ($api) {
 
         // queries for any device with at least one MAC address matching the MAC address provided
         $api->get('/mac/{mac}', 'CylanceController@getDeviceByMAC');
+
+        // get list of last logged on users and the timestamps of their activity for a particular device
+        $api->get('/ownership_history/{device_name}', 'CylanceController@getDeviceOwnerHistory');
     });
 
     // Cylance Threats route group

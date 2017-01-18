@@ -526,6 +526,56 @@ class CylanceController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * Get device ownership history for a particular device.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getDeviceOwnerHistory($device_name)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $ownership_history = [];
+
+            $device_records = CylanceDevice::withTrashed()->where('device_name', $device_name)->get();
+
+            foreach ($device_records as $device)
+            {
+                if (!$device['deleted_at'])
+                {
+                    $current_owner = true;
+                }
+                else
+                {
+                    $current_owner = false;
+                }
+
+                $ownership_history[] = [
+                    'owner'                 => $device['last_users_text'],
+                    'current_owner'         => $current_owner,
+                    'device_created_date'   => $device['device_created_at'],
+                    'device_offline_date'   => $device['device_offline_date']
+                ];
+            }
+
+            $response = [
+                'success'   => true,
+                'total'     => count($ownership_history),
+                'devices'   => $ownership_history,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get device ownership history for '.$device_name,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
     /**********************************
     *   CYLANCE THREATS - ENDPOINTS   *
     **********************************/
