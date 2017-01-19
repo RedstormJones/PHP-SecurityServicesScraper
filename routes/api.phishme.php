@@ -13,6 +13,8 @@ $options = [
 
 $api->group($options, function ($api) {
 
+    $api->get('/scenario_titles', 'PhishMeController@getScenarioTitles');
+
     // Attachment scenarios route group
     $api->group(['prefix' => 'attachment_scenarios'], function ($api) {
 

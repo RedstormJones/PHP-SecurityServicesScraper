@@ -234,49 +234,14 @@ class GetPhishMeScenarios extends Command
 
                         // create new scenario model
                         $scenario = new PhishMeScenario();
+                        $scenario->scenario_title = $result['scenario_title'];
                         $scenario->reportable_id = $result['scenario_id'];
                         $scenario->reportable_type = $result['scenario_type'];
                         $scenario->data = \Metaclassing\Utility::encodeJson($result);
 
                         $attachment->reports()->save($scenario);
                     } else {
-                        $scenario = AttachmentScenario::find($exists);
-
-                        $scenario->update([
-                            'scenario_id'                   => $result['scenario_id'],
-                            'scenario_type'                 => $result['scenario_type'],
-                            'scenario_title'                => $result['scenario_title'],
-                            'email'                         => $result['Email'],
-                            'recipient_name'                => $result['Recipient Name'],
-                            'recipient_group'               => $result['Recipient Group'],
-                            'department'                    => $result['Department'],
-                            'location'                      => $result['Location'],
-                            'viewed_education'              => $result['Viewed Education?'],
-                            'viewed_education_timestamp'    => $viewed_education_timestamp,
-                            'reported_phish'                => $result['Reported Phish?'],
-                            'new_repeat_reporter'           => $result['New/Repeat Reporter'],
-                            'reported_phish_timestamp'      => $reportedphish_timestamp,
-                            'time_to_report'                => $timetoreport,
-                            'remote_ip'                     => $result['Remote IP'],
-                            'geoip_country'                 => $result['GeoIP Country'],
-                            'geoip_city'                    => $result['GeoIP City'],
-                            'geoip_organization'            => $result['GeoIP Organization'],
-                            'last_dsn'                      => $result['Last DSN'],
-                            'last_email_status'             => $result['Last Email Status'],
-                            'last_email_status_timestamp'   => $lastemaildate,
-                            'language'                      => $result['Language'],
-                            'browser'                       => $result['Browser'],
-                            'user_agent'                    => $result['User-Agent'],
-                            'mobile'                        => $result['Mobile?'],
-                            'data'                          => \Metaclassing\Utility::encodeJson($result),
-                        ]);
-
-                        $scenario->save();
-
-                        // touch scenario model to update the 'updated_at' timestamp in case nothing was changed
-                        $scenario->touch();
-
-                        Log::info('updated '.$result['scenario_title'].' : '.$result['scenario_id']);
+                        Log::info('scenario already exists: '.$result['scenario_title'].' : '.$result['scenario_id']);
                     }
 
                     break;
@@ -336,50 +301,14 @@ class GetPhishMeScenarios extends Command
 
                         // create new scenario model
                         $scenario = new PhishMeScenario();
+                        $scenario->scenario_title = $result['scenario_title'];
                         $scenario->reportable_id = $result['scenario_id'];
                         $scenario->reportable_type = $result['scenario_type'];
                         $scenario->data = \Metaclassing\Utility::encodeJson($result);
 
                         $clickonly->reports()->save($scenario);
                     } else {
-                        $scenario = ClickOnlyScenario::find($exists);
-
-                        $scenario->update([
-                            'scenario_id'                   => $result['scenario_id'],
-                            'scenario_type'                 => $result['scenario_type'],
-                            'scenario_title'                => $result['scenario_title'],
-                            'email'                         => $result['Email'],
-                            'recipient_name'                => $result['Recipient Name'],
-                            'recipient_group'               => $result['Recipient Group'],
-                            'department'                    => $result['Department'],
-                            'location'                      => $result['Location'],
-                            'clicked_link'                  => $result['Clicked Link?'],
-                            'clicked_link_timestamp'        => $clicked_link_timestamp,
-                            'reported_phish'                => $result['Reported Phish?'],
-                            'new_repeat_reporter'           => $result['New/Repeat Reporter'],
-                            'reported_phish_timestamp'      => $reportedphish_timestamp,
-                            'time_to_report'                => $timetoreport,
-                            'remote_ip'                     => $result['Remote IP'],
-                            'geoip_country'                 => $result['GeoIP Country'],
-                            'geoip_city'                    => $result['GeoIP City'],
-                            'geoip_organization'            => $result['GeoIP Organization'],
-                            'last_dsn'                      => $result['Last DSN'],
-                            'last_email_status'             => $result['Last Email Status'],
-                            'last_email_status_timestamp'   => $lastemaildate,
-                            'language'                      => $result['Language'],
-                            'browser'                       => $result['Browser'],
-                            'user_agent'                    => $result['User-Agent'],
-                            'mobile'                        => $result['Mobile?'],
-                            'seconds_spent_on_education'    => $education_seconds,
-                            'data'                          => \Metaclassing\Utility::encodeJson($result),
-                        ]);
-
-                        $scenario->save();
-
-                        // touch scenario model to update the 'updated_at' timestamp in case nothing was changed
-                        $scenario->touch();
-
-                        Log::info('updated '.$result['scenario_title'].' : '.$result['scenario_id']);
+                        Log::info('scenario already exists: '.$result['scenario_title'].' : '.$result['scenario_id']);
                     }
 
                     break;
@@ -452,55 +381,14 @@ class GetPhishMeScenarios extends Command
 
                         // create new scenario model
                         $scenario = new PhishMeScenario();
+                        $scenario->scenario_title = $result['scenario_title'];
                         $scenario->reportable_id = $result['scenario_id'];
                         $scenario->reportable_type = $result['scenario_type'];
                         $scenario->data = \Metaclassing\Utility::encodeJson($result);
 
                         $dataentry->reports()->save($scenario);
                     } else {
-                        $scenario = DataEntryScenario::find($exists);
-
-                        $scenario->update([
-                            'scenario_id'                   => $result['scenario_id'],
-                            'scenario_type'                 => $result['scenario_type'],
-                            'scenario_title'                => $result['scenario_title'],
-                            'email'                         => $result['Email'],
-                            'recipient_name'                => $result['Recipient Name'],
-                            'recipient_group'               => $result['Recipient Group'],
-                            'department'                    => $result['Department'],
-                            'location'                      => $result['Location'],
-                            'clicked_link'                  => $result['Clicked Link?'],
-                            'clicked_link_timestamp'        => $clicked_link_timestamp,
-                            'submitted_form'                => $result['Submitted Form'],
-                            'submitted_form_timestamp'      => $submitted_form_timestamp,
-                            'submitted_data'                => $result['Submitted Data'],
-                            'phished_username'              => $result['Username'],
-                            'entered_password'              => $result['Entered Password?'],
-                            'reported_phish'                => $result['Reported Phish?'],
-                            'new_repeat_reporter'           => $result['New/Repeat Reporter'],
-                            'reported_phish_timestamp'      => $reportedphish_timestamp,
-                            'time_to_report'                => $timetoreport,
-                            'remote_ip'                     => $result['Remote IP'],
-                            'geoip_country'                 => $result['GeoIP Country'],
-                            'geoip_city'                    => $result['GeoIP City'],
-                            'geoip_organization'            => $result['GeoIP Organization'],
-                            'last_dsn'                      => $result['Last DSN'],
-                            'last_email_status'             => $result['Last Email Status'],
-                            'last_email_status_timestamp'   => $lastemaildate,
-                            'language'                      => $result['Language'],
-                            'browser'                       => $result['Browser'],
-                            'user_agent'                    => $result['User-Agent'],
-                            'mobile'                        => $result['Mobile?'],
-                            'seconds_spent_on_education'    => $education_seconds,
-                            'data'                          => \Metaclassing\Utility::encodeJson($result),
-                        ]);
-
-                        $scenario->save();
-
-                        // touch scenario model to update the 'updated_at' timestamp in case nothing was changed
-                        $scenario->touch();
-
-                        Log::info('updated '.$result['scenario_title'].' : '.$result['scenario_id']);
+                        Log::info('scenario already exists: '.$result['scenario_title'].' : '.$result['scenario_id']);
                     }
 
                     break;

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\PhishMe\AttachmentScenario;
 use App\PhishMe\ClickOnlyScenario;
 use App\PhishMe\DataEntryScenario;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Log;
 
 class PhishMeController extends Controller
 {
@@ -18,6 +20,98 @@ class PhishMeController extends Controller
     {
         $this->middleware('auth');
     }
+
+
+    /**
+     * Get all scenario titles
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getScenarioTitles()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+            $title_regex = '/(\d{4}-\S{3}\s)/';
+
+            $attachment_scenarios = AttachmentScenario::oldest('scenario_title')->select('scenario_title')->distinct()->get();
+            $click_only_scenarios = ClickOnlyScenario::oldest('scenario_title')->select('scenario_title')->distinct()->get();
+            $data_entry_scenarios = DataEntryScenario::oldest('scenario_title')->select('scenario_title')->distinct()->get();
+
+            foreach ($attachment_scenarios as $scenario)
+            {
+                if(preg_match($title_regex, $scenario['scenario_title'], $hits))
+                {
+                    //$scenario_date = substr($scenario['scenario_title'], 0, 8);
+                    $scenario_date = $hits[1];
+                
+                    Log::info($scenario['scenario_title'].' - '.$scenario_date);
+
+                    $data[] = $scenario['scenario_title'];
+                }
+            }
+
+            foreach ($click_only_scenarios as $scenario)
+            {
+                if(preg_match($title_regex, $scenario['scenario_title'], $hits))
+                {
+                    //$scenario_date = substr($scenario['scenario_title'], 0, 8);
+                    $scenario_date = $hits[1];
+                
+                    Log::info($scenario['scenario_title'].' - '.$scenario_date);
+
+                    $data[] = $scenario['scenario_title'];
+                }
+            }
+
+            foreach ($data_entry_scenarios as $scenario)
+            {
+                if(preg_match($title_regex, $scenario['scenario_title'], $hits))
+                {
+                    //$scenario_date = substr($scenario['scenario_title'], 0, 8);
+                    $scenario_date = $hits[1];
+                
+                    Log::info($scenario['scenario_title'].' - '.$scenario_date);
+
+                    $data[] = $scenario['scenario_title'];
+                }
+            }
+
+            $response = [
+                'success'   => true,
+                'count'     => count($data),
+                'scenarios' => $data,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get PhishMe scenario titles.',
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**********************************
      * Attachment scenario functions. *
