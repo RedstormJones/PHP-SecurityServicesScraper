@@ -13,5 +13,15 @@ $options = [
 
 $api->group($options, function ($api) {
 
-    //$api->get('/create_district_leads_list', 'KiewitController@createDistrictCELeadsList');
+	$api->group(['prefix' => 'district_leads'], function ($api) {
+
+		$api->get('/all', 'KiewitController@getAllDistrictCELeads');
+
+	    //$api->get('/create_district_leads_list', 'KiewitController@createDistrictCELeadsList');
+	    
+	    $api->post('/update_lead/{district}/{lead_email}', 'KiewitController@updateDistrictCELeadsList');
+
+	    $api->post('/remove_lead/{district}', 'KiewitController@removeDistrictCELead');
+	});
+
 });
