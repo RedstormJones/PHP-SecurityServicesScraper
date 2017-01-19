@@ -352,7 +352,7 @@ class ProcessPhishMeScenarios extends Command
                             'department'                    => $result['Department'],
                             'location'                      => $result['Location'],
                             'clicked_link'                  => $result['Clicked Link?'],
-                            'clicked_link_timestamp'        => $clicked_link_timestamp,
+                            'clicked_link_timestamp'        => $clickedlink_timestamp,
                             'submitted_form'                => $result['Submitted Form'],
                             'submitted_form_timestamp'      => $submitted_form_timestamp,
                             'submitted_data'                => $result['Submitted Data'],
