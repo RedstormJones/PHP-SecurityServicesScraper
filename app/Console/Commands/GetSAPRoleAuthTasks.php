@@ -124,6 +124,8 @@ class GetSAPRoleAuthTasks extends Command
                     'data'                  => \Metaclassing\Utility::encodeJson($task),
                 ]);
 
+                $taskmodel->save();
+
                 // touch task model to update the 'updated_at' timestamps in case nothing was changed
                 $taskmodel->touch();
 

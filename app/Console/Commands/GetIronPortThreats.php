@@ -191,6 +191,8 @@ class GetIronPortThreats extends Command
                     'data'            => \Metaclassing\Utility::encodeJson($threat),
                 ]);
 
+                $existing_threat->save();
+                
                 // touch threat record to update the 'updated_at' timestamp in case nothing was changed
                 $existing_threat->touch();
 

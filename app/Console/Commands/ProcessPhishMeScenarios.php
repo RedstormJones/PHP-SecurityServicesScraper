@@ -2,11 +2,13 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use App\PhishMe\AttachmentScenario;
 use App\PhishMe\ClickOnlyScenario;
 use App\PhishMe\DataEntryScenario;
 use App\PhishMe\PhishMeScenario;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ProcessPhishMeScenarios extends Command
 {
@@ -48,18 +50,14 @@ class ProcessPhishMeScenarios extends Command
         // cycle through each scenario result
         foreach ($scenario_results as $result) {
             // convert last email status timestamp to acceptable format
-            $lastemailtimestamp = strtotime($result['Last Email Status Timestamp']);
-            $date = new \DateTime('@'.$lastemailtimestamp);
-            $lastemaildate = $date->format('Y-m-d H:i:s');
+            $lastemaildate = Carbon::createFromFormat('d/m/Y H:i:s', $result['Last Email Status Timestamp'])->toDateTimeString();
 
             // handle reported phish timestamp values of ''
             if ($result['Reported Phish Timestamp'] == '') {
                 $reportedphish_timestamp = null;
             } else {
                 // convert reported phish timestamp to acceptable format
-                $reportedphish_timestamp = strtotime($result['Reported Phish Timestamp']);
-                $date = new \DateTime('@'.$reportedphish_timestamp);
-                $reportedphish_timestamp = $date->format('Y-m-d H:i:s');
+                $reportedphish_timestamp = Carbon::createFromFormat('d/m/Y H:i:s', $result['Reported Phish Timestamp'])->toDateTimeString();
             }
 
             // handle time to report values of ''
@@ -72,32 +70,31 @@ class ProcessPhishMeScenarios extends Command
             // create scenario records based off scenario type
             switch ($result['scenario_type']) {
                 case 'App\PhishMe\AttachmentScenario':
+                    // handle viewed education timestamp values of ''
+                    if ($result['Viewed Education Timestamp'] == '') {
+                        $viewed_education_timestamp = null;
+                    } else {
+                        // convert viewed education timestamp to acceptable format
+                        $viewed_education_timestamp = Carbon::createFromFormat('d/m/Y H:i:s', $result['Viewed Education Timestamp'])->toDateTimeString();
+                    }
 
-                    $exists = AttachmentScenario::where('scenario_id', $result['scenario_id'])->first();
+                    $exists = AttachmentScenario::where('scenario_id', $result['scenario_id'])->value('id');
 
                     if (!$exists) {
-                        // handle viewed education timestamp values of ''
-                        if ($result['Viewed Education Timestamp'] == '') {
-                            $viewededucation_timestamp = null;
-                        } else {
-                            // convert viewed education timestamp to acceptable format
-                            $viewededucation_timestamp = strtotime($result['Viewed Education Timestamp']);
-                            $date = new \DateTime('@'.$viewededucation_timestamp);
-                            $viewededucation_timestamp = $date->format('Y-m-d H:i:s');
-                        }
+                        Log::info('creating new attachment scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
 
-                        echo 'creating new attachment scenario: '.$result['scenario_id'].PHP_EOL;
                         $attachment = new AttachmentScenario();
 
                         $attachment->scenario_id = $result['scenario_id'];
                         $attachment->scenario_type = $result['scenario_type'];
+                        $attachment->scenario_title = $result['scenario_title'];
                         $attachment->email = $result['Email'];
                         $attachment->recipient_name = $result['Recipient Name'];
                         $attachment->recipient_group = $result['Recipient Group'];
                         $attachment->department = $result['Department'];
                         $attachment->location = $result['Location'];
                         $attachment->viewed_education = $result['Viewed Education?'];
-                        $attachment->viewed_education_timestamp = $viewededucation_timestamp;
+                        $attachment->viewed_education_timestamp = $viewed_education_timestamp;
                         $attachment->reported_phish = $result['Reported Phish?'];
                         $attachment->new_repeat_reporter = $result['New/Repeat Reporter'];
                         $attachment->reported_phish_timestamp = $reportedphish_timestamp;
@@ -125,38 +122,73 @@ class ProcessPhishMeScenarios extends Command
 
                         $attachment->reports()->save($scenario);
                     } else {
-                        echo 'scenario record already exists for: '.$result['scenario_id'].PHP_EOL;
+                        $scenario = AttachmentScenario::find($exists);
+
+                        $scenario->update([
+                            'scenario_id'                   => $result['scenario_id'],
+                            'scenario_type'                 => $result['scenario_type'],
+                            'scenario_title'                => $result['scenario_title'],
+                            'email'                         => $result['Email'],
+                            'recipient_name'                => $result['Recipient Name'],
+                            'recipient_group'               => $result['Recipient Group'],
+                            'department'                    => $result['Department'],
+                            'location'                      => $result['Location'],
+                            'viewed_education'              => $result['Viewed Education?'],
+                            'viewed_education_timestamp'    => $viewed_education_timestamp,
+                            'reported_phish'                => $result['Reported Phish?'],
+                            'new_repeat_reporter'           => $result['New/Repeat Reporter'],
+                            'reported_phish_timestamp'      => $reportedphish_timestamp,
+                            'time_to_report'                => $timetoreport,
+                            'remote_ip'                     => $result['Remote IP'],
+                            'geoip_country'                 => $result['GeoIP Country'],
+                            'geoip_city'                    => $result['GeoIP City'],
+                            'geoip_organization'            => $result['GeoIP Organization'],
+                            'last_dsn'                      => $result['Last DSN'],
+                            'last_email_status'             => $result['Last Email Status'],
+                            'last_email_status_timestamp'   => $lastemaildate,
+                            'language'                      => $result['Language'],
+                            'browser'                       => $result['Browser'],
+                            'user_agent'                    => $result['User-Agent'],
+                            'mobile'                        => $result['Mobile?'],
+                            'data'                          => \Metaclassing\Utility::encodeJson($result),
+                        ]);
+
+                        $scenario->save();
+
+                        // touch scenario model to update the 'updated_at' timestamp in case nothing was changed
+                        $scenario->touch();
+
+                        Log::info('updated attachment scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
                     }
 
                     break;
 
                 case 'App\PhishMe\ClickOnlyScenario':
+                    // handle clicked link timestamp values of ''
+                    if ($result['Clicked Link Timestamp'] == '') {
+                        $clickedlink_timestamp = null;
+                    } else {
+                        // convert clicked link timestamp to acceptable format
+                        $clickedlink_timestamp = Carbon::createFromFormat('d/m/Y H:i:s', $result['Clicked Link Timestamp'])->toDateTimeString();
+                    }
 
-                    $exists = ClickOnlyScenario::where('scenario_id', $result['scenario_id'])->first();
+                    // handle seconds spent on education page values of ''
+                    if ($result['Seconds Spent on Education Page'] == '') {
+                        $education_seconds = 0;
+                    } else {
+                        $education_seconds = $result['Seconds Spent on Education Page'];
+                    }
+
+                    $exists = ClickOnlyScenario::where('scenario_id', $result['scenario_id'])->value('id');
 
                     if (!$exists) {
-                        // handle clicked link timestamp values of ''
-                        if ($result['Clicked Link Timestamp'] == '') {
-                            $clickedlink_timestamp = null;
-                        } else {
-                            // convert clicked link timestamp to acceptable format
-                            $clickedlink_timestamp = strtotime($result['Clicked Link Timestamp']);
-                            $date = new \DateTime('@'.$clickedlink_timestamp);
-                            $clickedlink_timestamp = $date->format('Y-m-d H:i:s');
-                        }
+                        Log::info('creating new click only scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
 
-                        // handle seconds spent on education page values of ''
-                        if ($result['Seconds Spent on Education Page'] == '') {
-                            $education_seconds = 0;
-                        } else {
-                            $education_seconds = $result['Seconds Spent on Education Page'];
-                        }
-
-                        echo 'creating new click only scenario: '.$result['scenario_id'].PHP_EOL;
                         $clickonly = new ClickOnlyScenario();
 
                         $clickonly->scenario_id = $result['scenario_id'];
                         $clickonly->scenario_type = $result['scenario_type'];
+                        $clickonly->scenario_title = $result['scenario_title'];
                         $clickonly->email = $result['Email'];
                         $clickonly->recipient_name = $result['Recipient Name'];
                         $clickonly->recipient_group = $result['Recipient Group'];
@@ -192,48 +224,82 @@ class ProcessPhishMeScenarios extends Command
 
                         $clickonly->reports()->save($scenario);
                     } else {
-                        echo 'scenario record already exists for: '.$result['scenario_id'].PHP_EOL;
+                        $scenario = ClickOnlyScenario::find($exists);
+
+                        $scenario->update([
+                            'scenario_id'                   => $result['scenario_id'],
+                            'scenario_type'                 => $result['scenario_type'],
+                            'scenario_title'                => $result['scenario_title'],
+                            'email'                         => $result['Email'],
+                            'recipient_name'                => $result['Recipient Name'],
+                            'recipient_group'               => $result['Recipient Group'],
+                            'department'                    => $result['Department'],
+                            'location'                      => $result['Location'],
+                            'clicked_link'                  => $result['Clicked Link?'],
+                            'clicked_link_timestamp'        => $clickedlink_timestamp,
+                            'reported_phish'                => $result['Reported Phish?'],
+                            'new_repeat_reporter'           => $result['New/Repeat Reporter'],
+                            'reported_phish_timestamp'      => $reportedphish_timestamp,
+                            'time_to_report'                => $timetoreport,
+                            'remote_ip'                     => $result['Remote IP'],
+                            'geoip_country'                 => $result['GeoIP Country'],
+                            'geoip_city'                    => $result['GeoIP City'],
+                            'geoip_organization'            => $result['GeoIP Organization'],
+                            'last_dsn'                      => $result['Last DSN'],
+                            'last_email_status'             => $result['Last Email Status'],
+                            'last_email_status_timestamp'   => $lastemaildate,
+                            'language'                      => $result['Language'],
+                            'browser'                       => $result['Browser'],
+                            'user_agent'                    => $result['User-Agent'],
+                            'mobile'                        => $result['Mobile?'],
+                            'seconds_spent_on_education'    => $education_seconds,
+                            'data'                          => \Metaclassing\Utility::encodeJson($result),
+                        ]);
+
+                        $scenario->save();
+
+                        // touch scenario model to update the 'updated_at' timestamp in case nothing was changed
+                        $scenario->touch();
+
+                        Log::info('updated click only scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
                     }
 
                     break;
 
                 case 'App\PhishMe\DataEntryScenario':
+                    // handle clicked link timestamp values of ''
+                    if ($result['Clicked Link Timestamp'] == '') {
+                        $clickedlink_timestamp = null;
+                    } else {
+                        // convert clicked link timestamp to acceptable format
+                        $clickedlink_timestamp = Carbon::createFromFormat('d/m/Y H:i:s', $result['Clicked Link Timestamp'])->toDateTimeString();
+                    }
 
-                    $exists = DataEntryScenario::where('scenario_id', $result['scenario_id'])->first();
+                    // handle submitted form timestamp values of ''
+                    if ($result['Submitted Form Timestamp'] == '') {
+                        $submittedform_timestamp = null;
+                    } else {
+                        // convert submitted form timestamp to acceptable format
+                        $submittedform_timestamp = Carbon::createFromFormat('d/m/Y H:i:s', $result['Submitted Form Timestamp'])->toDateTimeString();
+                    }
+
+                    // handle seconds spent on education page values of ''
+                    if ($result['Seconds Spent on Education Page'] == '') {
+                        $education_seconds = 0;
+                    } else {
+                        $education_seconds = $result['Seconds Spent on Education Page'];
+                    }
+
+                    $exists = DataEntryScenario::where('scenario_id', $result['scenario_id'])->value('id');
 
                     if (!$exists) {
-                        // handle clicked link timestamp values of ''
-                        if ($result['Clicked Link Timestamp'] == '') {
-                            $clickedlink_timestamp = null;
-                        } else {
-                            // convert clicked link timestamp to acceptable format
-                            $clickedlink_timestamp = strtotime($result['Clicked Link Timestamp']);
-                            $date = new \DateTime('@'.$clickedlink_timestamp);
-                            $clickedlink_timestamp = $date->format('Y-m-d H:i:s');
-                        }
+                        Log::info('creating new data entry scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
 
-                        // handle submitted form timestamp values of ''
-                        if ($result['Submitted Form Timestamp'] == '') {
-                            $submittedform_timestamp = null;
-                        } else {
-                            // convert submitted form timestamp to acceptable format
-                            $submittedform_timestamp = strtotime($result['Submitted Form Timestamp']);
-                            $date = new \DateTime('@'.$submittedform_timestamp);
-                            $submittedform_timestamp = $date->format('Y-m-d H:i:s');
-                        }
-
-                        // handle seconds spent on education page values of ''
-                        if ($result['Seconds Spent on Education Page'] == '') {
-                            $education_seconds = 0;
-                        } else {
-                            $education_seconds = $result['Seconds Spent on Education Page'];
-                        }
-
-                        echo 'creating new data entry scenario: '.$result['scenario_id'].PHP_EOL;
                         $dataentry = new DataEntryScenario();
 
                         $dataentry->scenario_id = $result['scenario_id'];
                         $dataentry->scenario_type = $result['scenario_type'];
+                        $dataentry->scenario_title = $result['scenario_title'];
                         $dataentry->email = $result['Email'];
                         $dataentry->recipient_name = $result['Recipient Name'];
                         $dataentry->recipient_group = $result['Recipient Group'];
@@ -274,7 +340,49 @@ class ProcessPhishMeScenarios extends Command
 
                         $dataentry->reports()->save($scenario);
                     } else {
-                        echo 'scenario record already exists for: '.$result['scenario_id'].PHP_EOL;
+                        $scenario = DataEntryScenario::find($exists);
+
+                        $scenario->update([
+                            'scenario_id'                   => $result['scenario_id'],
+                            'scenario_type'                 => $result['scenario_type'],
+                            'scenario_title'                => $result['scenario_title'],
+                            'email'                         => $result['Email'],
+                            'recipient_name'                => $result['Recipient Name'],
+                            'recipient_group'               => $result['Recipient Group'],
+                            'department'                    => $result['Department'],
+                            'location'                      => $result['Location'],
+                            'clicked_link'                  => $result['Clicked Link?'],
+                            'clicked_link_timestamp'        => $clicked_link_timestamp,
+                            'submitted_form'                => $result['Submitted Form'],
+                            'submitted_form_timestamp'      => $submitted_form_timestamp,
+                            'submitted_data'                => $result['Submitted Data'],
+                            'phished_username'              => $result['Username'],
+                            'entered_password'              => $result['Entered Password?'],
+                            'reported_phish'                => $result['Reported Phish?'],
+                            'new_repeat_reporter'           => $result['New/Repeat Reporter'],
+                            'reported_phish_timestamp'      => $reportedphish_timestamp,
+                            'time_to_report'                => $timetoreport,
+                            'remote_ip'                     => $result['Remote IP'],
+                            'geoip_country'                 => $result['GeoIP Country'],
+                            'geoip_city'                    => $result['GeoIP City'],
+                            'geoip_organization'            => $result['GeoIP Organization'],
+                            'last_dsn'                      => $result['Last DSN'],
+                            'last_email_status'             => $result['Last Email Status'],
+                            'last_email_status_timestamp'   => $lastemaildate,
+                            'language'                      => $result['Language'],
+                            'browser'                       => $result['Browser'],
+                            'user_agent'                    => $result['User-Agent'],
+                            'mobile'                        => $result['Mobile?'],
+                            'seconds_spent_on_education'    => $education_seconds,
+                            'data'                          => \Metaclassing\Utility::encodeJson($result),
+                        ]);
+
+                        $scenario->save();
+
+                        // touch scenario model to update the 'updated_at' timestamp in case nothing was changed
+                        $scenario->touch();
+
+                        Log::info('updated data entry scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
                     }
 
                     break;

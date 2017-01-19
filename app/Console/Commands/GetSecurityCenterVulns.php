@@ -231,7 +231,7 @@ class GetSecurityCenterVulns extends Command
      */
     public function processDeletes($sev_id)
     {
-        $delete_date = Carbon::now()->subDays(30);
+        $delete_date = Carbon::now()->subDays(90);
 
         switch ($sev_id) {
             case 4:
@@ -256,7 +256,7 @@ class GetSecurityCenterVulns extends Command
 
             if ($updated_at <= $delete_date) {
                 Log::info('deleting '.$vuln->severity_name.' vulnerability: '.$vuln->plugin_id);
-                //$vuln->delete();
+                $vuln->delete();
             }
         }
     }
@@ -293,17 +293,17 @@ class GetSecurityCenterVulns extends Command
             switch ($sev_id) {
                 case 2:
                     Log::info('creating medium severity vulnerability record for: '.$vuln['pluginName']);
-                    //$new_vuln = new SecurityCenterMedium();
+                    $new_vuln = new SecurityCenterMedium();
                     break;
 
                 case 3:
                     Log::info('creating high severity vulnerability record for: '.$vuln['pluginName']);
-                    //$new_vuln = new SecurityCenterHigh();
+                    $new_vuln = new SecurityCenterHigh();
                     break;
 
                 case 4:
                     Log::info('creating critical severity vulnerability record for: '.$vuln['pluginName']);
-                    //$new_vuln = new SecurityCenterCritical();
+                    $new_vuln = new SecurityCenterCritical();
                     break;
 
                 default:
@@ -311,7 +311,6 @@ class GetSecurityCenterVulns extends Command
                     die('Error: illegal severity id '.$sev_id);
             }
 
-            /*
             $new_vuln->dns_name = $vuln['dnsName'];
             $new_vuln->severity_id = $severity['id'];
             $new_vuln->severity_name = $severity['name'];
@@ -336,7 +335,6 @@ class GetSecurityCenterVulns extends Command
             $new_vuln->data = \Metaclassing\Utility::encodeJson($vuln);
 
             $new_vuln->save();
-            */
         }
 
         $this->processDeletes($sev_id);

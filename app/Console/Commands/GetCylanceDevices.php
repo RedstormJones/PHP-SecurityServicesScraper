@@ -215,7 +215,9 @@ class GetCylanceDevices extends Command
                 $created_date = $this->stringToDate($device['Created']);
                 $offline_date = $this->stringToDate($device['OfflineDate']);
 
-                $updated = CylanceDevice::where('id', $exists)->update([
+                $devicemodel = CylanceDevice::find($exists);
+
+                $devicemodel->update([
                     'device_name'          => $device['Name'],
                     'zones_text'           => $device['ZonesText'],
                     'files_unsafe'         => $device['Unsafe'],
@@ -234,9 +236,9 @@ class GetCylanceDevices extends Command
                     'data'                 => json_encode($device),
                 ]);
 
-                // touch device model to update 'updated_at' timestamp (in case nothing was changed)
-                $devicemodel = CylanceDevice::find($exists);
+                $devicemodel->save();
 
+                // touch device model to update 'updated_at' timestamp (in case nothing was changed)
                 $devicemodel->touch();
 
                 Log::info('updated device: '.$device['Name']);

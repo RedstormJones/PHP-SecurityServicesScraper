@@ -14,6 +14,7 @@ class AttachmentScenario extends Model
     protected $fillable = [
         'scenario_id',
         'scenario_type',
+        'scenario_title',
         'email',
         'recipient_name',
         'recipient_group',

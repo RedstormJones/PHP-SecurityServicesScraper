@@ -214,7 +214,9 @@ class GetCylanceThreats extends Command
                 $blocked_last_found = $this->stringToDate($threat['BlockedLastFound']);
                 $cert_timestamp = $this->stringToDate($threat['CertTimeStamp']);
 
-                $updated = CylanceThreat::where('id', $exists)->update([
+                $threatmodel = CylanceThreat::find($exists);
+
+                $threatmodel->update([
                     'common_name'              => $threat['CommonName'],
                     'cylance_score'            => $threat['CylanceScore'],
                     'active_in_devices'        => $threat['ActiveInDevices'],
@@ -245,18 +247,16 @@ class GetCylanceThreats extends Command
                     'data'                     => json_encode($threat),
                 ]);
 
+                $threatmodel->save();
+                
                 // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
-                $threatmodel = CylanceThreat::find($exists);
+                $threatmodel->touch();
 
-                if ($threatmodel != null) {
-                    $threatmodel->touch();
-
-                    /*
-                    * do a restore to set the 'deleted_at' timestamp back to NULL
-                    * in case this threat model had been soft deleted at some point.
-                    */
-                    $threatmodel->restore();
-                }
+                /*
+                * do a restore to set the 'deleted_at' timestamp back to NULL
+                * in case this threat model had been soft deleted at some point.
+                */
+                $threatmodel->restore();
 
                 Log::info('updated threat: '.$threat['CommonName']);
             } else {
