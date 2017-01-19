@@ -199,7 +199,7 @@ class GetPhishMeScenarios extends Command
                     $exists = AttachmentScenario::where('scenario_id', $result['scenario_id'])->value('id');
 
                     if (!$exists) {
-                        Log::info('creating new attachment scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
+                        Log::info('creating new attachment scenario for '.$result['scenario_title']);
 
                         $attachment = new AttachmentScenario();
 
@@ -276,7 +276,7 @@ class GetPhishMeScenarios extends Command
                         // touch scenario model to update the 'updated_at' timestamp in case nothing was changed
                         $scenario->touch();
 
-                        Log::info('updated attachment scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
+                        Log::info('updated '.$result['scenario_title'].' : '.$result['scenario_id']);
                     }
 
                     break;
@@ -300,7 +300,7 @@ class GetPhishMeScenarios extends Command
                     $exists = ClickOnlyScenario::where('scenario_id', $result['scenario_id'])->value('id');
 
                     if (!$exists) {
-                        Log::info('creating new click only scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
+                        Log::info('creating new click only scenario for '.$result['scenario_title']);
 
                         $clickonly = new ClickOnlyScenario();
 
@@ -379,7 +379,7 @@ class GetPhishMeScenarios extends Command
                         // touch scenario model to update the 'updated_at' timestamp in case nothing was changed
                         $scenario->touch();
 
-                        Log::info('updated click only scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
+                        Log::info('updated '.$result['scenario_title'].' : '.$result['scenario_id']);
                     }
 
                     break;
@@ -411,7 +411,7 @@ class GetPhishMeScenarios extends Command
                     $exists = DataEntryScenario::where('scenario_id', $result['scenario_id'])->value('id');
 
                     if (!$exists) {
-                        Log::info('creating new data entry scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
+                        Log::info('creating new data entry scenario for '.$result['scenario_title']);
 
                         $dataentry = new DataEntryScenario();
 
@@ -500,7 +500,7 @@ class GetPhishMeScenarios extends Command
                         // touch scenario model to update the 'updated_at' timestamp in case nothing was changed
                         $scenario->touch();
 
-                        Log::info('updated data entry scenario: '.$result['scenario_title'].'...'.$result['scenario_id']);
+                        Log::info('updated '.$result['scenario_title'].' : '.$result['scenario_id']);
                     }
 
                     break;
