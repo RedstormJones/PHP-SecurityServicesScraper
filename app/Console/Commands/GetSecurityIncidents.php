@@ -127,7 +127,7 @@ class GetSecurityIncidents extends Command
                 ]);
 
                 $incidentmodel->save();
-                
+
                 // touch incident model to update the 'updated_at' timestamp in case nothing was changed
                 $incidentmodel->touch();
 

@@ -122,7 +122,7 @@ class GetSecurityCenterAssetVulns extends Command
                 ]);
 
                 $asset_vuln->save();
-                
+
                 // touch asset vuln record to updated the 'updated_at' timestamp in case nothing was changed
                 $asset_vuln->touch();
 

@@ -139,7 +139,7 @@ class GetCMDBServers extends Command
                 ]);
 
                 $servermodel->save();
-                
+
                 // touch server model to update 'updated_at' timestamp in case nothing was changed
                 $servermodel->touch();
 
