@@ -44,4 +44,6 @@ $api->version('v1', function ($api) {
     require __DIR__.'/api.phishme.php';
 
     require __DIR__.'/api.lancope.php';
+
+    require __DIR__.'/api.kiewit.php';
 });
