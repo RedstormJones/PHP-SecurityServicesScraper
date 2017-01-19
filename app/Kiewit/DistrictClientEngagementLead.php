@@ -14,9 +14,8 @@ class DistrictClientEngagementLead extends Model
     protected $table = 'district_client_engagement_leads';
 
     protected $fillable = [
-    	'district',
-    	'email',
-    	'data',
+        'district',
+        'email',
+        'data',
     ];
-
 }

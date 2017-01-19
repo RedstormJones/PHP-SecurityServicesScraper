@@ -13,7 +13,5 @@ $options = [
 
 $api->group($options, function ($api) {
 
-	//$api->get('/create_district_leads_list', 'KiewitController@createDistrictCELeadsList');
-
-
+    //$api->get('/create_district_leads_list', 'KiewitController@createDistrictCELeadsList');
 });
