@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\PhishMe\AttachmentScenario;
 use App\PhishMe\ClickOnlyScenario;
 use App\PhishMe\DataEntryScenario;
 use App\PhishMe\PhishMeScenario;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 

@@ -277,7 +277,7 @@ class GetSpamEmail extends Command
                 ]);
 
                 $spam->save();
-                
+
                 // touch spam record to update 'updated_at' timestamp in case nothing was changed
                 $spam->touch();
 

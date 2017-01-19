@@ -248,7 +248,7 @@ class GetCylanceThreats extends Command
                 ]);
 
                 $threatmodel->save();
-                
+
                 // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
                 $threatmodel->touch();
 

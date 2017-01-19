@@ -4,11 +4,11 @@ namespace App\Console\Commands;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use Carbon\Carbon;
 use App\PhishMe\AttachmentScenario;
 use App\PhishMe\ClickOnlyScenario;
 use App\PhishMe\DataEntryScenario;
 use App\PhishMe\PhishMeScenario;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -169,7 +169,7 @@ class GetPhishMeScenarios extends Command
         foreach ($collection as $result) {
             // convert last email status timestamp to acceptable format
             $lastemaildate = Carbon::createFromFormat('d/m/Y H:i:s', $result['Last Email Status Timestamp'])->toDateTimeString();
-            
+
             // handle reported phish timestamp values of ''
             if ($result['Reported Phish Timestamp'] == '') {
                 $reportedphish_timestamp = null;
@@ -240,7 +240,6 @@ class GetPhishMeScenarios extends Command
 
                         $attachment->reports()->save($scenario);
                     } else {
-
                         $scenario = AttachmentScenario::find($exists);
 
                         $scenario->update([

@@ -125,7 +125,7 @@ class GetSecurityTasks extends Command
                 ]);
 
                 $taskmodel->save();
-                
+
                 // touch task model to update the 'updated_at' timestamps in case nothing was changed
                 $taskmodel->touch();
 
