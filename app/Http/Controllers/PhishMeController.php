@@ -85,7 +85,6 @@ class PhishMeController extends Controller
         return response()->json($response);
     }
 
-
     /**
      * Get results for a particular scenario.
      *
@@ -101,7 +100,7 @@ class PhishMeController extends Controller
             // get attachment, click only and data entry scenario results for a particular scenario and District
             $attachment_results = AttachmentScenario::where([
                     ['scenario_title', '=', $date.' Enterprise Click Test'],
-                    ['department', '=', $district]
+                    ['department', '=', $district],
                 ])->select(
                     'scenario_title',
                     'scenario_type',
@@ -115,7 +114,7 @@ class PhishMeController extends Controller
 
             $click_only_results = ClickOnlyScenario::where([
                     ['scenario_title', '=', $date.' Enterprise Click Test'],
-                    ['department', '=', $district]
+                    ['department', '=', $district],
                 ])->select(
                     'scenario_title',
                     'scenario_type',
@@ -130,7 +129,7 @@ class PhishMeController extends Controller
 
             $data_entry_results = DataEntryScenario::where([
                     ['scenario_title', '=', $date.' Enterprise Click Test'],
-                    ['department', '=', $district]
+                    ['department', '=', $district],
                 ])->select(
                     'scenario_title',
                     'scenario_type',
@@ -147,8 +146,7 @@ class PhishMeController extends Controller
                 )->get();
 
             // cycle through each of the returned results and build your return array
-            foreach ($attachment_results as $result)
-            {
+            foreach ($attachment_results as $result) {
                 $data[] = [
                     'scenario_title'                => $result['scenario_title'],
                     'scenario_type'                 => $result['scenario_type'],
@@ -167,8 +165,7 @@ class PhishMeController extends Controller
                 ];
             }
 
-            foreach ($click_only_results as $result)
-            {
+            foreach ($click_only_results as $result) {
                 $data[] = [
                     'scenario_title'                => $result['scenario_title'],
                     'scenario_type'                 => $result['scenario_type'],
@@ -187,8 +184,7 @@ class PhishMeController extends Controller
                 ];
             }
 
-            foreach ($data_entry_results as $result)
-            {
+            foreach ($data_entry_results as $result) {
                 $data[] = [
                     'scenario_title'                => $result['scenario_title'],
                     'scenario_type'                 => $result['scenario_type'],
@@ -208,13 +204,11 @@ class PhishMeController extends Controller
             }
 
             $response = [
-                'success'   => true,
-                'count'     => count($data),
+                'success'           => true,
+                'count'             => count($data),
                 'scenario_results'  => $data,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get click test results for '.$district.' during '.$date,
@@ -224,18 +218,6 @@ class PhishMeController extends Controller
 
         return response()->json($response);
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**********************************
      * Attachment scenario functions. *
