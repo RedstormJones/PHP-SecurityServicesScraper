@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
+use Carbon\Carbon;
 use App\ServiceNow\cmdbServer;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -238,9 +239,7 @@ class GetCMDBServers extends Command
      */
     public function processDeletes()
     {
-        $today = new \DateTime('now');
-        $yesterday = $today->modify('-1 day');
-        $delete_date = $yesterday->format('Y-m-d H:i:s');
+        $delete_date = Carbon::now()->subDays(1);
 
         $servers = cmdbServer::where('updated_at', '<', $delete_date)->get();
 
