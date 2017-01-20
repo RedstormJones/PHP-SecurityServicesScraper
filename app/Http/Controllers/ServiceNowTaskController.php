@@ -7,7 +7,6 @@ use App\ServiceNow\ServiceNowSapRoleAuthTask;
 use App\ServiceNow\ServiceNowSecurityTask;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ServiceNowTaskController extends Controller
