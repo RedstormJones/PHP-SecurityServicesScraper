@@ -215,7 +215,7 @@ class GetCylanceDevices extends Command
                 $created_date = $this->stringToDate($device['Created']);
                 $offline_date = $this->stringToDate($device['OfflineDate']);
 
-                $devicemodel = CylanceDevice::find($exists);
+                $devicemodel = CylanceDevice::findOrFail($exists);
 
                 $devicemodel->update([
                     'device_name'          => $device['Name'],

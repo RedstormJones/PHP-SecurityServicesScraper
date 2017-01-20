@@ -152,7 +152,6 @@ class ServiceNowTaskController extends Controller
                 * class name and increment the corresponding class name count
                 */
                 if ($two_months > $task_created_date) {
-                    Log::info('task created date greater than 2 months');
                     $task_age_counts['two_months']['count']++;
 
                     if ($task['sys_class_name'] == 'Project') {
@@ -274,7 +273,6 @@ class ServiceNowTaskController extends Controller
                 'sap_roleauth_tasks_count'  => count($sap_roleauth_tasks),
                 'total'                     => count($data),
                 'task_age_counts'           => $task_age_counts,
-                //'tasks'                        => $data,
             ];
         } catch (\Exception $e) {
             $response = [

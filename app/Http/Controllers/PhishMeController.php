@@ -85,6 +85,158 @@ class PhishMeController extends Controller
         return response()->json($response);
     }
 
+
+    /**
+     * Get results for a particular scenario.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getEnterpriseClickTestResults($date, $district)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            // get attachment, click only and data entry scenario results for a particular scenario and District
+            $attachment_results = AttachmentScenario::where([
+                    ['scenario_title', '=', $date.' Enterprise Click Test'],
+                    ['department', '=', $district]
+                ])->select(
+                    'scenario_title',
+                    'scenario_type',
+                    'recipient_name',
+                    'department',
+                    'viewed_education',
+                    'reported_phish',
+                    'new_repeat_reporter',
+                    'time_to_report'
+                )->get();
+
+            $click_only_results = ClickOnlyScenario::where([
+                    ['scenario_title', '=', $date.' Enterprise Click Test'],
+                    ['department', '=', $district]
+                ])->select(
+                    'scenario_title',
+                    'scenario_type',
+                    'recipient_name',
+                    'department',
+                    'clicked_link',
+                    'reported_phish',
+                    'new_repeat_reporter',
+                    'time_to_report',
+                    'seconds_spent_on_education'
+                )->get();
+
+            $data_entry_results = DataEntryScenario::where([
+                    ['scenario_title', '=', $date.' Enterprise Click Test'],
+                    ['department', '=', $district]
+                ])->select(
+                    'scenario_title',
+                    'scenario_type',
+                    'recipient_name',
+                    'department',
+                    'clicked_link',
+                    'submitted_form',
+                    'submitted_data',
+                    'phished_username',
+                    'entered_password',
+                    'reported_phish',
+                    'new_repeat_reporter',
+                    'seconds_spent_on_education'
+                )->get();
+
+            // cycle through each of the returned results and build your return array
+            foreach ($attachment_results as $result)
+            {
+                $data[] = [
+                    'scenario_title'                => $result['scenario_title'],
+                    'scenario_type'                 => $result['scenario_type'],
+                    'recipient_name'                => $result['recipient_name'],
+                    'department'                    => $result['department'],
+                    'viewed_eduation'               => $result['viewed_education'],
+                    'clicked_link'                  => 'n/a',
+                    'submitted_form'                => 'n/a',
+                    'submitted_data'                => 'n/a',
+                    'phished_username'              => 'n/a',
+                    'entered_password'              => 'n/a',
+                    'reported_phish'                => $result['reported_phish'],
+                    'new_repeat_reporter'           => $result['new_repeat_reporter'],
+                    'time_to_report'                => $result['time_to_report'],
+                    'seconds_spent_on_education'    => 'n/a',
+                ];
+            }
+
+            foreach ($click_only_results as $result)
+            {
+                $data[] = [
+                    'scenario_title'                => $result['scenario_title'],
+                    'scenario_type'                 => $result['scenario_type'],
+                    'recipient_name'                => $result['recipient_name'],
+                    'department'                    => $result['department'],
+                    'viewed_eduation'               => 'n/a',
+                    'clicked_link'                  => $result['clicked_link'],
+                    'submitted_form'                => 'n/a',
+                    'submitted_data'                => 'n/a',
+                    'phished_username'              => 'n/a',
+                    'entered_password'              => 'n/a',
+                    'reported_phish'                => $result['reported_phish'],
+                    'new_repeat_reporter'           => $result['new_repeat_reporter'],
+                    'time_to_report'                => $result['time_to_report'],
+                    'seconds_spent_on_education'    => $result['seconds_spent_on_education'],
+                ];
+            }
+
+            foreach ($data_entry_results as $result)
+            {
+                $data[] = [
+                    'scenario_title'                => $result['scenario_title'],
+                    'scenario_type'                 => $result['scenario_type'],
+                    'recipient_name'                => $result['recipient_name'],
+                    'department'                    => $result['department'],
+                    'viewed_eduation'               => 'n/a',
+                    'clicked_link'                  => $result['clicked_link'],
+                    'submitted_form'                => $result['submitted_form'],
+                    'submitted_data'                => $result['submitted_data'],
+                    'phished_username'              => $result['phished_username'],
+                    'entered_password'              => $result['entered_password'],
+                    'reported_phish'                => $result['reported_phish'],
+                    'new_repeat_reporter'           => $result['new_repeat_reporter'],
+                    'time_to_report'                => $result['time_to_report'],
+                    'seconds_spent_on_education'    => $result['seconds_spent_on_education'],
+                ];
+            }
+
+            $response = [
+                'success'   => true,
+                'count'     => count($data),
+                'scenario_results'  => $data,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get click test results for '.$district.' during '.$date,
+                'exception' => $e,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**********************************
      * Attachment scenario functions. *
      **********************************/
