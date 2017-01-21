@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\IronPort\IncomingEmail;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -178,6 +179,7 @@ class GetIncomingEmail extends Command
             $begindate = rtrim($email['Begin Date'], ' GMT');
             $enddate = rtrim($email['End Date'], ' GMT');
 
+            /*
             $new_email = new IncomingEmail();
 
             $new_email->begin_date = $begindate;
@@ -202,6 +204,7 @@ class GetIncomingEmail extends Command
             $new_email->data = json_encode($email);
 
             $new_email->save();
+            */
         }
 
         $this->processDeletes();
@@ -256,9 +259,7 @@ class GetIncomingEmail extends Command
      */
     public function processDeletes()
     {
-        $today = new \DateTime('now');
-        $yesterday = $today->modify('-3 months');
-        $delete_date = $yesterday->format('Y-m-d H:i:s');
+        $delete_date = Carbon::now()->subMonths(3)->toDateTimeString();
 
         // get collection of incoming email models that are older than 90 days
         $incomingemails = IncomingEmail::where('updated_at', '<', $delete_date)->get();
@@ -267,7 +268,7 @@ class GetIncomingEmail extends Command
 
         // cycle through the models in the returned collection and soft delete them
         foreach ($incomingemails as $email) {
-            $email->delete();
+            //$email->delete();
         }
     }
 }
