@@ -254,7 +254,7 @@ class GetCylanceThreats extends Command
                 // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
                 $threatmodel->touch();
                 */
-               
+
                 /*
                 * do a restore to set the 'deleted_at' timestamp back to NULL
                 * in case this threat model had been soft deleted at some point.
