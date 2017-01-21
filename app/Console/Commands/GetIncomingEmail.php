@@ -179,7 +179,6 @@ class GetIncomingEmail extends Command
             $begindate = rtrim($email['Begin Date'], ' GMT');
             $enddate = rtrim($email['End Date'], ' GMT');
 
-            /*
             $new_email = new IncomingEmail();
 
             $new_email->begin_date = $begindate;
@@ -204,7 +203,6 @@ class GetIncomingEmail extends Command
             $new_email->data = json_encode($email);
 
             $new_email->save();
-            */
         }
 
         $this->processDeletes();
@@ -264,11 +262,11 @@ class GetIncomingEmail extends Command
         // get collection of incoming email models that are older than 90 days
         $incomingemails = IncomingEmail::where('updated_at', '<', $delete_date)->get();
 
-        Log::info('deleting stale email records...');
+        Log::info('deleting 'count($incomingemails).' stale email records...');
 
         // cycle through the models in the returned collection and soft delete them
         foreach ($incomingemails as $email) {
-            //$email->delete();
+            $email->delete();
         }
     }
 }
