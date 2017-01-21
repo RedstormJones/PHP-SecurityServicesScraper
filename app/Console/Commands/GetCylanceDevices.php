@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\Cylance\CylanceDevice;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -195,7 +196,6 @@ class GetCylanceDevices extends Command
 
         // Now we have a simple array [1,2,3] of all the device records,
         // each device record is a key=>value pair collection / assoc array
-        //\Metaclassing\Utility::dumper($threats);
         file_put_contents(storage_path('app/collections/devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices));
 
         /*************************************
@@ -240,7 +240,7 @@ class GetCylanceDevices extends Command
 
                 // touch device model to update 'updated_at' timestamp (in case nothing was changed)
                 $devicemodel->touch();
-
+                
                 Log::info('updated device: '.$device['Name']);
             } else {
                 Log::info('creating device: '.$device['Name']);
@@ -314,8 +314,7 @@ class GetCylanceDevices extends Command
     public function processDeletes()
     {
         // create new datetime object and subtract one day to get delete_date
-        $today = new \DateTime('now');
-        $delete_date = $today->format('Y-m-d');
+        $delete_date = Carbon::now()->subDays(1)->toDateString();
 
         // get all the devices
         $devices = CylanceDevice::all();
@@ -323,7 +322,7 @@ class GetCylanceDevices extends Command
         /*
         * For each device, get its updated_at timestamp, remove the time of day portion, and check
         * it against delete_date to determine if its a stale record or not. If yes, delete it.
-        **/
+        */
         foreach ($devices as $device) {
             $updated_at = substr($device->updated_at, 0, -9);
 

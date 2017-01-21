@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\Cylance\CylanceThreat;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -347,9 +348,7 @@ class GetCylanceThreats extends Command
      */
     public function processDeletes()
     {
-        $today = new \DateTime('now');
-        $yesterday = $today->modify('-1 day');
-        $delete_date = $yesterday->format('Y-m-d');
+        $delete_date = Carbon::now()->subDays(1)->toDateString();
 
         $threats = CylanceThreat::all();
 

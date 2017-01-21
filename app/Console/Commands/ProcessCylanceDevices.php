@@ -128,9 +128,7 @@ class ProcessCylanceDevices extends Command
     public function processDeletes()
     {
         // create new datetime object and subtract one day to get delete_date
-        $today = new \DateTime('now');
-        //$yesterday = $today->modify('-1 day');
-        $delete_date = $today->format('Y-m-d');
+        $delete_date = Carbon::now()->subDays(1)->toDateString();
 
         // get all the devices
         $devices = CylanceDevice::all();
