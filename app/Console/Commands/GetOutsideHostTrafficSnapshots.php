@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\Lancope\OutsideHostTrafficSnapshot;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -156,9 +157,8 @@ class GetOutsideHostTrafficSnapshots extends Command
      */
     public function processDeletes()
     {
-        $today = new \DateTime('now');
-        $deleteday = $today->modify('-7 days');
-        $delete_date = $deleteday->format('Y-m-d H:i:s');
+        $delete_date = Carbon::now()->subDays(7)->toDateTimeString();
+        Log::info('delete data: '.$delete_date);
 
         $apptraffic_snapshots = OutsideHostTrafficSnapshot::where('updated_at', '<', $delete_date)->get();
 
