@@ -262,7 +262,7 @@ class GetIncomingEmail extends Command
         // get collection of incoming email models that are older than 90 days
         $incomingemails = IncomingEmail::where('updated_at', '<', $delete_date)->get();
 
-        Log::info('deleting 'count($incomingemails).' stale email records...');
+        Log::info('deleting '.count($incomingemails).' stale email records...');
 
         // cycle through the models in the returned collection and soft delete them
         foreach ($incomingemails as $email) {
