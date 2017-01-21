@@ -240,7 +240,7 @@ class GetCylanceDevices extends Command
 
                 // touch device model to update 'updated_at' timestamp (in case nothing was changed)
                 $devicemodel->touch();
-                
+
                 Log::info('updated device: '.$device['Name']);
             } else {
                 Log::info('creating device: '.$device['Name']);
