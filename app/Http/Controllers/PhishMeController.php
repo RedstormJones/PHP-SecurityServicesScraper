@@ -147,6 +147,15 @@ class PhishMeController extends Controller
 
             // cycle through each of the returned results and build your return array
             foreach ($attachment_results as $result) {
+                if($result['time_to_report'] > 0)
+                {
+                    $time_to_report = $result['time_to_report'];
+                }
+                else
+                {
+                    $time_to_report = 0;
+                }
+
                 $data[] = [
                     'scenario_title'                => $result['scenario_title'],
                     'scenario_type'                 => $result['scenario_type'],
@@ -160,12 +169,21 @@ class PhishMeController extends Controller
                     'entered_password'              => 'n/a',
                     'reported_phish'                => $result['reported_phish'],
                     'new_repeat_reporter'           => $result['new_repeat_reporter'],
-                    'time_to_report'                => $result['time_to_report'],
-                    'seconds_spent_on_education'    => 'n/a',
+                    'time_to_report'                => $time_to_report,
+                    'seconds_spent_on_education'    => 0,
                 ];
             }
 
             foreach ($click_only_results as $result) {
+                if($result['time_to_report'] > 0)
+                {
+                    $time_to_report = $result['time_to_report'];
+                }
+                else
+                {
+                    $time_to_report = 0;
+                }
+
                 $data[] = [
                     'scenario_title'                => $result['scenario_title'],
                     'scenario_type'                 => $result['scenario_type'],
@@ -179,12 +197,21 @@ class PhishMeController extends Controller
                     'entered_password'              => 'n/a',
                     'reported_phish'                => $result['reported_phish'],
                     'new_repeat_reporter'           => $result['new_repeat_reporter'],
-                    'time_to_report'                => $result['time_to_report'],
+                    'time_to_report'                => $time_to_report,
                     'seconds_spent_on_education'    => $result['seconds_spent_on_education'],
                 ];
             }
 
             foreach ($data_entry_results as $result) {
+                if($result['time_to_report'] > 0)
+                {
+                    $time_to_report = $result['time_to_report'];
+                }
+                else
+                {
+                    $time_to_report = 0;
+                }
+                
                 $data[] = [
                     'scenario_title'                => $result['scenario_title'],
                     'scenario_type'                 => $result['scenario_type'],
@@ -198,7 +225,7 @@ class PhishMeController extends Controller
                     'entered_password'              => $result['entered_password'],
                     'reported_phish'                => $result['reported_phish'],
                     'new_repeat_reporter'           => $result['new_repeat_reporter'],
-                    'time_to_report'                => $result['time_to_report'],
+                    'time_to_report'                => $time_to_report,
                     'seconds_spent_on_education'    => $result['seconds_spent_on_education'],
                 ];
             }

@@ -16,7 +16,7 @@ $api->group($options, function ($api) {
     $api->get('/scenario_titles', 'PhishMeController@getScenarioTitles');
 
     // query for the results of a particular click test, given a date in the formart of Y-M (i.e. 2016-AUG)
-    $api->get('/report/{date}/{district}', 'PhishMeController@getEnterpriseClickTestResults');
+    $api->post('/report/{date}/{district}', 'PhishMeController@getEnterpriseClickTestResults');
 
     // Attachment scenarios route group
     $api->group(['prefix' => 'attachment_scenarios'], function ($api) {
