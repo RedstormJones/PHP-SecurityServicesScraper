@@ -147,12 +147,9 @@ class PhishMeController extends Controller
 
             // cycle through each of the returned results and build your return array
             foreach ($attachment_results as $result) {
-                if($result['time_to_report'] > 0)
-                {
+                if ($result['time_to_report'] > 0) {
                     $time_to_report = $result['time_to_report'];
-                }
-                else
-                {
+                } else {
                     $time_to_report = 0;
                 }
 
@@ -175,12 +172,9 @@ class PhishMeController extends Controller
             }
 
             foreach ($click_only_results as $result) {
-                if($result['time_to_report'] > 0)
-                {
+                if ($result['time_to_report'] > 0) {
                     $time_to_report = $result['time_to_report'];
-                }
-                else
-                {
+                } else {
                     $time_to_report = 0;
                 }
 
@@ -203,15 +197,12 @@ class PhishMeController extends Controller
             }
 
             foreach ($data_entry_results as $result) {
-                if($result['time_to_report'] > 0)
-                {
+                if ($result['time_to_report'] > 0) {
                     $time_to_report = $result['time_to_report'];
-                }
-                else
-                {
+                } else {
                     $time_to_report = 0;
                 }
-                
+
                 $data[] = [
                     'scenario_title'                => $result['scenario_title'],
                     'scenario_type'                 => $result['scenario_type'],
