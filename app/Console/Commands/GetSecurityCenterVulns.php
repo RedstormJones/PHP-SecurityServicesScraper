@@ -292,16 +292,34 @@ class GetSecurityCenterVulns extends Command
             // switch on the provided severity id and create the corresponding new vulnerability
             switch ($sev_id) {
                 case 2:
+                    // setup severity array, values never change
+                    $severity = [
+                            'id'            => '2',
+                            'name'          => 'Medium',
+                    ];
+
                     Log::info('creating medium severity vulnerability record for: '.$vuln['pluginName']);
                     $new_vuln = new SecurityCenterMedium();
                     break;
 
                 case 3:
+                    // setup severity array, values never change
+                    $severity = [
+                            'id'            => '3',
+                            'name'          => 'High',
+                    ];
+
                     Log::info('creating high severity vulnerability record for: '.$vuln['pluginName']);
                     $new_vuln = new SecurityCenterHigh();
                     break;
 
                 case 4:
+                    // setup severity array, values never change
+                    $severity = [
+                               'id'            => '4',
+                               'name'          => 'Critical',
+                    ];
+
                     Log::info('creating critical severity vulnerability record for: '.$vuln['pluginName']);
                     $new_vuln = new SecurityCenterCritical();
                     break;
