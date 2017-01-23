@@ -215,7 +215,6 @@ class GetCylanceThreats extends Command
                 $blocked_last_found = $this->stringToDate($threat['BlockedLastFound']);
                 $cert_timestamp = $this->stringToDate($threat['CertTimeStamp']);
 
-                /*
                 $threatmodel = CylanceThreat::findOrFail($exists);
 
                 $threatmodel->update([
@@ -253,13 +252,12 @@ class GetCylanceThreats extends Command
 
                 // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
                 $threatmodel->touch();
-                */
 
                 /*
                 * do a restore to set the 'deleted_at' timestamp back to NULL
                 * in case this threat model had been soft deleted at some point.
                 */
-                //$threatmodel->restore();
+                $threatmodel->restore();
 
                 Log::info('updated threat: '.$threat['CommonName']);
             } else {
@@ -359,7 +357,7 @@ class GetCylanceThreats extends Command
 
             if ($updated_at <= $delete_date) {
                 Log::info('deleting threat: '.$threat->common_name);
-                //$threat->delete();
+                $threat->delete();
             }
         }
     }
@@ -374,7 +372,7 @@ class GetCylanceThreats extends Command
         if ($date_str != null) {
             $date_regex = '/\/Date\((\d+)\)\//';
             preg_match($date_regex, $date_str, $date_hits);
-            //$datetime = date('Y-m-d H:i:s', (intval($date_hits[1]) / 1000));
+
             $datetime = Carbon::now()->createFromTimestamp((intval($date_hits[1]) / 1000));
         } else {
             $datetime = null;
