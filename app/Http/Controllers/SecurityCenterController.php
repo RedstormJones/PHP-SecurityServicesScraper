@@ -6,6 +6,7 @@ use App\SecurityCenter\SecurityCenterAssetVuln;
 use App\SecurityCenter\SecurityCenterCritical;
 use App\SecurityCenter\SecurityCenterHigh;
 use App\SecurityCenter\SecurityCenterMedium;
+use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class SecurityCenterController extends Controller
@@ -139,10 +140,22 @@ class SecurityCenterController extends Controller
 
         try {
             $data = [];
+            $one_week = Carbon::now()->subDays(7)->toDateTimeString();
 
-            $medium_count = SecurityCenterMedium::where('has_been_mitigated', '=', 0)->count();
-            $high_count = SecurityCenterHigh::where('has_been_mitigated', '=', 0)->count();
-            $critical_count = SecurityCenterCritical::where('has_been_mitigated', '=', 0)->count();
+            $medium_count = SecurityCenterMedium::where([
+                ['has_been_mitigated', '=', 0],
+                ['updated_at', '>', $one_week]
+            ])->count();
+
+            $high_count = SecurityCenterHigh::where([
+                ['has_been_mitigated', '=', 0],
+                ['updated_at', '>', $one_week]
+            ])->count();
+
+            $critical_count = SecurityCenterCritical::where([
+                ['has_been_mitigated', '=', 0],
+                ['updated_at', '>', $one_week]
+            ])->count();
 
             $data[] = [
                 'medium_vuln_count'     => $medium_count,
