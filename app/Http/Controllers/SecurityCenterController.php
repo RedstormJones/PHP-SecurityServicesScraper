@@ -144,17 +144,17 @@ class SecurityCenterController extends Controller
 
             $medium_count = SecurityCenterMedium::where([
                 ['has_been_mitigated', '=', 0],
-                ['updated_at', '>', $one_week]
+                ['updated_at', '>', $one_week],
             ])->count();
 
             $high_count = SecurityCenterHigh::where([
                 ['has_been_mitigated', '=', 0],
-                ['updated_at', '>', $one_week]
+                ['updated_at', '>', $one_week],
             ])->count();
 
             $critical_count = SecurityCenterCritical::where([
                 ['has_been_mitigated', '=', 0],
-                ['updated_at', '>', $one_week]
+                ['updated_at', '>', $one_week],
             ])->count();
 
             $data[] = [
