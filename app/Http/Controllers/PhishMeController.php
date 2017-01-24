@@ -156,20 +156,20 @@ class PhishMeController extends Controller
                 $scenario_type = explode('\\', $result['scenario_type'])[2];
 
                 $data[] = [
-                    'scenario_title'                => $result['scenario_title'],
-                    'scenario_type'                 => $scenario_type,
-                    'recipient_name'                => $result['recipient_name'],
-                    'department'                    => $result['department'],
+                    'scenario_title'                 => $result['scenario_title'],
+                    'scenario_type'                  => $scenario_type,
+                    'recipient_name'                 => $result['recipient_name'],
+                    'department'                     => $result['department'],
                     'viewed_education'               => $result['viewed_education'],
-                    'clicked_link'                  => 'n/a',
-                    'submitted_form'                => 'n/a',
-                    'submitted_data'                => 'n/a',
-                    'phished_username'              => 'n/a',
-                    'entered_password'              => 'n/a',
-                    'reported_phish'                => $result['reported_phish'],
-                    'new_repeat_reporter'           => $result['new_repeat_reporter'],
-                    'time_to_report'                => $time_to_report,
-                    'seconds_spent_on_education'    => 0,
+                    'clicked_link'                   => 'n/a',
+                    'submitted_form'                 => 'n/a',
+                    'submitted_data'                 => 'n/a',
+                    'phished_username'               => 'n/a',
+                    'entered_password'               => 'n/a',
+                    'reported_phish'                 => $result['reported_phish'],
+                    'new_repeat_reporter'            => $result['new_repeat_reporter'],
+                    'time_to_report'                 => $time_to_report,
+                    'seconds_spent_on_education'     => 0,
                 ];
             }
 
@@ -183,20 +183,20 @@ class PhishMeController extends Controller
                 $scenario_type = explode('\\', $result['scenario_type'])[2];
 
                 $data[] = [
-                    'scenario_title'                => $result['scenario_title'],
-                    'scenario_type'                 => $scenario_type,
-                    'recipient_name'                => $result['recipient_name'],
-                    'department'                    => $result['department'],
+                    'scenario_title'                 => $result['scenario_title'],
+                    'scenario_type'                  => $scenario_type,
+                    'recipient_name'                 => $result['recipient_name'],
+                    'department'                     => $result['department'],
                     'viewed_education'               => 'n/a',
-                    'clicked_link'                  => $result['clicked_link'],
-                    'submitted_form'                => 'n/a',
-                    'submitted_data'                => 'n/a',
-                    'phished_username'              => 'n/a',
-                    'entered_password'              => 'n/a',
-                    'reported_phish'                => $result['reported_phish'],
-                    'new_repeat_reporter'           => $result['new_repeat_reporter'],
-                    'time_to_report'                => $time_to_report,
-                    'seconds_spent_on_education'    => $result['seconds_spent_on_education'],
+                    'clicked_link'                   => $result['clicked_link'],
+                    'submitted_form'                 => 'n/a',
+                    'submitted_data'                 => 'n/a',
+                    'phished_username'               => 'n/a',
+                    'entered_password'               => 'n/a',
+                    'reported_phish'                 => $result['reported_phish'],
+                    'new_repeat_reporter'            => $result['new_repeat_reporter'],
+                    'time_to_report'                 => $time_to_report,
+                    'seconds_spent_on_education'     => $result['seconds_spent_on_education'],
                 ];
             }
 
@@ -210,20 +210,20 @@ class PhishMeController extends Controller
                 $scenario_type = explode('\\', $result['scenario_type'])[2];
 
                 $data[] = [
-                    'scenario_title'                => $result['scenario_title'],
-                    'scenario_type'                 => $scenario_type,
-                    'recipient_name'                => $result['recipient_name'],
-                    'department'                    => $result['department'],
+                    'scenario_title'                 => $result['scenario_title'],
+                    'scenario_type'                  => $scenario_type,
+                    'recipient_name'                 => $result['recipient_name'],
+                    'department'                     => $result['department'],
                     'viewed_education'               => 'n/a',
-                    'clicked_link'                  => $result['clicked_link'],
-                    'submitted_form'                => $result['submitted_form'],
-                    'submitted_data'                => $result['submitted_data'],
-                    'phished_username'              => $result['phished_username'],
-                    'entered_password'              => $result['entered_password'],
-                    'reported_phish'                => $result['reported_phish'],
-                    'new_repeat_reporter'           => $result['new_repeat_reporter'],
-                    'time_to_report'                => $time_to_report,
-                    'seconds_spent_on_education'    => $result['seconds_spent_on_education'],
+                    'clicked_link'                   => $result['clicked_link'],
+                    'submitted_form'                 => $result['submitted_form'],
+                    'submitted_data'                 => $result['submitted_data'],
+                    'phished_username'               => $result['phished_username'],
+                    'entered_password'               => $result['entered_password'],
+                    'reported_phish'                 => $result['reported_phish'],
+                    'new_repeat_reporter'            => $result['new_repeat_reporter'],
+                    'time_to_report'                 => $time_to_report,
+                    'seconds_spent_on_education'     => $result['seconds_spent_on_education'],
                 ];
             }
 
