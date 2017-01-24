@@ -200,8 +200,7 @@ class GetPhishMeScenarios extends Command
 
                     if ($exists) {
                         Log::info('scenario already exists: '.$result['scenario_title'].' : '.$result['scenario_id']);
-                    }
-                    else {
+                    } else {
                         Log::info('creating new attachment scenario for '.$result['scenario_title']);
 
                         $attachment = new AttachmentScenario();
@@ -266,8 +265,7 @@ class GetPhishMeScenarios extends Command
 
                     if ($exists) {
                         Log::info('scenario already exists: '.$result['scenario_title'].' : '.$result['scenario_id']);
-                    }
-                    else {
+                    } else {
                         Log::info('creating new click only scenario for '.$result['scenario_title']);
 
                         $clickonly = new ClickOnlyScenario();
@@ -341,8 +339,7 @@ class GetPhishMeScenarios extends Command
 
                     if ($exists) {
                         Log::info('scenario already exists: '.$result['scenario_title'].' : '.$result['scenario_id']);
-                    }
-                    else {
+                    } else {
                         Log::info('creating new data entry scenario for '.$result['scenario_title']);
 
                         $dataentry = new DataEntryScenario();
