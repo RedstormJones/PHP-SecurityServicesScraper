@@ -153,12 +153,14 @@ class PhishMeController extends Controller
                     $time_to_report = 0;
                 }
 
+                $scenario_type = explode('\\', $result['scenario_type'])[2];
+
                 $data[] = [
                     'scenario_title'                => $result['scenario_title'],
-                    'scenario_type'                 => $result['scenario_type'],
+                    'scenario_type'                 => $scenario_type,
                     'recipient_name'                => $result['recipient_name'],
                     'department'                    => $result['department'],
-                    'viewed_eduation'               => $result['viewed_education'],
+                    'viewed_education'               => $result['viewed_education'],
                     'clicked_link'                  => 'n/a',
                     'submitted_form'                => 'n/a',
                     'submitted_data'                => 'n/a',
@@ -178,12 +180,14 @@ class PhishMeController extends Controller
                     $time_to_report = 0;
                 }
 
+                $scenario_type = explode('\\', $result['scenario_type'])[2];
+
                 $data[] = [
                     'scenario_title'                => $result['scenario_title'],
-                    'scenario_type'                 => $result['scenario_type'],
+                    'scenario_type'                 => $scenario_type,
                     'recipient_name'                => $result['recipient_name'],
                     'department'                    => $result['department'],
-                    'viewed_eduation'               => 'n/a',
+                    'viewed_education'               => 'n/a',
                     'clicked_link'                  => $result['clicked_link'],
                     'submitted_form'                => 'n/a',
                     'submitted_data'                => 'n/a',
@@ -203,12 +207,14 @@ class PhishMeController extends Controller
                     $time_to_report = 0;
                 }
 
+                $scenario_type = explode('\\', $result['scenario_type'])[2];
+
                 $data[] = [
                     'scenario_title'                => $result['scenario_title'],
-                    'scenario_type'                 => $result['scenario_type'],
+                    'scenario_type'                 => $scenario_type,
                     'recipient_name'                => $result['recipient_name'],
                     'department'                    => $result['department'],
-                    'viewed_eduation'               => 'n/a',
+                    'viewed_education'               => 'n/a',
                     'clicked_link'                  => $result['clicked_link'],
                     'submitted_form'                => $result['submitted_form'],
                     'submitted_data'                => $result['submitted_data'],
