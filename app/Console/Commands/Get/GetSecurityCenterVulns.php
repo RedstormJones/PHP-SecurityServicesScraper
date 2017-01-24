@@ -135,24 +135,6 @@ class GetSecurityCenterVulns extends Command
     }
 
     /**
-     * Function to convert post information from an assoc array to a string.
-     *
-     * @return string
-     */
-    public function postArrayToString($post)
-    {
-        $postarray = [];
-        foreach ($post as $key => $value) {
-            $postarray[] = $key.'='.$value;
-        }
-
-        // takes the postarray array and concatenates together the values with &'s
-        $poststring = implode('&', $postarray);
-
-        return $poststring;
-    }
-
-    /**
      * Function to pull vulnerability data from Security Center 5.4.0 API.
      *
      * @return array
@@ -222,43 +204,6 @@ class GetSecurityCenterVulns extends Command
         } while ($count < $total);
 
         return $collection;
-    }
-
-    /**
-     * Function to soft delete vulnerabilities older than 30 days.
-     *
-     * @return null
-     */
-    public function processDeletes($sev_id)
-    {
-        $delete_date = Carbon::now()->subDays(90);
-
-        switch ($sev_id) {
-            case 4:
-                $vulns = SecurityCenterCritical::all();
-                break;
-
-            case 3:
-                $vulns = SecurityCenterHigh::all();
-                break;
-
-            case 2:
-                $vulns = SecurityCenterMedium::all();
-                break;
-
-            default:
-                Log::error('incorrect severity id: '.$sev_id);
-                break;
-        }
-
-        foreach ($vulns as $vuln) {
-            $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $vuln->updated_at)->toDateString();
-
-            if ($updated_at <= $delete_date) {
-                Log::info('deleting '.$vuln->severity_name.' vulnerability: '.$vuln->plugin_id);
-                $vuln->delete();
-            }
-        }
     }
 
     /**
@@ -356,5 +301,60 @@ class GetSecurityCenterVulns extends Command
         }
 
         $this->processDeletes($sev_id);
+    }
+
+    /**
+     * Function to soft delete vulnerabilities older than 30 days.
+     *
+     * @return null
+     */
+    public function processDeletes($sev_id)
+    {
+        $delete_date = Carbon::now()->subDays(90)->toDateString();
+
+        switch ($sev_id) {
+            case 4:
+                $vulns = SecurityCenterCritical::all();
+                break;
+
+            case 3:
+                $vulns = SecurityCenterHigh::all();
+                break;
+
+            case 2:
+                $vulns = SecurityCenterMedium::all();
+                break;
+
+            default:
+                Log::error('incorrect severity id: '.$sev_id);
+                break;
+        }
+
+        foreach ($vulns as $vuln) {
+            $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $vuln->updated_at)->toDateString();
+
+            if ($updated_at <= $delete_date) {
+                Log::info('deleting '.$vuln->severity_name.' vulnerability: '.$vuln->plugin_id);
+                $vuln->delete();
+            }
+        }
+    }
+
+    /**
+     * Function to convert post information from an assoc array to a string.
+     *
+     * @return string
+     */
+    public function postArrayToString($post)
+    {
+        $postarray = [];
+        foreach ($post as $key => $value) {
+            $postarray[] = $key.'='.$value;
+        }
+
+        // takes the postarray array and concatenates together the values with &'s
+        $poststring = implode('&', $postarray);
+
+        return $poststring;
     }
 }

@@ -88,8 +88,8 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on daily schedule
         */
-        $schedule->command('get:cylancedevices')->daily()->timezone('America/Chicago');                     // runs daily at 00:00 (midnight)
-        $schedule->command('get:cylancethreats')->dailyAt('01:00')->timezone('America/Chicago');            // runs daily at 01:00am
+        //$schedule->command('get:cylancedevices')->daily()->timezone('America/Chicago');                     // runs daily at 00:00 (midnight)
+        //$schedule->command('get:cylancethreats')->dailyAt('01:00')->timezone('America/Chicago');            // runs daily at 01:00am
 
         $schedule->command('get:ironportthreats')->dailyAt('02:00')->timezone('America/Chicago');           // runs daily at 02:00am
         $schedule->command('get:incomingemail')->dailyAt('02:05')->timezone('America/Chicago');             // runs daily at 02:05am
@@ -103,16 +103,13 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run multiple times a day
         */
-        /*
-        $schedule->command('get:saproleauthincidents')->twiceDaily(8, 13)->timezone('America/Chicago');             // runs twice daily at 08:00am and 01:00pm
-        $schedule->command('get:idmincidents')->twiceDaily(8, 13)->timezone('America/Chicago');                     // runs twice daily at 08:00am and 01:00pm
-        $schedule->command('get:securityincidents')->twiceDaily(8, 13)->timezone('America/Chicago');                // runs twice daily at 08:00am and 01:00pm
-        */
+        $schedule->command('get:cylancedevices')->twiceDaily(0, 12)->timezone('America/Chicago');               // runs twice daily at 00:00am and 12:00pm
+        $schedule->command('get:cylancethreats')->twiceDaily(1, 13)->timezone('America/Chicago');               // runs twice daily at 01:00am and 01:00pm
 
-        $schedule->command('get:insidehosttrafficsnapshots')->twiceDaily(8, 14)->timezone('America/Chicago');       // runs twice daily at 08:00am and 02:00pm
-        $schedule->command('get:outsidehosttrafficsnapshots')->twiceDaily(9, 15)->timezone('America/Chicago');      // runs twice daily at 09:00am and 03:00pm
+        $schedule->command('get:insidehosttrafficsnapshots')->twiceDaily(8, 14)->timezone('America/Chicago');   // runs twice daily at 08:00am and 02:00pm
+        $schedule->command('get:outsidehosttrafficsnapshots')->twiceDaily(9, 15)->timezone('America/Chicago');  // runs twice daily at 09:00am and 03:00pm
 
-        $schedule->command('get:spamemail')->twiceDaily(9, 14)->timezone('America/Chicago');                        // runs twice daily at 09:00am and 02:00pm
+        $schedule->command('get:spamemail')->twiceDaily(9, 14)->timezone('America/Chicago');                    // runs twice daily at 09:00am and 02:00pm
 
         /*
         * Commands run on an hourly basis
