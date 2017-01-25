@@ -20,6 +20,11 @@ class SCCMController extends Controller
         $this->middleware('auth');
     }
 
+    /**
+     * Get SCCM systems from Spectre Frontend and process them into the database
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function uploadAllSystems(Request $request)
     {
         $user = JWTAuth::parseToken()->authenticate();
@@ -41,7 +46,6 @@ class SCCMController extends Controller
 
             $response = [
                 'success'      => true,
-                'input'        => $data,
             ];
         } catch (\Exception $e) {
             $response = [
@@ -54,6 +58,11 @@ class SCCMController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * Process SCCM systems into the database
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function processSCCMSystem($system)
     {
         $exists = SCCMSystem::where('system_name', $system['system_name'])->value('id');
@@ -178,8 +187,15 @@ class SCCMController extends Controller
         }
 
         $this->processDeletes();
+
+        Log::info('* Completed SCCM systems! *')
     }
 
+    /**
+     * Delete any SCCM system models that were not updated
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function processDeletes()
     {
         $delete_date = Carbon::now()->subDays(1)->toDateString();
@@ -188,6 +204,7 @@ class SCCMController extends Controller
 
         foreach ($systems as $system) {
             $updated_at = substr($system->updated_at, 0, -9);
+            
             if ($updated_at <= $delete_date) {
                 Log::info('deleting SCCM system: '.$system->system_name);
                 $system->delete();
