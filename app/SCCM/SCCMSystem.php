@@ -19,7 +19,7 @@ class SCCMSystem extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
+        'system_name',
         'district',
         'region',
         'group',
@@ -38,7 +38,6 @@ class SCCMSystem extends Model
         'manufacturer',
         'model',
         'processor',
-        'physical_ram',
         'image_source',
         'image_date',
         'coe_compliant',
@@ -68,5 +67,6 @@ class SCCMSystem extends Model
         'sccm_last_health_eval',
         'sccm_last_health_result',
         'report_date',
+        'data',
     ];
 }
