@@ -58,8 +58,7 @@ class SCCMController extends Controller
     {
         $exists = SCCMSystem::where('system_name', $system['system_name'])->value('id');
 
-        if($exists)
-        {
+        if ($exists) {
             // update model
             $system_model = SCCMSystem::findOrFail($exists);
 
@@ -120,9 +119,7 @@ class SCCMController extends Controller
             $system_model->touch();
 
             Log::info('updated SCCM system: '.$system['system_name']);
-        }
-        else
-        {
+        } else {
             // create model
             Log::info('creating new SCCM system model for: '.$system['system_name']);
 
@@ -183,18 +180,15 @@ class SCCMController extends Controller
         $this->processDeletes();
     }
 
-
     public function processDeletes()
     {
         $delete_date = Carbon::now()->subDays(1)->toDateString();
-        
+
         $systems = SCCMSystem::all();
 
-        foreach($systems as $system)
-        {
+        foreach ($systems as $system) {
             $updated_at = substr($system->updated_at, 0, -9);
-            if($updated_at <= $delete_date)
-            {
+            if ($updated_at <= $delete_date) {
                 Log::info('deleting SCCM system: '.$system->system_name);
                 $system->delete();
             }
