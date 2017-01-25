@@ -188,7 +188,7 @@ class SCCMController extends Controller
 
         $this->processDeletes();
 
-        Log::info('* Completed SCCM systems! *')
+        Log::info('* Completed SCCM systems! *');
     }
 
     /**
@@ -204,7 +204,7 @@ class SCCMController extends Controller
 
         foreach ($systems as $system) {
             $updated_at = substr($system->updated_at, 0, -9);
-            
+
             if ($updated_at <= $delete_date) {
                 Log::info('deleting SCCM system: '.$system->system_name);
                 $system->delete();
