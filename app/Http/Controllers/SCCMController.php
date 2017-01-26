@@ -21,7 +21,7 @@ class SCCMController extends Controller
     }
 
     /**
-     * Get SCCM systems from Spectre Frontend and process them into the database.
+     * Get SCCM systems from Spectre Frontend and process them into the database
      *
      * @return \Illuminate\Http\Response
      */
@@ -59,7 +59,7 @@ class SCCMController extends Controller
     }
 
     /**
-     * Process SCCM systems into the database.
+     * Process SCCM systems into the database
      *
      * @return \Illuminate\Http\Response
      */
@@ -178,6 +178,7 @@ class SCCMController extends Controller
             $system_model->ad_password_last_set = $system['ad_password_last_set'];
             $system_model->ad_modified = $system['ad_modified'];
             $system_model->sccm_last_heartbeat = $system['sccm_last_heartbeat'];
+            $system_model->sccm_management_point = $system['sccm_management_point'];
             $system_model->sccm_last_health_eval = $system['sccm_last_health_eval'];
             $system_model->sccm_last_health_result = $system['sccm_last_health_result'];
             $system_model->report_date = $system['report_date'];
@@ -192,7 +193,7 @@ class SCCMController extends Controller
     }
 
     /**
-     * Delete any SCCM system models that were not updated.
+     * Delete any SCCM system models that were not updated
      *
      * @return \Illuminate\Http\Response
      */
