@@ -39,7 +39,7 @@ class SCCMController extends Controller
                     $data[$key] = $value;
                 }
             }
- 
+
             Log::info('processing input from Spectre frontend...');
             $this->processSCCMSystem($data);
 
@@ -75,7 +75,7 @@ class SCCMController extends Controller
             $ad_modified = $this->handleDate($system['ad_modified']);
             $sccm_last_heartbeat = $this->handleDate($system['sccm_last_heartbeat']);
             $sccm_last_health_eval = $this->handleDate($system['sccm_last_health_eval']);
-           
+
             if ($system['days_since_last_logon'] != '') {
                 $days_since_last_logon = $system['days_since_last_logon'];
             } else {
@@ -252,7 +252,7 @@ class SCCMController extends Controller
     }
 
     /**
-     * Handle date values from SCCM
+     * Handle date values from SCCM.
      *
      * @return \Illuminate\Http\Response
      */
