@@ -82,8 +82,8 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on weekly-ish schedule
         */
-        $schedule->command('get:securitycentervulns')->weekly()->sundays()->at(18:00)->timezone('America/Chicago');   // runs on Sundays at 06:00pm
-        $schedule->command('get:securitycentervulns')->weekly()->thursdays()->at(18:00)->timezone('America/Chicago'); // runs on Thursdays at 06:00pm
+        $schedule->command('get:securitycentervulns')->weekly()->sundays()->at('18:00')->timezone('America/Chicago');   // runs on Sundays at 06:00pm
+        $schedule->command('get:securitycentervulns')->weekly()->thursdays()->at('18:00')->timezone('America/Chicago'); // runs on Thursdays at 06:00pm
 
         /*
         * Commands run on daily schedule
