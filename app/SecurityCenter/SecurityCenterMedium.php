@@ -22,7 +22,7 @@ class SecurityCenterMedium extends Model
         'dns_name',
         'severity_id',
         'severity_name',
-        'risk_fator',
+        'risk_factor',
         'first_seen',
         'last_seen',
         'protocol',

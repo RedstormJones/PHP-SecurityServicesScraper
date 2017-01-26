@@ -77,20 +77,16 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on monthly schedule
         */
-        $schedule->command('get:phishmescenarios')->monthlyOn(1, '03:00')->timezone('America/Chicago');     //runs every month on the 1st at 03:00am
+        $schedule->command('get:phishmescenarios')->monthlyOn(1, '03:00')->timezone('America/Chicago');     // runs every month on the 1st at 03:00am
 
         /*
         * Commands run on weekly-ish schedule
         */
-        $schedule->command('get:securitycentervulns')->weekly()->sundays()->at('18:00')->timezone('America/Chicago');   // runs on Sundays at 06:00pm
-        $schedule->command('get:securitycentervulns')->weekly()->thursdays()->at('18:00')->timezone('America/Chicago'); // runs on Thursdays at 06:00pm
+        $schedule->command('get:securitycentervulns')->weekly()->tuesdays()->at('18:00')->timezone('America/Chicago');  // runs on Tuesdays at 06:00pm
 
         /*
         * Commands run on daily schedule
         */
-        //$schedule->command('get:cylancedevices')->daily()->timezone('America/Chicago');                     // runs daily at 00:00 (midnight)
-        //$schedule->command('get:cylancethreats')->dailyAt('01:00')->timezone('America/Chicago');            // runs daily at 01:00am
-
         $schedule->command('get:ironportthreats')->dailyAt('02:00')->timezone('America/Chicago');           // runs daily at 02:00am
         $schedule->command('get:incomingemail')->dailyAt('02:05')->timezone('America/Chicago');             // runs daily at 02:05am
 

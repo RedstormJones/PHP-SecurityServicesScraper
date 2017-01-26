@@ -59,6 +59,30 @@ class SCCMController extends Controller
         return response()->json($response);
     }
 
+    public function clearAllSystemsUpload()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+
+            file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), '');
+
+            $response = [
+                'success'   => true,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to clear SCCM All Systems upload file.',
+                'exception' => $e,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
     /**
      * Process SCCM systems into the database.
      *
