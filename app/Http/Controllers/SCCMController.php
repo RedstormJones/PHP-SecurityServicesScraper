@@ -71,51 +71,39 @@ class SCCMController extends Controller
         $exists = SCCMSystem::where('system_name', $system['system_name'])->value('id');
 
         if ($exists) {
-            if($system['image_date'])
-            {
+            if ($system['image_date']) {
                 $image_date = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['image_date'], 0, -3));
-            }
-            else {
+            } else {
                 $image_date = null;
             }
 
-            if ($system['ad_last_logon'])
-            {
+            if ($system['ad_last_logon']) {
                 $ad_last_logon = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_last_logon'], 0, -3));
-            }
-            else {
+            } else {
                 $ad_last_logon = null;
             }
 
-            if ($system['ad_password_last_set'])
-            {
+            if ($system['ad_password_last_set']) {
                 $ad_password_last_set = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_password_last_set'], 0, -3));
-            }
-            else {
+            } else {
                 $ad_password_last_set = null;
             }
 
-            if ($system['ad_modified'])
-            {
+            if ($system['ad_modified']) {
                 $ad_modified = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_modified'], 0, -3));
-            }
-            else {
+            } else {
                 $ad_modified = null;
             }
 
-            if ($system['sccm_last_heartbeat'])
-            {
+            if ($system['sccm_last_heartbeat']) {
                 $sccm_last_heartbeat = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_heartbeat'], 0, -3));
-            }
-            else {
+            } else {
                 $sccm_last_heartbeat = null;
             }
 
-            if ($system['sccm_last_health_eval'])
-            {
+            if ($system['sccm_last_health_eval']) {
                 $sccm_last_health_eval = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_health_eval'], 0, -3));
-            }
-            else {
+            } else {
                 $sccm_last_health_eval = null;
             }
 
@@ -190,51 +178,39 @@ class SCCMController extends Controller
             // create model
             Log::info('creating new SCCM system model for: '.$system['system_name']);
 
-            if($system['image_date'])
-            {
+            if ($system['image_date']) {
                 $image_date = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['image_date'], 0, -3));
-            }
-            else {
+            } else {
                 $image_date = null;
             }
 
-            if ($system['ad_last_logon'])
-            {
+            if ($system['ad_last_logon']) {
                 $ad_last_logon = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_last_logon'], 0, -3));
-            }
-            else {
+            } else {
                 $ad_last_logon = null;
             }
 
-            if ($system['ad_password_last_set'])
-            {
+            if ($system['ad_password_last_set']) {
                 $ad_password_last_set = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_password_last_set'], 0, -3));
-            }
-            else {
+            } else {
                 $ad_password_last_set = null;
             }
 
-            if ($system['ad_modified'])
-            {
+            if ($system['ad_modified']) {
                 $ad_modified = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_modified'], 0, -3));
-            }
-            else {
+            } else {
                 $ad_modified = null;
             }
 
-            if ($system['sccm_last_heartbeat'])
-            {
+            if ($system['sccm_last_heartbeat']) {
                 $sccm_last_heartbeat = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_heartbeat'], 0, -3));
-            }
-            else {
+            } else {
                 $sccm_last_heartbeat = null;
             }
 
-            if ($system['sccm_last_health_eval'])
-            {
+            if ($system['sccm_last_health_eval']) {
                 $sccm_last_health_eval = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_health_eval'], 0, -3));
-            }
-            else {
+            } else {
                 $sccm_last_health_eval = null;
             }
 
