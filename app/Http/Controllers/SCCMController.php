@@ -64,15 +64,12 @@ class SCCMController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
 
         try {
-
             file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), '');
 
             $response = [
                 'success'   => true,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to clear SCCM All Systems upload file.',
