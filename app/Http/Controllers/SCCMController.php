@@ -34,7 +34,7 @@ class SCCMController extends Controller
 
             $input = $request->all();
 
-            Log::info($input);
+            Log::info('received input from Spectre frontend');
 
             foreach ($input as $attribute) {
                 foreach ($attribute as $key => $value) {
@@ -42,15 +42,18 @@ class SCCMController extends Controller
                 }
             }
 
+            Log::info('processing input...');
             $this->processSCCMSystem($data);
 
             $response = [
                 'success'      => true,
             ];
         } catch (\Exception $e) {
+            Log::error('failed to upload system. Exception: '.$e);
+
             $response = [
                 'success'      => false,
-                'message'      => 'Failed to upload systems from SCCM dump.',
+                'message'      => 'Failed to upload system from SCCM to Spectre.',
                 'exception'    => $e,
             ];
         }
@@ -68,6 +71,61 @@ class SCCMController extends Controller
         $exists = SCCMSystem::where('system_name', $system['system_name'])->value('id');
 
         if ($exists) {
+            if($system['image_date'])
+            {
+                $image_date = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['image_date'], 0, -3));
+            }
+            else {
+                $image_date = null;
+            }
+
+            if ($system['ad_last_logon'])
+            {
+                $ad_last_logon = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_last_logon'], 0, -3));
+            }
+            else {
+                $ad_last_logon = null;
+            }
+
+            if ($system['ad_password_last_set'])
+            {
+                $ad_password_last_set = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_password_last_set'], 0, -3));
+            }
+            else {
+                $ad_password_last_set = null;
+            }
+
+            if ($system['ad_modified'])
+            {
+                $ad_modified = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_modified'], 0, -3));
+            }
+            else {
+                $ad_modified = null;
+            }
+
+            if ($system['sccm_last_heartbeat'])
+            {
+                $sccm_last_heartbeat = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_heartbeat'], 0, -3));
+            }
+            else {
+                $sccm_last_heartbeat = null;
+            }
+
+            if ($system['sccm_last_health_eval'])
+            {
+                $sccm_last_health_eval = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_health_eval'], 0, -3));
+            }
+            else {
+                $sccm_last_health_eval = null;
+            }
+
+            Log::info('image date: '.$image_date);
+            Log::info('AD last logon: '.$ad_last_logon);
+            Log::info('AD password last set: '.$ad_password_last_set);
+            Log::info('AD modified: '.$ad_modified);
+            Log::info('SCCM last heartbeat: '.$sccm_last_heartbeat);
+            Log::info('SCCM last health eval: '.$sccm_last_health_eval);
+
             // update model
             $system_model = SCCMSystem::findOrFail($exists);
 
@@ -91,7 +149,7 @@ class SCCMController extends Controller
                 'model'                     => $system['model'],
                 'processor'                 => $system['processor'],
                 'image_source'              => $system['image_source'],
-                'image_date'                => $system['image_date'],
+                'image_date'                => $image_date,
                 'coe_compliant'             => $system['coe_compliant'],
                 'ps_version'                => $system['ps_version'],
                 'patch_total'               => $system['patch_total'],
@@ -111,12 +169,12 @@ class SCCMController extends Controller
                 'ad_location'               => $system['ad_location'],
                 'primary_users'             => $system['primary_users'],
                 'last_logon_username'       => $system['last_logon_username'],
-                'ad_last_logon'             => $system['ad_last_logon'],
-                'ad_password_last_set'      => $system['ad_password_last_set'],
-                'ad_modified'               => $system['ad_modified'],
-                'sccm_last_heartbeat'       => $system['sccm_last_heartbeat'],
+                'ad_last_logon'             => $ad_last_logon,
+                'ad_password_last_set'      => $ad_password_last_set,
+                'ad_modified'               => $ad_modified,
+                'sccm_last_heartbeat'       => $sccm_last_heartbeat,
                 'sccm_management_point'     => $system['sccm_management_point'],
-                'sccm_last_health_eval'     => $system['sccm_last_health_eval'],
+                'sccm_last_health_eval'     => $sccm_last_health_eval,
                 'sccm_last_health_result'   => $system['sccm_last_health_result'],
                 'report_date'               => $system['report_date'],
                 'data'                      => \Metaclassing\Utility::encodeJson($system),
@@ -131,6 +189,61 @@ class SCCMController extends Controller
         } else {
             // create model
             Log::info('creating new SCCM system model for: '.$system['system_name']);
+
+            if($system['image_date'])
+            {
+                $image_date = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['image_date'], 0, -3));
+            }
+            else {
+                $image_date = null;
+            }
+
+            if ($system['ad_last_logon'])
+            {
+                $ad_last_logon = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_last_logon'], 0, -3));
+            }
+            else {
+                $ad_last_logon = null;
+            }
+
+            if ($system['ad_password_last_set'])
+            {
+                $ad_password_last_set = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_password_last_set'], 0, -3));
+            }
+            else {
+                $ad_password_last_set = null;
+            }
+
+            if ($system['ad_modified'])
+            {
+                $ad_modified = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_modified'], 0, -3));
+            }
+            else {
+                $ad_modified = null;
+            }
+
+            if ($system['sccm_last_heartbeat'])
+            {
+                $sccm_last_heartbeat = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_heartbeat'], 0, -3));
+            }
+            else {
+                $sccm_last_heartbeat = null;
+            }
+
+            if ($system['sccm_last_health_eval'])
+            {
+                $sccm_last_health_eval = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_health_eval'], 0, -3));
+            }
+            else {
+                $sccm_last_health_eval = null;
+            }
+
+            Log::info('image date: '.$image_date);
+            Log::info('AD last logon: '.$ad_last_logon);
+            Log::info('AD password last set: '.$ad_password_last_set);
+            Log::info('AD modified: '.$ad_modified);
+            Log::info('SCCM last heartbeat: '.$sccm_last_heartbeat);
+            Log::info('SCCM last health eval: '.$sccm_last_health_eval);
 
             $system_model = new SCCMSystem();
 
@@ -154,11 +267,11 @@ class SCCMController extends Controller
             $system_model->model = $system['model'];
             $system_model->processor = $system['processor'];
             $system_model->image_source = $system['image_source'];
-            $system_model->image_date = $system['image_date'];
+            $system_model->image_date = $image_date;
             $system_model->coe_compliant = $system['coe_compliant'];
             $system_model->ps_version = $system['ps_version'];
             $system_model->patch_total = $system['patch_total'];
-            $system_model->patch_intalled = $system['patch_intalled'];
+            $system_model->patch_installed = $system['patch_installed'];
             $system_model->patch_missing = $system['patch_missing'];
             $system_model->patch_unknown = $system['patch_unknown'];
             $system_model->patch_percent = $system['patch_percent'];
@@ -174,12 +287,12 @@ class SCCMController extends Controller
             $system_model->ad_location = $system['ad_location'];
             $system_model->primary_users = $system['primary_users'];
             $system_model->last_logon_username = $system['last_logon_username'];
-            $system_model->ad_last_logon = $system['ad_last_logon'];
-            $system_model->ad_password_last_set = $system['ad_password_last_set'];
-            $system_model->ad_modified = $system['ad_modified'];
-            $system_model->sccm_last_heartbeat = $system['sccm_last_heartbeat'];
+            $system_model->ad_last_logon = $ad_last_logon;
+            $system_model->ad_password_last_set = $ad_password_last_set;
+            $system_model->ad_modified = $ad_modified;
+            $system_model->sccm_last_heartbeat = $sccm_last_heartbeat;
             $system_model->sccm_management_point = $system['sccm_management_point'];
-            $system_model->sccm_last_health_eval = $system['sccm_last_health_eval'];
+            $system_model->sccm_last_health_eval = $sccm_last_health_eval;
             $system_model->sccm_last_health_result = $system['sccm_last_health_result'];
             $system_model->report_date = $system['report_date'];
             $system_model->data = \Metaclassing\Utility::encodeJson($system);
@@ -187,6 +300,7 @@ class SCCMController extends Controller
             $system_model->save();
         }
 
+        Log::info('processing deletes...');
         $this->processDeletes();
 
         Log::info('* Completed SCCM systems! *');
