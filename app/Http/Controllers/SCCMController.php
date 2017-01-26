@@ -107,12 +107,13 @@ class SCCMController extends Controller
                 $sccm_last_health_eval = null;
             }
 
-            Log::info('image date: '.$image_date);
-            Log::info('AD last logon: '.$ad_last_logon);
-            Log::info('AD password last set: '.$ad_password_last_set);
-            Log::info('AD modified: '.$ad_modified);
-            Log::info('SCCM last heartbeat: '.$sccm_last_heartbeat);
-            Log::info('SCCM last health eval: '.$sccm_last_health_eval);
+            if ($system['days_since_last_logon'] != "")
+            {
+                $days_since_last_logon = $system['days_since_last_logon'];
+            }
+            else {
+                $days_since_last_logon = 0;
+            }
 
             // update model
             $system_model = SCCMSystem::findOrFail($exists);
@@ -122,7 +123,7 @@ class SCCMController extends Controller
                 'region'                    => $system['region'],
                 'group'                     => $system['group'],
                 'owner'                     => $system['owner'],
-                'days_since_last_logon'     => $system['days_since_last_logon'],
+                'days_since_last_logon'     => $days_since_last_logon,
                 'stale_45days'              => $system['stale_45days'],
                 'client_status'             => $system['client_status'],
                 'client_version'            => $system['client_version'],
@@ -214,12 +215,13 @@ class SCCMController extends Controller
                 $sccm_last_health_eval = null;
             }
 
-            Log::info('image date: '.$image_date);
-            Log::info('AD last logon: '.$ad_last_logon);
-            Log::info('AD password last set: '.$ad_password_last_set);
-            Log::info('AD modified: '.$ad_modified);
-            Log::info('SCCM last heartbeat: '.$sccm_last_heartbeat);
-            Log::info('SCCM last health eval: '.$sccm_last_health_eval);
+            if ($system['days_since_last_logon'] != "")
+            {
+                $days_since_last_logon = $system['days_since_last_logon'];
+            }
+            else {
+                $days_since_last_logon = 0;
+            }
 
             $system_model = new SCCMSystem();
 
@@ -228,7 +230,7 @@ class SCCMController extends Controller
             $system_model->region = $system['region'];
             $system_model->group = $system['group'];
             $system_model->owner = $system['owner'];
-            $system_model->days_since_last_logon = $system['days_since_last_logon'];
+            $system_model->days_since_last_logon = $days_since_last_logon;
             $system_model->stale_45days = $system['stale_45days'];
             $system_model->client_status = $system['client_status'];
             $system_model->client_version = $system['client_version'];
@@ -279,7 +281,7 @@ class SCCMController extends Controller
         Log::info('processing deletes...');
         $this->processDeletes();
 
-        Log::info('* Completed SCCM systems! *');
+        Log::info('* Completed SCCM system processing *'.PHP_EOL);
     }
 
     /**
