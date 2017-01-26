@@ -11,8 +11,8 @@ $options = [
     'expires'          => 5,
 ];
 
-$api->group($options, function ($api) {	
+$api->group($options, function ($api) {
     $api->post('/upload', 'SCCMController@uploadAllSystems');
 
-	$api->get('/clear_upload', 'SCCMController@clearAllSystemsUpload');
+    $api->get('/clear_upload', 'SCCMController@clearAllSystemsUpload');
 });
