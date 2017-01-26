@@ -107,11 +107,9 @@ class SCCMController extends Controller
                 $sccm_last_health_eval = null;
             }
 
-            if ($system['days_since_last_logon'] != "")
-            {
+            if ($system['days_since_last_logon'] != '') {
                 $days_since_last_logon = $system['days_since_last_logon'];
-            }
-            else {
+            } else {
                 $days_since_last_logon = 0;
             }
 
@@ -215,11 +213,9 @@ class SCCMController extends Controller
                 $sccm_last_health_eval = null;
             }
 
-            if ($system['days_since_last_logon'] != "")
-            {
+            if ($system['days_since_last_logon'] != '') {
                 $days_since_last_logon = $system['days_since_last_logon'];
-            }
-            else {
+            } else {
                 $days_since_last_logon = 0;
             }
 
