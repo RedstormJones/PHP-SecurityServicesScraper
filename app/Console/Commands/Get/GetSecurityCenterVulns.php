@@ -310,7 +310,7 @@ class GetSecurityCenterVulns extends Command
      */
     public function processDeletes($sev_id)
     {
-        $delete_date = Carbon::now()->subDays(90)->toDateString();
+        $delete_date = Carbon::now()->subDays(60)->toDateString();
 
         switch ($sev_id) {
             case 4:

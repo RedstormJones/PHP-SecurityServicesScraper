@@ -34,15 +34,13 @@ class SCCMController extends Controller
 
             $input = $request->all();
 
-            Log::info('received input from Spectre frontend');
-
             foreach ($input as $attribute) {
                 foreach ($attribute as $key => $value) {
                     $data[$key] = $value;
                 }
             }
-
-            Log::info('processing input...');
+ 
+            Log::info('processing input from Spectre frontend...');
             $this->processSCCMSystem($data);
 
             $response = [
@@ -71,42 +69,13 @@ class SCCMController extends Controller
         $exists = SCCMSystem::where('system_name', $system['system_name'])->value('id');
 
         if ($exists) {
-            if ($system['image_date']) {
-                $image_date = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['image_date'], 0, -3));
-            } else {
-                $image_date = null;
-            }
-
-            if ($system['ad_last_logon']) {
-                $ad_last_logon = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_last_logon'], 0, -3));
-            } else {
-                $ad_last_logon = null;
-            }
-
-            if ($system['ad_password_last_set']) {
-                $ad_password_last_set = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_password_last_set'], 0, -3));
-            } else {
-                $ad_password_last_set = null;
-            }
-
-            if ($system['ad_modified']) {
-                $ad_modified = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_modified'], 0, -3));
-            } else {
-                $ad_modified = null;
-            }
-
-            if ($system['sccm_last_heartbeat']) {
-                $sccm_last_heartbeat = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_heartbeat'], 0, -3));
-            } else {
-                $sccm_last_heartbeat = null;
-            }
-
-            if ($system['sccm_last_health_eval']) {
-                $sccm_last_health_eval = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_health_eval'], 0, -3));
-            } else {
-                $sccm_last_health_eval = null;
-            }
-
+            $image_date = $this->handleDate($system['image_date']);
+            $ad_last_logon = $this->handleDate($system['ad_last_logon']);
+            $ad_password_last_set = $this->handleDate($system['ad_password_last_set']);
+            $ad_modified = $this->handleDate($system['ad_modified']);
+            $sccm_last_heartbeat = $this->handleDate($system['sccm_last_heartbeat']);
+            $sccm_last_health_eval = $this->handleDate($system['sccm_last_health_eval']);
+           
             if ($system['days_since_last_logon'] != '') {
                 $days_since_last_logon = $system['days_since_last_logon'];
             } else {
@@ -177,41 +146,12 @@ class SCCMController extends Controller
             // create model
             Log::info('creating new SCCM system model for: '.$system['system_name']);
 
-            if ($system['image_date']) {
-                $image_date = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['image_date'], 0, -3));
-            } else {
-                $image_date = null;
-            }
-
-            if ($system['ad_last_logon']) {
-                $ad_last_logon = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_last_logon'], 0, -3));
-            } else {
-                $ad_last_logon = null;
-            }
-
-            if ($system['ad_password_last_set']) {
-                $ad_password_last_set = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_password_last_set'], 0, -3));
-            } else {
-                $ad_password_last_set = null;
-            }
-
-            if ($system['ad_modified']) {
-                $ad_modified = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['ad_modified'], 0, -3));
-            } else {
-                $ad_modified = null;
-            }
-
-            if ($system['sccm_last_heartbeat']) {
-                $sccm_last_heartbeat = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_heartbeat'], 0, -3));
-            } else {
-                $sccm_last_heartbeat = null;
-            }
-
-            if ($system['sccm_last_health_eval']) {
-                $sccm_last_health_eval = Carbon::createFromFormat('n/j/Y g:i:s', substr($system['sccm_last_health_eval'], 0, -3));
-            } else {
-                $sccm_last_health_eval = null;
-            }
+            $image_date = $this->handleDate($system['image_date']);
+            $ad_last_logon = $this->handleDate($system['ad_last_logon']);
+            $ad_password_last_set = $this->handleDate($system['ad_password_last_set']);
+            $ad_modified = $this->handleDate($system['ad_modified']);
+            $sccm_last_heartbeat = $this->handleDate($system['sccm_last_heartbeat']);
+            $sccm_last_health_eval = $this->handleDate($system['sccm_last_health_eval']);
 
             if ($system['days_since_last_logon'] != '') {
                 $days_since_last_logon = $system['days_since_last_logon'];
@@ -280,6 +220,16 @@ class SCCMController extends Controller
         Log::info('* Completed SCCM system processing *'.PHP_EOL);
     }
 
+    /*
+    public function enumerateSCCMSystems($data)
+    {
+        $contents = file_get_contents(storage_path('app/collections/sccm_systems.json'));
+        $system_collection = \Metaclassing\Utility::decodeJson($contents);
+        array_push($system_collection, $data);
+        file_put_contents(storage_path('app/collections/sccm_systems.json'), \Metaclassing\Utility::encodeJson($system_collection));
+    }
+    */
+
     /**
      * Delete any SCCM system models that were not updated.
      *
@@ -299,5 +249,21 @@ class SCCMController extends Controller
                 $system->delete();
             }
         }
+    }
+
+    /**
+     * Handle date values from SCCM
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function handleDate($date)
+    {
+        if ($date) {
+            $retval = Carbon::createFromFormat('n/j/Y g:i:s', substr($date, 0, -3));
+        } else {
+            $retval = null;
+        }
+
+        return $retval;
     }
 }
