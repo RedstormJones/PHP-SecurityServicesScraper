@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Get;
 
+use App\Events\SCCMSystemsCompleted;
 use App\SCCM\SCCMSystem;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -202,7 +203,8 @@ class GetSCCMSystems extends Command
             Log::info('processing deletes...');
             $this->processDeletes();
 
-            Log::info('* Completed SCCM system processing *'.PHP_EOL);
+            event(new SCCMSystemsCompleted());
+            Log::info('* Completed SCCM system processing! *'.PHP_EOL);
         }
     }
 
@@ -221,7 +223,7 @@ class GetSCCMSystems extends Command
             $updated_at = substr($system->updated_at, 0, -9);
 
             if ($updated_at <= $delete_date) {
-                Log::info('deleting SCCM system: '.$system->system_name);
+                Log::info('deleting SCCM system: '.$system->system_name.' (last updated: '.$system->updated_at.')');
                 $system->delete();
             }
         }

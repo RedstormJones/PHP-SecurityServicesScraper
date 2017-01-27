@@ -23,7 +23,7 @@ class SCCMController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function clearAllSystemsUpload()
+    public function clearSCCMSystemsUpload()
     {
         $user = JWTAuth::parseToken()->authenticate();
 
@@ -49,7 +49,7 @@ class SCCMController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function uploadAllSystems(Request $request)
+    public function uploadSCCMSystems(Request $request)
     {
         $user = JWTAuth::parseToken()->authenticate();
 
@@ -98,5 +98,33 @@ class SCCMController extends Controller
 
         // JSON encode and store new collection back to file
         file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), \Metaclassing\Utility::encodeJson($system_collection));
+    }
+
+    /**
+     * Programmatically execute the get:sccmsystems command.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function processSCCMSystemsUpload()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $exit_code = Artisan::call('get:sccmsystems');
+
+            $response = [
+                'success'   => true,
+                'exit_code' => $exit_code
+            ];
+        }
+        catch (\Exception $e) {
+            $reponse = [
+                'success'   => false,
+                'message'   => 'Failed to process SCCM systems upload.',
+                'exception' => $e,
+            ];
+        }
+
+        return response()->json($response);
     }
 }

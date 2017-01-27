@@ -12,7 +12,9 @@ $options = [
 ];
 
 $api->group($options, function ($api) {
-    $api->post('/upload', 'SCCMController@uploadAllSystems');
+    $api->get('/clear_upload', 'SCCMController@clearSCCMSystemsUpload');
 
-    $api->get('/clear_upload', 'SCCMController@clearAllSystemsUpload');
+    $api->post('/upload', 'SCCMController@uploadSCCMSystems');
+
+    $api->get('/process_upload', 'SCCMController@processSCCMSystemsUpload');
 });
