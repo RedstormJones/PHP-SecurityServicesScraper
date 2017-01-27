@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\SCCMSystemsProcessingInitiated;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Artisan;
 
 class StartSCCMSystemsProcessing
@@ -22,7 +20,8 @@ class StartSCCMSystemsProcessing
     /**
      * Handle the event.
      *
-     * @param  SCCMSystemsProcessingInitiated  $event
+     * @param SCCMSystemsProcessingInitiated $event
+     *
      * @return void
      */
     public function handle(SCCMSystemsProcessingInitiated $event)
