@@ -55,7 +55,7 @@ class SCCMController extends Controller
 
         try {
             $input = $request->all();
-           
+
             $this->enumerateSCCMSystems($input[0]);
 
             $response = [
@@ -87,11 +87,9 @@ class SCCMController extends Controller
         $contents = file_get_contents(storage_path('app/collections/sccm_systems_collection.json'));
 
         // if contents has data then decode it, otherwise instantiate an collection array
-        if ($contents)
-        {
+        if ($contents) {
             $system_collection = \Metaclassing\Utility::decodeJson($contents);
-        }
-        else {
+        } else {
             $system_collection = [];
         }
 

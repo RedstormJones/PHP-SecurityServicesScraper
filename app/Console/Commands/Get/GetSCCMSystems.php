@@ -6,7 +6,6 @@ use App\SCCM\SCCMSystem;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class GetSCCMSystems extends Command
 {
@@ -51,8 +50,7 @@ class GetSCCMSystems extends Command
         $contents = file_get_contents(storage_path('app/collections/sccm_systems_collection.json'));
         $sccm_systems = \Metaclassing\Utility::decodeJson($contents);
 
-        foreach ($sccm_systems as $system)
-        {
+        foreach ($sccm_systems as $system) {
             $exists = SCCMSystem::where('system_name', $system['system_name'])->value('id');
 
             if ($exists) {
