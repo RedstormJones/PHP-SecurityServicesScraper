@@ -114,10 +114,9 @@ class SCCMController extends Controller
 
             $response = [
                 'success'   => true,
-                'exit_code' => $exit_code
+                'exit_code' => $exit_code,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $reponse = [
                 'success'   => false,
                 'message'   => 'Failed to process SCCM systems upload.',

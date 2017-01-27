@@ -3,9 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\SCCMSystemsCompleted;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Log;
 
 class SendEmailNotificationSCCM
 {
@@ -22,7 +19,8 @@ class SendEmailNotificationSCCM
     /**
      * Handle the event.
      *
-     * @param  SCCMSystemsCompleted  $event
+     * @param SCCMSystemsCompleted $event
+     *
      * @return void
      */
     public function handle(SCCMSystemsCompleted $event)
