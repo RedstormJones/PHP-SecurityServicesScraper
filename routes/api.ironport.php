@@ -48,6 +48,9 @@ $api->group($options, function ($api) {
         // get total count of IronPort spam emails
         $api->get('/total_spam_count', 'IronPortController@getTotalSpamCount');
 
+
+        $api->get('/avg_user_spam_count', 'IronPortController@getAverageUserSpamCount');
+
         // get spam emails for a specific sender
         $api->get('/sender/{sender}', 'IronPortController@getSpamBySender');
 

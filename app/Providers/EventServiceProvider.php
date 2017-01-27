@@ -13,6 +13,9 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        'App\Events\SCCMSystemsProcessingInitiated' => [
+            'App\Listeners\StartSCCMSystemsProcessing',
+        ],
         'App\Events\SCCMSystemsCompleted' => [
             'App\Listeners\SendEmailNotificationSCCM',
         ],

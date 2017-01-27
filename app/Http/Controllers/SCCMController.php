@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SCCMSystemsProcessingInitiated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +30,11 @@ class SCCMController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
 
         try {
+            // save off systems collection from last run
+            $old_contents = file_get_contents(storage_path('app/collections/sccm_systems_collection.json'));
+            file_put_contents(storage_path('app/collections/sccm_systems_collection.json.old'), $old_contents);
+
+            // clear out the collections file
             file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), '');
 
             $response = [
@@ -78,7 +84,7 @@ class SCCMController extends Controller
     /**
      * Enumerate SCCM systems into collection file.
      *
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function enumerateSCCMSystems($data)
     {
@@ -111,7 +117,8 @@ class SCCMController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
 
         try {
-            $exit_code = Artisan::call('get:sccmsystems');
+            //$exit_code = Artisan::call('get:sccmsystems');
+            event(new SCCMSystemsProcessingInitiated());
 
             $response = [
                 'success'   => true,
