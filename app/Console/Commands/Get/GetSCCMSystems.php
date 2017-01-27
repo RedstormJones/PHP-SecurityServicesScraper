@@ -55,7 +55,7 @@ class GetSCCMSystems extends Command
             $exists = SCCMSystem::where('system_name', $system['system_name'])->value('id');
 
             if ($exists) {
-                Log::info('updating SCCM system: '.$system['system_name']);
+                Log::info('updating SCCM system model: '.$system['system_name']);
 
                 $image_date = $this->handleDate($system['image_date']);
                 $ad_last_logon = $this->handleDate($system['ad_last_logon']);
@@ -130,7 +130,7 @@ class GetSCCMSystems extends Command
                 $system_model->touch();
             } else {
                 // create model
-                Log::info('creating new SCCM system model for: '.$system['system_name']);
+                Log::info('creating new SCCM system model: '.$system['system_name']);
 
                 $image_date = $this->handleDate($system['image_date']);
                 $ad_last_logon = $this->handleDate($system['ad_last_logon']);
@@ -199,13 +199,13 @@ class GetSCCMSystems extends Command
 
                 $system_model->save();
             }
-
-            Log::info('processing deletes...');
-            $this->processDeletes();
-
-            event(new SCCMSystemsCompleted());
-            Log::info('* Completed SCCM system processing! *'.PHP_EOL);
         }
+
+        Log::info('processing deletes...');
+        $this->processDeletes();
+
+        event(new SCCMSystemsCompleted());
+        Log::info('* Completed SCCM system processing! *'.PHP_EOL);
     }
 
     /**
