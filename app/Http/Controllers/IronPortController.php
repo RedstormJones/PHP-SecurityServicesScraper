@@ -274,11 +274,6 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
-
-
-
-
     /**
      * Get average count of IronPort spam emails per user.
      *
@@ -300,27 +295,21 @@ class IronPortController extends Controller
             $spam_recipients = IronPortSpamEmail::where('quarantine_names', 'like', '%Policy%')->pluck('recipients');
             Log::info('Policy spam quarantine recipients count: '.count($spam_recipients));
 
-            foreach ($spam_recipients as $recipient)
-            {
+            foreach ($spam_recipients as $recipient) {
                 // if there are multiple recipients blow that up into an array
-                if(preg_match($mult_recipients_regex, $recipient))
-                {
+                if (preg_match($mult_recipients_regex, $recipient)) {
                     $mult_recipients = explode(';', $recipient);
 
                     // cycle through the recipients
-                    foreach ($mult_recipients as $rcpt)
-                    {
+                    foreach ($mult_recipients as $rcpt) {
                         // if the array key doesn't already exist then calculate user spam counts
-                        if (!array_key_exists($rcpt, $user_counts))
-                        {
+                        if (!array_key_exists($rcpt, $user_counts)) {
                             $user_counts[$rcpt] = $this->calculateUserSpamCounts($rcpt, $date_range);
                         }
                     }
-                }
-                else {
+                } else {
                     // otherwise, if the array key doesn't already exist then calculate user spam counts
-                    if (!array_key_exists($recipient, $user_counts))
-                    {
+                    if (!array_key_exists($recipient, $user_counts)) {
                         $user_counts[$recipient] = $this->calculateUserSpamCounts($recipient, $date_range);
                     }
                 }
@@ -332,8 +321,7 @@ class IronPortController extends Controller
                 'success'           => true,
                 //'user_spam_counts'  => $user_counts,
             ];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             Log::error('Failed to get average user spam counts: '.$e);
 
             $response = [
@@ -346,7 +334,6 @@ class IronPortController extends Controller
         return response()->json($response);
     }
 
-
     public function calculateUserSpamCounts($recipient, $date_range)
     {
         $user_counts = [];
@@ -354,20 +341,18 @@ class IronPortController extends Controller
         $user_spam = IronPortSpamEmail::where([
             ['recipients', 'like', '%'.$recipient.'%'],
             ['quarantine_names', 'like', '%Policy%'],
-            ['time_added', '>=', '2017-01-01 00:00:00']
+            ['time_added', '>=', '2017-01-01 00:00:00'],
         ])->get();
 
         Log::info(count($user_spam).' spam emails found for '.$recipient);
 
         // build date keys and instantiate count values in user_counts array
-        foreach ($date_range as $date)
-        {
+        foreach ($date_range as $date) {
             $user_counts[$date] = 0;
         }
 
         // cycle through user's spam and enumerate counts
-        foreach ($user_spam as $spam)
-        {
+        foreach ($user_spam as $spam) {
             $time_added = Carbon::createFromFormat('Y-m-d H:i:s', $spam['time_added'])->toDateString();
             $user_counts[$time_added]++;
         }
@@ -375,22 +360,17 @@ class IronPortController extends Controller
         return $user_counts;
     }
 
-
     public function generateDateRange($start_date, $end_date)
     {
         $dates = [];
 
-        for ($date = $start_date; $date->lte($end_date); $date->addDay())
-        {
+        for ($date = $start_date; $date->lte($end_date); $date->addDay()) {
             $dates[] = $date->toDateString();
         }
         Log::info(count($dates).' days have passed since the beginning of 2016');
 
         return $dates;
     }
-
-
-
 
     /**
      * Get IronPort spam emails sent by a specific sender address.
