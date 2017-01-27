@@ -31,6 +31,7 @@ class Kernel extends ConsoleKernel
         Commands\Get\GetSpamEmail::class,
         Commands\Get\GetSecurityCenterAssetVulns::class,
         Commands\Get\GetSecurityCenterVulns::class,
+        Commands\Get\GetSCCMSystems::class,
         Commands\Process\ProcessCylanceDevices::class,
         Commands\Process\ProcessCylanceThreats::class,
         Commands\Process\ProcessIncomingEmail::class,
@@ -110,7 +111,7 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on an hourly basis
         */
-        $schedule->command('get:securitytasks')->hourly()->weekdays()->timezone('America/Chicago');             // runs hourly on week days
+        //$schedule->command('get:securitytasks')->hourly()->weekdays()->timezone('America/Chicago');             // runs hourly on week days
         $schedule->command('get:idmtasks')->hourly()->weekdays()->timezone('America/Chicago');                  // runs hourly on week days
         $schedule->command('get:saproleauthtasks')->hourly()->weekdays()->timezone('America/Chicago');          // runs hourly on week days
 
