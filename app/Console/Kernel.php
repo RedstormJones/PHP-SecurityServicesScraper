@@ -78,35 +78,35 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on monthly schedule
         */
-        $schedule->command('get:phishmescenarios')->monthlyOn(1, '03:00')->timezone('America/Chicago');     // runs every month on the 1st at 03:00am
+        //$schedule->command('get:phishmescenarios')->monthlyOn(1, '03:00')->timezone('America/Chicago');     // runs every month on the 1st at 03:00am
 
         /*
         * Commands run on weekly-ish schedule
         */
-        $schedule->command('get:securitycentervulns')->weekly()->tuesdays()->at('18:00')->timezone('America/Chicago');  // runs on Tuesdays at 06:00pm
+        //$schedule->command('get:securitycentervulns')->weekly()->tuesdays()->at('18:00')->timezone('America/Chicago');  // runs on Tuesdays at 06:00pm
 
         /*
         * Commands run on daily schedule
         */
-        $schedule->command('get:ironportthreats')->dailyAt('02:00')->timezone('America/Chicago');           // runs daily at 02:00am
-        $schedule->command('get:incomingemail')->dailyAt('02:05')->timezone('America/Chicago');             // runs daily at 02:05am
+        //$schedule->command('get:ironportthreats')->dailyAt('02:00')->timezone('America/Chicago');           // runs daily at 02:00am
+        //$schedule->command('get:incomingemail')->dailyAt('02:05')->timezone('America/Chicago');             // runs daily at 02:05am
 
         //$schedule->command('get:sccmsystems')->dailyAt('05:00')->timezone('America/Chicago');               // runs daily at 05:00am
 
-        $schedule->command('get:sitesubnets')->dailyAt('09:00')->timezone('America/Chicago');               // runs daily at 09:00am
+        //$schedule->command('get:sitesubnets')->dailyAt('09:00')->timezone('America/Chicago');               // runs daily at 09:00am
 
-        $schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');               // runs daily at 08:30pm
+        //$schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');               // runs daily at 08:30pm
 
-        $schedule->command('get:securitycenterassetvulns')->dailyAt('22:30')->timezone('America/Chicago');  // runs daily at 10:30pm
+        //$schedule->command('get:securitycenterassetvulns')->dailyAt('22:30')->timezone('America/Chicago');  // runs daily at 10:30pm
 
         /*
         * Commands run multiple times a day
         */
-        $schedule->command('get:cylancedevices')->twiceDaily(0, 12)->timezone('America/Chicago');               // runs twice daily at 00:00am and 12:00pm
-        $schedule->command('get:cylancethreats')->twiceDaily(1, 13)->timezone('America/Chicago');               // runs twice daily at 01:00am and 01:00pm
+        //$schedule->command('get:cylancedevices')->twiceDaily(0, 12)->timezone('America/Chicago');               // runs twice daily at 00:00am and 12:00pm
+        //$schedule->command('get:cylancethreats')->twiceDaily(1, 13)->timezone('America/Chicago');               // runs twice daily at 01:00am and 01:00pm
 
-        $schedule->command('get:insidehosttrafficsnapshots')->twiceDaily(8, 14)->timezone('America/Chicago');   // runs twice daily at 08:00am and 02:00pm
-        $schedule->command('get:outsidehosttrafficsnapshots')->twiceDaily(9, 15)->timezone('America/Chicago');  // runs twice daily at 09:00am and 03:00pm
+        //$schedule->command('get:insidehosttrafficsnapshots')->twiceDaily(8, 14)->timezone('America/Chicago');   // runs twice daily at 08:00am and 02:00pm
+        //$schedule->command('get:outsidehosttrafficsnapshots')->twiceDaily(9, 15)->timezone('America/Chicago');  // runs twice daily at 09:00am and 03:00pm
 
         //$schedule->command('get:spamemail')->twiceDaily(9, 14)->timezone('America/Chicago');                    // runs twice daily at 09:00am and 02:00pm
 
@@ -114,12 +114,12 @@ class Kernel extends ConsoleKernel
         * Commands run on an hourly basis
         */
         //$schedule->command('get:securitytasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');             // runs hourly on week days between 06:00am and 06:00pm
-        $schedule->command('get:idmtasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');                  // runs hourly on week days between 06:00am and 06:00pm
-        $schedule->command('get:saproleauthtasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');          // runs hourly on week days between 06:00am and 06:00pm
+        //$schedule->command('get:idmtasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');                  // runs hourly on week days between 06:00am and 06:00pm
+        //$schedule->command('get:saproleauthtasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');          // runs hourly on week days between 06:00am and 06:00pm
 
-        $schedule->command('get:saproleauthincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');      // runs hourly on week days between 06:00am and 06:00pm
-        $schedule->command('get:idmincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');              // runs hourly on week days between 06:00am and 06:00pm
-        $schedule->command('get:securityincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');         // runs hourly on week days between 06:00am and 06:00pm
+        //$schedule->command('get:saproleauthincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');      // runs hourly on week days between 06:00am and 06:00pm
+        //$schedule->command('get:idmincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');              // runs hourly on week days between 06:00am and 06:00pm
+        //$schedule->command('get:securityincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');         // runs hourly on week days between 06:00am and 06:00pm
     }
 
     /**
