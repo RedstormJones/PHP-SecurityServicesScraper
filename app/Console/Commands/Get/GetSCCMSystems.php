@@ -204,7 +204,7 @@ class GetSCCMSystems extends Command
         Log::info('processing deletes...');
         $this->processDeletes();
 
-        event(new SCCMSystemsCompleted());
+        //event(new SCCMSystemsCompleted());
         Log::info('* Completed SCCM system processing! *'.PHP_EOL);
     }
 
