@@ -136,7 +136,6 @@ class SCCMController extends Controller
         return response()->json($response);
     }
 
-
     /**
      * Calculate and return BitLocker compliance percentage.
      *
@@ -152,10 +151,8 @@ class SCCMController extends Controller
             $sccm_systems = SCCMSystem::all();
             $total = count($sccm_systems);
 
-            foreach ($sccm_systems as $system)
-            {
-                if (strcmp($system['bitlocker_status'], 'Yes') == 0)
-                {
+            foreach ($sccm_systems as $system) {
+                if (strcmp($system['bitlocker_status'], 'Yes') == 0) {
                     $bitlockered++;
                 }
             }
@@ -168,9 +165,7 @@ class SCCMController extends Controller
                 'bitlocker_count'       => $bitlockered,
                 'bitlocker_percentage'  => $bitlocker_percentage,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             Log::error('Failed to get BitLocker compliance numbers: '.$e);
 
             $response = [
@@ -199,14 +194,10 @@ class SCCMController extends Controller
             $sccm_systems = SCCMSystem::all();
             $total = count($sccm_systems);
 
-            foreach ($sccm_systems as $system)
-            {
-                if (strcmp($system['cylance_installed'], 'Yes') == 0)
-                {
+            foreach ($sccm_systems as $system) {
+                if (strcmp($system['cylance_installed'], 'Yes') == 0) {
                     $cylanced++;
-                }
-                else if (strcmp($system['scep_installed'], 'Yes') == 0)
-                {
+                } elseif (strcmp($system['scep_installed'], 'Yes') == 0) {
                     $sceped++;
                 }
             }
@@ -224,9 +215,7 @@ class SCCMController extends Controller
                 'scep_percentage'           => $scep_percentage,
                 'av_compliance_percentage'  => $av_compliance_percentage,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             Log::error('Failed to get Cylance compliance numbers: '.$e);
 
             $response = [
@@ -254,10 +243,8 @@ class SCCMController extends Controller
             $sccm_systems = SCCMSystem::all();
             $total = count($sccm_systems);
 
-            foreach ($sccm_systems as $system)
-            {
-                if (strcmp($system['anyconnect_installed'], 'Yes') == 0)
-                {
+            foreach ($sccm_systems as $system) {
+                if (strcmp($system['anyconnect_installed'], 'Yes') == 0) {
                     $anyconnected++;
                 }
             }
@@ -270,9 +257,7 @@ class SCCMController extends Controller
                 'anyconnect_count'      => $anyconnected,
                 'anyconnect_percentage' => $anyconnect_percentage,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             Log::error('Failed to get AnyConnect compliance numbers: '.$e);
 
             $response = [
@@ -300,10 +285,8 @@ class SCCMController extends Controller
             $sccm_systems = SCCMSystem::all();
             $total = count($sccm_systems);
 
-            foreach ($sccm_systems as $system)
-            {
-                if (strcmp($system['anyconnect_websecurity'], 'Yes') == 0)
-                {
+            foreach ($sccm_systems as $system) {
+                if (strcmp($system['anyconnect_websecurity'], 'Yes') == 0) {
                     $websecured++;
                 }
             }
@@ -316,9 +299,7 @@ class SCCMController extends Controller
                 'websecurity_count'         => $websecured,
                 'websecurity_percentage'    => $websecurity_percentage,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             Log::error('Failed to get AnyConnect Web Security compliance numbers: '.$e);
 
             $response = [
