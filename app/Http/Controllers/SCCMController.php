@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\SCCMSystemsProcessingInitiated;
+use App\SCCM\SCCMSystem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
@@ -128,6 +129,201 @@ class SCCMController extends Controller
             $reponse = [
                 'success'   => false,
                 'message'   => 'Failed to process SCCM systems upload.',
+                'exception' => $e,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+    /**
+     * Calculate and return BitLocker compliance percentage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getBitLockerCompliance()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $bitlockered = 0;
+
+            $sccm_systems = SCCMSystem::all();
+            $total = count($sccm_systems);
+
+            foreach ($sccm_systems as $system)
+            {
+                if (strcmp($system['bitlocker_status'], 'Yes') == 0)
+                {
+                    $bitlockered++;
+                }
+            }
+
+            $bitlocker_percentage = ($bitlockered / $total) * 100;
+
+            $response = [
+                'success'               => true,
+                'total'                 => $total,
+                'bitlocker_count'       => $bitlockered,
+                'bitlocker_percentage'  => $bitlocker_percentage,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            Log::error('Failed to get BitLocker compliance numbers: '.$e);
+
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get BitLocker compliance numbers.',
+                'exception' => $e,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+     * Calculate and return Cylance compliance percentage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getAVCompliance()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $cylanced = 0;
+            $sceped = 0;
+
+            $sccm_systems = SCCMSystem::all();
+            $total = count($sccm_systems);
+
+            foreach ($sccm_systems as $system)
+            {
+                if (strcmp($system['cylance_installed'], 'Yes') == 0)
+                {
+                    $cylanced++;
+                }
+                else if (strcmp($system['scep_installed'], 'Yes') == 0)
+                {
+                    $sceped++;
+                }
+            }
+
+            $cylance_percentage = ($cylanced / $total) * 100;
+            $scep_percentage = ($sceped / $total) * 100;
+            $av_compliance_percentage = $cylance_percentage + $scep_percentage;
+
+            $response = [
+                'success'                   => true,
+                'total'                     => $total,
+                'cylance_installed'         => $cylanced,
+                'cylance_percentage'        => $cylance_percentage,
+                'scep_installed'            => $sceped,
+                'scep_percentage'           => $scep_percentage,
+                'av_compliance_percentage'  => $av_compliance_percentage,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            Log::error('Failed to get Cylance compliance numbers: '.$e);
+
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get Cylance compliance numbers.',
+                'exception' => $e,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+     * Calculate and return AnyConnect compliance percentage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getAnyConnectCompliance()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $anyconnected = 0;
+
+            $sccm_systems = SCCMSystem::all();
+            $total = count($sccm_systems);
+
+            foreach ($sccm_systems as $system)
+            {
+                if (strcmp($system['anyconnect_installed'], 'Yes') == 0)
+                {
+                    $anyconnected++;
+                }
+            }
+
+            $anyconnect_percentage = ($anyconnected / $total) * 100;
+
+            $response = [
+                'success'               => true,
+                'total'                 => $total,
+                'anyconnect_count'      => $anyconnected,
+                'anyconnect_percentage' => $anyconnect_percentage,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            Log::error('Failed to get AnyConnect compliance numbers: '.$e);
+
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get AnyConnect compliance numbers.',
+                'exception' => $e,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+     * Calculate and return AnyConnect Web Security compliance percentage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getWebSecurityCompliance()
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $websecured = 0;
+
+            $sccm_systems = SCCMSystem::all();
+            $total = count($sccm_systems);
+
+            foreach ($sccm_systems as $system)
+            {
+                if (strcmp($system['anyconnect_websecurity'], 'Yes') == 0)
+                {
+                    $websecured++;
+                }
+            }
+
+            $websecurity_percentage = ($websecured / $total) * 100;
+
+            $response = [
+                'success'                   => true,
+                'total'                     => $total,
+                'websecurity_count'         => $websecured,
+                'websecurity_percentage'    => $websecurity_percentage,
+            ];
+        }
+        catch (\Exception $e)
+        {
+            Log::error('Failed to get AnyConnect Web Security compliance numbers: '.$e);
+
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get AnyConnect Web Security compliance numbers.',
                 'exception' => $e,
             ];
         }
