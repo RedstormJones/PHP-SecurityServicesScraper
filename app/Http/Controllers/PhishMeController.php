@@ -97,8 +97,7 @@ class PhishMeController extends Controller
         try {
             $data = [];
 
-            if (strcmp($district, 'all') == 0)
-            {
+            if (strcmp($district, 'all') == 0) {
                 // get attachment, click only and data entry scenario results on a particular scenario for all Districts
                 $attachment_results = AttachmentScenario::where([
                         ['scenario_title', '=', $date.' Enterprise Click Test'],
@@ -143,9 +142,7 @@ class PhishMeController extends Controller
                         'new_repeat_reporter',
                         'seconds_spent_on_education'
                     )->get();
-            }
-            else
-            {
+            } else {
                 // get attachment, click only and data entry scenario results on a particular scenario for a particular District
                 $attachment_results = AttachmentScenario::where([
                         ['scenario_title', '=', $date.' Enterprise Click Test'],

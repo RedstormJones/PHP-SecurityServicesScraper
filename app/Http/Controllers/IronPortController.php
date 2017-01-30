@@ -294,12 +294,9 @@ class IronPortController extends Controller
             Log::info('Policy spam quarantine recipients count: '.count($spam_recipients));
 
             foreach ($spam_recipients as $recipient) {
-                if (!array_key_exists($recipient, $user_counts))
-                {
+                if (!array_key_exists($recipient, $user_counts)) {
                     $user_counts[$recipient] = 1;
-                }
-                else
-                {
+                } else {
                     $user_counts[$recipient]++;
                 }
             }
@@ -310,16 +307,14 @@ class IronPortController extends Controller
             $count = count($user_counts);
             Log::info('total count: '.$count);
 
-            foreach ($user_counts as $key => $value)
-            {
+            foreach ($user_counts as $key => $value) {
                 $total += $value;
             }
 
             $average_user_spam = floor($total / $count);
 
-
             $response = [
-                'success'           => true,
+                'success'                  => true,
                 'average_user_spam_count'  => $average_user_spam,
             ];
         } catch (\Exception $e) {
