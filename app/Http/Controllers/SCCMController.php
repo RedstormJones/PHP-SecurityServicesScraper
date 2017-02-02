@@ -202,8 +202,8 @@ class SCCMController extends Controller
                 }
             }
 
-            $cylance_percentage = ($cylanced / $total) * 100;
-            $scep_percentage = ($sceped / $total) * 100;
+            $cylance_percentage = floor(($cylanced / $total) * 100);
+            $scep_percentage = floor(($sceped / $total) * 100);
             $av_compliance_percentage = $cylance_percentage + $scep_percentage;
 
             $response = [
