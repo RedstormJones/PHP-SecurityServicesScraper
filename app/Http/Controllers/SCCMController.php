@@ -163,7 +163,7 @@ class SCCMController extends Controller
                 'success'               => true,
                 'total'                 => $total,
                 'bitlocker_count'       => $bitlockered,
-                'bitlocker_percentage'  => floatval(number_format($bitlocker_percentage, 2))
+                'bitlocker_percentage'  => floatval(number_format($bitlocker_percentage, 2)),
             ];
         } catch (\Exception $e) {
             Log::error('Failed to get BitLocker compliance numbers: '.$e);
@@ -213,7 +213,7 @@ class SCCMController extends Controller
                 'cylance_percentage'        => floatval(number_format($cylance_percentage, 2)),
                 'scep_installed'            => $sceped,
                 'scep_percentage'           => floatval(number_format($scep_percentage, 2)),
-                'av_compliance_percentage'  => floatval(number_format($av_compliance_percentage, 2))
+                'av_compliance_percentage'  => floatval(number_format($av_compliance_percentage, 2)),
             ];
         } catch (\Exception $e) {
             Log::error('Failed to get Cylance compliance numbers: '.$e);
