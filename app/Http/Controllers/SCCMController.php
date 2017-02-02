@@ -163,7 +163,7 @@ class SCCMController extends Controller
                 'success'               => true,
                 'total'                 => $total,
                 'bitlocker_count'       => $bitlockered,
-                'bitlocker_percentage'  => $bitlocker_percentage,
+                'bitlocker_percentage'  => floatval(number_format($bitlocker_percentage, 2))
             ];
         } catch (\Exception $e) {
             Log::error('Failed to get BitLocker compliance numbers: '.$e);
@@ -202,18 +202,18 @@ class SCCMController extends Controller
                 }
             }
 
-            $cylance_percentage = floor(($cylanced / $total) * 100);
-            $scep_percentage = floor(($sceped / $total) * 100);
+            $cylance_percentage = ($cylanced / $total) * 100;
+            $scep_percentage = ($sceped / $total) * 100;
             $av_compliance_percentage = $cylance_percentage + $scep_percentage;
 
             $response = [
                 'success'                   => true,
                 'total'                     => $total,
                 'cylance_installed'         => $cylanced,
-                'cylance_percentage'        => $cylance_percentage,
+                'cylance_percentage'        => floatval(number_format($cylance_percentage, 2)),
                 'scep_installed'            => $sceped,
-                'scep_percentage'           => $scep_percentage,
-                'av_compliance_percentage'  => $av_compliance_percentage,
+                'scep_percentage'           => floatval(number_format($scep_percentage, 2)),
+                'av_compliance_percentage'  => floatval(number_format($av_compliance_percentage, 2))
             ];
         } catch (\Exception $e) {
             Log::error('Failed to get Cylance compliance numbers: '.$e);
@@ -255,7 +255,7 @@ class SCCMController extends Controller
                 'success'               => true,
                 'total'                 => $total,
                 'anyconnect_count'      => $anyconnected,
-                'anyconnect_percentage' => $anyconnect_percentage,
+                'anyconnect_percentage' => floatval(number_format($anyconnect_percentage, 2)),
             ];
         } catch (\Exception $e) {
             Log::error('Failed to get AnyConnect compliance numbers: '.$e);
@@ -297,7 +297,7 @@ class SCCMController extends Controller
                 'success'                   => true,
                 'total'                     => $total,
                 'websecurity_count'         => $websecured,
-                'websecurity_percentage'    => $websecurity_percentage,
+                'websecurity_percentage'    => floatval(number_format($websecurity_percentage, 2)),
             ];
         } catch (\Exception $e) {
             Log::error('Failed to get AnyConnect Web Security compliance numbers: '.$e);
