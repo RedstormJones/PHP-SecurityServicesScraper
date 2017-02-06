@@ -12,15 +12,13 @@ $options = [
 ];
 
 $api->group($options, function ($api) {
-    
-    $api->group(['prefix' => 'reports'], function ($api){
+    $api->group(['prefix' => 'reports'], function ($api) {
 
         // query for the results of a particular KTG click test, given a date in the format of Y-M (i.e. 2016-AUG)
         $api->post('/ktg/{date}', 'PhishMeController@getKTGClickTestResults');
 
         // query for the results of a particular Enterprise click test, given a date in the formart of Y-M (i.e. 2016-AUG)
         $api->post('/enterprise/{date}/{district}', 'PhishMeController@getEnterpriseClickTestResults');
-
     });
 
     // Attachment scenarios route group
