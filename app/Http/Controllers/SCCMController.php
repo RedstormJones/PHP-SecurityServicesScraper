@@ -313,7 +313,7 @@ class SCCMController extends Controller
     }
 
     /**
-     * Returns statistics on operating system counts
+     * Returns statistics on operating system counts.
      *
      * @return \Illuminate\Http\Response
      */
@@ -326,19 +326,14 @@ class SCCMController extends Controller
 
             $sccm_systems = SCCMSystem::pluck('os_roundup');
 
-            foreach($sccm_systems as $os)
-            {
-                if (strcmp($os, "") == 0)
-                {
+            foreach ($sccm_systems as $os) {
+                if (strcmp($os, '') == 0) {
                     $os = 'Unknown';
                 }
 
-                if (array_key_exists($os, $data))
-                {
+                if (array_key_exists($os, $data)) {
                     $data[$os]++;
-                }
-                else
-                {
+                } else {
                     $data[$os] = 1;
                 }
             }
@@ -348,9 +343,7 @@ class SCCMController extends Controller
                 'os_count'      => count($data),
                 'os_roundup'    => $data,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             Log::error('Failed to get OS round up data for SCCM systems: '.$e);
 
             $response = [
@@ -364,7 +357,7 @@ class SCCMController extends Controller
     }
 
     /**
-     * Returns 2003 servers found in the SCCM all systems dump
+     * Returns 2003 servers found in the SCCM all systems dump.
      *
      * @return \Illuminate\Http\Response
      */
@@ -377,8 +370,7 @@ class SCCMController extends Controller
 
             $servers = SCCMSystem::withTrashed()->where('os_roundup', 'like', '%2003%')->select('deleted_at', 'system_name')->get();
 
-            foreach ($servers as $server)
-            {
+            foreach ($servers as $server) {
                 $data[] = $server;
             }
 
@@ -387,9 +379,7 @@ class SCCMController extends Controller
                 'total'     => count($data),
                 'servers'   => $data,
             ];
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             Log::error('Failed to get SCCM 2003 servers: '.$e);
 
             $response = [
