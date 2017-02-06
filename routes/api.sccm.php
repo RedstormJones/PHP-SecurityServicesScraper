@@ -35,5 +35,11 @@ $api->group($options, function ($api) {
 
         // returns AnyConnect Web Security compliance numbers
         $api->get('websecurity_compliance', 'SCCMController@getWebSecurityCompliance');
+
+        // returns counts of each operating system
+        $api->get('os_roundup', 'SCCMController@getOSRoundUp');
+
+        // returns the names of the 2003 servers
+        $api->get('2003_servers_burndown', 'SCCMController@get2003ServersBurnDown');
     });
 });
