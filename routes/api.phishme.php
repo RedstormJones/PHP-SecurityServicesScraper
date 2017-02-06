@@ -12,11 +12,16 @@ $options = [
 ];
 
 $api->group($options, function ($api) {
-    // get a list of all PhishMe scenario titles
-    $api->get('/scenario_titles', 'PhishMeController@getScenarioTitles');
+    
+    $api->group(['prefix' => 'reports'], function ($api){
 
-    // query for the results of a particular click test, given a date in the formart of Y-M (i.e. 2016-AUG)
-    $api->post('/report/{date}/{district}', 'PhishMeController@getEnterpriseClickTestResults');
+        // query for the results of a particular KTG click test, given a date in the format of Y-M (i.e. 2016-AUG)
+        $api->post('/ktg/{date}', 'PhishMeController@getKTGClickTestResults');
+
+        // query for the results of a particular Enterprise click test, given a date in the formart of Y-M (i.e. 2016-AUG)
+        $api->post('/enterprise/{date}/{district}', 'PhishMeController@getEnterpriseClickTestResults');
+
+    });
 
     // Attachment scenarios route group
     $api->group(['prefix' => 'attachment_scenarios'], function ($api) {

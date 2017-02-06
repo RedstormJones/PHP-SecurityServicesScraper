@@ -21,71 +21,6 @@ class PhishMeController extends Controller
     }
 
     /**
-     * Get all scenario titles.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function getScenarioTitles()
-    {
-        $user = JWTAuth::parseToken()->authenticate();
-
-        try {
-            $data = [];
-            $title_regex = '/(\d{4}-\S{3}\s)/';
-
-            $attachment_scenarios = AttachmentScenario::oldest('scenario_title')->select('scenario_title')->distinct()->get();
-            $click_only_scenarios = ClickOnlyScenario::oldest('scenario_title')->select('scenario_title')->distinct()->get();
-            $data_entry_scenarios = DataEntryScenario::oldest('scenario_title')->select('scenario_title')->distinct()->get();
-
-            foreach ($attachment_scenarios as $scenario) {
-                if (preg_match($title_regex, $scenario['scenario_title'], $hits)) {
-                    //$scenario_date = substr($scenario['scenario_title'], 0, 8);
-                    $scenario_date = $hits[1];
-
-                    Log::info($scenario['scenario_title'].' - '.$scenario_date);
-
-                    $data[] = $scenario['scenario_title'];
-                }
-            }
-
-            foreach ($click_only_scenarios as $scenario) {
-                if (preg_match($title_regex, $scenario['scenario_title'], $hits)) {
-                    //$scenario_date = substr($scenario['scenario_title'], 0, 8);
-                    $scenario_date = $hits[1];
-
-                    Log::info($scenario['scenario_title'].' - '.$scenario_date);
-
-                    $data[] = $scenario['scenario_title'];
-                }
-            }
-
-            foreach ($data_entry_scenarios as $scenario) {
-                if (preg_match($title_regex, $scenario['scenario_title'], $hits)) {
-                    //$scenario_date = substr($scenario['scenario_title'], 0, 8);
-                    $scenario_date = $hits[1];
-
-                    Log::info($scenario['scenario_title'].' - '.$scenario_date);
-
-                    $data[] = $scenario['scenario_title'];
-                }
-            }
-
-            $response = [
-                'success'   => true,
-                'count'     => count($data),
-                'scenarios' => $data,
-            ];
-        } catch (\Exception $e) {
-            $response = [
-                'success'   => false,
-                'message'   => 'Failed to get PhishMe scenario titles.',
-            ];
-        }
-
-        return response()->json($response);
-    }
-
-    /**
      * Get results for a particular scenario.
      *
      * @return \Illuminate\Http\Response
@@ -140,6 +75,7 @@ class PhishMeController extends Controller
                         'entered_password',
                         'reported_phish',
                         'new_repeat_reporter',
+                        'time_to_report',
                         'seconds_spent_on_education'
                     )->get();
             } else {
@@ -188,6 +124,7 @@ class PhishMeController extends Controller
                         'entered_password',
                         'reported_phish',
                         'new_repeat_reporter',
+                        'time_to_report',
                         'seconds_spent_on_education'
                     )->get();
             }
@@ -291,6 +228,162 @@ class PhishMeController extends Controller
 
         return response()->json($response);
     }
+
+    /**
+     * Get KTG click test results for a particular scenario.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getKTGClickTestResults($date)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $data = [];
+
+            // get attachment, click only and data entry scenario results on a particular scenario for all Districts
+            $attachment_results = AttachmentScenario::where('scenario_title', 'like', $date.' KTG Click Test%')
+                ->select(
+                    'scenario_title',
+                    'scenario_type',
+                    'recipient_name',
+                    'department',
+                    'viewed_education',
+                    'reported_phish',
+                    'new_repeat_reporter',
+                    'time_to_report'
+                )->get();
+
+            $click_only_results = ClickOnlyScenario::where('scenario_title', 'like', $date.' KTG Click Test%')
+                ->select(
+                    'scenario_title',
+                    'scenario_type',
+                    'recipient_name',
+                    'department',
+                    'clicked_link',
+                    'reported_phish',
+                    'new_repeat_reporter',
+                    'time_to_report',
+                    'seconds_spent_on_education'
+                )->get();
+
+            $data_entry_results = DataEntryScenario::where('scenario_title', 'like', $date.' KTG Click Test%')
+                ->select(
+                    'scenario_title',
+                    'scenario_type',
+                    'recipient_name',
+                    'department',
+                    'clicked_link',
+                    'submitted_form',
+                    'submitted_data',
+                    'phished_username',
+                    'entered_password',
+                    'reported_phish',
+                    'new_repeat_reporter',
+                    'time_to_report',
+                    'seconds_spent_on_education'
+                )->get();
+
+            // cycle through each of the returned results and build your return array
+            foreach ($attachment_results as $result) {
+                if ($result['time_to_report'] > 0) {
+                    $time_to_report = $result['time_to_report'];
+                } else {
+                    $time_to_report = 0;
+                }
+
+                $scenario_type = explode('\\', $result['scenario_type'])[2];
+
+                $data[] = [
+                    'scenario_title'                 => $result['scenario_title'],
+                    'scenario_type'                  => $scenario_type,
+                    'recipient_name'                 => $result['recipient_name'],
+                    'department'                     => $result['department'],
+                    'viewed_education'               => $result['viewed_education'],
+                    'clicked_link'                   => 'n/a',
+                    'submitted_form'                 => 'n/a',
+                    'submitted_data'                 => 'n/a',
+                    'phished_username'               => 'n/a',
+                    'entered_password'               => 'n/a',
+                    'reported_phish'                 => $result['reported_phish'],
+                    'new_repeat_reporter'            => $result['new_repeat_reporter'],
+                    'time_to_report'                 => $time_to_report,
+                    'seconds_spent_on_education'     => 0,
+                ];
+            }
+
+            foreach ($click_only_results as $result) {
+                if ($result['time_to_report'] > 0) {
+                    $time_to_report = $result['time_to_report'];
+                } else {
+                    $time_to_report = 0;
+                }
+
+                $scenario_type = explode('\\', $result['scenario_type'])[2];
+
+                $data[] = [
+                    'scenario_title'                 => $result['scenario_title'],
+                    'scenario_type'                  => $scenario_type,
+                    'recipient_name'                 => $result['recipient_name'],
+                    'department'                     => $result['department'],
+                    'viewed_education'               => 'n/a',
+                    'clicked_link'                   => $result['clicked_link'],
+                    'submitted_form'                 => 'n/a',
+                    'submitted_data'                 => 'n/a',
+                    'phished_username'               => 'n/a',
+                    'entered_password'               => 'n/a',
+                    'reported_phish'                 => $result['reported_phish'],
+                    'new_repeat_reporter'            => $result['new_repeat_reporter'],
+                    'time_to_report'                 => $time_to_report,
+                    'seconds_spent_on_education'     => $result['seconds_spent_on_education'],
+                ];
+            }
+
+            foreach ($data_entry_results as $result) {
+                if ($result['time_to_report'] > 0) {
+                    $time_to_report = $result['time_to_report'];
+                } else {
+                    $time_to_report = 0;
+                }
+
+                $scenario_type = explode('\\', $result['scenario_type'])[2];
+
+                $data[] = [
+                    'scenario_title'                 => $result['scenario_title'],
+                    'scenario_type'                  => $scenario_type,
+                    'recipient_name'                 => $result['recipient_name'],
+                    'department'                     => $result['department'],
+                    'viewed_education'               => 'n/a',
+                    'clicked_link'                   => $result['clicked_link'],
+                    'submitted_form'                 => $result['submitted_form'],
+                    'submitted_data'                 => $result['submitted_data'],
+                    'phished_username'               => $result['phished_username'],
+                    'entered_password'               => $result['entered_password'],
+                    'reported_phish'                 => $result['reported_phish'],
+                    'new_repeat_reporter'            => $result['new_repeat_reporter'],
+                    'time_to_report'                 => $time_to_report,
+                    'seconds_spent_on_education'     => $result['seconds_spent_on_education'],
+                ];
+            }
+
+            $response = [
+                'success'           => true,
+                'count'             => count($data),
+                'scenario_results'  => $data,
+            ];
+        } catch (\Exception $e) {
+            Log::error('Failed to get click test results for '.$district.' during '.$date.': '.$e);
+
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get click test results for '.$district.' during '.$date,
+                'exception' => $e,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
 
     /**********************************
      * Attachment scenario functions. *
