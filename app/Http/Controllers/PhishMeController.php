@@ -384,7 +384,6 @@ class PhishMeController extends Controller
         return response()->json($response);
     }
 
-
     /**********************************
      * Attachment scenario functions. *
      **********************************/
