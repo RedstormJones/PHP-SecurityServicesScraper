@@ -413,8 +413,7 @@ class CylanceController extends Controller
                 ];
             }
 
-            usort($district_data, function($a, $b)
-            {
+            usort($district_data, function ($a, $b) {
                 return $a['district_average'] < $b['district_average'];
             });
 
