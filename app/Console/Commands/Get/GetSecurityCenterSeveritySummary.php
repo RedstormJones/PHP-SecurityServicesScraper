@@ -5,7 +5,6 @@ namespace App\Console\Commands\Get;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\SecurityCenter\SecurityCenterSeveritySummary;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -82,12 +81,12 @@ class GetSecurityCenterSeveritySummary extends Command
         $url = 'https://knetscalp001:443/rest/analysis';
 
         $post = [
-            'type'          =>  'vuln',
+            'type'          => 'vuln',
             'sourceType'    => 'cumulative',
-            'query'         =>  [
+            'query'         => [
                 'tool'  => 'sumseverity',
                 'type'  => 'vuln',
-            ]
+            ],
         ];
 
         // send request for resource, capture response and dump to file
@@ -103,15 +102,13 @@ class GetSecurityCenterSeveritySummary extends Command
 
         file_put_contents(storage_path('app/collections/sc_severity_summary.json'), \Metaclassing\Utility::encodeJson($collection));
 
-
         /*
          * [2] Process Security Center severity summaries into database
          */
 
         Log::info(PHP_EOL.'********************************************************'.PHP_EOL.'* Starting SecurityCenter severity summary processing! *'.PHP_EOL.'********************************************************');
 
-        foreach ($collection as $sev_sum)
-        {
+        foreach ($collection as $sev_sum) {
             $severity_id = $sev_sum['severity']['id'];
             $severity_name = $sev_sum['severity']['name'];
             $severity_desc = $sev_sum['severity']['description'];
@@ -119,8 +116,7 @@ class GetSecurityCenterSeveritySummary extends Command
             $exists = SecurityCenterSeveritySummary::where('severity_id', $severity_id)->value('id');
 
             // if the model already exists then update it
-            if ($exists)
-            {
+            if ($exists) {
                 $summary_model = SecurityCenterSeveritySummary::findOrFail($exists);
 
                 Log::info('updating severity summary for '.$severity_desc);
@@ -134,9 +130,7 @@ class GetSecurityCenterSeveritySummary extends Command
 
                 // touch summary model to update the 'updated_at' timestamp in case nothing was changed
                 $summary_model->touch();
-            }
-            else
-            {
+            } else {
                 // otherwise, create a new severity summary model
                 Log::info('creating new severity summary for '.$severity_desc.' with id of '.$severity_id);
 
