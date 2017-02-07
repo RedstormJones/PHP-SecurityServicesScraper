@@ -32,6 +32,7 @@ class Kernel extends ConsoleKernel
         Commands\Get\GetSecurityCenterAssetVulns::class,
         Commands\Get\GetSecurityCenterVulns::class,
         Commands\Get\GetSecurityCenterSumIPVulns::class,
+        Commands\Get\GetSecurityCenterSeveritySummary::class,
         Commands\Get\GetSCCMSystems::class,
         Commands\Process\ProcessCylanceDevices::class,
         Commands\Process\ProcessCylanceThreats::class,
@@ -98,7 +99,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');               // runs daily at 08:30pm
 
-        $schedule->command('get:sumipvulns')->dailyAt('22:00')->timezone('America/Chicago');                // runs daily at 10:00pm
+        $schedule->command('get:severitysummary')->dailyAt('22:00')->timezone('America/Chicago');           // runs daily at 10:00pm
+        $schedule->command('get:sumipvulns')->dailyAt('22:05')->timezone('America/Chicago');                // runs daily at 10:05pm
         $schedule->command('get:securitycenterassetvulns')->dailyAt('22:30')->timezone('America/Chicago');  // runs daily at 10:30pm
 
         /*
