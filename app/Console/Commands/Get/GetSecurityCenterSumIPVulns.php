@@ -84,14 +84,14 @@ class GetSecurityCenterSumIPVulns extends Command
         $url = 'https://knetscalp001:443/rest/analysis';
 
         $post = [
-            'type'          =>  'vuln',
+            'type'          => 'vuln',
             'sourceType'    => 'cumulative',
-            'query'         =>  [
-                'tool'          =>  'sumip',
+            'query'         => [
+                'tool'          => 'sumip',
                 'type'          => 'vuln',
                 'startOffset'   => 0,
-                'endOffset'     => 2000
-            ]
+                'endOffset'     => 2000,
+            ],
         ];
 
         // send request for resource, capture response and dump to file
@@ -103,10 +103,8 @@ class GetSecurityCenterSumIPVulns extends Command
         // extract vulnerability results and add to collection
         $collection[] = $resp['response']['results'];
 
-        foreach ($collection as $result)
-        {
-            foreach ($result as $ipvuln)
-            {
+        foreach ($collection as $result) {
+            foreach ($result as $ipvuln) {
                 $sumip_vulns[] = $ipvuln;
             }
         }
@@ -120,16 +118,14 @@ class GetSecurityCenterSumIPVulns extends Command
 
         Log::info(PHP_EOL.'**************************************************************'.PHP_EOL.'* Starting SecurityCenter sum IP vulnerabilities processing! *'.PHP_EOL.'**************************************************************');
 
-        foreach ($sumip_vulns as $vuln)
-        {
+        foreach ($sumip_vulns as $vuln) {
             $repository_id = $vuln['repository']['id'];
             $repository_name = $vuln['repository']['name'];
             $repository_desc = $vuln['repository']['description'];
 
             $exists = SecurityCenterSumIpVulns::where('ip_address', $vuln['ip'])->value('id');
 
-            if ($exists)
-            {
+            if ($exists) {
                 $vuln_record = SecurityCenterSumIpVulns::findOrFail($exists);
 
                 Log::info('updating sumip vulnerability for '.$vuln['dnsName'].' - '.$vuln['ip']);
@@ -159,9 +155,7 @@ class GetSecurityCenterSumIPVulns extends Command
 
                 // touch vuln record to update the 'updated_at' timestamp in case nothing was changed
                 $vuln_record->touch();
-            }
-            else
-            {
+            } else {
                 Log::info('creating new sumip vulnerability for '.$vuln['dnsName'].' - '.$vuln['ip']);
 
                 $new_vuln = new SecurityCenterSumIpVulns();
@@ -207,12 +201,10 @@ class GetSecurityCenterSumIPVulns extends Command
 
         $sumip_vulns = SecurityCenterSumIpVulns::all();
 
-        foreach ($sumip_vulns as $vuln)
-        {
+        foreach ($sumip_vulns as $vuln) {
             $updated_at = substr($vuln->updated_at, 0, -9);
 
-            if ($updated_at < $delete_date)
-            {
+            if ($updated_at < $delete_date) {
                 Log::info('deleting sumip vulnerability for '.$vuln->dns_name.' - '.$vuln->ip_address.' (last updated '.$updated_at.')');
                 $vuln->delete();
             }
