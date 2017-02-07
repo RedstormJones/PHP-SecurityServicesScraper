@@ -19,10 +19,10 @@ class SecurityCenterSeveritySummary extends Model
      * @var array
      */
     protected $fillable = [
-    	'severity_id',
-    	'severity_name',
-    	'severity_count',
-    	'severity_desc',
-    	'data',
+        'severity_id',
+        'severity_name',
+        'severity_count',
+        'severity_desc',
+        'data',
     ];
 }

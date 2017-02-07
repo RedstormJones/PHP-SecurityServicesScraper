@@ -101,7 +101,7 @@ class GetSecurityCenterSumIPVulns extends Command
 
         // extract vulnerability results and add to collection
         $collection = $resp['response']['results'];
-       
+
         Log::info('collected '.count($collection).' sumip vulnerabilities');
 
         file_put_contents(storage_path('app/collections/sc_sumip_vulns.json'), \Metaclassing\Utility::encodeJson($collection));
@@ -112,8 +112,7 @@ class GetSecurityCenterSumIPVulns extends Command
 
         Log::info(PHP_EOL.'**************************************************************'.PHP_EOL.'* Starting SecurityCenter sum IP vulnerabilities processing! *'.PHP_EOL.'**************************************************************');
 
-        foreach ($collection as $vuln)
-        {
+        foreach ($collection as $vuln) {
             $repository_id = $vuln['repository']['id'];
             $repository_name = $vuln['repository']['name'];
             $repository_desc = $vuln['repository']['description'];
