@@ -58,8 +58,7 @@ class GetServer2003Burndown extends Command
         Log::info('previous count: '.$previous_count);
 
         // if previous count is 0 or null then there was no previous day's record to use
-        if ($previous_count == 0 || is_null($previous_count))
-        {
+        if ($previous_count == 0 || is_null($previous_count)) {
             // so, set the previous count to the server count so that the trending value is 0
             $previous_count = $server_count;
         }
