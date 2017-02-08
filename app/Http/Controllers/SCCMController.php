@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\SCCMSystemsProcessingInitiated;
 use App\SCCM\SCCMSystem;
+use App\SCCM\Server2003Burndown;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
@@ -371,10 +372,11 @@ class SCCMController extends Controller
         try {
             $data = [];
 
-            $servers = SCCMSystem::withTrashed()->where('os_roundup', 'like', '%2003%')->select('deleted_at', 'system_name')->get();
+            //$servers = SCCMSystem::withTrashed()->where('os_roundup', 'like', '%2003%')->select('deleted_at', 'system_name')->get();
+            $burndown_models = Server2003Burndown::select('created_at', 'server_count', 'trend_value')->get();
 
-            foreach ($servers as $server) {
-                $data[] = $server;
+            foreach ($burndown_models as $burndown) {
+                $data[] = $burndown;
             }
 
             $response = [
