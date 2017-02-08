@@ -31,12 +31,17 @@ class SCCMController extends Controller
         $user = JWTAuth::parseToken()->authenticate();
 
         try {
-            // save off systems collection from last run
-            $old_contents = file_get_contents(storage_path('app/collections/sccm_systems_collection.json'));
-            file_put_contents(storage_path('app/collections/sccm_systems_collection.json.old'), $old_contents);
-
-            // clear out the collections file
-            file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), '');
+            // if the collection file exists then save off the old data and clear the file
+            if (file_exists(storage_path('app/collections/sccm_systems_collection.json')))
+            {
+                $old_contents = file_get_contents(storage_path('app/collections/sccm_systems_collection.json'));
+                file_put_contents(storage_path('app/collections/sccm_systems_collection.json.old'), $old_contents);
+                file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), '');
+            }
+            else {
+                // otherwise, just create an empty sccm_systems_collection.json file
+                file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), '');
+            }
 
             $response = [
                 'success'   => true,
