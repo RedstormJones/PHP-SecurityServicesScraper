@@ -32,13 +32,11 @@ class SCCMController extends Controller
 
         try {
             // if the collection file exists then save off the old data and clear the file
-            if (file_exists(storage_path('app/collections/sccm_systems_collection.json')))
-            {
+            if (file_exists(storage_path('app/collections/sccm_systems_collection.json'))) {
                 $old_contents = file_get_contents(storage_path('app/collections/sccm_systems_collection.json'));
                 file_put_contents(storage_path('app/collections/sccm_systems_collection.json.old'), $old_contents);
                 file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), '');
-            }
-            else {
+            } else {
                 // otherwise, just create an empty sccm_systems_collection.json file
                 file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), '');
             }
