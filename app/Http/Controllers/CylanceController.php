@@ -211,9 +211,11 @@ class CylanceController extends Controller
 
             foreach ($devices as $device) {
                 if (array_key_exists($device['zones_text'], $data)) {
-                    $data[$device['zones_text']]++;
+                    $data[$device['zones_text']]['count']++;
+                    $data[$device['zones_text']]['devices'][] = $device['device_name'];
                 } else {
-                    $data[$device['zones_text']] = 1;
+                    $data[$device['zones_text']]['count'] = 1;
+                    $data[$device['zones_text']]['devices'][] = $device['device_name'];
                 }
             }
 
@@ -224,7 +226,8 @@ class CylanceController extends Controller
             foreach ($keys as $key) {
                 $district_data[] = [
                     'district_name' => $key,
-                    'device_count'  => $data[$key],
+                    'device_count'  => $data[$key]['count'],
+                    'device_list'   => $data[$key]['devices'],
                 ];
             }
 
