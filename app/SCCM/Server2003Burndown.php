@@ -19,8 +19,8 @@ class Server2003Burndown extends Model
      * @var array
      */
     protected $fillable = [
-    	'server_count',
-    	'trend_value',
-    	'data',
+        'server_count',
+        'trend_value',
+        'data',
     ];
 }
