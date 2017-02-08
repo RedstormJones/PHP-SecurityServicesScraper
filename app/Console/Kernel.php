@@ -111,8 +111,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:cylancedevices')->twiceDaily(0, 12)->timezone('America/Chicago');               // runs twice daily at 00:00am and 12:00pm
         $schedule->command('get:cylancethreats')->twiceDaily(1, 13)->timezone('America/Chicago');               // runs twice daily at 01:00am and 01:00pm
 
-        $schedule->command('get:insidehosttrafficsnapshots')->twiceDaily(8, 14)->timezone('America/Chicago');   // runs twice daily at 08:00am and 02:00pm
-        $schedule->command('get:outsidehosttrafficsnapshots')->twiceDaily(9, 15)->timezone('America/Chicago');  // runs twice daily at 09:00am and 03:00pm
+        //$schedule->command('get:insidehosttrafficsnapshots')->twiceDaily(8, 14)->timezone('America/Chicago');   // runs twice daily at 08:00am and 02:00pm
+        //$schedule->command('get:outsidehosttrafficsnapshots')->twiceDaily(9, 15)->timezone('America/Chicago');  // runs twice daily at 09:00am and 03:00pm
 
         $schedule->command('get:spamemail')->twiceDaily(9, 14)->timezone('America/Chicago');                    // runs twice daily at 09:00am and 02:00pm
 
