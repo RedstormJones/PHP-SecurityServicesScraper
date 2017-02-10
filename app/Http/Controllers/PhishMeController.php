@@ -20,6 +20,11 @@ class PhishMeController extends Controller
         $this->middleware('auth');
     }
 
+    /**
+     * Get aggregate statistics on click test results for a given date (i.e. 2016-AUG).
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function getClickTestResultAggregates($date)
     {
         $user = JWTAuth::parseToken()->authenticate();
@@ -251,6 +256,7 @@ class PhishMeController extends Controller
             // respond
             $response = [
                 'success'           => true,
+                'date'              => $date,
                 'ent_aggregates'    => $ent_aggregates,
                 'ktg_aggregates'    => $ktg_aggregates,
             ];
