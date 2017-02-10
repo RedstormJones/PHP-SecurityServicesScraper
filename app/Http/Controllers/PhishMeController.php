@@ -20,7 +20,6 @@ class PhishMeController extends Controller
         $this->middleware('auth');
     }
 
-
     public function getClickTestResultAggregates($date)
     {
         $user = JWTAuth::parseToken()->authenticate();
@@ -80,16 +79,13 @@ class PhishMeController extends Controller
             $ent_aggregates['percent_entered_password'] = 0.0;
 
             foreach ($ent_scenarios as $data) {
-
                 if (strcmp($data['scenario_type'], 'App\PhishMe\AttachmentScenario') == 0) {
-
                     if (strcmp($data['viewed_education'], 'Yes') == 0) {
                         $ent_aggregates['got_phished']++;
 
                         if (array_key_exists($data['department'], $ent_aggregates['districts'])) {
                             $ent_aggregates['districts'][$data['department']]++;
-                        }
-                        else {
+                        } else {
                             $ent_aggregates['districts'][$data['department']] = 1;
                         }
                     }
@@ -101,16 +97,13 @@ class PhishMeController extends Controller
                     if ($data['new_repeat_reporter']) {
                         $ent_aggregates['new_or_repeat']++;
                     }
-                }
-                elseif (strcmp($data['scenario_type'], 'App\PhishMe\ClickOnlyScenario') == 0) {
-                    
+                } elseif (strcmp($data['scenario_type'], 'App\PhishMe\ClickOnlyScenario') == 0) {
                     if (strcmp($data['clicked_link'], 'Yes') == 0) {
                         $ent_aggregates['got_phished']++;
 
                         if (array_key_exists($data['department'], $ent_aggregates['districts'])) {
                             $ent_aggregates['districts'][$data['department']]++;
-                        }
-                        else {
+                        } else {
                             $ent_aggregates['districts'][$data['department']] = 1;
                         }
                     }
@@ -122,16 +115,13 @@ class PhishMeController extends Controller
                     if ($data['new_repeat_reporter']) {
                         $ent_aggregates['new_or_repeat']++;
                     }
-                }
-                elseif (strcmp($data['scenario_type'], 'App\PhishMe\DataEntryScenario') == 0) {
-
+                } elseif (strcmp($data['scenario_type'], 'App\PhishMe\DataEntryScenario') == 0) {
                     if (strcmp($data['clicked_link'], 'Yes') == 0) {
                         $ent_aggregates['got_phished']++;
 
                         if (array_key_exists($data['department'], $ent_aggregates['districts'])) {
                             $ent_aggregates['districts'][$data['department']]++;
-                        }
-                        else {
+                        } else {
                             $ent_aggregates['districts'][$data['department']] = 1;
                         }
                     }
@@ -166,9 +156,6 @@ class PhishMeController extends Controller
             $ent_aggregates['percent_submitted_data'] = floatval(number_format($submit_data_perc, 2));
             $ent_aggregates['percent_entered_password'] = floatval(number_format($submit_pwd_perc, 2));
 
-
-
-
             // ktg aggregates
             $ktg_aggregates['recipient_count'] = count($ktg_scenarios);
             $ktg_aggregates['got_phished'] = 0;
@@ -184,16 +171,13 @@ class PhishMeController extends Controller
             $ktg_aggregates['percent_entered_password'] = 0.0;
 
             foreach ($ktg_scenarios as $data) {
-
                 if (strcmp($data['scenario_type'], 'App\PhishMe\AttachmentScenario') == 0) {
-
                     if (strcmp($data['viewed_education'], 'Yes') == 0) {
                         $ktg_aggregates['got_phished']++;
 
                         if (array_key_exists($data['department'], $ktg_aggregates['districts'])) {
                             $ktg_aggregates['districts'][$data['department']]++;
-                        }
-                        else {
+                        } else {
                             $ktg_aggregates['districts'][$data['department']] = 1;
                         }
                     }
@@ -205,16 +189,13 @@ class PhishMeController extends Controller
                     if ($data['new_repeat_reporter']) {
                         $ktg_aggregates['new_or_repeat']++;
                     }
-                }
-                elseif (strcmp($data['scenario_type'], 'App\PhishMe\ClickOnlyScenario') == 0) {
-                    
+                } elseif (strcmp($data['scenario_type'], 'App\PhishMe\ClickOnlyScenario') == 0) {
                     if (strcmp($data['clicked_link'], 'Yes') == 0) {
                         $ktg_aggregates['got_phished']++;
 
                         if (array_key_exists($data['department'], $ktg_aggregates['districts'])) {
                             $ktg_aggregates['districts'][$data['department']]++;
-                        }
-                        else {
+                        } else {
                             $ktg_aggregates['districts'][$data['department']] = 1;
                         }
                     }
@@ -226,16 +207,13 @@ class PhishMeController extends Controller
                     if ($data['new_repeat_reporter']) {
                         $ktg_aggregates['new_or_repeat']++;
                     }
-                }
-                elseif (strcmp($data['scenario_type'], 'App\PhishMe\DataEntryScenario') == 0) {
-
+                } elseif (strcmp($data['scenario_type'], 'App\PhishMe\DataEntryScenario') == 0) {
                     if (strcmp($data['clicked_link'], 'Yes') == 0) {
                         $ktg_aggregates['got_phished']++;
 
                         if (array_key_exists($data['department'], $ktg_aggregates['districts'])) {
                             $ktg_aggregates['districts'][$data['department']]++;
-                        }
-                        else {
+                        } else {
                             $ktg_aggregates['districts'][$data['department']] = 1;
                         }
                     }
@@ -288,10 +266,6 @@ class PhishMeController extends Controller
 
         return response()->json($response);
     }
-
-
-
-
 
     /**
      * Get results for a particular scenario.
