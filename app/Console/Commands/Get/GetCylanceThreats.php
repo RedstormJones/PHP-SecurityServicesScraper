@@ -217,7 +217,7 @@ class GetCylanceThreats extends Command
                 $blocked_last_found = $this->stringToDate($threat['BlockedLastFound']);
                 $cert_timestamp = $this->stringToDate($threat['CertTimeStamp']);
 
-                $threatmodel = CylanceThreat::findOrFail($exists);
+                $threatmodel = CylanceThreat::find($exists);
 
                 $threatmodel->update([
                     'common_name'              => $threat['CommonName'],

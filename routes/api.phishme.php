@@ -14,6 +14,7 @@ $options = [
 $api->group($options, function ($api) {
     $api->group(['prefix' => 'reports'], function ($api) {
 
+        // returns aggregate statistics on click tests for a given date (i.e. 2016-AUG)
         $api->get('/aggregates/{date}', 'PhishMeController@getClickTestResultAggregates');
 
         // query for the results of a particular KTG click test, given a date in the format of Y-M (i.e. 2016-AUG)
