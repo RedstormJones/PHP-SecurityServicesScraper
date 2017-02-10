@@ -286,7 +286,7 @@ class SCCMController extends Controller
         try {
             $websecured = 0;
 
-            $sccm_systems = SCCMSystem::all();
+            $sccm_systems = SCCMSystem::where('system_role', 'not like', '%server%')->get();
             $total = count($sccm_systems);
 
             foreach ($sccm_systems as $system) {
