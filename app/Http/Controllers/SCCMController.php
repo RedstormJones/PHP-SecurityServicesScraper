@@ -152,7 +152,8 @@ class SCCMController extends Controller
         try {
             $bitlockered = 0;
 
-            $sccm_systems = SCCMSystem::all();
+            $sccm_systems = SCCMSystem::where('system_role', 'not like', '%server%')->get();
+
             $total = count($sccm_systems);
 
             foreach ($sccm_systems as $system) {
@@ -196,6 +197,7 @@ class SCCMController extends Controller
             $sceped = 0;
 
             $sccm_systems = SCCMSystem::all();
+
             $total = count($sccm_systems);
 
             foreach ($sccm_systems as $system) {
@@ -244,7 +246,8 @@ class SCCMController extends Controller
         try {
             $anyconnected = 0;
 
-            $sccm_systems = SCCMSystem::all();
+            $sccm_systems = SCCMSystem::where('system_role', 'not like', '%server%')->get();
+
             $total = count($sccm_systems);
 
             foreach ($sccm_systems as $system) {
@@ -287,6 +290,7 @@ class SCCMController extends Controller
             $websecured = 0;
 
             $sccm_systems = SCCMSystem::where('system_role', 'not like', '%server%')->get();
+            
             $total = count($sccm_systems);
 
             foreach ($sccm_systems as $system) {
