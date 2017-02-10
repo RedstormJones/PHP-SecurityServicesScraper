@@ -7,6 +7,7 @@ require_once app_path('Console/Crawler/Crawler.php');
 use App\Cylance\CylanceThreat;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 
 class GetCylanceThreats extends Command
@@ -217,48 +218,53 @@ class GetCylanceThreats extends Command
                 $blocked_last_found = $this->stringToDate($threat['BlockedLastFound']);
                 $cert_timestamp = $this->stringToDate($threat['CertTimeStamp']);
 
-                $threatmodel = CylanceThreat::find($exists);
+                try {
+                    $threatmodel = CylanceThreat::withTrashed()->findOrFail($exists);
 
-                $threatmodel->update([
-                    'common_name'              => $threat['CommonName'],
-                    'cylance_score'            => $threat['CylanceScore'],
-                    'active_in_devices'        => $threat['ActiveInDevices'],
-                    'allowed_in_devices'       => $threat['AllowedInDevices'],
-                    'blocked_in_devices'       => $threat['BlockedInDevices'],
-                    'suspicious_in_devices'    => $threat['SuspiciousInDevices'],
-                    'first_found'              => $first_found,
-                    'last_found'               => $last_found,
-                    'last_found_active'        => $active_last_found,
-                    'last_found_allowed'       => $allowed_last_found,
-                    'last_found_blocked'       => $blocked_last_found,
-                    'md5'                      => $threat['MD5'],
-                    'virustotal'               => $threat['VirusTotal'],
-                    'is_virustotal_threat'     => $threat['IsVirusTotalThreat'],
-                    'full_classification'      => $threat['FullClassification'],
-                    'is_unique_to_cylance'     => $threat['IsUniqueToCylance'],
-                    'is_safelisted'            => $threat['IsSafelisted'],
-                    'detected_by'              => $threat['DetectedBy'],
-                    'threat_priority'          => $threat['ThreatPriority'],
-                    'current_model'            => $threat['CurrentModel'],
-                    'priority'                 => $threat['Priority'],
-                    'file_size'                => $threat['FileSize'],
-                    'global_quarantined'       => $threat['IsGlobalQuarantined'],
-                    'signed'                   => $threat['Signed'],
-                    'cert_issuer'              => $threat['CertIssuer'],
-                    'cert_publisher'           => $threat['CertPublisher'],
-                    'cert_timestamp'           => $cert_timestamp,
-                    'data'                     => json_encode($threat),
-                ]);
+                    $threatmodel->update([
+                        'common_name'              => $threat['CommonName'],
+                        'cylance_score'            => $threat['CylanceScore'],
+                        'active_in_devices'        => $threat['ActiveInDevices'],
+                        'allowed_in_devices'       => $threat['AllowedInDevices'],
+                        'blocked_in_devices'       => $threat['BlockedInDevices'],
+                        'suspicious_in_devices'    => $threat['SuspiciousInDevices'],
+                        'first_found'              => $first_found,
+                        'last_found'               => $last_found,
+                        'last_found_active'        => $active_last_found,
+                        'last_found_allowed'       => $allowed_last_found,
+                        'last_found_blocked'       => $blocked_last_found,
+                        'md5'                      => $threat['MD5'],
+                        'virustotal'               => $threat['VirusTotal'],
+                        'is_virustotal_threat'     => $threat['IsVirusTotalThreat'],
+                        'full_classification'      => $threat['FullClassification'],
+                        'is_unique_to_cylance'     => $threat['IsUniqueToCylance'],
+                        'is_safelisted'            => $threat['IsSafelisted'],
+                        'detected_by'              => $threat['DetectedBy'],
+                        'threat_priority'          => $threat['ThreatPriority'],
+                        'current_model'            => $threat['CurrentModel'],
+                        'priority'                 => $threat['Priority'],
+                        'file_size'                => $threat['FileSize'],
+                        'global_quarantined'       => $threat['IsGlobalQuarantined'],
+                        'signed'                   => $threat['Signed'],
+                        'cert_issuer'              => $threat['CertIssuer'],
+                        'cert_publisher'           => $threat['CertPublisher'],
+                        'cert_timestamp'           => $cert_timestamp,
+                        'data'                     => json_encode($threat),
+                    ]);
 
-                $threatmodel->save();
+                    $threatmodel->save();
 
-                // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
-                $threatmodel->touch();
+                    // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
+                    $threatmodel->touch();
 
-                // do a restore to set the 'deleted_at' timestamp back to NULL in case this threat model had been soft deleted at some point.
-                $threatmodel->restore();
+                    // do a restore to set the 'deleted_at' timestamp back to NULL in case this threat model had been soft deleted at some point.
+                    $threatmodel->restore();
 
-                Log::info('updated threat: '.$threat['CommonName']);
+                    Log::info('updated threat: '.$threat['CommonName']);
+
+                } catch (ModelNotFoundException $e) {
+                    Log::error('Cylance threat model not found: '.$e);
+                }
             } else {
                 Log::info('creating threat: '.$threat['CommonName']);
                 $this->createThreat($threat);
