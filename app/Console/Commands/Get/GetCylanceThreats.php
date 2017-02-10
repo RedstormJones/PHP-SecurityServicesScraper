@@ -123,28 +123,30 @@ class GetCylanceThreats extends Command
         $headers = [
             'X-Request-Verification-Token: '.$token,
             'X-Requested-With: XMLHttpRequest',
+            'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
         ];
 
         // setup curl HTTP headers with $headers
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         // change url to point to the threat list
-        $url = 'https:/'.'/my-vs0.cylance.com/Threats/ListThreatsOverview';
-
-        // setup necessary post data
-        $post = [
-            'sort'      => 'ActiveInDevices-desc',
-            'page'      => '1',
-            'pageSize'  => '100',
-            'group'     => '',
-            'aggregate' => '',
-            'filter'    => '',
-        ];
+        $url = 'https:/'.'/protect.cylance.com/Threats/ListThreatsOverview';
 
         // setup collection array and variables for paging
         $collection = [];
         $i = 0;
         $page = 1;
+        $page_size = 1000;
+
+        // setup necessary post data
+        $post = [
+            'sort'      => 'ActiveInDevices-desc',
+            'page'      => $page,
+            'pageSize'  => $page_size,
+            'group'     => '',
+            'aggregate' => '',
+            'filter'    => '',
+        ];
 
         Log::info('starting page scrape loop');
 
@@ -155,7 +157,7 @@ class GetCylanceThreats extends Command
             $post['page'] = $page;
 
             // post data to webpage and capture response, which is hopefully a list of devices
-            $response = $crawler->post($url, 'https:/'.'/my-vs0.cylance.com/Threats', $this->postArrayToString($post));
+            $response = $crawler->post($url, '', $this->postArrayToString($post));
 
             // dump raw response to threats.dump.* file where * is the page number
             file_put_contents($response_path.'threats.dump.'.$page, $response);
@@ -172,8 +174,8 @@ class GetCylanceThreats extends Command
 
             Log::info('scrape for page '.$page.' complete - got '.count($threats['Data']).' threats');
 
-            $i += 100;   // Increase i by PAGESIZE!
-            $page++;    // Increase the page number
+            $i += $page_size;   // increment i by page_size
+            $page++;            // increment the page number
 
             sleep(1);   // wait a second before hammering on their webserver again
         } while ($i < $count);
@@ -253,10 +255,7 @@ class GetCylanceThreats extends Command
                 // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
                 $threatmodel->touch();
 
-                /*
-                * do a restore to set the 'deleted_at' timestamp back to NULL
-                * in case this threat model had been soft deleted at some point.
-                */
+                // do a restore to set the 'deleted_at' timestamp back to NULL in case this threat model had been soft deleted at some point.
                 $threatmodel->restore();
 
                 Log::info('updated threat: '.$threat['CommonName']);

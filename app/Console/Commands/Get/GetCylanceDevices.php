@@ -123,28 +123,30 @@ class GetCylanceDevices extends Command
         $headers = [
             'X-Request-Verification-Token: '.$token,
             'X-Requested-With: XMLHttpRequest',
+            'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
         ];
 
         // setup curl HTTP headers with $headers
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         // point url to the devices list API endpoint
-        $url = 'https:/'.'/my-vs0.cylance.com/Grids/DevicesList_Ajax';
-
-        // setup necessary post data
-        $post = [
-            'sort'      => 'Name-asc',
-            'page'      => '1',
-            'pageSize'  => '100',
-            'group'     => '',
-            'aggregate' => '',
-            'filter'    => '',
-        ];
+        $url = 'https:/'.'/protect.cylance.com/Grids/DevicesList_Ajax';
 
         // setup collection array and variables for paging
         $collection = [];
         $i = 0;
         $page = 1;
+        $page_size = 1000;
+
+        // setup necessary post data
+        $post = [
+            'sort'      => 'Created-desc',
+            'page'      => $page,
+            'pageSize'  => $page_size,
+            'group'     => '',
+            'aggregate' => '',
+            'filter'    => '',
+        ];
 
         // start paging
         Log::info('starting page scrape loop');
@@ -166,14 +168,13 @@ class GetCylanceDevices extends Command
             // save this pages response array to our collection
             $collection[] = $devices;
 
-            // set count to the total number of devices returned with each response.
-            // this should not change from response to response
+            // set count to the total number of devices returned with each response
             $count = $devices['Total'];
 
             Log::info('scrape for page '.$page.' complete - got '.count($devices['Data']).' devices');
 
-            $i += count($devices['Data']);  // Increase i by PAGESIZE!
-            $page++;                        // Increase the page number
+            $i += $page_size;  // increment i by page_size
+            $page++;           // increment the page number
 
             // wait a second before hammering on their webserver again
             sleep(1);
