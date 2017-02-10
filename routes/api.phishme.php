@@ -14,6 +14,8 @@ $options = [
 $api->group($options, function ($api) {
     $api->group(['prefix' => 'reports'], function ($api) {
 
+        $api->get('/aggregates/{date}', 'PhishMeController@getClickTestResultAggregates');
+
         // query for the results of a particular KTG click test, given a date in the format of Y-M (i.e. 2016-AUG)
         $api->post('/ktg/{date}', 'PhishMeController@getKTGClickTestResults');
 

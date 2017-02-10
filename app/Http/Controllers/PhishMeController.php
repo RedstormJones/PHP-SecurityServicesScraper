@@ -20,6 +20,279 @@ class PhishMeController extends Controller
         $this->middleware('auth');
     }
 
+
+    public function getClickTestResultAggregates($date)
+    {
+        $user = JWTAuth::parseToken()->authenticate();
+
+        try {
+            $ent_scenarios = [];
+            $ktg_scenarios = [];
+
+            // get enterprise scenarios for given date
+            $ent_attachments = AttachmentScenario::where('scenario_title', $date.' Enterprise Click Test')->get();
+            $ent_clickonlys = ClickOnlyScenario::where('scenario_title', $date.' Enterprise Click Test')->get();
+            $ent_dataentrys = DataEntryScenario::where('scenario_title', $date.' Enterprise Click Test')->get();
+
+            // build enterprise scenarios array
+            foreach ($ent_attachments as $data) {
+                $ent_scenarios[] = $data;
+            }
+            foreach ($ent_clickonlys as $data) {
+                $ent_scenarios[] = $data;
+            }
+            foreach ($ent_dataentrys as $data) {
+                $ent_scenarios[] = $data;
+            }
+
+            // get ktg scenarios for given date
+            $ktg_attachments = AttachmentScenario::where('scenario_title', 'like', $date.' KTG Click Test%')->get();
+            $ktg_clickonlys = ClickOnlyScenario::where('scenario_title', 'like', $date.' KTG Click Test%')->get();
+            $ktg_dataentrys = DataEntryScenario::where('scenario_title', 'like', $date.' KTG Click Test%')->get();
+
+            // build ktg scenarios array
+            foreach ($ktg_attachments as $data) {
+                $ktg_scenarios[] = $data;
+            }
+            foreach ($ktg_clickonlys as $data) {
+                $ktg_scenarios[] = $data;
+            }
+            foreach ($ktg_dataentrys as $data) {
+                $ktg_scenarios[] = $data;
+            }
+
+            // calculate aggregates
+            $ent_aggregates = [];
+            $ktg_aggregates = [];
+
+            // enterprise aggregates
+            $ent_aggregates['recipient_count'] = count($ent_scenarios);
+            $ent_aggregates['got_phished'] = 0;
+            $ent_aggregates['reported_phish'] = 0;
+            $ent_aggregates['new_or_repeat'] = 0;
+            $ent_aggregates['submitted_data'] = 0;
+            $ent_aggregates['entered_password'] = 0;
+            $ent_aggregates['districts'] = [];
+            $ent_aggregates['percent_phished'] = 0.0;
+            $ent_aggregates['percent_reported'] = 0.0;
+            $ent_aggregates['percent_new_or_repeat'] = 0.0;
+            $ent_aggregates['percent_submitted_data'] = 0.0;
+            $ent_aggregates['percent_entered_password'] = 0.0;
+
+            foreach ($ent_scenarios as $data) {
+
+                if (strcmp($data['scenario_type'], 'App\PhishMe\AttachmentScenario') == 0) {
+
+                    if (strcmp($data['viewed_education'], 'Yes') == 0) {
+                        $ent_aggregates['got_phished']++;
+
+                        if (array_key_exists($data['department'], $ent_aggregates['districts'])) {
+                            $ent_aggregates['districts'][$data['department']]++;
+                        }
+                        else {
+                            $ent_aggregates['districts'][$data['department']] = 1;
+                        }
+                    }
+
+                    if (strcmp($data['reported_phish'], 'Yes') == 0) {
+                        $ent_aggregates['reported_phish']++;
+                    }
+
+                    if ($data['new_repeat_reporter']) {
+                        $ent_aggregates['new_or_repeat']++;
+                    }
+                }
+                elseif (strcmp($data['scenario_type'], 'App\PhishMe\ClickOnlyScenario') == 0) {
+                    
+                    if (strcmp($data['clicked_link'], 'Yes') == 0) {
+                        $ent_aggregates['got_phished']++;
+
+                        if (array_key_exists($data['department'], $ent_aggregates['districts'])) {
+                            $ent_aggregates['districts'][$data['department']]++;
+                        }
+                        else {
+                            $ent_aggregates['districts'][$data['department']] = 1;
+                        }
+                    }
+
+                    if (strcmp($data['reported_phish'], 'Yes') == 0) {
+                        $ent_aggregates['reported_phish']++;
+                    }
+
+                    if ($data['new_repeat_reporter']) {
+                        $ent_aggregates['new_or_repeat']++;
+                    }
+                }
+                elseif (strcmp($data['scenario_type'], 'App\PhishMe\DataEntryScenario') == 0) {
+
+                    if (strcmp($data['clicked_link'], 'Yes') == 0) {
+                        $ent_aggregates['got_phished']++;
+
+                        if (array_key_exists($data['department'], $ent_aggregates['districts'])) {
+                            $ent_aggregates['districts'][$data['department']]++;
+                        }
+                        else {
+                            $ent_aggregates['districts'][$data['department']] = 1;
+                        }
+                    }
+
+                    if (strcmp($data['submitted_data'], 'Yes') == 0) {
+                        $ent_aggregates['submitted_data']++;
+                    }
+
+                    if (strcmp($data['entered_password'], 'Yes') == 0) {
+                        $ent_aggregates['entered_password']++;
+                    }
+
+                    if (strcmp($data['reported_phish'], 'Yes') == 0) {
+                        $ent_aggregates['reported_phish']++;
+                    }
+
+                    if ($data['new_repeat_reporter']) {
+                        $ent_aggregates['new_or_repeat']++;
+                    }
+                }
+            }
+
+            $phished_perc = ($ent_aggregates['got_phished'] / count($ent_scenarios)) * 100;
+            $report_perc = ($ent_aggregates['reported_phish'] / count($ent_scenarios)) * 100;
+            $new_repeat_perc = ($ent_aggregates['new_or_repeat'] / count($ent_scenarios)) * 100;
+            $submit_data_perc = ($ent_aggregates['submitted_data'] / count($ent_scenarios)) * 100;
+            $submit_pwd_perc = ($ent_aggregates['entered_password'] / count($ent_scenarios)) * 100;
+
+            $ent_aggregates['percent_phished'] = floatval(number_format($phished_perc, 2));
+            $ent_aggregates['percent_reported'] = floatval(number_format($report_perc, 2));
+            $ent_aggregates['percent_new_or_repeat'] = floatval(number_format($new_repeat_perc, 2));
+            $ent_aggregates['percent_submitted_data'] = floatval(number_format($submit_data_perc, 2));
+            $ent_aggregates['percent_entered_password'] = floatval(number_format($submit_pwd_perc, 2));
+
+
+
+
+            // ktg aggregates
+            $ktg_aggregates['recipient_count'] = count($ktg_scenarios);
+            $ktg_aggregates['got_phished'] = 0;
+            $ktg_aggregates['reported_phish'] = 0;
+            $ktg_aggregates['new_or_repeat'] = 0;
+            $ktg_aggregates['submitted_data'] = 0;
+            $ktg_aggregates['entered_password'] = 0;
+            $ktg_aggregates['districts'] = [];
+            $ktg_aggregates['percent_phished'] = 0.0;
+            $ktg_aggregates['percent_reported'] = 0.0;
+            $ktg_aggregates['percent_new_or_repeat'] = 0.0;
+            $ktg_aggregates['percent_submitted_data'] = 0.0;
+            $ktg_aggregates['percent_entered_password'] = 0.0;
+
+            foreach ($ktg_scenarios as $data) {
+
+                if (strcmp($data['scenario_type'], 'App\PhishMe\AttachmentScenario') == 0) {
+
+                    if (strcmp($data['viewed_education'], 'Yes') == 0) {
+                        $ktg_aggregates['got_phished']++;
+
+                        if (array_key_exists($data['department'], $ktg_aggregates['districts'])) {
+                            $ktg_aggregates['districts'][$data['department']]++;
+                        }
+                        else {
+                            $ktg_aggregates['districts'][$data['department']] = 1;
+                        }
+                    }
+
+                    if (strcmp($data['reported_phish'], 'Yes') == 0) {
+                        $ktg_aggregates['reported_phish']++;
+                    }
+
+                    if ($data['new_repeat_reporter']) {
+                        $ktg_aggregates['new_or_repeat']++;
+                    }
+                }
+                elseif (strcmp($data['scenario_type'], 'App\PhishMe\ClickOnlyScenario') == 0) {
+                    
+                    if (strcmp($data['clicked_link'], 'Yes') == 0) {
+                        $ktg_aggregates['got_phished']++;
+
+                        if (array_key_exists($data['department'], $ktg_aggregates['districts'])) {
+                            $ktg_aggregates['districts'][$data['department']]++;
+                        }
+                        else {
+                            $ktg_aggregates['districts'][$data['department']] = 1;
+                        }
+                    }
+
+                    if (strcmp($data['reported_phish'], 'Yes') == 0) {
+                        $ktg_aggregates['reported_phish']++;
+                    }
+
+                    if ($data['new_repeat_reporter']) {
+                        $ktg_aggregates['new_or_repeat']++;
+                    }
+                }
+                elseif (strcmp($data['scenario_type'], 'App\PhishMe\DataEntryScenario') == 0) {
+
+                    if (strcmp($data['clicked_link'], 'Yes') == 0) {
+                        $ktg_aggregates['got_phished']++;
+
+                        if (array_key_exists($data['department'], $ktg_aggregates['districts'])) {
+                            $ktg_aggregates['districts'][$data['department']]++;
+                        }
+                        else {
+                            $ktg_aggregates['districts'][$data['department']] = 1;
+                        }
+                    }
+
+                    if (strcmp($data['submitted_data'], 'Yes') == 0) {
+                        $ktg_aggregates['submitted_data']++;
+                    }
+
+                    if (strcmp($data['entered_password'], 'Yes') == 0) {
+                        $ktg_aggregates['entered_password']++;
+                    }
+
+                    if (strcmp($data['reported_phish'], 'Yes') == 0) {
+                        $ktg_aggregates['reported_phish']++;
+                    }
+
+                    if ($data['new_repeat_reporter']) {
+                        $ktg_aggregates['new_or_repeat']++;
+                    }
+                }
+            }
+
+            $phished_perc = ($ktg_aggregates['got_phished'] / count($ktg_scenarios)) * 100;
+            $report_perc = ($ktg_aggregates['reported_phish'] / count($ktg_scenarios)) * 100;
+            $new_repeat_perc = ($ktg_aggregates['new_or_repeat'] / count($ktg_scenarios)) * 100;
+            $submit_data_perc = ($ktg_aggregates['submitted_data'] / count($ktg_scenarios)) * 100;
+            $submit_pwd_perc = ($ktg_aggregates['entered_password'] / count($ktg_scenarios)) * 100;
+
+            $ktg_aggregates['percent_phished'] = floatval(number_format($phished_perc, 2));
+            $ktg_aggregates['percent_reported'] = floatval(number_format($report_perc, 2));
+            $ktg_aggregates['percent_new_or_repeat'] = floatval(number_format($new_repeat_perc, 2));
+            $ktg_aggregates['percent_submitted_data'] = floatval(number_format($submit_data_perc, 2));
+            $ktg_aggregates['percent_entered_password'] = floatval(number_format($submit_pwd_perc, 2));
+
+            // respond
+            $response = [
+                'success'           => true,
+                'ent_aggregates'    => $ent_aggregates,
+                'ktg_aggregates'    => $ktg_aggregates,
+            ];
+        } catch (\Exception $e) {
+            Log::info('Failed to get click test result aggregates: '.$e);
+
+            $response = [
+                'success'   => false,
+                'message'   => 'Failed to get click test result aggregates',
+                'exception' => $e,
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+
+
+
+
     /**
      * Get results for a particular scenario.
      *
