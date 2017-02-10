@@ -140,7 +140,7 @@ class GetCylanceDevices extends Command
 
         // setup necessary post data
         $post = [
-            'sort'      => 'Created-desc',
+            'sort'      => 'Name-asc',
             'page'      => $page,
             'pageSize'  => $page_size,
             'group'     => '',
