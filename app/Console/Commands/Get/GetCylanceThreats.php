@@ -261,7 +261,6 @@ class GetCylanceThreats extends Command
                     $threatmodel->restore();
 
                     Log::info('updated threat: '.$threat['CommonName']);
-
                 } catch (ModelNotFoundException $e) {
                     Log::error('Cylance threat model not found: '.$e);
                 }
