@@ -47,18 +47,19 @@ class GetServer2003Burndown extends Command
 
         Log::info(PHP_EOL.PHP_EOL.'**********************************************'.PHP_EOL.'* Starting 2003 servers burndown processing! *'.PHP_EOL.'**********************************************');
 
-        $yesterday = Carbon::now()->subDay()->toDateTimeString();
+        $yesterday = Carbon::now()->subDays(1)->toDateString();
+        Log::info('yesterday: '.$yesterday);
 
         // get current count of 2003 servers
         $server_count = SCCMSystem::where('os_roundup', 'like', '%2003%')->count();
         Log::info('server count: '.$server_count);
 
         // get yesterday's count of 2003 servers
-        $previous_count = Server2003Burndown::where('created_at', $yesterday)->value('server_count');
+        $previous_count = Server2003Burndown::where('created_at', 'like', $yesterday.'%')->value('server_count');
         Log::info('previous count: '.$previous_count);
 
         // if previous count is 0 or null then there was no previous day's record to use
-        if ($previous_count == 0 || is_null($previous_count)) {
+        if (!$previous_count) {
             // so, set the previous count to the server count so that the trending value is 0
             $previous_count = $server_count;
         }
