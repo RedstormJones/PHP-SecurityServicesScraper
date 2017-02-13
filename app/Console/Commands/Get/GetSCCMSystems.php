@@ -80,6 +80,7 @@ class GetSCCMSystems extends Command
                     'owner'                     => $system['owner'],
                     'days_since_last_logon'     => $days_since_last_logon,
                     'stale_45days'              => $system['stale_45days'],
+                    'client_activity'           => $system['client_activity'],
                     'client_status'             => $system['client_status'],
                     'client_version'            => $system['client_version'],
                     'operating_system'          => $system['operating_system'],
@@ -154,6 +155,7 @@ class GetSCCMSystems extends Command
                 $system_model->owner = $system['owner'];
                 $system_model->days_since_last_logon = $days_since_last_logon;
                 $system_model->stale_45days = $system['stale_45days'];
+                $system_model->client_activity = $system['client_activity'];
                 $system_model->client_status = $system['client_status'];
                 $system_model->client_version = $system['client_version'];
                 $system_model->operating_system = $system['operating_system'];
