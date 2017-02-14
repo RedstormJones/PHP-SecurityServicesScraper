@@ -63,7 +63,7 @@ class GetSecurityCenterVulns extends Command
         ];
 
         // set url to the token resource
-        $url = 'https:/'.'/knetscalp001:443/rest/token';
+        $url = getenv('SECURITYCENTER_URL').'/rest/token';
 
         // post authentication data, capture response and dump to file
         $response = $crawler->post($url, '', $post);
@@ -144,7 +144,7 @@ class GetSecurityCenterVulns extends Command
         Log::info('getting sev '.$severity.' vulnerabilities...');
 
         // point url to the resource we want
-        $url = 'https:/'.'/knetscalp001:443/rest/analysis';
+        $url = getenv('SECURITYCENTER_URL').'/rest/analysis';
 
         // instantiate the collections array, set count to 0 and set endoffset to 1000 (since pagesize = 1000)
         $collection = [];

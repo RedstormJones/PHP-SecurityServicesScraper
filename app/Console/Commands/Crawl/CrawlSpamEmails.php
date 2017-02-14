@@ -52,7 +52,7 @@ class CrawlSpamEmails extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // set url
-        $url = 'https:/'.'/dh1146-sma1.iphmx.com';
+        $url = getenv('IRONPORT_SMA');
 
         // hit webpage and try to capture CSRF token, otherwise die
         $response = $crawler->get($url);
@@ -74,11 +74,11 @@ class CrawlSpamEmails extends Command
             }
 
             // set login URL and post data
-            $url = 'https:/'.'/dh1146-sma1.iphmx.com/login';
+            $url = getenv('IRONPORT_SMA').'/login';
 
             $post = [
                 'action'    => 'Login',
-                'referrer'  => 'https:/'.'/dh1146-sma1.iphmx.com/default',
+                'referrer'  => getenv('IRONPORT_SMA').'/default',
                 'screen'    => 'login',
                 'username'  => $username,
                 'password'  => $password,
@@ -103,7 +103,7 @@ class CrawlSpamEmails extends Command
         file_put_contents($response_path.'ironport_dashboard.dump', $response);
 
         // now that we're in head over to the local quarantines
-        $url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email_quarantine/local_quarantines';
+        $url = getenv('IRONPORT_SMA').'/monitor_email_quarantine/local_quarantines';
 
         // capture response and try to extract CSRF token (it might be a new one)
         $response = $crawler->get($url);
@@ -119,8 +119,8 @@ class CrawlSpamEmails extends Command
         echo 'Starting incoming email scrape'.PHP_EOL;
 
         // setup url and referer to go to the Centralized Policy spam quarantine
-        $url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email_quarantine/local_quarantines_dosearch?';
-        $referer = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email_quarantine/local_quarantines';
+        $url = getenv('IRONPORT_SMA').'monitor_email_quarantine/local_quarantines_dosearch?';
+        $referer = getenv('IRONPORT_SMA').'/monitor_email_quarantine/local_quarantines';
         $refparams = [
             'CSRFKey'       => $csrftoken,
             'clear'         => 'true',
@@ -150,7 +150,7 @@ class CrawlSpamEmails extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         // setup url spam search url
-        $url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email_quarantine/local_quarantines_dosearch?';
+        $url = getenv('IRONPORT_SMA').'/monitor_email_quarantine/local_quarantines_dosearch?';
 
         $collection = [];
         $page = 1;

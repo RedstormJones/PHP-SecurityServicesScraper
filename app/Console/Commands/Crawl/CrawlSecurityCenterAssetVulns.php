@@ -52,7 +52,7 @@ class CrawlSecurityCenterAssetVulns extends Command
         ];
 
         // set url to the token resource and post authentication data
-        $url = 'https:/'.'/knetscalp001:443/rest/token';
+        $url = getenv('SECURITYCENTER_URL').'/rest/token';
 
         // capture response and dump to file
         $response = $crawler->post($url, '', $post);
@@ -113,7 +113,7 @@ class CrawlSecurityCenterAssetVulns extends Command
     public function getAssetSummary($crawler)
     {
         // point url to the resource we want
-        $url = 'https:/'.'/knetscalp001:443/rest/analysis';
+        $url = getenv('SECURITYCENTER_URL').'/rest/analysis';
 
         // instantiate the collections array, set count to 0 and set endoffset to 1000 (since pagesize = 1000)
         $collection = [];

@@ -60,7 +60,7 @@ class GetIncomingEmail extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // set url
-        $url = 'https:/'.'/dh1146-sma1.iphmx.com';
+        $url = getenv('IRONPORT_SMA');
 
         // hit webpage and try to capture CSRF token, otherwise die
         $response = $crawler->get($url);
@@ -81,11 +81,11 @@ class GetIncomingEmail extends Command
             }
 
             // set login url and post data
-            $url = 'https:/'.'/dh1146-sma1.iphmx.com/login';
+            $url = getenv('IRONPORT_SMA').'/login';
 
             $post = [
                 'action'    => 'Login',
-                'referrer'  => 'https:/'.'/dh1146-sma1.iphmx.com/default',
+                'referrer'  => getenv('IRONPORT_SMA').'/default',
                 'screen'    => 'login',
                 'username'  => $username,
                 'password'  => $password,
@@ -108,7 +108,7 @@ class GetIncomingEmail extends Command
         file_put_contents($response_path.'ironport_dashboard.dump', $response);
 
         // set url to go to Email
-        $url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email/user_report';
+        $url = getenv('IRONPORT_SMA').'/monitor_email/user_report';
 
         // capture response and dump to file
         $response = $crawler->get($url);
@@ -124,7 +124,7 @@ class GetIncomingEmail extends Command
         }
 
         // set incoming email download url and post data
-        $url = 'https:/'.'/dh1146-sma1.iphmx.com/monitor_email/mail_reports/incoming_mail';
+        $url = getenv('IRONPORT_SMA').'/monitor_email/mail_reports/incoming_mail';
 
         $post = [
             'profile_type'      => 'domain',

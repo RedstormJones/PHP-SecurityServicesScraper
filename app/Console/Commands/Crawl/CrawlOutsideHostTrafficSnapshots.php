@@ -45,7 +45,7 @@ class CrawlOutsideHostTrafficSnapshots extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // point url at authentication service
-        $url = 'https:/'.'/lancope.kiewitplaza.com/smc/j_spring_security_check';
+        $url = getenv('LANCOPE_URL').'/smc/j_spring_security_check';
         echo 'url: '.$url.PHP_EOL;
 
         // put authentication data together
@@ -59,7 +59,7 @@ class CrawlOutsideHostTrafficSnapshots extends Command
         file_put_contents(storage_path('app/responses/smc.auth.dump'), $response);
 
         // point url to dashboard to get app traffic snapshots for default hostgroup
-        $url = 'https:/'.'/lancope.kiewitplaza.com/smc/rest/domains/123/hostgroups/0/applicationTraffic';
+        $url = getenv('LANCOPE_URL').'/smc/rest/domains/123/hostgroups/0/applicationTraffic';
         echo 'url: '.$url.PHP_EOL;
 
         // send request, capture response and dump it to file

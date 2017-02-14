@@ -56,7 +56,7 @@ class GetInsideHostTrafficSnapshots extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // point url at authentication service
-        $url = 'https:/'.'/lancope.kiewitplaza.com/smc/j_spring_security_check';
+        $url = getenv('LANCOPE_URL').'/smc/j_spring_security_check';
 
         // put authentication data together
         $post = [
@@ -69,7 +69,7 @@ class GetInsideHostTrafficSnapshots extends Command
         file_put_contents(storage_path('app/responses/smc.auth.dump'), $response);
 
         // point url to dashboard to get app traffic snapshots for default hostgroup
-        $url = 'https:/'.'/lancope.kiewitplaza.com/smc/rest/domains/123/hostgroups/1/applicationTraffic';
+        $url = getenv('LANCOPE_URL').'/smc/rest/domains/123/hostgroups/1/applicationTraffic';
 
         // send request, capture response and dump it to file
         $response = $crawler->get($url);

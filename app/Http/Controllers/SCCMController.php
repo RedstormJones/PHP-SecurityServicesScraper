@@ -29,6 +29,8 @@ class SCCMController extends Controller
      */
     public function clearSCCMSystemsUpload()
     {
+        Log::info(PHP_EOL.PHP_EOL.'*****************************************'.PHP_EOL.'* Clearing current SCCM systems upload! *'.PHP_EOL.'*****************************************');
+        
         $user = JWTAuth::parseToken()->authenticate();
 
         try {
