@@ -548,17 +548,23 @@ class CylanceController extends Controller
             $device_records = CylanceDevice::withTrashed()->where('device_name', $device_name)->get();
 
             foreach ($device_records as $device) {
-                if (!$device['deleted_at']) {
-                    $current_owner = true;
-                } else {
+                if ($device['deleted_at']) {
                     $current_owner = false;
+                } else {
+                    $current_owner = true;
+                }
+
+                if ($device['device_offline_date']) {
+                    $offline_date = $device['device_offline_date'];
+                } else {
+                    $offline_date = '';
                 }
 
                 $ownership_history[] = [
                     'owner'                 => $device['last_users_text'],
                     'current_owner'         => $current_owner,
                     'device_created_date'   => $device['device_created_at'],
-                    'device_offline_date'   => $device['device_offline_date'],
+                    'device_offline_date'   => $offline_date,
                 ];
             }
 
