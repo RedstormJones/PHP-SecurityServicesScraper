@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\Get;
 
-use App\Events\SCCMSystemsCompleted;
 use App\SCCM\SCCMSystem;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
