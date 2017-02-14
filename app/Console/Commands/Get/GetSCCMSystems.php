@@ -55,7 +55,7 @@ class GetSCCMSystems extends Command
             $exists = SCCMSystem::where('system_name', $system['system_name'])->value('id');
 
             if ($exists) {
-                Log::info('updating SCCM system model: '.$system['system_name']);
+                Log::info('updating SCCM system model '.$system['system_name'].' - client_activity: '.$system['client_activity']);
 
                 $image_date = $this->handleDate($system['image_date']);
                 $ad_last_logon = $this->handleDate($system['ad_last_logon']);
