@@ -545,7 +545,7 @@ class CylanceController extends Controller
         try {
             $ownership_history = [];
 
-            $device_records = CylanceDevice::withTrashed()->where('device_name', $device_name)->get();
+            $device_records = CylanceDevice::withTrashed()->where('device_name', $device_name)->orderBy('device_created_at', 'DESC')->get();
 
             foreach ($device_records as $device) {
                 if ($device['deleted_at']) {
