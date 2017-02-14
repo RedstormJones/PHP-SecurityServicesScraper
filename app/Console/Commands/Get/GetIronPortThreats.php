@@ -148,7 +148,6 @@ class GetIronPortThreats extends Command
 
         // Set number of elements (minus 1 because we shift off the first row)
         $count = count($data) - 1;
-        echo 'Read '.$count.' incoming email records'.PHP_EOL;
         Log::info('read '.$count.' IronPort threats');
 
         //Use first row for names
