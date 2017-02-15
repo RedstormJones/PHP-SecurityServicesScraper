@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Cylance\CylanceDevice;
 use App\Cylance\CylanceThreat;
+use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class CylanceController extends Controller
@@ -544,14 +545,36 @@ class CylanceController extends Controller
 
         try {
             $ownership_history = [];
+            $count = 0;
 
             $device_records = CylanceDevice::withTrashed()->where('device_name', $device_name)->orderBy('device_created_at', 'DESC')->get();
 
             foreach ($device_records as $device) {
-                if ($device['deleted_at']) {
-                    $current_owner = false;
-                } else {
+                if (!$count)
+                {
                     $current_owner = true;
+                }
+                else {
+                    $current_owner = false;
+                }
+                // build last_users array
+                $last_users = [];
+                $last_user_pieces = explode(',', $device['last_users_text']);
+
+                foreach($last_user_pieces as $last_user)
+                {
+                    $user = explode('\\', $last_user);
+                    if (isset($user[1]))
+                    {
+                        $last_users[] = $user[1];
+                    }
+                }
+
+
+                if ($device['deleted_at']) {
+                    $active_record = false;
+                } else {
+                    $active_record = true;
                 }
 
                 if ($device['device_offline_date']) {
@@ -561,11 +584,18 @@ class CylanceController extends Controller
                 }
 
                 $ownership_history[] = [
-                    'owner'                 => $device['last_users_text'],
+                    'device_name'           => $device['device_name'],
+                    'owner'                 => $last_users,
                     'current_owner'         => $current_owner,
+                    'active_record'         => $active_record,
                     'device_created_date'   => $device['device_created_at'],
                     'device_offline_date'   => $offline_date,
+                    'os_version'            => $device['os_versions_text'],
+                    'policy_name'           => $device['policy_name'],
+                    'agent_version'         => $device['agent_version_text'],
                 ];
+
+                $count++;
             }
 
             $response = [
@@ -574,6 +604,9 @@ class CylanceController extends Controller
                 'devices'   => $ownership_history,
             ];
         } catch (\Exception $e) {
+            Log::error('Failed to get device ownership history: '.$e);
+            Log::info('last users text: '.$device['last_users_text']);
+
             $response = [
                 'success'   => false,
                 'message'   => 'Failed to get device ownership history for '.$device_name,
