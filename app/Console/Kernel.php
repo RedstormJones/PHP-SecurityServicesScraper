@@ -105,7 +105,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:sumipvulns')->dailyAt('22:05')->timezone('America/Chicago');                // runs daily at 10:05pm
         $schedule->command('get:securitycenterassetvulns')->dailyAt('22:30')->timezone('America/Chicago');  // runs daily at 10:30pm
 
-        
         /*
         * Commands run multiple times a day
         */

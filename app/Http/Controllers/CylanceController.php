@@ -550,26 +550,21 @@ class CylanceController extends Controller
             $device_records = CylanceDevice::withTrashed()->where('device_name', $device_name)->orderBy('device_created_at', 'DESC')->get();
 
             foreach ($device_records as $device) {
-                if (!$count)
-                {
+                if (!$count) {
                     $current_owner = true;
-                }
-                else {
+                } else {
                     $current_owner = false;
                 }
                 // build last_users array
                 $last_users = [];
                 $last_user_pieces = explode(',', $device['last_users_text']);
 
-                foreach($last_user_pieces as $last_user)
-                {
+                foreach ($last_user_pieces as $last_user) {
                     $user = explode('\\', $last_user);
-                    if (isset($user[1]))
-                    {
+                    if (isset($user[1])) {
                         $last_users[] = $user[1];
                     }
                 }
-
 
                 if ($device['deleted_at']) {
                     $active_record = false;
