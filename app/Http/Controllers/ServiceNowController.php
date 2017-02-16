@@ -233,11 +233,9 @@ class ServiceNowController extends Controller
 
             // JSON decode response
             $incident_results = \Metaclassing\Utility::decodeJson($response);
-            //$incident_results = json_decode($response);
 
             // grab the data we care about and tell the world how many incidents we have
             $incidents = $incident_results['result'];
-            //echo 'total incident count: '.count($incidents).PHP_EOL;
 
             // JSON encode and dump incident collection to file
             //file_put_contents(storage_path('app/collections/incidents_collection.json'), \Metaclassing\Utility::encodeJson($incidents));
