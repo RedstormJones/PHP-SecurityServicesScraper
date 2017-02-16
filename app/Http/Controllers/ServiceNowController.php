@@ -8,6 +8,7 @@ use App\ServiceNow\cmdbServer;
 use App\ServiceNow\ServiceNowIdmIncident;
 use App\ServiceNow\ServiceNowIncident;
 use App\ServiceNow\ServiceNowSapRoleAuthIncident;
+use Illuminate\Support\Facades\Log;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ServiceNowController extends Controller
@@ -214,7 +215,7 @@ class ServiceNowController extends Controller
             $crawler = new \Crawler\Crawler($cookiejar);
 
             // point url to incidents table and add necessary query params
-            $url = 'https:/'.'/kiewit.service-now.com/api/now/v1/table/incident?sysparm_display_value=true&caller_id='.$caller;
+            $url = 'https://kiewit.service-now.com/api/now/v1/table/incident?sysparm_display_value=true&caller_id='.rawurlencode($caller);
 
             // setup HTTP headers with basic auth
             $headers = [
@@ -232,6 +233,7 @@ class ServiceNowController extends Controller
 
             // JSON decode response
             $incident_results = \Metaclassing\Utility::decodeJson($response);
+            //$incident_results = json_decode($response);
 
             // grab the data we care about and tell the world how many incidents we have
             $incidents = $incident_results['result'];
@@ -246,18 +248,17 @@ class ServiceNowController extends Controller
                 'incidents' => $incidents,
             ];
         } catch (\Exception $e) {
+            Log::info('Failed to get ServiceNow incidents for caller '.$caller.': '.$e);
+
             $response = [
-                'success'    => false,
-                'message'    => 'Failed to get ServiceNow incidents for caller: '.$caller,
+                'success'   => false,
+                'message'   => 'Failed to get ServiceNow incidents for caller: '.$caller,
+                'exception' => $e->getMessage(),
             ];
         }
 
         return response()->json($response);
     }
-
-    /********************************************
-     * Service Now Security incident functions. *
-     ********************************************/
 
     /**
      * Get all Security incidents in ServiceNow.
