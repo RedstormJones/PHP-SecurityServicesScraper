@@ -49,6 +49,25 @@ class Crawler
         return $this->curl_exec();
     }
 
+    public function put($url, $referer = '', $put = '')
+    {
+        curl_setopt($this->curl, CURLOPT_URL, $url);
+        curl_setopt($this->curl, CURLOPT_REFERER, $referer);
+        curl_setopt($this->curl, CURLOPT_UPLOAD, true);
+        curl_setopt($this->curl, CURLOPT_READDATA, $put);
+
+        return $this->curl_exec();
+    }
+
+    public function delete($url, $referer = '')
+    {
+        curl_setopt($this->curl, CURLOPT_URL, $url);
+        curl_setopt($this->curl, CURLOPT_REFERER, $referer);
+        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+
+        return $this->curl_exec();
+    }
+
     // curl wrapper for fun
     public function curl_getinfo()
     {

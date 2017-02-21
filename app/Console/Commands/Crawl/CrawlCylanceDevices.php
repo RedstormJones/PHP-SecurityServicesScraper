@@ -4,7 +4,9 @@ namespace App\Console\Commands\Crawl;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class CrawlCylanceDevices extends Command
 {
@@ -39,6 +41,12 @@ class CrawlCylanceDevices extends Command
      */
     public function handle()
     {
+        /*******************************
+         * [1] Get all Cylance devices *
+         *******************************/
+
+        Log::info(PHP_EOL.PHP_EOL.'*************************************'.PHP_EOL.'* Starting Cylance devices crawler! *'.PHP_EOL.'*************************************');
+
         $username = getenv('CYLANCE_USERNAME');
         $password = getenv('CYLANCE_PASSWORD');
 
@@ -46,7 +54,6 @@ class CrawlCylanceDevices extends Command
 
         // setup file to hold cookie
         $cookiejar = storage_path('app/cookies/cylancecookie.txt');
-        echo 'storing cookies at '.$cookiejar.PHP_EOL;
 
         // create crawler object
         $crawler = new \Crawler\Crawler($cookiejar);
@@ -56,6 +63,8 @@ class CrawlCylanceDevices extends Command
 
         // hit login page and capture response
         $response = $crawler->get($url);
+
+        Log::info('logging in to: '.$url);
 
         // If we DONT get the dashboard then we need to try and login
         $regex = '/<title>CylancePROTECT \| Dashboard<\/title>/';
@@ -69,6 +78,8 @@ class CrawlCylanceDevices extends Command
             } else {
                 // otherwise, dump response and die
                 file_put_contents($response_path.'cylance_login.dump', $response);
+
+                Log::error('Error: could not extract CSRF token from response');
                 die('Error: could not extract CSRF token from response!'.PHP_EOL);
             }
 
@@ -88,6 +99,7 @@ class CrawlCylanceDevices extends Command
         }
         // once out of the login loop, if $tries is >= to 3 then we couldn't get logged in
         if ($tries > 3) {
+            Log::error('Error: could not post successful login within 3 attempts');
             die('Error: could not post successful login within 3 attempts'.PHP_EOL);
         }
 
@@ -102,6 +114,7 @@ class CrawlCylanceDevices extends Command
             $token = $hits[1];
         } else {
             // otherwise die
+            Log::error('Error: could not get javascript token');
             die('Error: could not get javascript token crap'.PHP_EOL);
         }
 
@@ -109,33 +122,35 @@ class CrawlCylanceDevices extends Command
         $headers = [
             'X-Request-Verification-Token: '.$token,
             'X-Requested-With: XMLHttpRequest',
+            'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
         ];
 
         // setup curl HTTP headers with $headers
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         // point url to the devices list API endpoint
-        $url = 'https:/'.'/my-vs0.cylance.com/Grids/DevicesList_Ajax';
-
-        // setup necessary post data
-        $post = [
-            'sort'      => 'Name-asc',
-            'page'      => '1',
-            'pageSize'  => '100',
-            'group'     => '',
-            'aggregate' => '',
-            'filter'    => '',
-        ];
+        $url = 'https:/'.'/protect.cylance.com/Grids/DevicesList_Ajax';
 
         // setup collection array and variables for paging
         $collection = [];
         $i = 0;
         $page = 1;
+        $page_size = 1000;
+
+        // setup necessary post data
+        $post = [
+            'sort'      => 'Name-asc',
+            'page'      => $page,
+            'pageSize'  => $page_size,
+            'group'     => '',
+            'aggregate' => '',
+            'filter'    => '',
+        ];
 
         // start paging
-        echo 'starting page scrape loop'.PHP_EOL;
+        Log::info('starting page scrape loop');
         do {
-            echo 'scraping loop for page '.$page.PHP_EOL;
+            Log::info('scraping loop for page '.$page);
 
             // set the post page to our current page number
             $post['page'] = $page;
@@ -152,24 +167,17 @@ class CrawlCylanceDevices extends Command
             // save this pages response array to our collection
             $collection[] = $devices;
 
-            // set count to the total number of devices returned with each response.
-            // this should not change from response to response
+            // set count to the total number of devices returned with each response
             $count = $devices['Total'];
 
-            //echo 'total device count: '.$count.PHP_EOL;
+            Log::info('scrape for page '.$page.' complete - got '.count($devices['Data']).' devices');
 
-            echo 'scrape for page '.$page.' complete - got '.count($devices['Data']).' device records'.PHP_EOL;
-            echo 'total devices: '.$count.PHP_EOL;
-
-            $i += count($devices['Data']);  // Increase i by PAGESIZE!
-            $page++;                        // Increase the page number
+            $i += $page_size;  // increment i by page_size
+            $page++;           // increment the page number
 
             // wait a second before hammering on their webserver again
             sleep(1);
         } while ($i < $count);
-
-        // Pop off empty array element
-        //array_pop($collection);
 
         // instantiate cylance device list
         $cylance_devices = [];
@@ -184,11 +192,10 @@ class CrawlCylanceDevices extends Command
             }
         }
 
-        echo 'devices successfully collected: '.count($cylance_devices).PHP_EOL;
+        Log::info('devices successfully collected: '.count($cylance_devices));
 
         // Now we have a simple array [1,2,3] of all the device records,
         // each device record is a key=>value pair collection / assoc array
-        //\Metaclassing\Utility::dumper($threats);
         file_put_contents(storage_path('app/collections/devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices));
     }
 
