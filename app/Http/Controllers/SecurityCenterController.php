@@ -783,7 +783,7 @@ class SecurityCenterController extends Controller
     }
 
     /**
-     * Get all SecurityCenter vulnerabilities with an exploit available.
+     * HELPER FUNCTION: Get all SecurityCenter vulnerabilities with an exploit available.
      *
      * @return array
      */
@@ -831,7 +831,7 @@ class SecurityCenterController extends Controller
     }
 
     /**
-     * Get all SecurityCenter vulnerabilities with an exploit available
+     * HELPER FUNCTION: Get all SecurityCenter vulnerabilities with an exploit available
      * for a particular device, by device name.
      *
      * @return array
@@ -883,7 +883,7 @@ class SecurityCenterController extends Controller
     }
 
     /**
-     * Get all SecurityCenter vulnerabilities with an exploit available
+     * HELPER FUNCTION: Get all SecurityCenter vulnerabilities with an exploit available
      * for a particular device, by IP.
      *
      * @return array
