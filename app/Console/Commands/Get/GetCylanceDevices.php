@@ -205,17 +205,28 @@ class GetCylanceDevices extends Command
 
         Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance devices processing! *'.PHP_EOL.'****************************************');
 
-        $date_regex = '/\/Date\((\d+)\)\//';
+        $user_regex = '/\w+\\\(\w+\.\w+-*\w+)/';
 
         foreach ($cylance_devices as $device) {
             $exists = CylanceDevice::where('device_id', $device['DeviceId'])->value('id');
+            $user_hits = [];
+
+            // format datetimes for updating device record
+            $created_date = $this->stringToDate($device['Created']);
+            $offline_date = $this->stringToDate($device['OfflineDate']);
+
+            // extract user from last users text
+            preg_match($user_regex, $device['LastUsersText'], $user_hits);
+            if (isset($user_hits[1]))
+            {
+                $last_user = ucwords(strtolower($user_hits[1]), '.');
+            }
+            else {
+                $last_user = '';
+            }
 
             // if the device record exists then update it, otherwise create a new one
             if ($exists) {
-                // format datetimes for updating device record
-                $created_date = $this->stringToDate($device['Created']);
-                $offline_date = $this->stringToDate($device['OfflineDate']);
-
                 $devicemodel = CylanceDevice::findOrFail($exists);
 
                 $devicemodel->update([
@@ -227,7 +238,7 @@ class GetCylanceDevices extends Command
                     'files_waived'         => $device['Waived'],
                     'files_analyzed'       => $device['FilesAnalyzed'],
                     'agent_version_text'   => $device['AgentVersionText'],
-                    'last_users_text'      => $device['LastUsersText'],
+                    'last_users_text'      => $last_user,
                     'os_versions_text'     => $device['OSVersionsText'],
                     'ip_addresses_text'    => $device['IPAddressesText'],
                     'mac_addresses_text'   => $device['MacAddressesText'],
@@ -245,7 +256,28 @@ class GetCylanceDevices extends Command
                 Log::info('updated device: '.$device['Name']);
             } else {
                 Log::info('creating device: '.$device['Name']);
-                $this->createDevice($device);
+
+                $new_device = new CylanceDevice();
+
+                $new_device->device_id = $device['DeviceId'];
+                $new_device->device_name = $device['Name'];
+                $new_device->zones_text = $device['ZonesText'];
+                $new_device->files_unsafe = $device['Unsafe'];
+                $new_device->files_quarantined = $device['Quarantined'];
+                $new_device->files_abnormal = $device['Abnormal'];
+                $new_device->files_waived = $device['Waived'];
+                $new_device->files_analyzed = $device['FilesAnalyzed'];
+                $new_device->agent_version_text = $device['AgentVersionText'];
+                $new_device->last_users_text = $last_user;
+                $new_device->os_versions_text = $device['OSVersionsText'];
+                $new_device->ip_addresses_text = $device['IPAddressesText'];
+                $new_device->mac_addresses_text = $device['MacAddressesText'];
+                $new_device->policy_name = $device['PolicyName'];
+                $new_device->device_created_at = $created_date;
+                $new_device->device_offline_date = $offline_date;
+                $new_device->data = json_encode($device);
+
+                $new_device->save();
             }
         }
 
@@ -271,40 +303,6 @@ class GetCylanceDevices extends Command
         $poststring = implode('&', $postarray);
 
         return $poststring;
-    }
-
-    /**
-     * Create new CylanceDevice model.
-     *
-     * @return void
-     */
-    public function createDevice($device)
-    {
-        // format datetimes for new device record
-        $created_date = $this->stringToDate($device['Created']);
-        $offline_date = $this->stringToDate($device['OfflineDate']);
-
-        $new_device = new CylanceDevice();
-
-        $new_device->device_id = $device['DeviceId'];
-        $new_device->device_name = $device['Name'];
-        $new_device->zones_text = $device['ZonesText'];
-        $new_device->files_unsafe = $device['Unsafe'];
-        $new_device->files_quarantined = $device['Quarantined'];
-        $new_device->files_abnormal = $device['Abnormal'];
-        $new_device->files_waived = $device['Waived'];
-        $new_device->files_analyzed = $device['FilesAnalyzed'];
-        $new_device->agent_version_text = $device['AgentVersionText'];
-        $new_device->last_users_text = $device['LastUsersText'];
-        $new_device->os_versions_text = $device['OSVersionsText'];
-        $new_device->ip_addresses_text = $device['IPAddressesText'];
-        $new_device->mac_addresses_text = $device['MacAddressesText'];
-        $new_device->policy_name = $device['PolicyName'];
-        $new_device->device_created_at = $created_date;
-        $new_device->device_offline_date = $offline_date;
-        $new_device->data = json_encode($device);
-
-        $new_device->save();
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Console\Commands\Process;
 
 use App\Cylance\CylanceDevice;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class ProcessCylanceDevices extends Command
 {
@@ -38,19 +39,30 @@ class ProcessCylanceDevices extends Command
      */
     public function handle()
     {
-        $date_regex = '/\/Date\((\d+)\)\//';
+        $user_regex = '/\w+\\\(\w+\.\w+-*\w+)/';
 
         $devices_content = file_get_contents(storage_path('app/collections/devices.json'));
         $devices = json_decode($devices_content);
 
         foreach ($devices as $device) {
             $exists = CylanceDevice::where('device_id', $device->DeviceId)->value('id');
+            $user_hits = [];
 
             // if the device record exists then update it, otherwise create a new one
             if ($exists) {
                 // format datetimes for updating device record
                 $created_date = $this->stringToDate($device->Created);
                 $offline_date = $this->stringToDate($device->OfflineDate);
+
+                preg_match($user_regex, $device->LastUsersText, $user_hits);
+
+                if (isset($user_hits[1]))
+                {
+                    $last_user = ucwords(strtolower($user_hits[1]), '.');
+                }
+                else {
+                    $last_user = '';
+                }
 
                 $updated = CylanceDevice::where('id', $exists)->update([
                     'device_name'          => $device->Name,
@@ -61,7 +73,7 @@ class ProcessCylanceDevices extends Command
                     'files_waived'         => $device->Waived,
                     'files_analyzed'       => $device->FilesAnalyzed,
                     'agent_version_text'   => $device->AgentVersionText,
-                    'last_users_text'      => $device->LastUsersText,
+                    'last_users_text'      => $last_user,
                     'os_versions_text'     => $device->OSVersionsText,
                     'ip_addresses_text'    => $device->IPAddressesText,
                     'mac_addresses_text'   => $device->MacAddressesText,
@@ -75,9 +87,9 @@ class ProcessCylanceDevices extends Command
                 $devicemodel = CylanceDevice::find($exists);
                 $devicemodel->touch();
 
-                echo 'updated device: '.$device->Name.PHP_EOL;
+                Log::info('updated device: '.$device->Name);
             } else {
-                echo 'creating device: '.$device->Name.PHP_EOL;
+                Log::info('creating device: '.$device->Name);
                 $this->createDevice($device);
             }
         }
