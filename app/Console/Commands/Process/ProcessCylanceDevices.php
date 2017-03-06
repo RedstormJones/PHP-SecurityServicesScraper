@@ -117,6 +117,7 @@ class ProcessCylanceDevices extends Command
 
                 $new_device->save();
             }
+        }
 
         // process soft deletes for old records
         $this->processDeletes();
