@@ -198,12 +198,12 @@ class SecurityCenterController extends Controller
             $critical_vulns = SecurityCenterCritical::where([
                 ['has_been_mitigated', '=', 0],
                 ['exploit_available', '=', 'Yes'],
-            ])->select('dns_name', 'ip_address', 'synopsis')->get();
+            ])->select('dns_name', 'ip_address')->get();
 
             $high_vulns = SecurityCenterHigh::where([
                 ['has_been_mitigated', '=', 0],
                 ['exploit_available', '=', 'Yes'],
-            ])->select('dns_name', 'ip_address', 'synopsis')->get();
+            ])->select('dns_name', 'ip_address')->get();
 
             // cycle through critical vulnerabilities and build counts for each host
             foreach ($critical_vulns as $vuln) {
@@ -215,7 +215,6 @@ class SecurityCenterController extends Controller
 
                 // include host ip address and the synopsis provided by SecurityCenter
                 $data[$vuln['dns_name']]['ip_address'] = $vuln['ip_address'];
-                $data[$vuln['dns_name']]['synopsis'][] = $vuln['synopsis'];
             }
 
             // get the keys
@@ -243,7 +242,6 @@ class SecurityCenterController extends Controller
                     'hostname'          => $host['hostname'],
                     'critical_count'    => $host['critical_count'],
                     'ip_address'        => $data[$host['hostname']]['ip_address'],
-                    'synopsis'          => $data[$host['hostname']]['synopsis'],
                 ];
             }
 
