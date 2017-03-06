@@ -41,13 +41,13 @@ class ProcessCylanceThreats extends Command
     public function handle()
     {
         Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance threats processing! *'.PHP_EOL.'****************************************');
-        
+
         $contents = file_get_contents(storage_path('app/collections/threats.json'));
         $cylance_threats = \Metaclassing\Utility::decodeJson($contents);
 
         foreach ($cylance_threats as $threat) {
             $exists = CylanceThreat::where('threat_id', $threat['Id'])->withTrashed()->value('id');
-            
+
             // format datetimes for threat record
             $first_found = $this->stringToDate($threat['FirstFound']);
             $last_found = $this->stringToDate($threat['LastFound']);
