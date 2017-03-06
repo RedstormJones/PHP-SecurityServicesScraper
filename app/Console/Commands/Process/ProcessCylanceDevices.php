@@ -56,11 +56,9 @@ class ProcessCylanceDevices extends Command
 
                 preg_match($user_regex, $device->LastUsersText, $user_hits);
 
-                if (isset($user_hits[1]))
-                {
+                if (isset($user_hits[1])) {
                     $last_user = ucwords(strtolower($user_hits[1]), '.');
-                }
-                else {
+                } else {
                     $last_user = '';
                 }
 
