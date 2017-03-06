@@ -209,7 +209,7 @@ class GetCylanceDevices extends Command
 
         foreach ($cylance_devices as $device) {
             $exists = CylanceDevice::where('device_id', $device['DeviceId'])->value('id');
-            
+
             $user_hits = [];
 
             // format datetimes for updating device record
