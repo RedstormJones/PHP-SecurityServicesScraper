@@ -209,6 +209,7 @@ class GetCylanceDevices extends Command
 
         foreach ($cylance_devices as $device) {
             $exists = CylanceDevice::where('device_id', $device['DeviceId'])->value('id');
+            
             $user_hits = [];
 
             // format datetimes for updating device record
@@ -311,7 +312,7 @@ class GetCylanceDevices extends Command
     public function processDeletes()
     {
         // create new datetime object and subtract one day to get delete_date
-        $delete_date = Carbon::now()->subDays(1)->toDateString();
+        $delete_date = Carbon::now()->subHours(2);
 
         // get all the devices
         $devices = CylanceDevice::all();
@@ -321,10 +322,10 @@ class GetCylanceDevices extends Command
         * it against delete_date to determine if its a stale record or not. If yes, delete it.
         */
         foreach ($devices as $device) {
-            $updated_at = substr($device->updated_at, 0, -9);
+            $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $device->updated_at);
 
             // if updated_at is less than or equal to delete_date then we soft delete the device
-            if ($updated_at < $delete_date) {
+            if ($updated_at->lt($delete_date)) {
                 Log::info('deleting device: '.$device->device_name);
                 $device->delete();
             }
@@ -341,7 +342,8 @@ class GetCylanceDevices extends Command
         if ($date_str != null) {
             $date_regex = '/\/Date\((\d+)\)\//';
             preg_match($date_regex, $date_str, $date_hits);
-            $datetime = date('Y-m-d H:i:s', (intval($date_hits[1]) / 1000));
+
+            $datetime = Carbon::createFromTimestamp(intval($date_hits[1]) / 1000)->toDateTimeString();
         } else {
             $datetime = null;
         }

@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Process;
 
 use App\Cylance\CylanceDevice;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -45,10 +46,14 @@ class ProcessCylanceDevices extends Command
 
         Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance devices processing! *'.PHP_EOL.'****************************************');
 
+        $contents = file_get_contents(storage_path('app/collections/devices.json'));
+        $cylance_devices = \Metaclassing\Utility::decodeJson($contents);
+
         $user_regex = '/\w+\\\(\w+\.\w+-*\w+)/';
 
         foreach ($cylance_devices as $device) {
             $exists = CylanceDevice::where('device_id', $device['DeviceId'])->value('id');
+            
             $user_hits = [];
 
             // format datetimes for updating device record
@@ -126,40 +131,6 @@ class ProcessCylanceDevices extends Command
     }
 
     /**
-     * Create new CylanceDevice model.
-     *
-     * @return void
-     */
-    public function createDevice($device)
-    {
-        // format datetimes for new device record
-        $created_date = $this->stringToDate($device->Created);
-        $offline_date = $this->stringToDate($device->OfflineDate);
-
-        $new_device = new CylanceDevice();
-
-        $new_device->device_id = $device->DeviceId;
-        $new_device->device_name = $device->Name;
-        $new_device->zones_text = $device->ZonesText;
-        $new_device->files_unsafe = $device->Unsafe;
-        $new_device->files_quarantined = $device->Quarantined;
-        $new_device->files_abnormal = $device->Abnormal;
-        $new_device->files_waived = $device->Waived;
-        $new_device->files_analyzed = $device->FilesAnalyzed;
-        $new_device->agent_version_text = $device->AgentVersionText;
-        $new_device->last_users_text = $device->LastUsersText;
-        $new_device->os_versions_text = $device->OSVersionsText;
-        $new_device->ip_addresses_text = $device->IPAddressesText;
-        $new_device->mac_addresses_text = $device->MacAddressesText;
-        $new_device->policy_name = $device->PolicyName;
-        $new_device->device_created_at = $created_date;
-        $new_device->device_offline_date = $offline_date;
-        $new_device->data = json_encode($device);
-
-        $new_device->save();
-    }
-
-    /**
      * Delete old CylanceDevice models.
      *
      * @return void
@@ -167,7 +138,7 @@ class ProcessCylanceDevices extends Command
     public function processDeletes()
     {
         // create new datetime object and subtract one day to get delete_date
-        $delete_date = Carbon::now()->subDays(1)->toDateString();
+        $delete_date = Carbon::now()->subHours(2);
 
         // get all the devices
         $devices = CylanceDevice::all();
@@ -177,12 +148,13 @@ class ProcessCylanceDevices extends Command
         * it against delete_date to determine if its a stale record or not. If yes, delete it.
         **/
         foreach ($devices as $device) {
-            $updated_at = substr($device->updated_at, 0, -9);
-            echo 'last updated: '.$updated_at.PHP_EOL;
+            $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $device->updated_at);
+
+            Log::info('last updated: '.$updated_at);
 
             // if updated_at is less than or equal to delete_date then we soft delete the device
-            if ($updated_at < $delete_date) {
-                echo 'deleting device: '.$device->device_name.PHP_EOL;
+            if ($updated_at->lt($delete_date)) {
+                Log::info('deleting device: '.$device->device_name);
                 $device->delete();
             }
         }
@@ -198,7 +170,8 @@ class ProcessCylanceDevices extends Command
         if ($date_str != null) {
             $date_regex = '/\/Date\((\d+)\)\//';
             preg_match($date_regex, $date_str, $date_hits);
-            $datetime = date('Y-m-d H:i:s', (intval($date_hits[1]) / 1000));
+
+            $datetime = Carbon::createFromTimestamp(intval($date_hits[1]) / 1000)->toDateTimeString();
         } else {
             $datetime = null;
         }
