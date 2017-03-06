@@ -209,15 +209,15 @@ class GetCylanceThreats extends Command
         foreach ($cylance_threats as $threat) {
             $exists = CylanceThreat::where('threat_id', $threat['Id'])->withTrashed()->value('id');
 
-            if ($exists) {
-                // format datetimes for updating threat record
-                $first_found = $this->stringToDate($threat['FirstFound']);
-                $last_found = $this->stringToDate($threat['LastFound']);
-                $active_last_found = $this->stringToDate($threat['ActiveLastFound']);
-                $allowed_last_found = $this->stringToDate($threat['AllowedLastFound']);
-                $blocked_last_found = $this->stringToDate($threat['BlockedLastFound']);
-                $cert_timestamp = $this->stringToDate($threat['CertTimeStamp']);
+            // format datetimes for threat record
+            $first_found = $this->stringToDate($threat['FirstFound']);
+            $last_found = $this->stringToDate($threat['LastFound']);
+            $active_last_found = $this->stringToDate($threat['ActiveLastFound']);
+            $allowed_last_found = $this->stringToDate($threat['AllowedLastFound']);
+            $blocked_last_found = $this->stringToDate($threat['BlockedLastFound']);
+            $cert_timestamp = $this->stringToDate($threat['CertTimeStamp']);
 
+            if ($exists) {
                 try {
                     $threatmodel = CylanceThreat::withTrashed()->findOrFail($exists);
 
@@ -249,7 +249,7 @@ class GetCylanceThreats extends Command
                         'cert_issuer'              => $threat['CertIssuer'],
                         'cert_publisher'           => $threat['CertPublisher'],
                         'cert_timestamp'           => $cert_timestamp,
-                        'data'                     => json_encode($threat),
+                        'data'                     => \Metaclass\Utility::encodeJson($threat),
                     ]);
 
                     $threatmodel->save();
@@ -266,7 +266,41 @@ class GetCylanceThreats extends Command
                 }
             } else {
                 Log::info('creating threat: '.$threat['CommonName']);
-                $this->createThreat($threat);
+
+                // create new Cylance threat record and assign values
+                $new_threat = new CylanceThreat();
+
+                $new_threat->threat_id = $threat['Id'];
+                $new_threat->common_name = $threat['CommonName'];
+                $new_threat->cylance_score = $threat['CylanceScore'];
+                $new_threat->active_in_devices = $threat['ActiveInDevices'];
+                $new_threat->allowed_in_devices = $threat['AllowedInDevices'];
+                $new_threat->blocked_in_devices = $threat['BlockedInDevices'];
+                $new_threat->suspicious_in_devices = $threat['SuspiciousInDevices'];
+                $new_threat->first_found = $first_found;
+                $new_threat->last_found = $last_found;
+                $new_threat->last_found_active = $active_last_found;
+                $new_threat->last_found_allowed = $allowed_last_found;
+                $new_threat->last_found_blocked = $blocked_last_found;
+                $new_threat->md5 = $threat['MD5'];
+                $new_threat->virustotal = $threat['VirusTotal'];
+                $new_threat->is_virustotal_threat = $threat['IsVirusTotalThreat'];
+                $new_threat->full_classification = $threat['FullClassification'];
+                $new_threat->is_unique_to_cylance = $threat['IsUniqueToCylance'];
+                $new_threat->is_safelisted = $threat['IsSafelisted'];
+                $new_threat->detected_by = $threat['DetectedBy'];
+                $new_threat->threat_priority = $threat['ThreatPriority'];
+                $new_threat->current_model = $threat['CurrentModel'];
+                $new_threat->priority = $threat['Priority'];
+                $new_threat->file_size = $threat['FileSize'];
+                $new_threat->global_quarantined = $threat['IsGlobalQuarantined'];
+                $new_threat->signed = $threat['Signed'];
+                $new_threat->cert_issuer = $threat['CertIssuer'];
+                $new_threat->cert_publisher = $threat['CertPublisher'];
+                $new_threat->cert_timestamp = $cert_timestamp;
+                $new_threat->data = \Metaclassing\Utility::encodeJson($threat);
+
+                $new_threat->save();
             }
         }
 
@@ -295,71 +329,20 @@ class GetCylanceThreats extends Command
     }
 
     /**
-     * Function to create a new Cylance Threat model.
-     *
-     * @return void
-     */
-    public function createThreat($threat)
-    {
-        // format datetimes for new threat record
-        $first_found = $this->stringToDate($threat['FirstFound']);
-        $last_found = $this->stringToDate($threat['LastFound']);
-        $active_last_found = $this->stringToDate($threat['ActiveLastFound']);
-        $allowed_last_found = $this->stringToDate($threat['AllowedLastFound']);
-        $blocked_last_found = $this->stringToDate($threat['BlockedLastFound']);
-        $cert_timestamp = $this->stringToDate($threat['CertTimeStamp']);
-
-        // create new Cylance threat record and assign values
-        $new_threat = new CylanceThreat();
-
-        $new_threat->threat_id = $threat['Id'];
-        $new_threat->common_name = $threat['CommonName'];
-        $new_threat->cylance_score = $threat['CylanceScore'];
-        $new_threat->active_in_devices = $threat['ActiveInDevices'];
-        $new_threat->allowed_in_devices = $threat['AllowedInDevices'];
-        $new_threat->blocked_in_devices = $threat['BlockedInDevices'];
-        $new_threat->suspicious_in_devices = $threat['SuspiciousInDevices'];
-        $new_threat->first_found = $first_found;
-        $new_threat->last_found = $last_found;
-        $new_threat->last_found_active = $active_last_found;
-        $new_threat->last_found_allowed = $allowed_last_found;
-        $new_threat->last_found_blocked = $blocked_last_found;
-        $new_threat->md5 = $threat['MD5'];
-        $new_threat->virustotal = $threat['VirusTotal'];
-        $new_threat->is_virustotal_threat = $threat['IsVirusTotalThreat'];
-        $new_threat->full_classification = $threat['FullClassification'];
-        $new_threat->is_unique_to_cylance = $threat['IsUniqueToCylance'];
-        $new_threat->is_safelisted = $threat['IsSafelisted'];
-        $new_threat->detected_by = $threat['DetectedBy'];
-        $new_threat->threat_priority = $threat['ThreatPriority'];
-        $new_threat->current_model = $threat['CurrentModel'];
-        $new_threat->priority = $threat['Priority'];
-        $new_threat->file_size = $threat['FileSize'];
-        $new_threat->global_quarantined = $threat['IsGlobalQuarantined'];
-        $new_threat->signed = $threat['Signed'];
-        $new_threat->cert_issuer = $threat['CertIssuer'];
-        $new_threat->cert_publisher = $threat['CertPublisher'];
-        $new_threat->cert_timestamp = $cert_timestamp;
-        $new_threat->data = json_encode($threat);
-
-        $new_threat->save();
-    }
-
-    /**
      * Function to soft delete expired threat records.
      *
      * @return void
      */
     public function processDeletes()
     {
-        $delete_date = Carbon::now()->subDays(1)->toDateString();
+        $delete_date = Carbon::now()->subHours(2);
 
         $threats = CylanceThreat::all();
 
         foreach ($threats as $threat) {
-            $updated_at = substr($threat->updated_at, 0, -9);
+            $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $threat->updated_at);
 
-            if ($updated_at <= $delete_date) {
+            if ($updated_at->lt($delete_date)) {
                 Log::info('deleting threat: '.$threat->common_name);
                 $threat->delete();
             }
@@ -377,7 +360,7 @@ class GetCylanceThreats extends Command
             $date_regex = '/\/Date\((\d+)\)\//';
             preg_match($date_regex, $date_str, $date_hits);
 
-            $datetime = Carbon::now()->createFromTimestamp((intval($date_hits[1]) / 1000));
+            $datetime = Carbon::createFromTimestamp(intval($date_hits[1]) / 1000)->toDateTimeString();
         } else {
             $datetime = null;
         }
