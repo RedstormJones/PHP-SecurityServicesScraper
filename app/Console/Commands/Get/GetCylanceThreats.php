@@ -249,7 +249,7 @@ class GetCylanceThreats extends Command
                         'cert_issuer'              => $threat['CertIssuer'],
                         'cert_publisher'           => $threat['CertPublisher'],
                         'cert_timestamp'           => $cert_timestamp,
-                        'data'                     => \Metaclass\Utility::encodeJson($threat),
+                        'data'                     => \Metaclassing\Utility::encodeJson($threat),
                     ]);
 
                     $threatmodel->save();
