@@ -6,6 +6,7 @@ use App\SecurityCenter\SecurityCenterAssetVuln;
 use App\SecurityCenter\SecurityCenterCritical;
 use App\SecurityCenter\SecurityCenterHigh;
 use App\SecurityCenter\SecurityCenterMedium;
+use App\SecurityCenter\SecurityCenterSeveritySummary;
 use Carbon\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -142,37 +143,26 @@ class SecurityCenterController extends Controller
             $data = [];
             $one_week = Carbon::now()->subDays(7)->toDateTimeString();
 
-            $medium_count = SecurityCenterMedium::where([
-                ['has_been_mitigated', '=', 0],
-                ['updated_at', '>', $one_week],
-            ])->count();
+            $severity_sums = SecurityCenterSeveritySummary::select('severity_name', 'severity_count')->get();
 
-            $high_count = SecurityCenterHigh::where([
-                ['has_been_mitigated', '=', 0],
-                ['updated_at', '>', $one_week],
-            ])->count();
+            foreach($severity_sums as $sum)
+            {
+                if (strcmp($sum['severity_name'], 'Low') != 0 && strcmp($sum['severity_name'], 'Info') != 0)
+                {
+                    $data[$sum['severity_name']] = $sum['severity_count'];
+                }
+            }
 
-            $critical_count = SecurityCenterCritical::where([
-                ['has_been_mitigated', '=', 0],
-                ['updated_at', '>', $one_week],
-            ])->count();
-
-            $data[] = [
-                'medium_vuln_count'     => $medium_count,
-                'high_vuln_count'       => $high_count,
-                'critical_vuln_count'   => $critical_count,
-                'total'                 => ($medium_count + $high_count + $critical_count),
-            ];
+            $data['Total'] = $data['Critical'] + $data['High'] + $data['Medium'];
 
             $response = [
                 'success'               => true,
-                'has_more_pages'        => false,
                 'vulnerability_counts'  => $data,
             ];
         } catch (\Exception $e) {
             $response = [
                 'success'   => false,
-                'message'   => 'Failed to get vulnerability count for severity: '.$severity,
+                'message'   => 'Failed to get vulnerability severity counts',
             ];
         }
 
