@@ -145,10 +145,8 @@ class SecurityCenterController extends Controller
 
             $severity_sums = SecurityCenterSeveritySummary::select('severity_name', 'severity_count')->get();
 
-            foreach($severity_sums as $sum)
-            {
-                if (strcmp($sum['severity_name'], 'Low') != 0 && strcmp($sum['severity_name'], 'Info') != 0)
-                {
+            foreach ($severity_sums as $sum) {
+                if (strcmp($sum['severity_name'], 'Low') != 0 && strcmp($sum['severity_name'], 'Info') != 0) {
                     $data[$sum['severity_name']] = $sum['severity_count'];
                 }
             }
