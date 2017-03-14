@@ -108,6 +108,7 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run multiple times a day
         */
+        /*
         $schedule->command('get:cylancedevices')->twiceDaily(8, 10)->timezone('America/Chicago');           // runs twice daily at 08:00am and 10:00am
         $schedule->command('get:cylancedevices')->twiceDaily(12, 14)->timezone('America/Chicago');          // runs twice daily at 12:00pm and 02:00pm
         $schedule->command('get:cylancedevices')->twiceDaily(16, 18)->timezone('America/Chicago');          // runs twice daily at 04:00pm and 06:00pm
@@ -115,7 +116,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:cylancethreats')->twiceDaily(7, 9)->timezone('America/Chicago');            // runs twice daily at 07:00am and 09:00am
         $schedule->command('get:cylancethreats')->twiceDaily(11, 13)->timezone('America/Chicago');          // runs twice daily at 11:00am and 01:00pm
         $schedule->command('get:cylancethreats')->twiceDaily(15, 17)->timezone('America/Chicago');          // runs twice daily at 03:00pm and 05:00pm
-
+        */
+        
         //$schedule->command('get:insidehosttrafficsnapshots')->twiceDaily(8, 14)->timezone('America/Chicago');   // runs twice daily at 08:00am and 02:00pm
         //$schedule->command('get:outsidehosttrafficsnapshots')->twiceDaily(9, 15)->timezone('America/Chicago');  // runs twice daily at 09:00am and 03:00pm
 
