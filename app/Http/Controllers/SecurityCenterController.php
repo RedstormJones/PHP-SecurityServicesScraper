@@ -75,11 +75,15 @@ class SecurityCenterController extends Controller
             $data = [];
             $regex = '/([A-Z][A-Z][A-Z] - .+)/';
 
-            $asset_vulns = SecurityCenterAssetVuln::orderBy('asset_score', 'desc')->get();
+            $asset_vulns = SecurityCenterAssetVuln::orderBy('asset_score', 'desc')->select('asset_name', 'asset_score')->get();
 
             foreach ($asset_vulns as $asset) {
                 if (preg_match($regex, $asset['asset_name'])) {
-                    $data[] = \Metaclassing\Utility::decodeJson($asset['data']);
+                    //$data[] = \Metaclassing\Utility::decodeJson($asset['data']);
+                    $data[] = [
+                        'asset_name'    => $asset['asset_name'],
+                        'asset_score'   => $asset['asset_score'],
+                    ];
                 }
             }
 
@@ -188,10 +192,12 @@ class SecurityCenterController extends Controller
                 ['exploit_available', '=', 'Yes'],
             ])->select('dns_name', 'ip_address')->get();
 
+            /*
             $high_vulns = SecurityCenterHigh::where([
                 ['has_been_mitigated', '=', 0],
                 ['exploit_available', '=', 'Yes'],
             ])->select('dns_name', 'ip_address')->get();
+            */
 
             // cycle through critical vulnerabilities and build counts for each host
             foreach ($critical_vulns as $vuln) {
@@ -201,7 +207,7 @@ class SecurityCenterController extends Controller
                     $data[$vuln['dns_name']]['count'] = 1;
                 }
 
-                // include host ip address and the synopsis provided by SecurityCenter
+                // include host ip address
                 $data[$vuln['dns_name']]['ip_address'] = $vuln['ip_address'];
             }
 
