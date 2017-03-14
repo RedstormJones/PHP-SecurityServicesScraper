@@ -119,8 +119,7 @@ class ProcessSpamEmail extends Command
         foreach ($spam_emails as $spam) {
             $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $spam->updated_at);
 
-            if ($updated_at->lt($delete_date))
-            {
+            if ($updated_at->lt($delete_date)) {
                 Log::info('deleting spam record: '.$spam->id);
                 $spam->delete();
             }
