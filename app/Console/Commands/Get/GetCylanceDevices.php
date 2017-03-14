@@ -208,7 +208,7 @@ class GetCylanceDevices extends Command
         $user_regex = '/\w+\\\(\w+\.\w+-*\w+)/';
 
         foreach ($cylance_devices as $device) {
-            $exists = CylanceDevice::where('device_id', $device['DeviceId'])->value('id');
+            Log::info('processing Cylance device: '.$device['Name']);
 
             $user_hits = [];
 
@@ -224,60 +224,29 @@ class GetCylanceDevices extends Command
                 $last_user = '';
             }
 
-            // if the device record exists then update it, otherwise create a new one
-            if ($exists) {
-                $devicemodel = CylanceDevice::findOrFail($exists);
+            // update model if it exists, otherwise create it
+            $device_model = CylanceDevice::updateOrCreate(
+                ['device_id'            => $device['DeviceId']],
+                ['device_name'          => $device['Name']],
+                ['zones_text'           => $device['ZonesText']],
+                ['files_unsafe'         => $device['Unsafe']],
+                ['files_quarantined'    => $device['Quarantined']],
+                ['files_abnormal'       => $device['Abnormal']],
+                ['files_waived'         => $device['Waived']],
+                ['files_analyzed'       => $device['FilesAnalyzed']],
+                ['agent_version_text'   => $device['AgentVersionText']],
+                ['last_users_text'      => $last_user],
+                ['os_versions_text'     => $device['OSVersionsText']],
+                ['ip_addresses_text'    => $device['IPAddressesText']],
+                ['mac_addresses_text'   => $device['MacAddressesText']],
+                ['policy_name'          => $device['PolicyName']],
+                ['device_created_at'    => $created_date],
+                ['device_offline_date'  => $offline_date],
+                ['data'                 => \Metaclassing\Utility::encodeJson($device)]
+            );
 
-                $devicemodel->update([
-                    'device_name'          => $device['Name'],
-                    'zones_text'           => $device['ZonesText'],
-                    'files_unsafe'         => $device['Unsafe'],
-                    'files_quarantined'    => $device['Quarantined'],
-                    'files_abnormal'       => $device['Abnormal'],
-                    'files_waived'         => $device['Waived'],
-                    'files_analyzed'       => $device['FilesAnalyzed'],
-                    'agent_version_text'   => $device['AgentVersionText'],
-                    'last_users_text'      => $last_user,
-                    'os_versions_text'     => $device['OSVersionsText'],
-                    'ip_addresses_text'    => $device['IPAddressesText'],
-                    'mac_addresses_text'   => $device['MacAddressesText'],
-                    'policy_name'          => $device['PolicyName'],
-                    'device_created_at'    => $created_date,
-                    'device_offline_date'  => $offline_date,
-                    'data'                 => json_encode($device),
-                ]);
-
-                $devicemodel->save();
-
-                // touch device model to update 'updated_at' timestamp (in case nothing was changed)
-                $devicemodel->touch();
-
-                Log::info('updated device: '.$device['Name']);
-            } else {
-                Log::info('creating device: '.$device['Name']);
-
-                $new_device = new CylanceDevice();
-
-                $new_device->device_id = $device['DeviceId'];
-                $new_device->device_name = $device['Name'];
-                $new_device->zones_text = $device['ZonesText'];
-                $new_device->files_unsafe = $device['Unsafe'];
-                $new_device->files_quarantined = $device['Quarantined'];
-                $new_device->files_abnormal = $device['Abnormal'];
-                $new_device->files_waived = $device['Waived'];
-                $new_device->files_analyzed = $device['FilesAnalyzed'];
-                $new_device->agent_version_text = $device['AgentVersionText'];
-                $new_device->last_users_text = $last_user;
-                $new_device->os_versions_text = $device['OSVersionsText'];
-                $new_device->ip_addresses_text = $device['IPAddressesText'];
-                $new_device->mac_addresses_text = $device['MacAddressesText'];
-                $new_device->policy_name = $device['PolicyName'];
-                $new_device->device_created_at = $created_date;
-                $new_device->device_offline_date = $offline_date;
-                $new_device->data = json_encode($device);
-
-                $new_device->save();
-            }
+            // touch device model to update 'updated_at' timestamp (in case nothing was changed)
+            $device_model->touch();
         }
 
         // process soft deletes for old records
