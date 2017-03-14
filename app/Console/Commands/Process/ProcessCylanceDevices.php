@@ -52,6 +52,47 @@ class ProcessCylanceDevices extends Command
         $user_regex = '/\w+\\\(\w+\.\w+-*\w+)/';
 
         foreach ($cylance_devices as $device) {
+            Log::info('processing Cylance device: '.$device['Name']);
+
+            $user_hits = [];
+
+            // format datetimes for updating device record
+            $created_date = $this->stringToDate($device['Created']);
+            $offline_date = $this->stringToDate($device['OfflineDate']);
+
+            // extract user from last users text
+            preg_match($user_regex, $device['LastUsersText'], $user_hits);
+            if (isset($user_hits[1])) {
+                $last_user = ucwords(strtolower($user_hits[1]), '.');
+            } else {
+                $last_user = '';
+            }
+
+            // update model if it exists, otherwise create it
+            $device_model = CylanceDevice::updateOrCreate(
+                ['device_id'            => $device['DeviceId']],
+                ['device_name'          => $device['Name']],
+                ['zones_text'           => $device['ZonesText']],
+                ['files_unsafe'         => $device['Unsafe']],
+                ['files_quarantined'    => $device['Quarantined']],
+                ['files_abnormal'       => $device['Abnormal']],
+                ['files_waived'         => $device['Waived']],
+                ['files_analyzed'       => $device['FilesAnalyzed']],
+                ['agent_version_text'   => $device['AgentVersionText']],
+                ['last_users_text'      => $last_user],
+                ['os_versions_text'     => $device['OSVersionsText']],
+                ['ip_addresses_text'    => $device['IPAddressesText']],
+                ['mac_addresses_text'   => $device['MacAddressesText']],
+                ['policy_name'          => $device['PolicyName']],
+                ['device_created_at'    => $created_date],
+                ['device_offline_date'  => $offline_date],
+                ['data'                 => \Metaclassing\Utility::encodeJson($device)]
+            );
+
+            // touch device model to update 'updated_at' timestamp (in case nothing was changed)
+            $device_model->touch();
+
+            /*
             $exists = CylanceDevice::where('device_id', $device['DeviceId'])->value('id');
 
             $user_hits = [];
@@ -122,6 +163,8 @@ class ProcessCylanceDevices extends Command
 
                 $new_device->save();
             }
+            */
+
         }
 
         // process soft deletes for old records
@@ -149,8 +192,6 @@ class ProcessCylanceDevices extends Command
         **/
         foreach ($devices as $device) {
             $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $device->updated_at);
-
-            Log::info('last updated: '.$updated_at);
 
             // if updated_at is less than or equal to delete_date then we soft delete the device
             if ($updated_at->lt($delete_date)) {
