@@ -119,7 +119,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command('get:insidehosttrafficsnapshots')->twiceDaily(8, 14)->timezone('America/Chicago');   // runs twice daily at 08:00am and 02:00pm
         //$schedule->command('get:outsidehosttrafficsnapshots')->twiceDaily(9, 15)->timezone('America/Chicago');  // runs twice daily at 09:00am and 03:00pm
 
-        $schedule->command('get:spamemail')->twiceDaily(4, 16)->timezone('America/Chicago');                // runs twice daily at 04:00am and 04:00pm
+        //$schedule->command('get:spamemail')->twiceDaily(4, 16)->timezone('America/Chicago');                // runs twice daily at 04:00am and 04:00pm
 
         /*
         * Commands run on an hourly basis

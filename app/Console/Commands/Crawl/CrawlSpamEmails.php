@@ -5,6 +5,7 @@ namespace App\Console\Commands\Crawl;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class CrawlSpamEmails extends Command
 {
@@ -39,6 +40,12 @@ class CrawlSpamEmails extends Command
      */
     public function handle()
     {
+        /*
+         * [1] Get spam email
+         */
+
+        Log::info(PHP_EOL.PHP_EOL.'********************************'.PHP_EOL.'* Starting spam email crawler! *'.PHP_EOL.'********************************');
+
         $username = getenv('IRONPORT_USERNAME');
         $password = getenv('IRONPORT_PASSWORD');
 
@@ -46,7 +53,6 @@ class CrawlSpamEmails extends Command
 
         // setup cookiejar file
         $cookiejar = storage_path('app/cookies/ironport_cookie.txt');
-        echo 'Storing cookies at '.$cookiejar.PHP_EOL;
 
         // instantiate crawler object
         $crawler = new \Crawler\Crawler($cookiejar);
@@ -70,6 +76,7 @@ class CrawlSpamEmails extends Command
             if (preg_match($regex, $response, $hits)) {
                 $csrftoken = $hits[1];
             } else {
+                Log::error('could not get CSRF token');
                 die('Error: could not get CSRF token'.PHP_EOL);
             }
 
@@ -93,11 +100,9 @@ class CrawlSpamEmails extends Command
         }
         // once out of the login loop, if tries is > 3 then we didn't login so die
         if ($tries > 3) {
+            Log::error('could not post successful login within 3 attempts');
             die('Error: could not post successful login within 3 attempts'.PHP_EOL);
         }
-
-        // if we made it here then we've successfully logged in, so tell someone about it
-        echo 'Login successful...'.PHP_EOL;
 
         // dump dashboard to file
         file_put_contents($response_path.'ironport_dashboard.dump', $response);
@@ -110,16 +115,14 @@ class CrawlSpamEmails extends Command
         $regex = "/CSRFKey = '(.+)'/";
         if (preg_match($regex, $response, $hits)) {
             $csrftoken = $hits[1];
-            echo 'Found CSRF token: '.$csrftoken.PHP_EOL;
         } else {
             // if no CSRFToken, pop smoke
+            Log::error('could not get CSRF token');
             die('Error: could not get CSRF Token'.PHP_EOL);
         }
 
-        echo 'Starting incoming email scrape'.PHP_EOL;
-
         // setup url and referer to go to the Centralized Policy spam quarantine
-        $url = getenv('IRONPORT_SMA').'monitor_email_quarantine/local_quarantines_dosearch?';
+        $url = getenv('IRONPORT_SMA').'/monitor_email_quarantine/local_quarantines_dosearch?';
         $referer = getenv('IRONPORT_SMA').'/monitor_email_quarantine/local_quarantines';
         $refparams = [
             'CSRFKey'       => $csrftoken,
@@ -139,6 +142,7 @@ class CrawlSpamEmails extends Command
             $time_stamp = $hits[1];
         } else {
             // if no time_stamp value then no working request so die
+            Log::error('could not get time_stamp');
             die('Error: could not get time_stamp'.PHP_EOL);
         }
 
@@ -155,11 +159,9 @@ class CrawlSpamEmails extends Command
         $collection = [];
         $page = 1;
         $i = 0;
+        $pagesize = 100;
 
-        echo 'Starting page scrape loop'.PHP_EOL;
         do {
-            echo 'Scraping loop for page '.$page.PHP_EOL;
-
             // setup GET parameters and append to spam search url
             $getmessages = [
                 'action'     => 'GetMessages',
@@ -169,7 +171,7 @@ class CrawlSpamEmails extends Command
                 'dir'        => 'desc',
                 'time_stamp' => $time_stamp,
                 'pg'         => $page,
-                'pageSize'   => '20',
+                'pageSize'   => $pagesize,
             ];
 
             $geturl = $url.$this->postArrayToString($getmessages);
@@ -182,12 +184,12 @@ class CrawlSpamEmails extends Command
             $spam = \Metaclassing\Utility::decodeJson($response);
             $collection[] = $spam;
 
-            echo 'Scrape for page '.$page.' complete, got '.count($spam).' spam records'.PHP_EOL;
+            Log::info('spam email scrape for page '.$page.' complete - got '.count($spam['search_result']).' spam records');
 
             // set count to total number of messages
             $count = $spam['num_msgs'];
 
-            $i += 20;   // increment by number of records per page
+            $i += $pagesize;   // increment by number of records per page
             $page++;    // increment to next page
 
             // sleep for 1 second before hammering on IronPort again
@@ -210,6 +212,8 @@ class CrawlSpamEmails extends Command
         // each threat record is a key=>value pair collection / assoc array
         //\Metaclassing\Utility::dumper($spam_emails);
         file_put_contents(storage_path('app/collections/spam.json'), \Metaclassing\Utility::encodeJson($spam_emails));
+
+        Log::info('* Completed IronPort spam emails crawl! *');
     }
 
     /**

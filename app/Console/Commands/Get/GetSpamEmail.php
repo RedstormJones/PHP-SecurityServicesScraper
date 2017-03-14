@@ -305,7 +305,7 @@ class GetSpamEmail extends Command
         /*
          * 2017-01-17 - Not deleting spam email records at this time to allow for trending visuals
          */
-        //$this->processDeletes();
+        $this->processDeletes();
 
         Log::info('* Completed IronPort spam emails! *');
     }
@@ -335,14 +335,19 @@ class GetSpamEmail extends Command
      */
     public function processDeletes()
     {
-        $delete_date = Carbon::now()->subMonths(3);
+        $delete_date = Carbon::now()->subMonths(6);
         Log::info('spam delete date: '.$delete_date);
 
-        $spam_emails = IronPortSpamEmail::where('updated_at', '<=', $delete_date)->get();
+        $spam_emails = IronPortSpamEmail::all();
 
         foreach ($spam_emails as $spam) {
-            Log::info('deleting spam record: '.$spam->id);
-            $spam->delete();
+            $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $spam->updated_at);
+
+            if ($updated_at->lt($delete_date))
+            {
+                Log::info('deleting spam record: '.$spam->id);
+                $spam->delete();
+            }
         }
     }
 }
