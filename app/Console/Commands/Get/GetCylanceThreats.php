@@ -7,7 +7,6 @@ require_once app_path('Console/Crawler/Crawler.php');
 use App\Cylance\CylanceThreat;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 
 class GetCylanceThreats extends Command
