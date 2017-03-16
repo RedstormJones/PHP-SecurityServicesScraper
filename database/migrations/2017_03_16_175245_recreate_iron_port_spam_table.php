@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class RecreateIronPortSpamTable extends Migration
 {
@@ -41,7 +41,7 @@ class RecreateIronPortSpamTable extends Migration
 
         /*
         Schema::table('iron_port_spam_emails', function (Blueprint $table) {
-        
+
         });
         */
     }
