@@ -237,11 +237,9 @@ class GetSpamEmail extends Command
             }
 
             // normalize time added date
-            if (preg_match($time_added_regex, $spam['time_added'], $time_added_hits))
-            {
+            if (preg_match($time_added_regex, $spam['time_added'], $time_added_hits)) {
                 $time_added = Carbon::createFromFormat('d M Y H:i', $time_added_hits[1])->toDateTimeString();
-            }
-            else {
+            } else {
                 $time_added = '';
             }
 
