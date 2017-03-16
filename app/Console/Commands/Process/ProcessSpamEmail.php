@@ -49,8 +49,11 @@ class ProcessSpamEmail extends Command
         $contents = file_get_contents(storage_path('app/collections/spam.json'));
         $spam_emails = \Metaclassing\Utility::decodeJson($contents);
 
+        $time_added_regex = '/(.+) \(.+\)/';
+
         foreach ($spam_emails as $spam) {
             $reasons = '';
+            $time_added_hits = [];
 
             // cycle through reasons
             foreach ($spam['reason'] as $reason) {
@@ -61,40 +64,36 @@ class ProcessSpamEmail extends Command
                 $reasons .= $reason_str.'; ';
             }
 
-            // strip crap from time_added
-            $timeadded = substr($spam['time_added'], 0, -13);
-
-            // we need to check that timeadded is formatted correctly and, if not,
-            // append 0's for either the seconds or for both the seconds and minutes
-            if (!strstr($timeadded, ':')) {
-                if (strlen($timeadded) == 11) {
-                    $timeadded .= '00:00';
-                } else {
-                    $timeadded .= ':00';
-                }
-            } else {
-                $timeadded = str_pad($timeadded, 17, '0');
+            // normalize time added date
+            if (preg_match($time_added_regex, $spam['time_added'], $time_added_hits))
+            {
+                $time_added = Carbon::createFromFormat('d M Y H:i', $time_added_hits[1])->toDateTimeString();
             }
-
-            // now we can use timeadded to create a datetime object
-            $date = \DateTime::createFromFormat('d M Y H:i', $timeadded);
-            $datetime = $date->format('Y-m-d H:i');
+            else {
+                $time_added = '';
+            }
 
             // convert quarantine names and recipients arrays to strings
             $quarantines = implode('; ', $spam['quarantine_names']);
             $recipients = implode('; ', $spam['recipients']);
 
+            Log::info('processing spam record for: '.$spam['sender']);
+
             $spam_model = IronPortSpamEmail::updateOrCreate(
-                ['mid'                 => $spam['mid']],
-                ['subject'             => $spam['subject']],
-                ['size'                => $spam['size']],
-                ['quarantine_names'    => $quarantines],
-                ['time_added'          => $datetime],
-                ['reason'              => $reasons],
-                ['recipients'          => $recipients],
-                ['sender'              => $spam['sender']],
-                ['esa_id'              => $spam['esa_id']],
-                ['data'                => \Metaclassing\Utility::encodeJson($spam)]
+                [
+                    'mid'                 => $spam['mid'],
+                ],
+                [
+                    'subject'             => $spam['subject'],
+                    'size'                => $spam['size'],
+                    'quarantine_names'    => $quarantines,
+                    'time_added'          => $time_added,
+                    'reason'              => $reasons,
+                    'recipients'          => $recipients,
+                    'sender'              => $spam['sender'],
+                    'esa_id'              => $spam['esa_id'],
+                    'data'                => \Metaclassing\Utility::encodeJson($spam),
+                ]
             );
 
             // touch spam model to update the "updated_at" timestamp in case nothing was changed
@@ -102,6 +101,8 @@ class ProcessSpamEmail extends Command
         }
 
         $this->processDeletes();
+
+        Log::info('* Completed IronPort spam emails! *');
     }
 
     /**
@@ -111,10 +112,10 @@ class ProcessSpamEmail extends Command
      */
     public function processDeletes()
     {
-        $delete_date = Carbon::now()->subMonths(6);
+        $delete_date = Carbon::now()->subMonths(3);
         Log::info('spam delete date: '.$delete_date);
 
-        $spam_emails = IronPortSpamEmail::all();
+        $spam_emails = IronPortSpamEmail::get();
 
         foreach ($spam_emails as $spam) {
             $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $spam->updated_at);
