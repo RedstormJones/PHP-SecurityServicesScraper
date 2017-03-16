@@ -227,7 +227,7 @@ class GetCylanceDevices extends Command
             // update model if it exists, otherwise create it
             $device_model = CylanceDevice::updateOrCreate(
                 [
-                    'device_id'            => $device['DeviceId']
+                    'device_id'            => $device['DeviceId'],
                 ],
                 [
                     'device_name'          => $device['Name'],
@@ -245,7 +245,7 @@ class GetCylanceDevices extends Command
                     'policy_name'          => $device['PolicyName'],
                     'device_created_at'    => $created_date,
                     'device_offline_date'  => $offline_date,
-                    'data'                 => \Metaclassing\Utility::encodeJson($device)
+                    'data'                 => \Metaclassing\Utility::encodeJson($device),
                 ]
             );
 
