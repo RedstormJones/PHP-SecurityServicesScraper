@@ -226,23 +226,27 @@ class GetCylanceDevices extends Command
 
             // update model if it exists, otherwise create it
             $device_model = CylanceDevice::updateOrCreate(
-                ['device_id'            => $device['DeviceId']],
-                ['device_name'          => $device['Name']],
-                ['zones_text'           => $device['ZonesText']],
-                ['files_unsafe'         => $device['Unsafe']],
-                ['files_quarantined'    => $device['Quarantined']],
-                ['files_abnormal'       => $device['Abnormal']],
-                ['files_waived'         => $device['Waived']],
-                ['files_analyzed'       => $device['FilesAnalyzed']],
-                ['agent_version_text'   => $device['AgentVersionText']],
-                ['last_users_text'      => $last_user],
-                ['os_versions_text'     => $device['OSVersionsText']],
-                ['ip_addresses_text'    => $device['IPAddressesText']],
-                ['mac_addresses_text'   => $device['MacAddressesText']],
-                ['policy_name'          => $device['PolicyName']],
-                ['device_created_at'    => $created_date],
-                ['device_offline_date'  => $offline_date],
-                ['data'                 => \Metaclassing\Utility::encodeJson($device)]
+                [
+                    'device_id'            => $device['DeviceId']
+                ],
+                [
+                    'device_name'          => $device['Name'],
+                    'zones_text'           => $device['ZonesText'],
+                    'files_unsafe'         => $device['Unsafe'],
+                    'files_quarantined'    => $device['Quarantined'],
+                    'files_abnormal'       => $device['Abnormal'],
+                    'files_waived'         => $device['Waived'],
+                    'files_analyzed'       => $device['FilesAnalyzed'],
+                    'agent_version_text'   => $device['AgentVersionText'],
+                    'last_users_text'      => $last_user,
+                    'os_versions_text'     => $device['OSVersionsText'],
+                    'ip_addresses_text'    => $device['IPAddressesText'],
+                    'mac_addresses_text'   => $device['MacAddressesText'],
+                    'policy_name'          => $device['PolicyName'],
+                    'device_created_at'    => $created_date,
+                    'device_offline_date'  => $offline_date,
+                    'data'                 => \Metaclassing\Utility::encodeJson($device)
+                ]
             );
 
             // touch device model to update 'updated_at' timestamp (in case nothing was changed)
