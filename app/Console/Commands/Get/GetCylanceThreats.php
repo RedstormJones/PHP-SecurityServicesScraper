@@ -216,7 +216,7 @@ class GetCylanceThreats extends Command
             $blocked_last_found = $this->stringToDate($threat['BlockedLastFound']);
             $cert_timestamp = $this->stringToDate($threat['CertTimeStamp']);
 
-            $cylance_threat = CylanceThreat::updateOrCreate(
+            $cylance_threat = CylanceThreat::withTrashed()->updateOrCreate(
                 [
                     'threat_id'                => $threat['Id'],
                 ],
@@ -254,6 +254,9 @@ class GetCylanceThreats extends Command
 
             // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
             $cylance_threat->touch();
+
+            // restore threat model to remove deleted_at timestamp
+            $cylance_threat->restore();
         }
 
         // process soft deletes for old records
