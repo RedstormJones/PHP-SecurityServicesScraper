@@ -69,7 +69,7 @@ class ProcessCylanceDevices extends Command
             }
 
             // update model if it exists, otherwise create it
-            $device_model = CylanceDevice::updateOrCreate(
+            $device_model = CylanceDevice::withTrashed()->updateOrCreate(
                 [
                     'device_id'            => $device['DeviceId'],
                 ],
@@ -95,6 +95,9 @@ class ProcessCylanceDevices extends Command
 
             // touch device model to update 'updated_at' timestamp (in case nothing was changed)
             $device_model->touch();
+
+            // restore device model to remove deleted_at timestamp
+            $device_model->restore();
         }
 
         // process soft deletes for old records
