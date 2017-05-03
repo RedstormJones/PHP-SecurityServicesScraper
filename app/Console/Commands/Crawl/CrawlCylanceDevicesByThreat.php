@@ -5,7 +5,6 @@ namespace App\Console\Commands\Crawl;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\Cylance\CylanceThreat;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -139,14 +138,12 @@ class CrawlCylanceDevicesByThreat extends Command
         Log::info('threat id count from securitymetrics db: '.$threat_ids_count);
 
         // cycle through each threat id and query for the device
-        foreach ($threat_ids as $id)
-        {
+        foreach ($threat_ids as $id) {
 
             // query for active, blocked, allowed and suspicious
-            for ($t = 0; $t < 4; $t++)
-            {
+            for ($t = 0; $t < 4; $t++) {
                 //$threat_collection[] = $this->queryForDetails($crawler, $id, $t);
-                
+
                 if ($t == 0) {
                     Log::info('querying for devices with active threat: '.$id);
                     $url = 'https:/'.'/protect.cylance.com/ThreatDetails/DevicesActive?filehashId='.$id;
@@ -212,15 +209,13 @@ class CrawlCylanceDevicesByThreat extends Command
                 foreach ($collection as $response) {
                     // next level down is associative, the KEY we care about is 'Data'
                     $results = $response['Data'];
-                    if (count($results) > 0)
-                    {
+                    if (count($results) > 0) {
                         foreach ($results as $threat) {
                             // this is confusing logic.
                             $threat_collection[] = $threat;
                         }
                     }
                 }
-
             }
 
             $threat_ids_count--;
@@ -234,7 +229,7 @@ class CrawlCylanceDevicesByThreat extends Command
     }
 
     /**
-     * Function to query for the device details for each known threat
+     * Function to query for the device details for each known threat.
      *
      * @return mixed
      */
@@ -305,8 +300,6 @@ class CrawlCylanceDevicesByThreat extends Command
 
         return $collection;
     }
-
-
 
     /**
      * Function to convert post information from an assoc array to a string.
