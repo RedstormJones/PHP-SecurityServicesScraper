@@ -55,7 +55,6 @@ class GetCylanceThreatDetailsForBlocked extends Command
 
         $crawler = $this->authenticateToCylance();
 
-
         /***************************************
          * [2] Query for active threat details *
          ***************************************/
@@ -69,8 +68,7 @@ class GetCylanceThreatDetailsForBlocked extends Command
         Log::info('threat id count from securitymetrics db: '.$threat_ids->count());
 
         // cycle through threat id's and query for active threat details
-        foreach ($threat_ids as $threat_id)
-        {
+        foreach ($threat_ids as $threat_id) {
             Log::info('querying blocked threats for threat id: '.$threat_id);
 
             // setup url
@@ -96,18 +94,15 @@ class GetCylanceThreatDetailsForBlocked extends Command
                 // post data to webpage and capture response
                 $response = $crawler->post($url, '', $this->postArrayToString($post));
                 file_put_contents(storage_path('app/responses/blocked_threat_details.response'), $response);
-                
+
                 // json decode the response
                 $threats = \Metaclassing\Utility::decodeJson($response);
 
                 // if the response contains errors pop smoke and die
-                if ($threats['Errors'])
-                {
+                if ($threats['Errors']) {
                     Log::error('Error: Cylance API is returning errors:: '.$threat['Errors']);
                     die('Error: Cylance API is returning errors:: '.$threat['Errors'].PHP_EOL);
-                }
-                else
-                {
+                } else {
                     // otherwise, add this page's response array to our collection
                     $collection[] = $threats;
                 }
@@ -121,7 +116,6 @@ class GetCylanceThreatDetailsForBlocked extends Command
 
                 // wait a second before hammering on their webserver again
                 sleep(1);
-
             } while ($i < $count);
 
             /*
@@ -133,13 +127,11 @@ class GetCylanceThreatDetailsForBlocked extends Command
             $threat_collection = [];
 
             // first level is simple sequencail array of 1,2,3
-            foreach ($collection as $response)
-            {
+            foreach ($collection as $response) {
                 // next level down is associative, the KEY we care about is 'Data'
                 $results = $response['Data'];
 
-                foreach ($results as $threat)
-                {
+                foreach ($results as $threat) {
                     // this is confusing logic.
                     $threat_collection[] = $threat;
                 }
@@ -152,10 +144,8 @@ class GetCylanceThreatDetailsForBlocked extends Command
         // simple array to hold all threat detail objects collected in a simple array
         $blocked_threats_collection = [];
 
-        foreach ($blocked_threat_details as $blocked_threats)
-        {
-            foreach ($blocked_threats as $threat)
-            {
+        foreach ($blocked_threat_details as $blocked_threats) {
+            foreach ($blocked_threats as $threat) {
                 $blocked_threats_collection[] = $threat;
             }
         }
@@ -166,16 +156,14 @@ class GetCylanceThreatDetailsForBlocked extends Command
         $device_threat_details = [];
 
         Log::info('converting millisecond timestamps to datetimes...');
-        foreach ($blocked_threats_collection as $data)
-        {
+        foreach ($blocked_threats_collection as $data) {
             $added = $this->stringToDate($data['Added']);
             $first_found = $this->stringToDate($data['FirstFound']);
             $offline_date = $this->stringToDate($data['OfflineDate']);
 
             $device_files = [];
 
-            foreach ($data['DeviceFiles'] as $device_file)
-            {
+            foreach ($data['DeviceFiles'] as $device_file) {
                 $first_seen = $this->stringToDate($device_file['FirstSeen']);
 
                 $device_files[] = [
@@ -187,10 +175,9 @@ class GetCylanceThreatDetailsForBlocked extends Command
                     'AgentEventId'          => $device_file['AgentEventId'],
                     'OpticsRequestId'       => $device_file['OpticsRequestId'],
                     'VDataId'               => $device_file['VDataId'],
-                    'OpticsRequestStatus'   => $device_file['OpticsRequestStatus']
+                    'OpticsRequestStatus'   => $device_file['OpticsRequestStatus'],
                 ];
             }
-
 
             $device_threat_details[] = [
                 'AgentEventId'          => $data['AgentEventId'],
@@ -233,18 +220,15 @@ class GetCylanceThreatDetailsForBlocked extends Command
                 'UsersText'             => $data['UsersText'],
                 'OpticsClientStatus'    => $data['OpticsClientStatus'],
                 'OpticsV2FocusStatus'   => $data['OpticsV2FocusStatus'],
-                'OpticsV2FocusId'       => $data['OpticsV2FocusId']
+                'OpticsV2FocusId'       => $data['OpticsV2FocusId'],
             ];
-
-
         }
 
         // clear out active_threat_details.json collection file
         file_put_contents(storage_path('app/collections/blocked_threat_details.json'), '');
 
         // cycle through each active threat
-        foreach ($device_threat_details as $data)
-        {
+        foreach ($device_threat_details as $data) {
             // encode the data array into a JSON string and append a newline
             $json_data = (\Metaclassing\Utility::encodeJson($data)).PHP_EOL;
 
@@ -258,24 +242,20 @@ class GetCylanceThreatDetailsForBlocked extends Command
         // stop stopwatch, calculate hour/min/sec values and log execution time
         $stopwatch->stop();
         $execution_time = $stopwatch->getTime();
-        $execution_secs = (int)($execution_time % 60);
-        $execution_mins = (int)($execution_time / 60);
-        $execution_hours = (int)($execution_mins / 60);
+        $execution_secs = (int) ($execution_time % 60);
+        $execution_mins = (int) ($execution_time / 60);
+        $execution_hours = (int) ($execution_mins / 60);
 
-        if ($execution_mins > 59)
-        {
-            $additional_hours = (int)($execution_mins / 60);
+        if ($execution_mins > 59) {
+            $additional_hours = (int) ($execution_mins / 60);
 
-            $execution_mins = (int)($execution_mins % 60);
+            $execution_mins = (int) ($execution_mins % 60);
             $execution_hours += $additional_hours;
         }
         Log::info('Blocked threat details execution time: '.$execution_hours.':'.$execution_mins.':'.$execution_secs);
 
-
         Log::info('* Cylance blocked threat details completed! *');
     }
-
-
 
     /**
      * Function to authenticate to the Cylance console.
@@ -408,5 +388,4 @@ class GetCylanceThreatDetailsForBlocked extends Command
 
         return $datetime;
     }
-
 }
