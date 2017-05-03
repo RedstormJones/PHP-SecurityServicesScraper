@@ -20,7 +20,8 @@
         "tymon/jwt-auth": "^1.0",
         "silber/bouncer": "^1.0",
         "doctrine/dbal": ">=2.5",
-        "nesbot/carbon": "~1.21"
+        "nesbot/carbon": "~1.21",
+        "phpreboot/stopwatch": "^1.0"
     },
     "minimum-stability": "dev",
     "require-dev": {

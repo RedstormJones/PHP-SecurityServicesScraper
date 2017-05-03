@@ -15,6 +15,10 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\Get\GetCylanceDevices::class,
         Commands\Get\GetCylanceThreats::class,
+        Commands\Get\GetCylanceThreatDetailsForActive::class,
+        Commands\Get\GetCylanceThreatDetailsForBlocked::class,
+        Commands\Get\GetCylanceThreatDetailsForAllowed::class,
+        Commands\Get\GetCylanceThreatDetailsForSuspicious::class,
         Commands\Get\GetCMDBServers::class,
         Commands\Get\GetIncomingEmail::class,
         Commands\Get\GetIronPortThreats::class,
@@ -53,6 +57,7 @@ class Kernel extends ConsoleKernel
         Commands\Process\ProcessIdmIncidents::class,
         Commands\Process\ProcessSapRoleAuthIncidents::class,
         Commands\Crawl\CrawlCylanceDevices::class,
+        Commands\Crawl\CrawlCylanceDevicesByThreat::class,
         Commands\Crawl\CrawlCylanceThreats::class,
         Commands\Crawl\CrawlIncomingEmails::class,
         Commands\Crawl\CrawlSpamEmails::class,
