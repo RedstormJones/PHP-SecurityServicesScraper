@@ -224,6 +224,9 @@ class GetCylanceThreatDetailsForSuspicious extends Command
             ];
         }
 
+        file_put_contents(storage_path('app/collections/suspicious_threat_details.json'), \Metaclassing\Utility::encodeJson($device_threat_details));
+
+        /*
         // clear out active_threat_details.json collection file
         file_put_contents(storage_path('app/collections/suspicious_threat_details.json'), '');
 
@@ -238,6 +241,7 @@ class GetCylanceThreatDetailsForSuspicious extends Command
             // append JSON data string to current active threat contents and dump back to file
             file_put_contents(storage_path('app/collections/suspicious_threat_details.json'), $contents.$json_data);
         }
+        */
 
         // stop stopwatch, calculate hour/min/sec values and log execution time
         $stopwatch->stop();
