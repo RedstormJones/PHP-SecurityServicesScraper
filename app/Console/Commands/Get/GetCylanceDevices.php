@@ -197,7 +197,7 @@ class GetCylanceDevices extends Command
 
         // Now we have a simple array [1,2,3] of all the device records,
         // each device record is a key=>value pair collection / assoc array
-        file_put_contents(storage_path('app/collections/devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices));
+        file_put_contents(storage_path('app/collections/cylance_devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices));
 
         /*************************************
          * [2] Process devices into database *
