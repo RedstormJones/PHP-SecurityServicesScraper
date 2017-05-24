@@ -193,23 +193,12 @@ class GetCylanceDevices extends Command
             }
         }
 
-        Log::info('devices successfully collected: '.count($cylance_devices));
-
-        // Now we have a simple array [1,2,3] of all the device records,
-        // each device record is a key=>value pair collection / assoc array
-        file_put_contents(storage_path('app/collections/cylance_devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices));
-
-        /*************************************
-         * [2] Process devices into database *
-         *************************************/
-
-        Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance devices processing! *'.PHP_EOL.'****************************************');
-
+        // build final array of Cylance devices with all necessary values converted to usable format
+        $cylance_devices_final = [];
         $user_regex = '/\w+\\\(\w+\.\w+-*\w+)/';
 
-        foreach ($cylance_devices as $device) {
-            Log::info('processing Cylance device: '.$device['Name']);
-
+        foreach ($cylance_devices as $device)
+        {
             $user_hits = [];
 
             // format datetimes for updating device record
@@ -218,11 +207,62 @@ class GetCylanceDevices extends Command
 
             // extract user from last users text
             preg_match($user_regex, $device['LastUsersText'], $user_hits);
-            if (isset($user_hits[1])) {
+            if (isset($user_hits[1]))
+            {
                 $last_user = ucwords(strtolower($user_hits[1]), '.');
-            } else {
+            }
+            else
+            {
                 $last_user = '';
             }
+
+            $cylance_devices_final[] = [
+                'DeviceLdapGroupMembership'     => $device['DeviceLdapGroupMembership'],
+                'ZoneRoleText'                  => $device['ZoneRoleText'],
+                'IsOffline'                     => $device['IsOffline'],
+                'Name'                          => $device['Name'],
+                'OSVersionsText'                => $device['OSVersionsText'],
+                'LastUsersText'                 => $last_user,
+                'DeviceId'                      => $device['DeviceId'],
+                'OfflineDate'                   => $offline_date,
+                'Created'                       => $created_date,
+                'Waived'                        => $device['Waived'],
+                'Unsafe'                        => $device['Unsafe'],
+                'ScriptCount'                   => $device['ScriptCount'],
+                'ZoneRole'                      => $device['ZoneRole'],
+                'Abnormal'                      => $device['Abnormal'],
+                'IsSafe'                        => $device['IsSafe'],
+                'Zones'                         => $device['Zones'],
+                'DeviceLdapDistinguishedName'   => $device['DeviceLdapDistinguishedName'],
+                'IPAddressesText'               => $device['IPAddressesText'],
+                'MemoryProtection'              => $device['MemoryProtection'],
+                'IPAddresses'                   => $device['IPAddresses'],
+                'MacAddressesText'              => $device['MacAddressesText'],
+                'RequiresUpdate'                => $device['RequiresUpdate'],
+                'ZonesText'                     => $device['ZonesText'],
+                'ClientStatus'                  => $device['ClientStatus'],
+                'AgentVersionText'              => $device['AgentVersionText'],
+                'PolicyName'                    => $device['PolicyName'],
+                'FilesAnalyzed'                 => $device['FilesAnalyzed'],
+                'Quarantined'                   => $device['Quarantined'],
+                'BackgroundDetection'           => $device['BackgroundDetection'],
+                'DnsName'                       => $device['DnsName'],
+            ];
+        }
+
+        Log::info('devices successfully collected: '.count($cylance_devices_final));
+
+        // JSON encode and dump devices array to file
+        file_put_contents(storage_path('app/collections/cylance_devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices_final));
+
+        /*************************************
+         * [2] Process devices into database *
+         *************************************/
+
+        Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance devices processing! *'.PHP_EOL.'****************************************');
+
+        foreach ($cylance_devices_final as $device) {
+            Log::info('processing Cylance device: '.$device['Name']);
 
             // update model if it exists, otherwise create it
             $device_model = CylanceDevice::withTrashed()->updateOrCreate(
@@ -238,13 +278,13 @@ class GetCylanceDevices extends Command
                     'files_waived'         => $device['Waived'],
                     'files_analyzed'       => $device['FilesAnalyzed'],
                     'agent_version_text'   => $device['AgentVersionText'],
-                    'last_users_text'      => $last_user,
+                    'last_users_text'      => $device['LastUsersText'],
                     'os_versions_text'     => $device['OSVersionsText'],
                     'ip_addresses_text'    => $device['IPAddressesText'],
                     'mac_addresses_text'   => $device['MacAddressesText'],
                     'policy_name'          => $device['PolicyName'],
-                    'device_created_at'    => $created_date,
-                    'device_offline_date'  => $offline_date,
+                    'device_created_at'    => $device['Created'],
+                    'device_offline_date'  => $device['OfflineDate'],
                     'data'                 => \Metaclassing\Utility::encodeJson($device),
                 ]
             );
