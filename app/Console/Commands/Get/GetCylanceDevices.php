@@ -197,8 +197,7 @@ class GetCylanceDevices extends Command
         $cylance_devices_final = [];
         $user_regex = '/\w+\\\(\w+\.\w+-*\w+)/';
 
-        foreach ($cylance_devices as $device)
-        {
+        foreach ($cylance_devices as $device) {
             $user_hits = [];
 
             // format datetimes for updating device record
@@ -207,12 +206,9 @@ class GetCylanceDevices extends Command
 
             // extract user from last users text
             preg_match($user_regex, $device['LastUsersText'], $user_hits);
-            if (isset($user_hits[1]))
-            {
+            if (isset($user_hits[1])) {
                 $last_user = ucwords(strtolower($user_hits[1]), '.');
-            }
-            else
-            {
+            } else {
                 $last_user = '';
             }
 
