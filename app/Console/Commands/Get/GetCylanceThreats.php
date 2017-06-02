@@ -192,12 +192,75 @@ class GetCylanceThreats extends Command
             }
         }
 
+        $cylance_threats_final = [];
+
+        foreach ($cylance_threats as $threat)
+        {
+            // format datetimes for threat record
+            $first_found = $this->stringToDate($threat['FirstFound']);
+            $last_found = $this->stringToDate($threat['LastFound']);
+            $active_last_found = $this->stringToDate($threat['ActiveLastFound']);
+            $allowed_last_found = $this->stringToDate($threat['AllowedLastFound']);
+            $blocked_last_found = $this->stringToDate($threat['BlockedLastFound']);
+            $suspicious_last_found = $this->stringToDate($threat['SuspiciousLastFound']);
+            $cert_timestamp = $this->stringToDate($threat['CertTimeStamp']);
+
+            $cylance_threats_final[] = [
+                'IsRunning'             => $threat['IsRunning'],
+                'DetectorId'            => $threat['DetectorId'],
+                'CertTimeStamp'         => $cert_timestamp,
+                'BlockedLastFound'      => $blocked_last_found,
+                'CheckboxId'            => $threat['CheckboxId'],
+                'Signed'                => $threat['Signed'],
+                'AutoRun'               => $threat['AutoRun'],
+                'IsUniqueToCylance'     => $threat['IsUniqueToCylance'],
+                'SubClassification'     => $threat['SubClassification'],
+                'VirusTotal'            => $threat['VirusTotal'],
+                'FirstFound'            => $first_found,
+                'Classification'        => $threat['Classification'],
+                'CertPublisher'         => $threat['CertPublisher'],
+                'ActiveInDevices'       => $threat['ActiveInDevices'],
+                'CertIssuer'            => $threat['CertIssuer'],
+                'CylanceScore'          => $threat['CylanceScore'],
+                'AllowedInDevices'      => $threat['AllowedInDevices'],
+                'Id'                    => $threat['Id'],
+                'VirusTotalText'        => $threat['VirusTotalText'],
+                'BlockedInDevices'      => $threat['BlockedInDevices'],
+                'ActiveLastFound'       => $active_last_found,
+                'MD5'                   => $threat['MD5'],
+                'DetectedBy'            => $threat['DetectedBy'],
+                'Detector'              => $threat['Detector'],
+                'SuspiciousInDevices'   => $threat['SuspiciousInDevices'],
+                'SuspiciousLastFound'   => $suspicious_last_found,
+                'IsVirusTotalThreat'    => $threat['IsVirusTotalThreat'],
+                'GlobalListType'        => $threat['GlobalListType'],
+                'CurrentModel'          => $threat['CurrentModel'],
+                'ThreatPriority'        => $threat['ThreatPriority'],
+                'FileSize'              => $threat['FileSize'],
+                'FileHashIconId'        => $threat['FileHashIconId'],
+                'LastFound'             => $last_found,
+                'IsSafelisted'          => $threat['IsSafelisted'],
+                'IsGlobalQuarantined'   => $threat['IsGlobalQuarantined'],
+                'ThreatPriorityValue'   => $threat['ThreatPriorityValue'],
+                'FileHashId'            => $threat['FileHashId'],
+                'FileType'              => $threat['FileType'],
+                'NewModel'              => $threat['NewModel'],
+                'AllowedLastFound'      => $allowed_last_found,
+                'Priority'              => $threat['Priority'],
+                'CommonName'            => $threat['CommonName'],
+                'FullClassification'    => $threat['FullClassification'],
+                'Infinity'              => $threat['Infinity']
+            ];
+
+        }
+
+
         Log::info('threats successfully collected: '.count($cylance_threats));
 
         // Now we ahve a simple array [1,2,3] of all the threat records,
         // each threat record is a key=>value pair collection / assoc array
         //\Metaclassing\Utility::dumper($threats);
-        file_put_contents(storage_path('app/collections/cylance_threats.json'), \Metaclassing\Utility::encodeJson($cylance_threats));
+        file_put_contents(storage_path('app/collections/cylance_threats.json'), \Metaclassing\Utility::encodeJson($cylance_threats_final));
 
         /*************************************
          * [2] Process threats into database *
@@ -205,16 +268,8 @@ class GetCylanceThreats extends Command
 
         Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance threats processing! *'.PHP_EOL.'****************************************');
 
-        foreach ($cylance_threats as $threat) {
+        foreach ($cylance_threats_final as $threat) {
             Log::info('processing Cylance threat: '.$threat['CommonName']);
-
-            // format datetimes for threat record
-            $first_found = $this->stringToDate($threat['FirstFound']);
-            $last_found = $this->stringToDate($threat['LastFound']);
-            $active_last_found = $this->stringToDate($threat['ActiveLastFound']);
-            $allowed_last_found = $this->stringToDate($threat['AllowedLastFound']);
-            $blocked_last_found = $this->stringToDate($threat['BlockedLastFound']);
-            $cert_timestamp = $this->stringToDate($threat['CertTimeStamp']);
 
             $cylance_threat = CylanceThreat::withTrashed()->updateOrCreate(
                 [
