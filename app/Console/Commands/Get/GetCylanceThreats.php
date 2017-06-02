@@ -194,8 +194,7 @@ class GetCylanceThreats extends Command
 
         $cylance_threats_final = [];
 
-        foreach ($cylance_threats as $threat)
-        {
+        foreach ($cylance_threats as $threat) {
             // format datetimes for threat record
             $first_found = $this->stringToDate($threat['FirstFound']);
             $last_found = $this->stringToDate($threat['LastFound']);
@@ -249,11 +248,9 @@ class GetCylanceThreats extends Command
                 'Priority'              => $threat['Priority'],
                 'CommonName'            => $threat['CommonName'],
                 'FullClassification'    => $threat['FullClassification'],
-                'Infinity'              => $threat['Infinity']
+                'Infinity'              => $threat['Infinity'],
             ];
-
         }
-
 
         Log::info('threats successfully collected: '.count($cylance_threats));
 
