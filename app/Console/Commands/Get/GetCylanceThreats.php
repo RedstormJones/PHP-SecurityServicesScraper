@@ -258,20 +258,19 @@ class GetCylanceThreats extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         $headers = [
-            'Content-Type: application/json'
+            'Content-Type: application/json',
         ];
 
         // setup curl HTTP headers with $headers
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-        foreach($cylance_threats_final as $threat)
-        {
+        foreach ($cylance_threats_final as $threat) {
             $url = 'http://10.243.32.36:9200/cylance_threats/cylance_threats/'.$threat['ThreatId'].'/_update';
             Log::info('HTTP Post to elasticsearch: '.$url);
 
             $post = [
-                "doc"           => $threat,
-                "doc_as_upsert" => true,
+                'doc'           => $threat,
+                'doc_as_upsert' => true,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
@@ -280,12 +279,9 @@ class GetCylanceThreats extends Command
             Log::info($json_response);
             $response = \Metaclassing\Utility::decodeJson($json_response);
 
-            if($response['_shards']['failed'] == 0)
-            {
+            if ($response['_shards']['failed'] == 0) {
                 Log::info('Cylance threat was successfully inserted into ES: '.$threat['ThreatId']);
-            }
-            else
-            {
+            } else {
                 Log::error('Something went wrong inserting device: '.$threat['ThreatId']);
                 die('Something went wrong inserting device: '.$threat['ThreatId'].PHP_EOL);
             }
