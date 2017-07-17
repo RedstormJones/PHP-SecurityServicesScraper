@@ -228,20 +228,16 @@ class GetCylanceThreatDetailsForAllowed extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         $headers = [
-            'Content-Type: application/json'
+            'Content-Type: application/json',
         ];
 
         // setup curl HTTP headers with $headers
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-        foreach($device_threat_details as $device_threat)
-        {
-            if(preg_match('/\s/', $device_threat['FileName']))
-            {
+        foreach ($device_threat_details as $device_threat) {
+            if (preg_match('/\s/', $device_threat['FileName'])) {
                 $filename = str_replace(' ', '', $device_threat['FileName']);
-            }
-            else
-            {
+            } else {
                 $filename = $device_threat['FileName'];
             }
 
@@ -250,8 +246,8 @@ class GetCylanceThreatDetailsForAllowed extends Command
             Log::info('HTTP Post to elasticsearch: '.$url);
 
             $post = [
-                "doc"           => $device_threat,
-                "doc_as_upsert" => true,
+                'doc'           => $device_threat,
+                'doc_as_upsert' => true,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
@@ -260,12 +256,9 @@ class GetCylanceThreatDetailsForAllowed extends Command
             Log::info($json_response);
             $response = \Metaclassing\Utility::decodeJson($json_response);
 
-            if($response['_shards']['failed'] == 0)
-            {
+            if ($response['_shards']['failed'] == 0) {
                 Log::info('Cylance device threat was successfully inserted into ES: '.$device_threat['DeviceId']);
-            }
-            else
-            {
+            } else {
                 Log::error('Something went wrong inserting device: '.$device_threat['DeviceId']);
                 die('Something went wrong inserting device: '.$device_threat['DeviceId'].PHP_EOL);
             }
