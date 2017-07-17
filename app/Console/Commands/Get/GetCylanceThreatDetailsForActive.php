@@ -224,24 +224,54 @@ class GetCylanceThreatDetailsForActive extends Command
             ];
         }
 
-        file_put_contents(storage_path('app/collections/active_threat_details.json'), \Metaclassing\Utility::encodeJson($device_threat_details));
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
 
-        /*
-        // clear out active_threat_details.json collection file
-        file_put_contents(storage_path('app/collections/active_threat_details.json'), '');
+        $headers = [
+            'Content-Type: application/json'
+        ];
 
-        // cycle through each active threat
-        foreach ($device_threat_details as $data) {
-            // encode the data array into a JSON string and append a newline
-            $json_data = (\Metaclassing\Utility::encodeJson($data)).PHP_EOL;
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-            // pull current active_threat_details.json contents
-            $contents = file_get_contents(storage_path('app/collections/active_threat_details.json'));
+        foreach($device_threat_details as $device_threat)
+        {
+            if(preg_match('/\s/', $device_threat['FileName']))
+            {
+                $filename = str_replace(' ', '', $device_threat['FileName']);
+            }
+            else
+            {
+                $filename = $device_threat['FileName'];
+            }
 
-            // append JSON data string to current active threat contents and dump back to file
-            file_put_contents(storage_path('app/collections/active_threat_details.json'), $contents.$json_data);
+            $es_id = $device_threat['DeviceId'].'-'.$filename;
+            $url = 'http://10.243.32.36:9200/cylance_threat_details_active/cylance_threat_details_active/'.$es_id.'/_update';
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            $post = [
+                "doc"           => $device_threat,
+                "doc_as_upsert" => true,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            // log the POST response then JSON decode it
+            Log::info($json_response);
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+
+            if($response['_shards']['failed'] == 0)
+            {
+                Log::info('Cylance device threat was successfully inserted into ES: '.$device_threat['DeviceId']);
+            }
+            else
+            {
+                Log::error('Something went wrong inserting device: '.$device_threat['DeviceId']);
+                die('Something went wrong inserting device: '.$device_threat['DeviceId'].PHP_EOL);
+            }
         }
-        */
+
+        file_put_contents(storage_path('app/collections/active_threat_details.json'), \Metaclassing\Utility::encodeJson($device_threat_details));
 
         // stop stopwatch, calculate hour/min/sec values and log execution time
         $stopwatch->stop();
