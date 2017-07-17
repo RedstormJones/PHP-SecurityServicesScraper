@@ -252,20 +252,19 @@ class GetCylanceDevices extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         $headers = [
-            'Content-Type: application/json'
+            'Content-Type: application/json',
         ];
 
         // setup curl HTTP headers with $headers
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-        foreach($cylance_devices_final as $device)
-        {
+        foreach ($cylance_devices_final as $device) {
             $url = 'http://10.243.32.36:9200/cylance_devices/cylance_devices/'.$device['DeviceId'];
             Log::info('HTTP Post to elasticsearch: '.$url);
-            
+
             $post = [
-                "doc"           => $device,
-                "doc_as_upsert" => true,
+                'doc'           => $device,
+                'doc_as_upsert' => true,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
@@ -273,12 +272,9 @@ class GetCylanceDevices extends Command
             $response = \Metaclassing\Utility::decodeJson($json_response);
             Log::info($response);
 
-            if($response['_shards']['failed'] == 0)
-            {
+            if ($response['_shards']['failed'] == 0) {
                 Log::info('Cylance device was successfully inserted into ES: '.$device['DeviceId']);
-            }
-            else
-            {
+            } else {
                 Log::error('Something went wrong inserting device: '.$device['DeviceId']);
                 die('Something went wrong inserting device: '.$device['DeviceId'].PHP_EOL);
             }
