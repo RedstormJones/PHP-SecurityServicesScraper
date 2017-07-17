@@ -222,7 +222,7 @@ class GetCylanceThreats extends Command
                 'CertIssuer'            => $threat['CertIssuer'],
                 'CylanceScore'          => $threat['CylanceScore'],
                 'AllowedInDevices'      => $threat['AllowedInDevices'],
-                'Id'                    => $threat['Id'],
+                'ThreatId'              => $threat['Id'],
                 'VirusTotalText'        => $threat['VirusTotalText'],
                 'BlockedInDevices'      => $threat['BlockedInDevices'],
                 'ActiveLastFound'       => $active_last_found,
@@ -254,9 +254,44 @@ class GetCylanceThreats extends Command
 
         Log::info('threats successfully collected: '.count($cylance_threats));
 
-        // Now we ahve a simple array [1,2,3] of all the threat records,
-        // each threat record is a key=>value pair collection / assoc array
-        //\Metaclassing\Utility::dumper($threats);
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json'
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach($cylance_threats_final as $threat)
+        {
+            $url = 'http://10.243.32.36:9200/cylance_threats/cylance_threats/'.$threat['ThreatId'].'/_update';
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            $post = [
+                "doc"           => $threat,
+                "doc_as_upsert" => true,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            // log the POST response then JSON decode it
+            Log::info($json_response);
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+
+            if($response['_shards']['failed'] == 0)
+            {
+                Log::info('Cylance threat was successfully inserted into ES: '.$threat['ThreatId']);
+            }
+            else
+            {
+                Log::error('Something went wrong inserting device: '.$threat['ThreatId']);
+                die('Something went wrong inserting device: '.$threat['ThreatId'].PHP_EOL);
+            }
+        }
+
+        // JSON encode and dump devices array to file
         file_put_contents(storage_path('app/collections/cylance_threats.json'), \Metaclassing\Utility::encodeJson($cylance_threats_final));
 
         /*************************************
@@ -270,7 +305,7 @@ class GetCylanceThreats extends Command
 
             $cylance_threat = CylanceThreat::withTrashed()->updateOrCreate(
                 [
-                    'threat_id'                => $threat['Id'],
+                    'threat_id'                => $threat['ThreatId'],
                 ],
                 [
                     'common_name'              => $threat['CommonName'],

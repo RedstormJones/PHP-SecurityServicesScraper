@@ -248,6 +248,42 @@ class GetCylanceDevices extends Command
 
         Log::info('devices successfully collected: '.count($cylance_devices_final));
 
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json'
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach($cylance_devices_final as $device)
+        {
+            $url = 'http://10.243.32.36:9200/cylance_devices/cylance_devices/'.$device['DeviceId'];
+            Log::info('HTTP Post to elasticsearch: '.$url);
+            
+            $post = [
+                "doc"           => $device,
+                "doc_as_upsert" => true,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if($response['_shards']['failed'] == 0)
+            {
+                Log::info('Cylance device was successfully inserted into ES: '.$device['DeviceId']);
+            }
+            else
+            {
+                Log::error('Something went wrong inserting device: '.$device['DeviceId']);
+                die('Something went wrong inserting device: '.$device['DeviceId'].PHP_EOL);
+            }
+        }
+
         // JSON encode and dump devices array to file
         file_put_contents(storage_path('app/collections/cylance_devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices_final));
 
