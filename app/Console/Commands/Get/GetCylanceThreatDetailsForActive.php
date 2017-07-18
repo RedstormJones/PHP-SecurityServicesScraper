@@ -256,7 +256,7 @@ class GetCylanceThreatDetailsForActive extends Command
             Log::info($json_response);
             $response = \Metaclassing\Utility::decodeJson($json_response);
 
-            if ($response['_shards']['failed'] == 0) {
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
                 Log::info('Cylance device threat was successfully inserted into ES: '.$device_threat['DeviceId']);
             } else {
                 Log::error('Something went wrong inserting device: '.$device_threat['DeviceId']);

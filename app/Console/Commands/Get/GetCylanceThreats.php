@@ -279,7 +279,7 @@ class GetCylanceThreats extends Command
             Log::info($json_response);
             $response = \Metaclassing\Utility::decodeJson($json_response);
 
-            if ($response['_shards']['failed'] == 0) {
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
                 Log::info('Cylance threat was successfully inserted into ES: '.$threat['ThreatId']);
             } else {
                 Log::error('Something went wrong inserting device: '.$threat['ThreatId']);

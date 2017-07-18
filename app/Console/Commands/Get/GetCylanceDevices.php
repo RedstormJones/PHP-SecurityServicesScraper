@@ -272,7 +272,7 @@ class GetCylanceDevices extends Command
             $response = \Metaclassing\Utility::decodeJson($json_response);
             Log::info($response);
 
-            if ($response['_shards']['failed'] == 0) {
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
                 Log::info('Cylance device was successfully inserted into ES: '.$device['DeviceId']);
             } else {
                 Log::error('Something went wrong inserting device: '.$device['DeviceId']);

@@ -66,17 +66,204 @@ class GetCMDBServers extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         // send request and capture response
-        $response = $crawler->get($url);
+        $json_response = $crawler->get($url);
 
         // dump response to file
-        file_put_contents(storage_path('app/responses/cmdb.response'), $response);
+        file_put_contents(storage_path('app/responses/cmdb.response'), $json_response);
 
         // JSON decode response
-        $cmdb_servers = \Metaclassing\Utility::decodeJson($response);
+        $response = \Metaclassing\Utility::decodeJson($json_response);
 
         // get the data we care about and tell the world how many records we got
-        $servers = $cmdb_servers['result'];
+        $servers = $response['result'];
         Log::info('total server count: '.count($servers));
+
+        $cmdb_servers = [];
+
+        foreach($servers as $server)
+        {
+            $managed_by = $this->handleNull($server['managed_by']);
+            $owned_by = $this->handleNull($server['owned_by']);
+            $supported_by = $this->handleNull($server['supported_by']);
+            $support_group = $this->handleNull($server['support_group']);
+            $location = $this->handleNull($server['location']);
+            $bpo = $this->handleNull($server['u_bpo']);
+            $assigned_to = $this->handleNull($server['assigned_to']);
+            $assignment_group = $this->handleNull($server['assignment_group']);
+            $district = $this->handleNull($server['u_district']);
+            $manufacturer = $this->handleNull($server['manufacturer']);
+            $cpu_manufacturer = $this->handleNull($server['cpu_manufacturer']);
+            $build_by = $this->handleNull($server['u_build_by']);
+            $asset = $this->handleNull($server['asset']);
+            $model_id = $this->handleNull($server['model_id']);
+            $company = $this->handleNull($server['company']);
+            $department = $this->handleNull($server['department']);
+            $sys_domain = $this->handleNull($server['sys_domain']);
+
+            $cmdb_servers[] = [
+                'x_bmgr_support_ent_bomgar_appliance_name'  => $server['x_bmgr_support_ent_bomgar_appliance_name'],
+                'can_print'                                 => $server['can_print'],
+                'subcategory'                               => $server['subcategory'],
+                'install_status'                            => $server['install_status'],
+                'hardware_status'                           => $server['hardware_status'],
+                'assignment_group'                          => $assignment_group['display_value'],
+                'u_siteid'                                  => $server['u_siteid'],
+                'monitor'                                   => $server['monitor'],
+                'ip_address'                                => $server['ip_address'],
+                'company'                                   => $company['display_value'],
+                'u_antivirus_exclusions'                    => $server['u_antivirus_exclusions'],
+                'u_outage_message'                          => $server['u_outage_message'],
+                'gl_account'                                => $server['gl_account'],
+                'u_application'                             => $server['u_application'],
+                'u_build_date'                              => $server['u_build_date'],
+                'delivery_date'                             => $server['delivery_date'],
+                'u_environment'                             => $server['u_environment'],
+                'u_backup_location'                         => $server['u_backup_location'],
+                'x_bmgr_support_ent_bomgar_jumpoint'        => $server['x_bmgr_support_ent_bomgar_jumpoint'],
+                'vendor'                                    => $server['vendor'],
+                'managed_by'                                => $managed_by['display_value'],
+                'cpu_core_count'                            => $server['cpu_core_count'],
+                'os_version'                                => $server['os_version'],
+                'u_sccm_last_logged_in'                     => $server['u_sccm_last_logged_in'],
+                'model_number'                              => $server['model_number'],
+                'mac_address'                               => $server['mac_address'],
+                'ram'                                       => $server['ram'],
+                'sys_id'                                    => $server['sys_id'],
+                'disk_space'                                => $server['disk_space'],
+                'u_dhcp_server'                             => $server['u_dhcp_server'],
+                'os_domain'                                 => $server['os_domain'],
+                'u_product'                                 => $server['u_product'],
+                'asset_tag'                                 => $server['asset_tag'],
+                'invoice_number'                            => $server['invoice_number'],
+                'supported_by'                              => $supported_by['display_value'],
+                'manufacturer'                              => $manufacturer['display_value'],
+                'department'                                => $department['display_value'],
+                'cost'                                      => $server['cost'],
+                'order_date'                                => $server['order_date'],
+                'cd_rom'                                    => $server['cd_rom'],
+                'justification'                             => $server['justification'],
+                'install_date'                              => $server['install_date'],
+                'u_dr_tier'                                 => $server['u_dr_tier'],
+                'u_functional_lead'                         => $server['u_functional_lead'],
+                'short_description'                         => $server['short_description'],
+                'u_bpo_approver'                            => $server['u_bpo_approver'],
+                'fqdn'                                      => $server['fqdn'],
+                'model_id'                                  => $model_id['display_value'],
+                'owned_by'                                  => $owned_by['display_value'],
+                'firewall_status'                           => $server['firewall_status'],
+                'sys_domain'                                => $sys_domain['display_value'],
+                'cpu_count'                                 => $server['cpu_count'],
+                'os_service_pack'                           => $server['os_service_pack'],
+                'u_rack_unit'                               => $server['u_rack_unit'],
+                'sys_created_by'                            => $server['sys_created_by'],
+                'sys_tags'                                  => $server['sys_tags'],
+                'location'                                  => $location['display_value'],
+                'used_for'                                  => $server['used_for'],
+                'due'                                       => $server['due'],
+                'schedule'                                  => $server['schedule'],
+                'serial_number'                             => $server['serial_number'],
+                'u_owned_by_back_up'                        => $server['u_owned_by_back_up'],
+                'u_sccm_top_console_user'                   => $server['u_sccm_top_console_user'],
+                'assigned_to'                               => $assigned_to['display_value'],
+                'u_rack_number'                             => $server['u_rack_number'],
+                'u_function'                                => $server['u_function'],
+                'dns_domain'                                => $server['dns_domain'],
+                'cpu_type'                                  => $server['cpu_type'],
+                'host_name'                                 => $server['host_name'],
+                'u_dhcp_scope'                              => $server['u_dhcp_scope'],
+                'assigned'                                  => $server['assigned'],
+                'support_group'                             => $support_group['display_value'],
+                'start_date'                                => $server['start_date'],
+                'warranty_expiration'                       => $server['warranty_expiration'],
+                'due_in'                                    => $server['due_in'],
+                'chassis_type'                              => $server['chassis_type'],
+                'u_auto_route'                              => $server['u_auto_route'],
+                'first_discovered'                          => $server['first_discovered'],
+                'cost_cc'                                   => $server['cost_cc'],
+                'u_notes'                                   => $server['u_notes'],
+                'sys_class_name'                            => $server['sys_class_name'],
+                'u_build_by'                                => $build_by['display_value'],
+                'default_gateway'                           => $server['default_gateway'],
+                'checked_out'                               => $server['checked_out'],
+                'os_address_width'                          => $server['os_address_width'],
+                'category'                                  => $server['category'],
+                'cd_speed'                                  => $server['cd_speed'],
+                'maintenance_schedule'                      => $server['maintenance_schedule'],
+                'sys_updated_by'                            => $server['sys_updated_by'],
+                'floppy'                                    => $server['floppy'],
+                'sys_created_on'                            => $server['sys_created_on'],
+                'sys_updated_on'                            => $server['sys_updated_on'],
+                'u_data_center'                             => $server['u_data_center'],
+                'discovery_source'                          => $server['discovery_source'],
+                'unverified'                                => $server['unverified'],
+                'last_discovered'                           => $server['last_discovered'],
+                'lease_id'                                  => $server['lease_id'],
+                'attributes'                                => $server['attributes'],
+                'skip_sync'                                 => $server['skip_sync'],
+                'hardware_substatus'                        => $server['hardware_substatus'],
+                'comments'                                  => $server['comments'],
+                'sys_mod_count'                             => $server['sys_mod_count'],
+                'u_remote_mgmt_ip'                          => $server['u_remote_mgmt_ip'],
+                'virtual'                                   => $server['virtual'],
+                'asset'                                     => $asset['display_value'],
+                'cpu_speed'                                 => $server['cpu_speed'],
+                'u_product_group'                           => $server['u_product_group'],
+                'cpu_name'                                  => $server['cpu_name'],
+                'u_district'                                => $district['display_value'],
+                'name'                                      => $server['name'],
+                'checked_in'                                => $server['checked_in'],
+                'os'                                        => $server['os'],
+                'cpu_manufacturer'                          => $cpu_manufacturer['display_value'],
+                'u_bpo'                                     => $bpo['display_value'],
+                'fault_count'                               => $server['fault_count'],
+                'u_ktg_contact'                             => $server['u_ktg_contact'],
+                'po_number'                                 => $server['po_number'],
+                'operational_status'                        => $server['operational_status'],
+                'change_control'                            => $server['change_control'],
+                'u_business_process'                        => $server['u_business_process'],
+                'u_dr_rating'                               => $server['u_dr_rating'],
+                'purchase_date'                             => $server['purchase_date'],
+                'classification'                            => $server['classification'],
+                'correlation_id'                            => $server['correlation_id'],
+                'dr_backup'                                 => $server['dr_backup'],
+                'cpu_core_thread'                           => $server['cpu_core_thread'],
+                'sys_domain_path'                           => $server['sys_domain_path'],
+                'u_business_lines_list'                     => $server['u_business_lines_list'],
+                'form_factor'                               => $server['form_factor']
+            ];
+        }
+
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach ($cmdb_servers as $server) {
+            $url = 'http://10.243.32.36:9200/cmdb_servers/cmdb_servers/'.$server['sys_id'];
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            $post = [
+                'doc'           => $server,
+                'doc_as_upsert' => true,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('CMDB server was successfully inserted into ES: '.$server['name']);
+            } else {
+                Log::error('Something went wrong inserting CMDB server: '.$server['name']);
+                die('Something went wrong inserting CMDB server: '.$server['name'].PHP_EOL);
+            }
+        }
 
         // JSON encode and dump CMDB servers to file
         file_put_contents(storage_path('app/collections/cmdb_servers_collection.json'), \Metaclassing\Utility::encodeJson($servers));
@@ -87,19 +274,10 @@ class GetCMDBServers extends Command
 
         Log::info(PHP_EOL.'*************************************'.PHP_EOL.'* Starting CMDB servers processing! *'.PHP_EOL.'*************************************');
 
-        foreach ($servers as $server) {
+        foreach ($cmdb_servers as $server) {
             $exists = cmdbServer::where('sys_id', $server['sys_id'])->value('id');
 
             if ($exists) {
-                $managed_by = $this->handleNull($server['managed_by']);
-                $owned_by = $this->handleNull($server['owned_by']);
-                $supported_by = $this->handleNull($server['supported_by']);
-                $support_group = $this->handleNull($server['support_group']);
-                $location = $this->handleNull($server['location']);
-                $bpo = $this->handleNull($server['u_bpo']);
-                $assigned_to = $this->handleNull($server['assigned_to']);
-                $district = $this->handleNull($server['u_district']);
-
                 $servermodel = cmdbServer::find($exists);
 
                 $servermodel->update([
@@ -128,14 +306,14 @@ class GetCMDBServers extends Command
                     'os_version'            => $server['os_version'],
                     'disk_space'            => $server['disk_space'],
                     'operational_status'    => $server['operational_status'],
-                    'bpo'                   => $bpo['display_value'],
-                    'assigned_to'           => $assigned_to['display_value'],
-                    'district'              => $district['display_value'],
-                    'managed_by'            => $managed_by['display_value'],
-                    'owned_by'              => $owned_by['display_value'],
-                    'supported_by'          => $supported_by['display_value'],
-                    'support_group'         => $support_group['display_value'],
-                    'location'              => $location['display_value'],
+                    'bpo'                   => $server['u_bpo'],
+                    'assigned_to'           => $server['assigned_to'],
+                    'district'              => $server['u_district'],
+                    'managed_by'            => $server['managed_by'],
+                    'owned_by'              => $server['owned_by'],
+                    'supported_by'          => $server['supported_by'],
+                    'support_group'         => $server['support_group'],
+                    'location'              => $server['location'],
                     'data'                  => \Metaclassing\Utility::encodeJson($server),
                 ]);
 
@@ -147,15 +325,6 @@ class GetCMDBServers extends Command
                 Log::info('updated server: '.$server['name']);
             } else {
                 Log::info('creating new server record: '.$server['name']);
-
-                $managed_by = $this->handleNull($server['managed_by']);
-                $owned_by = $this->handleNull($server['owned_by']);
-                $supported_by = $this->handleNull($server['supported_by']);
-                $support_group = $this->handleNull($server['support_group']);
-                $location = $this->handleNull($server['location']);
-                $bpo = $this->handleNull($server['u_bpo']);
-                $assigned_to = $this->handleNull($server['assigned_to']);
-                $district = $this->handleNull($server['u_district']);
 
                 $new_server = new cmdbServer();
 
@@ -192,14 +361,14 @@ class GetCMDBServers extends Command
                 $new_server->operational_status = $server['operational_status'];
                 $new_server->model_number = $server['model_number'];
                 $new_server->serial_number = $server['serial_number'];
-                $new_server->managed_by = $managed_by['display_value'];
-                $new_server->owned_by = $owned_by['display_value'];
-                $new_server->supported_by = $supported_by['display_value'];
-                $new_server->support_group = $support_group['display_value'];
-                $new_server->location = $location['display_value'];
-                $new_server->bpo = $bpo['display_value'];
-                $new_server->assigned_to = $assigned_to['display_value'];
-                $new_server->district = $district['display_value'];
+                $new_server->managed_by = $server['managed_by'];
+                $new_server->owned_by = $server['owned_by'];
+                $new_server->supported_by = $server['supported_by'];
+                $new_server->support_group = $server['support_group'];
+                $new_server->location = $server['location'];
+                $new_server->bpo = $server['u_bpo'];
+                $new_server->assigned_to = $server['assigned_to'];
+                $new_server->district = $server['u_district'];
                 $new_server->data = \Metaclassing\Utility::encodeJson($server);
 
                 $new_server->save();
