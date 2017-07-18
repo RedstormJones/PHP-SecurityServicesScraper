@@ -167,16 +167,6 @@ class GetIncomingEmail extends Command
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
-        $json_response = $crawler->get('http://10.243.32.36:9200/incoming_emails/_count');
-        $response = \Metaclassing\Utility::decodeJson($json_response);
-        Log::info($response);
-
-        if (array_key_exists('error', $response) || (array_key_exists('count', $response) && $response['count'] == 0)) {
-            $es_id = 1;
-        } else {
-            $es_id = $response['count'] + 1;
-        }
-
         $headers = [
             'Content-Type: application/json',
         ];
@@ -185,6 +175,18 @@ class GetIncomingEmail extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         foreach ($incoming_emails as $email) {
+            if(preg_match('/\s/', $email['Sender Domain'])) {
+                $sender = str_replace(' ', '_', $email['Sender Domain']);
+            } elseif (preg_match('/http:\/\//', $email['Sender Domain']) || preg_match('/https:\/\//', $email['Sender Domain'])) {
+                $sender_pieces = explode('/', $email['Sender Domain']);
+                $sender = $sender_pieces[2];
+            } else {
+                $sender = $email['Sender Domain'];
+            }
+
+            $begin_date_pieces = explode(' ', $email['Begin Date']);
+            $es_id = $begin_date_pieces[0].'-'.$begin_date_pieces[1].'-'.$sender;
+
             $url = 'http://10.243.32.36:9200/incoming_emails/incoming_emails/'.$es_id;
             Log::info('HTTP Post to elasticsearch: '.$url);
 
@@ -204,8 +206,6 @@ class GetIncomingEmail extends Command
                 Log::error('Something went wrong inserting incoming email: '.$es_id);
                 die('Something went wrong inserting incoming email: '.$es_id.PHP_EOL);
             }
-
-            $es_id += 1;
         }
 
         // JSON encode data and dump to file
