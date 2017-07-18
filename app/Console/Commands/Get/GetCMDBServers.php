@@ -80,8 +80,7 @@ class GetCMDBServers extends Command
 
         $cmdb_servers = [];
 
-        foreach($servers as $server)
-        {
+        foreach ($servers as $server) {
             $managed_by = $this->handleNull($server['managed_by']);
             $owned_by = $this->handleNull($server['owned_by']);
             $supported_by = $this->handleNull($server['supported_by']);
@@ -229,7 +228,7 @@ class GetCMDBServers extends Command
                 'cpu_core_thread'                           => $server['cpu_core_thread'],
                 'sys_domain_path'                           => $server['sys_domain_path'],
                 'u_business_lines_list'                     => $server['u_business_lines_list'],
-                'form_factor'                               => $server['form_factor']
+                'form_factor'                               => $server['form_factor'],
             ];
         }
 
