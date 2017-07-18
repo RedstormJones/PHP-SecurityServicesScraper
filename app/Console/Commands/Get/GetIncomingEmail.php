@@ -171,12 +171,9 @@ class GetIncomingEmail extends Command
         $response = \Metaclassing\Utility::decodeJson($json_response);
         Log::info($response);
 
-        if (array_key_exists('error', $response) || (array_key_exists('count', $response) && $response['count'] == 0))
-        {
+        if (array_key_exists('error', $response) || (array_key_exists('count', $response) && $response['count'] == 0)) {
             $es_id = 1;
-        }
-        else
-        {
+        } else {
             $es_id = $response['count'] + 1;
         }
 
