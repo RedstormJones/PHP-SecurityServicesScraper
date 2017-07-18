@@ -175,7 +175,7 @@ class GetIncomingEmail extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         foreach ($incoming_emails as $email) {
-            if(preg_match('/\s/', $email['Sender Domain'])) {
+            if (preg_match('/\s/', $email['Sender Domain'])) {
                 $sender = str_replace(' ', '_', $email['Sender Domain']);
             } elseif (preg_match('/http:\/\//', $email['Sender Domain']) || preg_match('/https:\/\//', $email['Sender Domain'])) {
                 $sender_pieces = explode('/', $email['Sender Domain']);
