@@ -141,7 +141,7 @@ class GetIncomingEmail extends Command
 
         // Arrays we'll use later
         $keys = [];
-        $newArray = [];
+        $incoming_emails = [];
 
         // Do it
         $data = $this->csvToArray(storage_path('app/responses/incoming_email.csv'), ',');
@@ -161,11 +161,58 @@ class GetIncomingEmail extends Command
         Log::info('building associative array...');
         for ($j = 0; $j < $count; $j++) {
             $d = array_combine($keys, $data[$j]);
-            $newArray[$j] = $d;
+            $incoming_emails[$j] = $d;
+        }
+
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $json_response = $crawler->get('http://10.243.32.36:9200/incoming_emails/_count');
+        $response = \Metaclassing\Utility::decodeJson($json_response);
+        Log::info($response);
+
+        if (array_key_exists('error', $response) || (array_key_exists('count', $response) && $response['count'] == 0))
+        {
+            $es_id = 1;
+        }
+        else
+        {
+            $es_id = $response['count'] + 1;
+        }
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach ($incoming_emails as $email) {
+            $url = 'http://10.243.32.36:9200/incoming_emails/incoming_emails/'.$es_id;
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            $post = [
+                'doc'           => $email,
+                'doc_as_upsert' => true,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('Incoming email was successfully inserted into ES: '.$es_id);
+            } else {
+                Log::error('Something went wrong inserting incoming email: '.$es_id);
+                die('Something went wrong inserting incoming email: '.$es_id.PHP_EOL);
+            }
+
+            $es_id += 1;
         }
 
         // JSON encode data and dump to file
-        file_put_contents(storage_path('app/collections/incoming_email.json'), json_encode($newArray));
+        file_put_contents(storage_path('app/collections/incoming_email.json'), json_encode($incoming_emails));
 
         /********************************************
          * [2] Process incoming email into database *
@@ -175,7 +222,7 @@ class GetIncomingEmail extends Command
 
         Log::info('creating '.$count.' new email records...');
 
-        foreach ($newArray as $email) {
+        foreach ($incoming_emails as $email) {
             $begindate = rtrim($email['Begin Date'], ' GMT');
             $enddate = rtrim($email['End Date'], ' GMT');
 
