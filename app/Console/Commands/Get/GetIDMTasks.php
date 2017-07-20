@@ -71,10 +71,152 @@ class GetIDMTasks extends Command
         file_put_contents(storage_path('app/responses/idm_tasks.dump'), $response);
 
         // JSON decode response and extract result data
-        $idm_tasks = json_decode($response, true);
+        $content = json_decode($response, true);
 
-        $tasks = $idm_tasks['result'];
+        $tasks = $content['result'];
         Log::info('total IDM tasks count: '.count($tasks));
+
+        $idm_tasks = [];
+
+        foreach ($tasks as $task)
+        {
+            $parent = $this->handleNull($task['parent']);
+            $updated_on = $this->handleNull($task['sys_updated_on']);
+            $updated_by = $this->handleNull($task['sys_updated_by']);
+            $opened_by = $this->handleNull($task['opened_by']);
+            $closed_at = $this->handleNull($task['closed_at']);
+            $closed_by = $this->handleNull($task['closed_by']);
+            $close_notes = $this->handleNull($task['close_notes']);
+            $initial_assign_group = $this->handleNull($task['u_initial_assignment_group']);
+            $assign_group = $this->handleNull($task['assignment_group']);
+            $assigned_to = $this->handleNull($task['assigned_to']);
+            $time_worked = $this->handleNull($task['time_worked']);
+            $work_notes = $this->handleNull($task['work_notes']);
+            $comments = $this->handleNull($task['comments']);
+            $district = $this->handleNull($task['u_district_name']);
+            $company = $this->handleNull($task['company']);
+            $department = $this->handleNull($task['department']);
+            $location = $this->handleNull($task['location']);
+            $cause_code = $this->handleNull($task['u_cause_code']);
+            $sys_domain = $this->handleNull($task['sys_domain']);
+            $cmdb_ci = $this->handleNull($task['cmdb_ci']);
+            $project_ref = $this->handleNull($task['u_project_ref']);
+
+            $idm_tasks[] = [
+                'urgency'                       => $task['urgency'],
+                'group_list'                    => $task['group_list'],
+                'active'                        => $task['active'],
+                'sys_updated_by'                => $updated_by['display_value'],
+                'u_initiatives'                 => $task['u_initiatives'],
+                'time_worked'                   => $time_worked['display_value'],
+                'priority'                      => $task['priority'],
+                'u_assignment_group_changed'    => $task['u_assignment_group_changed'],
+                'additional_assignee_list'      => $task['additional_assignee_list'],
+                'u_attached_knowledge_stream'   => $task['u_attached_knowledge_stream'],
+                'approval_history'              => $task['approval_history'],
+                'u_task_preferred_contact'      => $task['u_task_preferred_contact'],
+                'u_project_ref'                 => $project_ref['display_value'],
+                'expected_start'                => $task['expected_start'],
+                'comments_and_work_notes'       => $task['comments_and_work_notes'],
+                'close_notes'                   => $close_notes['display_value'],
+                'correlation_display'           => $task['correlation_display'],
+                'sys_domain'                    => $sys_domain['display_value'],
+                'u_customer_action'             => $task['u_customer_action'],
+                'approval'                      => $task['approval'],
+                'company'                       => $company['display_value'],
+                'sys_created_on'                => $task['sys_created_on'],
+                'follow_up'                     => $task['follow_up'],
+                'escalation'                    => $task['escalation'],
+                'location'                      => $location['display_value'],
+                'u_impacted_services'           => $task['u_impacted_services'],
+                'u_reassignment_count_non_kss'  => $task['u_reassignment_count_non_kss'],
+                'sys_created_by'                => $task['sys_created_by'],
+                'correlation_id'                => $task['correlation_id'],
+                'calendar_duration'             => $task['calendar_duration'],
+                'made_sla'                      => $task['made_sla'],
+                'work_start'                    => $task['work_start'],
+                'number'                        => $task['number'],
+                'u_sub_state'                   => $task['u_sub_state'],
+                'sys_id'                        => $task['sys_id'],
+                'u_initial_assignment_group'    => $initial_assign_group['display_value'],
+                'upon_reject'                   => $task['upon_reject'],
+                'u_auto_close_date'             => $task['u_auto_close_date'],
+                'opened_at'                     => $task['opened_at'],
+                'reassignment_count'            => $task['reassignment_count'],
+                'assignment_group'              => $assign_group['display_value'],
+                'impact'                        => $task['impact'],
+                'approval_set'                  => $task['approval_set'],
+                'business_duration'             => $task['business_duration'],
+                'sla_due'                       => $task['sla_due'],
+                'activity_due'                  => $task['activity_due'],
+                'cmdb_ci'                       => $cmdb_ci['display_value'],
+                'watch_list'                    => $task['watch_list'],
+                'sys_mod_count'                 => $task['sys_mod_count'],
+                'upon_approval'                 => $task['upon_approval'],
+                'knowledge'                     => $task['knowledge'],
+                'assigned_to'                   => $assigned_to['display_value'],
+                'contact_type'                  => $task['contact_type'],
+                'u_internal_name'               => $task['u_internal_name'],
+                'closed_by'                     => $closed_by['display_value'],
+                'user_input'                    => $task['user_input'],
+                'department'                    => $department['display_value'],
+                'u_followup_outlook_notify'     => $task['u_followup_outlook_notify'],
+                'description'                   => $task['description'],
+                'due_date'                      => $task['due_date'],
+                'short_description'             => $task['short_description'],
+                'skills'                        => $task['skills'],
+                'sys_class_name'                => $task['sys_class_name'],
+                'order'                         => $task['order'],
+                'opened_by'                     => $opened_by['display_value'],
+                'u_cause_code'                  => $cause_code['display_value'],
+                'rejection_goto'                => $task['rejection_goto'],
+                'u_district_name'               => $district['display_value'],
+                'sys_tags'                      => $task['sys_tags'],
+                'sys_updated_on'                => $updated_on['display_value'],
+                'business_service'              => $task['business_service'],
+                'u_vendor_name_task'            => $task['u_vendor_name_task'],
+                'closed_at'                     => $closed_at['display_value'],
+                'work_notes_list'               => $task['work_notes_list'],
+                'comments'                      => $comments['display_value'],
+                'service_offering'              => $task['service_offering'],
+                'work_end'                      => $task['work_end'],
+                'work_notes'                    => $work_notes['display_value'],
+                'parent'                        => $parent['display_value'],
+                'state'                         => $task['state'],
+            ];
+        }
+
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach ($idm_tasks as $task) {
+            $url = 'http://10.243.32.36:9200/idm_tasks/idm_tasks/'.$task['sys_id'];
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            $post = [
+                'doc'           => $task,
+                'doc_as_upsert' => true,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('IDM tasks was successfully inserted into ES: '.$task['sys_id']);
+            } else {
+                Log::error('Something went wrong inserting IDM task: '.$task['sys_id']);
+                die('Something went wrong inserting IDM task: '.$task['sys_id'].PHP_EOL);
+            }
+        }
 
         // JSON encode and dump incident collection to file
         file_put_contents(storage_path('app/collections/idm_tasks_collection.json'), \Metaclassing\Utility::encodeJson($tasks));
@@ -85,42 +227,31 @@ class GetIDMTasks extends Command
 
         Log::info(PHP_EOL.'**********************************'.PHP_EOL.'* Starting IDM tasks processing! *'.PHP_EOL.'**********************************');
 
-        foreach ($tasks as $task) {
+        foreach ($idm_tasks as $task) {
             $exists = ServiceNowIdmTask::where('sys_id', $task['sys_id'])->value('id');
 
             if ($exists) {
-                $updated_on = $this->handleNull($task['sys_updated_on']);
-                $updated_by = $this->handleNull($task['sys_updated_by']);
-                $closed_at = $this->handleNull($task['closed_at']);
-                $closed_by = $this->handleNull($task['closed_by']);
-                $close_notes = $this->handleNull($task['close_notes']);
-                $assign_group = $this->handleNull($task['assignment_group']);
-                $assigned_to = $this->handleNull($task['assigned_to']);
-                $time_worked = $this->handleNull($task['time_worked']);
-                $work_notes = $this->handleNull($task['work_notes']);
-                $comments = $this->handleNull($task['comments']);
-                $cause_code = $this->handleNull($task['u_cause_code']);
-
                 $taskmodel = ServiceNowIdmTask::find($exists);
+
                 $taskmodel->update([
                     'active'                => $task['active'],
-                    'updated_on'            => $updated_on['display_value'],
-                    'updated_by'            => $updated_by['display_value'],
-                    'closed_at'             => $closed_at['display_value'],
-                    'closed_by'             => $closed_by['display_value'],
-                    'close_notes'           => $close_notes['display_value'],
-                    'assignment_group'      => $assign_group['display_value'],
-                    'assigned_to'           => $assigned_to['display_value'],
+                    'updated_on'            => $task['sys_updated_on'],
+                    'updated_by'            => $task['sys_updated_by'],
+                    'closed_at'             => $task['closed_at'],
+                    'closed_by'             => $task['closed_by'],
+                    'close_notes'           => $task['close_notes'],
+                    'assignment_group'      => $task['assignment_group'],
+                    'assigned_to'           => $task['assigned_to'],
                     'state'                 => $task['state'],
                     'urgency'               => $task['urgency'],
                     'impact'                => $task['impact'],
                     'priority'              => $task['priority'],
-                    'time_worked'           => $time_worked['display_value'],
-                    'work_notes'            => $work_notes['display_value'],
-                    'comments'              => $comments['display_value'],
+                    'time_worked'           => $task['time_worked'],
+                    'work_notes'            => $task['work_notes'],
+                    'comments'              => $task['comments'],
                     'reassignment_count'    => $task['reassignment_count'],
                     'modified_count'        => $task['sys_mod_count'],
-                    'cause_code'            => $cause_code['display_value'],
+                    'cause_code'            => $task['u_cause_code'],
                     'data'                  => \Metaclassing\Utility::encodeJson($task),
                 ]);
 
@@ -133,25 +264,6 @@ class GetIDMTasks extends Command
             } else {
                 Log::info('creating new IDM task: '.$task['number']);
 
-                $parent = $this->handleNull($task['parent']);
-                $updated_on = $this->handleNull($task['sys_updated_on']);
-                $updated_by = $this->handleNull($task['sys_updated_by']);
-                $opened_by = $this->handleNull($task['opened_by']);
-                $closed_at = $this->handleNull($task['closed_at']);
-                $closed_by = $this->handleNull($task['closed_by']);
-                $close_notes = $this->handleNull($task['close_notes']);
-                $initial_assign_group = $this->handleNull($task['u_initial_assignment_group']);
-                $assign_group = $this->handleNull($task['assignment_group']);
-                $assigned_to = $this->handleNull($task['assigned_to']);
-                $time_worked = $this->handleNull($task['time_worked']);
-                $work_notes = $this->handleNull($task['work_notes']);
-                $comments = $this->handleNull($task['comments']);
-                $district = $this->handleNull($task['u_district_name']);
-                $company = $this->handleNull($task['company']);
-                $department = $this->handleNull($task['department']);
-                $location = $this->handleNull($task['location']);
-                $cause_code = $this->handleNull($task['u_cause_code']);
-
                 $new_task = new ServiceNowIdmTask();
 
                 $new_task->task_id = $task['number'];
@@ -159,34 +271,34 @@ class GetIDMTasks extends Command
                 $new_task->created_by = $task['sys_created_by'];
                 $new_task->sys_id = $task['sys_id'];
                 $new_task->class_name = $task['sys_class_name'];
-                $new_task->parent = $parent['display_value'];
+                $new_task->parent = $task['parent'];
                 $new_task->active = $task['active'];
-                $new_task->updated_on = $updated_on['display_value'];
-                $new_task->updated_by = $updated_by['display_value'];
+                $new_task->updated_on = $task['sys_updated_on'];
+                $new_task->updated_by = $task['sys_updated_by'];
                 $new_task->opened_at = $task['opened_at'];
-                $new_task->opened_by = $opened_by['display_value'];
-                $new_task->closed_at = $closed_at['display_value'];
-                $new_task->closed_by = $closed_by['display_value'];
-                $new_task->close_notes = $close_notes['display_value'];
-                $new_task->initial_assignment_group = $initial_assign_group['display_value'];
-                $new_task->assignment_group = $assign_group['display_value'];
-                $new_task->assigned_to = $assigned_to['display_value'];
+                $new_task->opened_by = $task['opened_by'];
+                $new_task->closed_at = $task['closed_at'];
+                $new_task->closed_by = $task['closed_by'];
+                $new_task->close_notes = $task['close_notes'];
+                $new_task->initial_assignment_group = $task['u_initial_assign_group'];
+                $new_task->assignment_group = $task['assignment_group'];
+                $new_task->assigned_to = $task['assigned_to'];
                 $new_task->state = $task['state'];
                 $new_task->urgency = $task['urgency'];
                 $new_task->impact = $task['impact'];
                 $new_task->priority = $task['priority'];
-                $new_task->time_worked = $time_worked['display_value'];
+                $new_task->time_worked = $task['time_worked'];
                 $new_task->short_description = $task['short_description'];
                 $new_task->description = $task['description'];
-                $new_task->work_notes = $work_notes['display_value'];
-                $new_task->comments = $comments['display_value'];
+                $new_task->work_notes = $task['work_notes'];
+                $new_task->comments = $task['comments'];
                 $new_task->reassignment_count = $task['reassignment_count'];
-                $new_task->district = $district['display_value'];
-                $new_task->company = $company['display_value'];
-                $new_task->department = $department['display_value'];
+                $new_task->district = $task['u_district_name'];
+                $new_task->company = $task['company'];
+                $new_task->department = $task['department'];
                 $new_task->modified_count = $task['sys_mod_count'];
-                $new_task->location = $location['display_value'];
-                $new_task->cause_code = $cause_code['display_value'];
+                $new_task->location = $task['location'];
+                $new_task->cause_code = $task['u_cause_code'];
                 $new_task->data = \Metaclassing\Utility::encodeJson($task);
 
                 $new_task->save();
