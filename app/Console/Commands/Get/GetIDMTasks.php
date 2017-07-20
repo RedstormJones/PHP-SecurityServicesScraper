@@ -78,8 +78,7 @@ class GetIDMTasks extends Command
 
         $idm_tasks = [];
 
-        foreach ($tasks as $task)
-        {
+        foreach ($tasks as $task) {
             $parent = $this->handleNull($task['parent']);
             $updated_on = $this->handleNull($task['sys_updated_on']);
             $updated_by = $this->handleNull($task['sys_updated_by']);
