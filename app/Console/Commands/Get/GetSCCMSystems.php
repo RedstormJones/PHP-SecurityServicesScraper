@@ -65,7 +65,127 @@ class GetSCCMSystems extends Command
             $sccm_systems[$j] = $d;
         }
 
-        file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), \Metaclassing\Utility::encodeJson($sccm_systems));
+        $systems = [];
+
+        foreach($sccm_systems as $system)
+        {
+            $image_date = $this->handleDate($system['ImageDate']);
+            $ad_last_logon = $this->handleDate($system['ADLastLogon']);
+            $ad_password_last_set = $this->handleDate($system['ADPasswordLastSet']);
+            $ad_modified = $this->handleDate($system['ADModified']);
+            $ad_when_changed = $this->handleDate($system['ADWhenChanged']);
+            $sccm_last_heartbeat = $this->handleDate($system['SCCMLastHeartBeat']);
+            $sccm_last_health_eval = $this->handleDate($system['SCCMLastHealthEval']);
+            $sccm_last_hw_scan = $this->handleDate($system['SCCMLastHWScan']);
+            $sccm_last_sw_scan = $this->handleDate($system['SCCMLastSWScan']);
+
+            if ($system['DaysLastLogon'] != '') {
+                $days_since_last_logon = $system['DaysLastLogon'];
+            } else {
+                $days_since_last_logon = 0;
+            }
+
+            $systems[] = [
+                'ReportDate'                => $system['ReportDate'],
+                'ADModified'                => $ad_modified,
+                'Group'                     => $system['Group'],
+                'ADWhenChanged'             => $ad_when_changed,
+                'ClientVersion'             => $system['ClientVersion'],
+                'ClientStatus'              => $system['ClientStatus'],
+                'OperatingSystem'           => $system['OperatingSystem'],
+                'SCCMLastHeartBeat'         => $sccm_last_heartbeat,
+                'SCCMPolicyRequest'         => $system['SCCMPolicyRequest'],
+                'MetricScriptVersion'       => $system['MetricScriptVersion'],
+                'Processor'                 => $system['Processor'],
+                'LastLogonUserName'         => $system['LastLogonUserName'],
+                'ChassisType'               => $system['ChassisType'],
+                'ADPasswordLastSet'         => $ad_password_last_set,
+                'SCCMManagementPoint'       => $system['SCCMManagementPoint'],
+                'CylanceInstalled'          => $system['CylanceInstalled'],
+                'SCEPInstalled'             => $system['SCEPInstalled'],
+                'DaysLastLogon'             => $days_since_last_logon,
+                'OSLanguage'                => $system['OSLanguage'],
+                'PatchPercent'              => $system['PatchPercent'],
+                'Owner'                     => $system['Owner'],
+                'ReportGroup'               => $system['ReportGroup'],
+                'TPM_IsOwned'               => $system['TPM_IsOwned'],
+                'PatchInstalled'            => $system['PatchInstalled'],
+                'SCCMLastHWScan'            => $sccm_last_hw_scan,
+                'AnyConnectWebSecurity'     => $system['AnyConnectWebSecurity'],
+                'IEVersion'                 => $system['IEVersion'],
+                'ResourceID'                => $system['ResourceID'],
+                'SerialNumber'              => $system['SerialNumber'],
+                'ImageDate'                 => $image_date,
+                'VideoCard'                 => $system['VideoCard'],
+                'OperatingSystemVersion'    => $system['OperatingSystemVersion'],
+                'COECompliant'              => $system['COECompliant'],
+                'Model'                     => $system['Model'],
+                'AnyConnectInstalled'       => $system['AnyConnectInstalled'],
+                'SCCMLastHealthEval'        => $sccm_last_health_eval,
+                'OSArch'                    => $system['OSArch'],
+                'SystemName'                => $system['SystemName'],
+                'TPM_IsEnabled'             => $system['TPM_IsEnabled'],
+                'PatchTotal'                => $system['PatchTotal'],
+                'PowerShellVersion'         => $system['PowerShellVersion'],
+                'PhysicalRAM'               => $system['PhysicalRAM'],
+                'Manufacturer'              => $system['Manufacturer'],
+                'DeviceStatLastCheckDate'   => $system['DeviceStatLastCheckDate'],
+                'DeviceStatVersion'         => $system['DeviceStatVersion'],
+                'SiteID'                    => $system['SiteID'],
+                'SCCMLastSWScan'            => $sccm_last_sw_scan,
+                'PrimaryUsers'              => $system['PrimaryUsers'],
+                'Region'                    => $system['Region'],
+                'BitLockerStatus'           => $system['BitLockerStatus'],
+                'Stale45Days'               => $system['Stale45Days'],
+                'ADLocation'                => $system['ADLocation'],
+                'District'                  => $system['District'],
+                'TPM_IsActivated'           => $system['TPM_IsActivated'],
+                'PatchMissing'              => $system['PatchMissing'],
+                'SystemRole'                => $system['SystemRole'],
+                'ImageSource'               => $system['ImageSource'],
+                'ClientActivity'            => $system['ClientActivity'],
+                'VideoRAM'                  => $system['VideoRAM'],
+                'PatchUnknown'              => $system['PatchUnknown'],
+                'ADLastLogon'               => $ad_last_logon,
+                'NETFrameworkAvailable'     => $system['NETFrameworkAvailable'],
+                'OSRoundup'                 => $system['OSRoundup'],
+                'SCCMLastHealthResult'      => $system['SCCMLastHealthResult'],
+            ];
+        }
+
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach ($systems as $system) {
+            $url = 'http://10.243.32.36:9200/sccm_systems/sccm_systems/'.$system['SystemName'];
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            $post = [
+                'doc'           => $system,
+                'doc_as_upsert' => true,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('SCCM system was successfully inserted into ES: '.$system['SystemName']);
+            } else {
+                Log::error('Something went wrong inserting SCCM system: '.$system['SystemName']);
+                die('Something went wrong inserting SCCM system: '.$system['SystemName'].PHP_EOL);
+            }
+        }
+
+        file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), \Metaclassing\Utility::encodeJson($systems));
 
         /***********************************
          * Process new SCCM systems upload *
@@ -73,24 +193,11 @@ class GetSCCMSystems extends Command
 
         Log::info(PHP_EOL.PHP_EOL.'********************************************'.PHP_EOL.'* Starting SCCM systems upload processing! *'.PHP_EOL.'********************************************');
 
-        foreach ($sccm_systems as $system) {
+        foreach ($systems as $system) {
             $exists = SCCMSystem::where('system_name', $system['SystemName'])->value('id');
 
             if ($exists) {
                 Log::info('updating SCCM system model '.$system['SystemName'].' - client_activity: '.$system['ClientActivity']);
-
-                $image_date = $this->handleDate($system['ImageDate']);
-                $ad_last_logon = $this->handleDate($system['ADLastLogon']);
-                $ad_password_last_set = $this->handleDate($system['ADPasswordLastSet']);
-                $ad_modified = $this->handleDate($system['ADModified']);
-                $sccm_last_heartbeat = $this->handleDate($system['SCCMLastHeartBeat']);
-                $sccm_last_health_eval = $this->handleDate($system['SCCMLastHealthEval']);
-
-                if ($system['DaysLastLogon'] != '') {
-                    $days_since_last_logon = $system['DaysLastLogon'];
-                } else {
-                    $days_since_last_logon = 0;
-                }
 
                 // update model
                 $system_model = SCCMSystem::findOrFail($exists);
@@ -100,7 +207,7 @@ class GetSCCMSystems extends Command
                     'region'                    => $system['Region'],
                     'group'                     => $system['Group'],
                     'owner'                     => $system['Owner'],
-                    'days_since_last_logon'     => $days_since_last_logon,
+                    'days_since_last_logon'     => $system['DaysLastLogon'],
                     'stale_45days'              => $system['Stale45Days'],
                     'client_activity'           => $system['ClientActivity'],
                     'client_status'             => $system['ClientStatus'],
@@ -116,7 +223,7 @@ class GetSCCMSystems extends Command
                     'model'                     => $system['Model'],
                     'processor'                 => $system['Processor'],
                     'image_source'              => $system['ImageSource'],
-                    'image_date'                => $image_date,
+                    'image_date'                => $system['ImageDate'],
                     'coe_compliant'             => $system['COECompliant'],
                     'ps_version'                => $system['PowerShellVersion'],
                     'patch_total'               => $system['PatchTotal'],
@@ -136,12 +243,12 @@ class GetSCCMSystems extends Command
                     'ad_location'               => $system['ADLocation'],
                     'primary_users'             => $system['PrimaryUsers'],
                     'last_logon_username'       => $system['LastLogonUserName'],
-                    'ad_last_logon'             => $ad_last_logon,
-                    'ad_password_last_set'      => $ad_password_last_set,
-                    'ad_modified'               => $ad_modified,
-                    'sccm_last_heartbeat'       => $sccm_last_heartbeat,
+                    'ad_last_logon'             => $system['ADLastLogon'],
+                    'ad_password_last_set'      => $system['ADPasswordLastSet'],
+                    'ad_modified'               => $system['ADModified'],
+                    'sccm_last_heartbeat'       => $system['SCCMLastHeartBeat'],
                     'sccm_management_point'     => $system['SCCMManagementPoint'],
-                    'sccm_last_health_eval'     => $sccm_last_health_eval,
+                    'sccm_last_health_eval'     => $system['SCCMLastHealthEval'],
                     'sccm_last_health_result'   => $system['SCCMLastHealthResult'],
                     'report_date'               => $system['ReportDate'],
                     'data'                      => \Metaclassing\Utility::encodeJson($system),
@@ -155,19 +262,6 @@ class GetSCCMSystems extends Command
                 // create model
                 Log::info('creating new SCCM system model: '.$system['SystemName']);
 
-                $image_date = $this->handleDate($system['ImageDate']);
-                $ad_last_logon = $this->handleDate($system['ADLastLogon']);
-                $ad_password_last_set = $this->handleDate($system['ADPasswordLastSet']);
-                $ad_modified = $this->handleDate($system['ADModified']);
-                $sccm_last_heartbeat = $this->handleDate($system['SCCMLastHeartBeat']);
-                $sccm_last_health_eval = $this->handleDate($system['SCCMLastHealthEval']);
-
-                if ($system['DaysLastLogon'] != '') {
-                    $days_since_last_logon = $system['DaysLastLogon'];
-                } else {
-                    $days_since_last_logon = 0;
-                }
-
                 $system_model = new SCCMSystem();
 
                 $system_model->system_name = $system['SystemName'];
@@ -175,7 +269,7 @@ class GetSCCMSystems extends Command
                 $system_model->region = $system['Region'];
                 $system_model->group = $system['Group'];
                 $system_model->owner = $system['Owner'];
-                $system_model->days_since_last_logon = $days_since_last_logon;
+                $system_model->days_since_last_logon = $system['DaysLastLogon'];
                 $system_model->stale_45days = $system['Stale45Days'];
                 $system_model->client_activity = $system['ClientActivity'];
                 $system_model->client_status = $system['ClientStatus'];
@@ -191,7 +285,7 @@ class GetSCCMSystems extends Command
                 $system_model->model = $system['Model'];
                 $system_model->processor = $system['Processor'];
                 $system_model->image_source = $system['ImageSource'];
-                $system_model->image_date = $image_date;
+                $system_model->image_date = $system['ImageDate'];
                 $system_model->coe_compliant = $system['COECompliant'];
                 $system_model->ps_version = $system['PowerShellVersion'];
                 $system_model->patch_total = $system['PatchTotal'];
@@ -211,12 +305,12 @@ class GetSCCMSystems extends Command
                 $system_model->ad_location = $system['ADLocation'];
                 $system_model->primary_users = $system['PrimaryUsers'];
                 $system_model->last_logon_username = $system['LastLogonUserName'];
-                $system_model->ad_last_logon = $ad_last_logon;
-                $system_model->ad_password_last_set = $ad_password_last_set;
-                $system_model->ad_modified = $ad_modified;
-                $system_model->sccm_last_heartbeat = $sccm_last_heartbeat;
+                $system_model->ad_last_logon = $system['ADLastLogon'];
+                $system_model->ad_password_last_set = $system['ADPasswordLastSet'];
+                $system_model->ad_modified = $system['ADModified'];
+                $system_model->sccm_last_heartbeat = $system['SCCMLastHeartBeat'];
                 $system_model->sccm_management_point = $system['SCCMManagementPoint'];
-                $system_model->sccm_last_health_eval = $sccm_last_health_eval;
+                $system_model->sccm_last_health_eval = $system['SCCMLastHealthEval'];
                 $system_model->sccm_last_health_result = $system['SCCMLastHealthResult'];
                 $system_model->report_date = $system['ReportDate'];
                 $system_model->data = \Metaclassing\Utility::encodeJson($system);

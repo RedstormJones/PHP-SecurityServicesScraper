@@ -78,7 +78,8 @@ class GetIDMTasks extends Command
 
         $idm_tasks = [];
 
-        foreach ($tasks as $task) {
+        foreach ($tasks as $task)
+        {
             $parent = $this->handleNull($task['parent']);
             $updated_on = $this->handleNull($task['sys_updated_on']);
             $updated_by = $this->handleNull($task['sys_updated_by']);
@@ -218,7 +219,7 @@ class GetIDMTasks extends Command
         }
 
         // JSON encode and dump incident collection to file
-        file_put_contents(storage_path('app/collections/idm_tasks_collection.json'), \Metaclassing\Utility::encodeJson($tasks));
+        file_put_contents(storage_path('app/collections/idm_tasks_collection.json'), \Metaclassing\Utility::encodeJson($idm_tasks));
 
         /*
          * [2] Process IDM tasks into database

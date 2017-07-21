@@ -71,14 +71,192 @@ class GetIDMIncidents extends Command
         file_put_contents(storage_path('app/responses/idm_incidents.dump'), $response);
 
         // JSON decode response
-        $idm_incidents = \Metaclassing\Utility::decodeJson($response);
+        $content = \Metaclassing\Utility::decodeJson($response);
 
         // grab the data we care about and tell the world how many incidents we have
-        $incidents = $idm_incidents['result'];
+        $incidents = $content['result'];
         Log::info('total IDM incident count: '.count($incidents));
 
+        $idm_incidents = [];
+
+        foreach($incidents as $incident)
+        {
+            // handle null values for these particular fields this is not very pretty, but it works
+            $resolved_by = $this->handleNull($incident['resolved_by']);
+            $assigned_to = $this->handleNull($incident['assigned_to']);
+            $district = $this->handleNull($incident['u_district_name']);
+            $department = $this->handleNull($incident['department']);
+            $company = $this->handleNull($incident['company']);
+            $caller_id = $this->handleNull($incident['caller_id']);
+            $initial_assign_group = $this->handleNull($incident['u_initial_assignment_group']);
+            $cmdb_ci = $this->handleNull($incident['cmdb_ci']);
+            $assign_group = $this->handleNull($incident['assignment_group']);
+            $opened_by = $this->handleNull($incident['opened_by']);
+            $closed_at = $this->handleNull($incident['closed_at']);
+            $closed_by = $this->handleNull($incident['closed_by']);
+            $updated_on = $this->handleNull($incident['sys_updated_on']);
+            $updated_by = $this->handleNull($incident['sys_updated_by']);
+            $resolved_at = $this->handleNull($incident['resolved_at']);
+            $cause_code = $this->handleNull($incident['u_cause_code']);
+            $location = $this->handleNull($incident['location']);
+            $parent = $this->handleNull($incident['parent']);
+            $project_ref = $this->handleNull($incident['u_project_ref']);
+            $comments = $this->handleNull($incident['comments']);
+            $sys_domain = $this->handleNull($incident['sys_domain']);
+            $internal_name = $this->handleNull($incident['u_internal_name']);
+            $converted_from_task = $this->handleNUll($incident['u_converted_from_task']);
+            $problem_id = $this->handleNull($incident['problem_id']);
+            $alternative_contact = $this->handleNull($incident['u_alternative_contact']);
+
+            $idm_incidents[] = [
+                'u_task_preferred_contact'      => $incident['u_task_preferred_contact'],
+                'time_worked'                   => $incident['time_worked'],
+                'u_impacted_services'           => $incident['u_impacted_services'],
+                'number'                        => $incident['number'],
+                'due_date'                      => $incident['due_date'],
+                'sys_updated_by'                => $updated_by['display_value'],
+                'short_description'             => $incident['short_description'],
+                'resolved_by'                   => $resolved_by['display_value'],
+                'resolved_at'                   => $resolved_at['display_value'],
+                'u_sub_state'                   => $incident['u_sub_state'],
+                'u_survey_requested'            => $incident['u_survey_requested'],
+                'work_end'                      => $incident['work_end'],
+                'u_initial_assignment_group'    => $initial_assign_group['display_value'],
+                'upon_reject'                   => $incident['upon_reject'],
+                'additional_assignee_list'      => $incident['additional_assignee_list'],
+                'priority'                      => $incident['priority'],
+                'group_list'                    => $incident['group_list'],
+                'sys_created_on'                => $incident['sys_created_on'],
+                'u_followup_outlook_notify'     => $incident['u_followup_outlook_notify'],
+                'u_hr_case'                     => $incident['u_hr_case'],
+                'upon_approval'                 => $incident['upon_approval'],
+                'u_cause_code'                  => $cause_code['display_value'],
+                'u_business_services'           => $incident['u_business_services'],
+                'u_converted_from_task'         => $converted_from_task['display_value'],
+                'u_m_phone_contact'             => $incident['u_m_phone_contact'],
+                'reopen_count'                  => $incident['reopen_count'],
+                'caller_id'                     => $caller_id['display_value'],
+                'approval_history'              => $incident['approval_history'],
+                'u_attached_knowledge_stream'   => $incident['u_attached_knowledge_stream'],
+                'u_customer_action'             => $incident['u_customer_action'],
+                'u_last_updated_date'           => $incident['u_last_updated_date'],
+                'u_initiatives'                 => $incident['u_initiatives'],
+                'business_service'              => $incident['business_service'],
+                'calendar_duration'             => $incident['calendar_duration'],
+                'location'                      => $location['display_value'],
+                'opened_by'                     => $opened_by['display_value'],
+                'rfc'                           => $incident['rfc'],
+                'child_incidents'               => $incident['child_incidents'],
+                'parent'                        => $parent['display_value'],
+                'sys_tags'                      => $incident['sys_tags'],
+                'closed_by'                     => $closed_by['display_value'],
+                'caused_by'                     => $incident['caused_by'],
+                'u_b_phone_contact'             => $incident['u_b_phone_contact'],
+                'problem_id'                    => $problem_id['display_value'],
+                'cmdb_ci'                       => $cmdb_ci['display_value'],
+                'u_project_ref'                 => $project_ref['display_value'],
+                'comments'                      => $comments['display_value'],
+                'parent_incident'               => $incident['parent_incident'],
+                'department'                    => $department['display_value'],
+                'rejection_goto'                => $incident['rejection_goto'],
+                'u_auto_close_date'             => $incident['u_auto_close_date'],
+                'u_vendor_name'                 => $incident['u_vendor_name'],
+                'sys_created_by'                => $incident['sys_created_by'],
+                'urgency'                       => $incident['urgency'],
+                'activity_due'                  => $incident['activity_due'],
+                'assigned_to'                   => $assigned_to['display_value'],
+                'comments_and_work_notes'       => $incident['comments_and_work_notes'],
+                'knowledge'                     => $incident['knowledge'],
+                'state'                         => $incident['state'],
+                'category'                      => $incident['category'],
+                'sys_id'                        => $incident['sys_id'],
+                'calendar_stc'                  => $incident['calendar_stc'],
+                'sla_due'                       => $incident['sla_due'],
+                'u_assignment_group_changed'    => $incident['u_assignment_group_changed'],
+                'work_start'                    => $incident['work_start'],
+                'work_notes'                    => $incident['work_notes'],
+                'business_duration'             => $incident['business_duration'],
+                'opened_at'                     => $incident['opened_at'],
+                'severity'                      => $incident['severity'],
+                'correlation_display'           => $incident['correlation_display'],
+                'subcategory'                   => $incident['subcategory'],
+                'skills'                        => $incident['skills'],
+                'notify'                        => $incident['notify'],
+                'u_case_task'                   => $incident['u_case_task'],
+                'follow_up'                     => $incident['follow_up'],
+                'incident_state'                => $incident['incident_state'],
+                'u_commented_by_assigned_tech'  => $incident['u_commented_by_assigned_tech'],
+                'active'                        => $incident['active'],
+                'u_district_name'               => $district['display_value'],
+                'watch_list'                    => $incident['watch_list'],
+                'company'                       => $company['display_value'],
+                'approval'                      => $incident['approval'],
+                'order'                         => $incident['order'],
+                'closed_at'                     => $closed_at['display_value'],
+                'sys_updated_on'                => $updated_on['display_value'],
+                'contact_type'                  => $incident['contact_type'],
+                'sys_class_name'                => $incident['sys_class_name'],
+                'u_associated_outage'           => $incident['u_associated_outage'],
+                'assignment_group'              => $assign_group['display_value'],
+                'approval_set'                  => $incident['approval_set'],
+                'u_vendor_name_task'            => $incident['u_vendor_name_task'],
+                'sys_mod_count'                 => $incident['sys_mod_count'],
+                'sys_domain'                    => $sys_domain['display_value'],
+                'impact'                        => $incident['impact'],
+                'u_internal_name'               => $internal_name['display_value'],
+                'expected_start'                => $incident['expected_start'],
+                'u_email_contact'               => $incident['u_email_contact'],
+                'user_input'                    => $incident['user_input'],
+                'service_offering'              => $incident['service_offering'],
+                'escalation'                    => $incident['escalation'],
+                'close_code'                    => $incident['close_code'],
+                'close_notes'                   => $incident['close_notes'],
+                'business_stc'                  => $incident['business_stc'],
+                'work_notes_list'               => $incident['work_notes_list'],
+                'u_reassignment_count_non_kss'  => $incident['u_reassignment_count_non_kss'],
+                'u_outage'                      => $incident['u_outage'],
+                'u_alternative_contact'         => $alternative_contact['display_value'],
+                'correlation_id'                => $incident['correlation_id'],
+                'reassignment_count'            => $incident['reassignment_count'],
+                'description'                   => $incident['description'],
+                'made_sla'                      => $incident['made_sla'],
+            ];
+        }
+
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach ($idm_incidents as $incident) {
+            $url = 'http://10.243.32.36:9200/idm_incidents/idm_incidents/'.$incident['sys_id'];
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            $post = [
+                'doc'           => $incident,
+                'doc_as_upsert' => true,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('IDM incident was successfully inserted into ES: '.$incident['sys_id']);
+            } else {
+                Log::error('Something went wrong inserting IDM incident: '.$incident['sys_id']);
+                die('Something went wrong inserting IDM incident: '.$incident['sys_id'].PHP_EOL);
+            }
+        }
+
         // JSON encode and dump incident collection to file
-        file_put_contents(storage_path('app/collections/idm_incidents_collection.json'), \Metaclassing\Utility::encodeJson($incidents));
+        file_put_contents(storage_path('app/collections/idm_incidents_collection.json'), \Metaclassing\Utility::encodeJson($idm_incidents));
 
         /*
          * [2] Process IDM incidents into database
@@ -86,30 +264,23 @@ class GetIDMIncidents extends Command
 
         Log::info(PHP_EOL.'**************************************'.PHP_EOL.'* Starting IDM incidents processing! *'.PHP_EOL.'**************************************');
 
+        /*
         // cycle through IDM incidents and add the new ones
-        foreach ($incidents as $incident) {
+        foreach ($idm_incidents as $incident) {
             // try to find existing record with matching sys_id
             $exists = ServiceNowIdmIncident::where('sys_id', $incident['sys_id'])->value('id');
 
             // if the incident already exists give it an update and a touch and move on
             if ($exists) {
-                // handle null values
-                $closed_at = $this->handleNull($incident['closed_at']);
-                $updated_on = $this->handleNull($incident['sys_updated_on']);
-                $assign_group = $this->handleNull($incident['assignment_group']);
-                $resolved_by = $this->handleNull($incident['resolved_by']);
-                $assigned_to = $this->handleNull($incident['assigned_to']);
-                $resolved_at = $this->handleNull($incident['resolved_at']);
-
                 // get incident model and update the fields that could have changed
                 $incidentmodel = ServiceNowIdmIncident::find($exists);
                 $incidentmodel->update([
-                    'closed_at'             => $closed_at['display_value'],
-                    'updated_on'            => $updated_on['display_value'],
-                    'assignment_group'      => $assign_group['display_value'],
-                    'resolved_by'           => $resolved_by['display_value'],
-                    'assigned_to'           => $assigned_to['display_value'],
-                    'resolved_at'           => $resolved_at['display_value'],
+                    'closed_at'             => $incident['closed_at'],
+                    'updated_on'            => $incident['updated_on'],
+                    'assignment_group'      => $incident['assignment_group'],
+                    'resolved_by'           => $incident['resolved_by'],
+                    'assigned_to'           => $incident['assigned_to'],
+                    'resolved_at'           => $incident['resolved_at'],
                     'state'                 => $incident['incident_state'],
                     'duration'              => $incident['business_duration'],
                     'time_worked'           => $incident['time_worked'],
@@ -136,32 +307,15 @@ class GetIDMIncidents extends Command
                 // otherwise, create a new security incident record
                 Log::info('creating new IDM incident: '.$incident['number']);
 
-                /*
-                * handle null values for these particular fields
-                * this is not very pretty, but it works
-                */
-                $resolved_by = $this->handleNull($incident['resolved_by']);
-                $department = $this->handleNull($incident['department']);
-                $assigned_to = $this->handleNull($incident['assigned_to']);
-                $district = $this->handleNull($incident['u_district_name']);
-                $caller_id = $this->handleNull($incident['caller_id']);
-                $initial_assign_group = $this->handleNull($incident['u_initial_assignment_group']);
-                $cmdb = $this->handleNull($incident['cmdb_ci']);
-                $assign_group = $this->handleNull($incident['assignment_group']);
-                $opened_by = $this->handleNull($incident['opened_by']);
-                $closed_at = $this->handleNull($incident['closed_at']);
-                $updated_on = $this->handleNull($incident['sys_updated_on']);
-                $resolved_at = $this->handleNull($incident['resolved_at']);
-
                 // create the new incident record
                 $new_incident = new ServiceNowIdmIncident();
 
                 $new_incident->incident_id = $incident['number'];
                 $new_incident->opened_at = $incident['opened_at'];
-                $new_incident->closed_at = $closed_at['display_value'];
+                $new_incident->closed_at = $incident['closed_at'];
                 $new_incident->state = $incident['incident_state'];
                 $new_incident->duration = $incident['business_duration'];
-                $new_incident->initial_assignment_group = $initial_assign_group['display_value'];
+                $new_incident->initial_assignment_group = $incident['u_initial_assignment_group'];
                 $new_incident->sys_id = $incident['sys_id'];
                 $new_incident->time_worked = $incident['time_worked'];
                 $new_incident->reopen_count = $incident['reopen_count'];
@@ -171,20 +325,20 @@ class GetIDMIncidents extends Command
                 $new_incident->priority = $incident['priority'];
                 $new_incident->email_contact = $incident['u_email_contact'];
                 $new_incident->description = $incident['description'];
-                $new_incident->district = $district['display_value'];
-                $new_incident->updated_on = $updated_on['display_value'];
+                $new_incident->district = $incident['u_district_name'];
+                $new_incident->updated_on = $incident['sys_updated_on'];
                 $new_incident->active = $incident['active'];
-                $new_incident->assignment_group = $assign_group['display_value'];
-                $new_incident->caller_id = $caller_id['display_value'];
-                $new_incident->department = $department['display_value'];
+                $new_incident->assignment_group = $incident['assignment_group'];
+                $new_incident->caller_id = $incident['caller_id'];
+                $new_incident->department = $incident['department'];
                 $new_incident->reassignment_count = $incident['reassignment_count'];
                 $new_incident->short_description = $incident['short_description'];
-                $new_incident->resolved_by = $resolved_by['display_value'];
+                $new_incident->resolved_by = $incident['resolved_by'];
                 $new_incident->calendar_duration = $incident['calendar_duration'];
-                $new_incident->assigned_to = $assigned_to['display_value'];
-                $new_incident->resolved_at = $resolved_at['display_value'];
-                $new_incident->cmdb_ci = $cmdb['display_value'];
-                $new_incident->opened_by = $opened_by['display_value'];
+                $new_incident->assigned_to = $incident['assigned_to'];
+                $new_incident->resolved_at = $incident['resolved_at'];
+                $new_incident->cmdb_ci = $incident['cmdb_ci'];
+                $new_incident->opened_by = $incident['opened_by'];
                 $new_incident->escalation = $incident['escalation'];
                 $new_incident->modified_count = $incident['sys_mod_count'];
                 $new_incident->data = \Metaclassing\Utility::encodeJson($incident);
@@ -192,6 +346,7 @@ class GetIDMIncidents extends Command
                 $new_incident->save();
             }
         }
+        */
 
         Log::info('* IDM incidents completed! *'.PHP_EOL);
     }
