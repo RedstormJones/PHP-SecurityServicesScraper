@@ -78,7 +78,8 @@ class GetIDMTasks extends Command
 
         $idm_tasks = [];
 
-        foreach ($tasks as $task) {
+        foreach ($tasks as $task)
+        {
             $parent = $this->handleNull($task['parent']);
             $updated_on = $this->handleNull($task['sys_updated_on']);
             $updated_by = $this->handleNull($task['sys_updated_by']);
@@ -279,7 +280,7 @@ class GetIDMTasks extends Command
                 $new_task->closed_at = $task['closed_at'];
                 $new_task->closed_by = $task['closed_by'];
                 $new_task->close_notes = $task['close_notes'];
-                $new_task->initial_assignment_group = $task['u_initial_assign_group'];
+                $new_task->initial_assignment_group = $task['u_initial_assignment_group'];
                 $new_task->assignment_group = $task['assignment_group'];
                 $new_task->assigned_to = $task['assigned_to'];
                 $new_task->state = $task['state'];
