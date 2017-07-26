@@ -102,8 +102,7 @@ class GetSecurityCenterSeveritySummary extends Command
 
         $sev_sums = [];
 
-        foreach($collection as $sev)
-        {
+        foreach ($collection as $sev) {
             $sev_id = $sev['severity']['id'];
             $sev_name = $sev['severity']['name'];
             $sev_desc = $sev['severity']['description'];
