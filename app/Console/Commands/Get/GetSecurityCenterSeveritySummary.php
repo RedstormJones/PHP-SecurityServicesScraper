@@ -100,7 +100,55 @@ class GetSecurityCenterSeveritySummary extends Command
 
         Log::info('collected '.count($collection).' severity summaries');
 
-        file_put_contents(storage_path('app/collections/sc_severity_summary.json'), \Metaclassing\Utility::encodeJson($collection));
+        $sev_sums = [];
+
+        foreach($collection as $sev)
+        {
+            $sev_id = $sev['severity']['id'];
+            $sev_name = $sev['severity']['name'];
+            $sev_desc = $sev['severity']['description'];
+
+            $sev_sums[] = [
+                'severity_id'           => $sev_id,
+                'severity_name'         => $sev_name,
+                'severity_description'  => $sev_desc,
+                'severity_count'        => $sev['count'],
+            ];
+        }
+
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach ($sev_sums as $sev_sum) {
+            $url = 'http://10.243.32.36:9200/securitycenter_severity_summary/securitycenter_severity_summary/'.$sev_sum['severity_id'];
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            $post = [
+                'doc'           => $sev_sum,
+                'doc_as_upsert' => true,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('SecurityCenter severity summary vuln was successfully inserted into ES: '.$sev_sum['severity_description']);
+            } else {
+                Log::error('Something went wrong inserting SecurityCenter severity summary: '.$sev_sum['severity_description']);
+                die('Something went wrong inserting SecurityCenter severity summary: '.$sev_sum['severity_description'].PHP_EOL);
+            }
+        }
+
+        file_put_contents(storage_path('app/collections/sc_severity_summary.json'), \Metaclassing\Utility::encodeJson($sev_sums));
 
         /*
          * [2] Process Security Center severity summaries into database
@@ -108,21 +156,17 @@ class GetSecurityCenterSeveritySummary extends Command
 
         Log::info(PHP_EOL.'********************************************************'.PHP_EOL.'* Starting SecurityCenter severity summary processing! *'.PHP_EOL.'********************************************************');
 
-        foreach ($collection as $sev_sum) {
-            $severity_id = $sev_sum['severity']['id'];
-            $severity_name = $sev_sum['severity']['name'];
-            $severity_desc = $sev_sum['severity']['description'];
-
-            $exists = SecurityCenterSeveritySummary::where('severity_id', $severity_id)->value('id');
+        foreach ($sev_sums as $sev_sum) {
+            $exists = SecurityCenterSeveritySummary::where('severity_id', $sev_sum['severity_id'])->value('id');
 
             // if the model already exists then update it
             if ($exists) {
                 $summary_model = SecurityCenterSeveritySummary::findOrFail($exists);
 
-                Log::info('updating severity summary for '.$severity_desc);
+                Log::info('updating severity summary for '.$sev_sum['severity_description']);
 
                 $summary_model->update([
-                    'severity_count'    => $sev_sum['count'],
+                    'severity_count'    => $sev_sum['severity_count'],
                     'data'              => \Metaclassing\Utility::encodeJson($sev_sum),
                 ]);
 
@@ -132,14 +176,14 @@ class GetSecurityCenterSeveritySummary extends Command
                 $summary_model->touch();
             } else {
                 // otherwise, create a new severity summary model
-                Log::info('creating new severity summary for '.$severity_desc.' with id of '.$severity_id);
+                Log::info('creating new severity summary for '.$severity_desc.' with id of '.$sev_sum['severity_id']);
 
                 $new_summary = new SecurityCenterSeveritySummary();
 
-                $new_summary->severity_id = $severity_id;
-                $new_summary->severity_name = $severity_name;
+                $new_summary->severity_id = $sev_sum['severity_id'];
+                $new_summary->severity_name = $sev_sum['severity_name'];
                 $new_summary->severity_count = $sev_sum['count'];
-                $new_summary->severity_desc = $severity_desc;
+                $new_summary->severity_desc = $sev_sum['severity_description'];
                 $new_summary->data = \Metaclassing\Utility::encodeJson($sev_sum);
 
                 $new_summary->save();
