@@ -95,8 +95,7 @@ class GetSecurityCenterAssetVulns extends Command
 
         $asset_vulns = [];
 
-        foreach($assetsummary as $asset)
-        {
+        foreach ($assetsummary as $asset) {
             $asset_name = $asset['asset']['name'];
             $asset_type = $asset['asset']['type'];
             $asset_id = $asset['asset']['id'];
@@ -115,7 +114,7 @@ class GetSecurityCenterAssetVulns extends Command
                 'low_vulns'         => $asset['severityLow'],
                 'medium_vulns'      => $asset['severityMedium'],
                 'high_vulns'        => $asset['severityHigh'],
-                'critical_vulns'    => $asset['severityCritical']
+                'critical_vulns'    => $asset['severityCritical'],
             ];
         }
 
