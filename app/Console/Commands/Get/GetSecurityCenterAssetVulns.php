@@ -93,8 +93,66 @@ class GetSecurityCenterAssetVulns extends Command
 
         Log::info('collected '.count($assetsummary).' asset vulnerabilities');
 
+        $asset_vulns = [];
+
+        foreach($assetsummary as $asset)
+        {
+            $asset_name = $asset['asset']['name'];
+            $asset_type = $asset['asset']['type'];
+            $asset_id = $asset['asset']['id'];
+            $asset_status = $asset['asset']['status'];
+            $asset_desc = $asset['asset']['description'];
+
+            $asset_vulns[] = [
+                'asset_name'        => $asset_name,
+                'asset_type'        => $asset_type,
+                'asset_id'          => $asset_id,
+                'asset_status'      => $asset_status,
+                'asset_description' => $asset_desc,
+                'asset_score'       => $asset['score'],
+                'total_vulns'       => $asset['total'],
+                'info_vulns'        => $asset['severityInfo'],
+                'low_vulns'         => $asset['severityLow'],
+                'medium_vulns'      => $asset['severityMedium'],
+                'high_vulns'        => $asset['severityHigh'],
+                'critical_vulns'    => $asset['severityCritical']
+            ];
+        }
+
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach ($asset_vulns as $asset) {
+            $url = 'http://10.243.32.36:9200/securitycenter_asset_vulns/securitycenter_asset_vulns/'.$asset['asset_id'];
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            $post = [
+                'doc'           => $asset,
+                'doc_as_upsert' => true,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('SecurityCenter asset vuln was successfully inserted into ES: '.$asset['asset_name']);
+            } else {
+                Log::error('Something went wrong inserting SecurityCenter asset vuln: '.$asset['asset_name']);
+                die('Something went wrong inserting SecurityCenter asset vuln: '.$asset['asset_name'].PHP_EOL);
+            }
+        }
+
         // JSON encode simple array and dump to file
-        file_put_contents(storage_path('app/collections/sc_asset_summary.json'), \Metaclassing\Utility::encodeJson($assetsummary));
+        file_put_contents(storage_path('app/collections/sc_asset_summary.json'), \Metaclassing\Utility::encodeJson($asset_vulns));
 
         /*
          * [2] Process asset vulnerabilities into database
@@ -102,22 +160,19 @@ class GetSecurityCenterAssetVulns extends Command
 
         Log::info(PHP_EOL.'**********************************************'.PHP_EOL.'* Starting asset vulnerabilities processing! *'.PHP_EOL.'**********************************************');
 
-        foreach ($assetsummary as $asset_data) {
-            $asset_name = $asset_data['asset']['name'];
-            $asset_id = $asset_data['asset']['id'];
-
-            $exists = SecurityCenterAssetVuln::where('asset_id', $asset_id)->value('id');
+        foreach ($asset_vulns as $asset_data) {
+            $exists = SecurityCenterAssetVuln::where('asset_id', $asset_data['asset_id'])->value('id');
 
             if ($exists) {
                 $asset_vuln = SecurityCenterAssetVuln::find($exists);
 
                 $asset_vuln->update([
-                    'asset_name'      => $asset_name,
-                    'asset_score'     => $asset_data['score'],
-                    'critical_vulns'  => $asset_data['severityCritical'],
-                    'high_vulns'      => $asset_data['severityHigh'],
-                    'medium_vulns'    => $asset_data['severityMedium'],
-                    'total_vulns'     => $asset_data['total'],
+                    'asset_name'      => $asset_data['asset_name'],
+                    'asset_score'     => $asset_data['asset_score'],
+                    'critical_vulns'  => $asset_data['critical_vulns'],
+                    'high_vulns'      => $asset_data['high_vulns'],
+                    'medium_vulns'    => $asset_data['medium_vulns'],
+                    'total_vulns'     => $asset_data['total_vulns'],
                     'data'            => \Metaclassing\Utility::encodeJson($asset_data),
                 ]);
 
@@ -126,19 +181,19 @@ class GetSecurityCenterAssetVulns extends Command
                 // touch asset vuln record to updated the 'updated_at' timestamp in case nothing was changed
                 $asset_vuln->touch();
 
-                Log::info('updated asset vulnerability record for: '.$asset_name);
+                Log::info('updated asset vulnerability record for: '.$asset_data['asset_name']);
             } else {
-                Log::info('creating new asset vulnerability record for: '.$asset_name);
+                Log::info('creating new asset vulnerability record for: '.$asset_data['asset_name']);
 
                 $new_asset = new SecurityCenterAssetVuln();
 
-                $new_asset->asset_name = $asset_name;
-                $new_asset->asset_id = $asset_id;
-                $new_asset->asset_score = $asset_data['score'];
-                $new_asset->critical_vulns = $asset_data['severityCritical'];
-                $new_asset->high_vulns = $asset_data['severityHigh'];
-                $new_asset->medium_vulns = $asset_data['severityMedium'];
-                $new_asset->total_vulns = $asset_data['total'];
+                $new_asset->asset_name = $asset_data['asset_name'];
+                $new_asset->asset_id = $asset_data['asset_id'];
+                $new_asset->asset_score = $asset_data['asset_score'];
+                $new_asset->critical_vulns = $asset_data['critical_vulns'];
+                $new_asset->high_vulns = $asset_data['high_vulns'];
+                $new_asset->medium_vulns = $asset_data['medium_vulns'];
+                $new_asset->total_vulns = $asset_data['total_vulns'];
                 $new_asset->data = \Metaclassing\Utility::encodeJson($asset_data);
 
                 $new_asset->save();
