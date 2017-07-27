@@ -116,8 +116,7 @@ class GetSecurityCenterVulns extends Command
         $highvulns = [];
         $criticalvulns = [];
 
-        foreach($medium_vulns as $vuln)
-        {
+        foreach ($medium_vulns as $vuln) {
             // extract timestamp values that we care about and convert them to datetimes
             $first_seen = Carbon::createFromTimestamp($vuln['firstSeen']);
             $last_seen = Carbon::createFromTimestamp($vuln['lastSeen']);
@@ -203,8 +202,7 @@ class GetSecurityCenterVulns extends Command
             ];
         }
 
-        foreach($high_vulns as $vuln)
-        {
+        foreach ($high_vulns as $vuln) {
             // extract timestamp values that we care about and convert them to datetimes
             $first_seen = Carbon::createFromTimestamp($vuln['firstSeen']);
             $last_seen = Carbon::createFromTimestamp($vuln['lastSeen']);
@@ -290,8 +288,7 @@ class GetSecurityCenterVulns extends Command
             ];
         }
 
-        foreach($critical_vulns as $vuln)
-        {
+        foreach ($critical_vulns as $vuln) {
             // extract timestamp values that we care about and convert them to datetimes
             $first_seen = Carbon::createFromTimestamp($vuln['firstSeen']);
             $last_seen = Carbon::createFromTimestamp($vuln['lastSeen']);
