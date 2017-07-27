@@ -265,7 +265,7 @@ class GetCylanceThreats extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         foreach ($cylance_threats_final as $threat) {
-            $url = 'http://10.243.32.36:9200/cylance_threats/cylance_threats/'.$threat['ThreatId'].'/_update';
+            $url = 'http://10.243.32.36:9200/cylance_threats/cylance_threats/'.$threat['ThreatId'];
             Log::info('HTTP Post to elasticsearch: '.$url);
 
             $post = [
@@ -399,10 +399,12 @@ class GetCylanceThreats extends Command
             preg_match($date_regex, $date_str, $date_hits);
 
             $datetime = Carbon::createFromTimestamp(intval($date_hits[1]) / 1000)->toDateTimeString();
+            $datetime_pieces = explode(' ', $datetime);
+            $date_time = $datetime_pieces[0].'T'.$datetime_pieces[1];
         } else {
-            $datetime = null;
+            $date_time = null;
         }
 
-        return $datetime;
+        return $date_time;
     }
 }
