@@ -267,7 +267,7 @@ class GetCylanceDevices extends Command
 
             $post = [
                 'doc'           => $device,
-                'doc_as_upsert' => true
+                'doc_as_upsert' => true,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
