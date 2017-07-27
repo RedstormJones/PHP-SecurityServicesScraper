@@ -112,14 +112,349 @@ class GetSecurityCenterVulns extends Command
             }
         }
 
-        Log::info('collected '.count($medium_vulns).' medium vulnerabiliites');
-        Log::info('collected '.count($high_vulns).' high vulnerabilities');
-        Log::info('collected '.count($critical_vulns).' critical vulnerabilities');
+        $mediumvulns = [];
+        $highvulns = [];
+        $criticalvulns = [];
+
+        foreach($medium_vulns as $vuln)
+        {
+            // extract timestamp values that we care about and convert them to datetimes
+            $first_seen = Carbon::createFromTimestamp($vuln['firstSeen']);
+            $last_seen = Carbon::createFromTimestamp($vuln['lastSeen']);
+
+            $first_seen_pieces = explode(' ', $first_seen);
+            $firstseen = $first_seen_pieces[0].'T'.$first_seen_pieces[1];
+
+            $last_seen_pieces = explode(' ', $last_seen);
+            $lastseen = $last_seen_pieces[0].'T'.$last_seen_pieces[1];
+
+            // if vulnPubDate or patchPubDate equals -1 then just set it to null - otherwise convert timestamp to datetime
+            if ($vuln['vulnPubDate'] == '-1') {
+                $vuln_pub_date = null;
+            } else {
+                $vuln_pub_date = Carbon::createFromTimestamp($vuln['vulnPubDate']);
+            }
+
+            if ($vuln['patchPubDate'] == '-1') {
+                $patch_pub_date = null;
+            } else {
+                $patch_pub_date = Carbon::createFromTimestamp($vuln['patchPubDate']);
+            }
+
+            if ($vuln['pluginPubDate'] == '-1') {
+                $plugin_pub_date = null;
+            } else {
+                $plugin_pub_date = Carbon::createFromTimestamp($vuln['pluginPubDate']);
+            }
+
+            if ($vuln['pluginModDate'] == '-1') {
+                $plugin_mod_date = null;
+            } else {
+                $plugin_mod_date = Carbon::createFromTimestamp($vuln['pluginModDate']);
+            }
+
+            $mediumvulns[] = [
+                'cpe'                       => $vuln['cpe'],
+                'pluginName'                => $vuln['pluginName'],
+                'cve'                       => $vuln['cve'],
+                'exploitEase'               => $vuln['exploitEase'],
+                'family_type'               => $vuln['family']['type'],
+                'family_name'               => $vuln['family']['name'],
+                'family_id'                 => $vuln['family']['id'],
+                'bid'                       => $vuln['bid'],
+                'temporalScore'             => $vuln['temporalScore'],
+                'exploitFrameworks'         => $vuln['exploitFrameworks'],
+                'synopsis'                  => $vuln['synopsis'],
+                'netbiosName'               => $vuln['netbiosName'],
+                'pluginPubDate'             => $plugin_pub_date,
+                'checkType'                 => $vuln['checkType'],
+                'pluginModDate'             => $plugin_mod_date,
+                'dnsName'                   => $vuln['dnsName'],
+                'repository_name'           => $vuln['repository']['name'],
+                'repository_id'             => $vuln['repository']['id'],
+                'repository_description'    => $vuln['repository']['description'],
+                'ip'                        => $vuln['ip'],
+                'acceptRisk'                => $vuln['acceptRisk'],
+                'stigSeverity'              => $vuln['stigSeverity'],
+                'pluginText'                => $vuln['pluginText'],
+                'pluginInfo'                => $vuln['pluginInfo'],
+                'recastRisk'                => $vuln['recastRisk'],
+                'description'               => $vuln['description'],
+                'baseScore'                 => $vuln['baseScore'],
+                'seeAlso'                   => $vuln['seeAlso'],
+                'firstSeen'                 => $firstseen,
+                'lastSeen'                  => $lastseen,
+                'hasBeenMitigated'          => $vuln['hasBeenMitigated'],
+                'vulnPubDate'               => $vuln_pub_date,
+                'macAddress'                => $vuln['macAddress'],
+                'version'                   => $vuln['version'],
+                'protocol'                  => $vuln['protocol'],
+                'pluginID'                  => $vuln['pluginID'],
+                'severity_id'               => $vuln['severity']['id'],
+                'severity_name'             => $vuln['severity']['name'],
+                'severity_description'      => $vuln['severity']['description'],
+                'port'                      => $vuln['port'],
+                'riskFactor'                => $vuln['riskFactor'],
+                'exploitAvailable'          => $vuln['exploitAvailable'],
+                'patchPubDate'              => $patch_pub_date,
+                'cvssVector'                => $vuln['cvssVector'],
+                'solution'                  => $vuln['solution'],
+                'xref'                      => $vuln['xref'],
+            ];
+        }
+
+        foreach($high_vulns as $vuln)
+        {
+            // extract timestamp values that we care about and convert them to datetimes
+            $first_seen = Carbon::createFromTimestamp($vuln['firstSeen']);
+            $last_seen = Carbon::createFromTimestamp($vuln['lastSeen']);
+
+            $first_seen_pieces = explode(' ', $first_seen);
+            $firstseen = $first_seen_pieces[0].'T'.$first_seen_pieces[1];
+
+            $last_seen_pieces = explode(' ', $last_seen);
+            $lastseen = $last_seen_pieces[0].'T'.$last_seen_pieces[1];
+
+            // if vulnPubDate or patchPubDate equals -1 then just set it to null - otherwise convert timestamp to datetime
+            if ($vuln['vulnPubDate'] == '-1') {
+                $vuln_pub_date = null;
+            } else {
+                $vuln_pub_date = Carbon::createFromTimestamp($vuln['vulnPubDate']);
+            }
+
+            if ($vuln['patchPubDate'] == '-1') {
+                $patch_pub_date = null;
+            } else {
+                $patch_pub_date = Carbon::createFromTimestamp($vuln['patchPubDate']);
+            }
+
+            if ($vuln['pluginPubDate'] == '-1') {
+                $plugin_pub_date = null;
+            } else {
+                $plugin_pub_date = Carbon::createFromTimestamp($vuln['pluginPubDate']);
+            }
+
+            if ($vuln['pluginModDate'] == '-1') {
+                $plugin_mod_date = null;
+            } else {
+                $plugin_mod_date = Carbon::createFromTimestamp($vuln['pluginModDate']);
+            }
+
+            $highvulns[] = [
+                'cpe'                       => $vuln['cpe'],
+                'pluginName'                => $vuln['pluginName'],
+                'cve'                       => $vuln['cve'],
+                'exploitEase'               => $vuln['exploitEase'],
+                'family_type'               => $vuln['family']['type'],
+                'family_name'               => $vuln['family']['name'],
+                'family_id'                 => $vuln['family']['id'],
+                'bid'                       => $vuln['bid'],
+                'temporalScore'             => $vuln['temporalScore'],
+                'exploitFrameworks'         => $vuln['exploitFrameworks'],
+                'synopsis'                  => $vuln['synopsis'],
+                'netbiosName'               => $vuln['netbiosName'],
+                'pluginPubDate'             => $plugin_pub_date,
+                'checkType'                 => $vuln['checkType'],
+                'pluginModDate'             => $plugin_mod_date,
+                'dnsName'                   => $vuln['dnsName'],
+                'repository_name'           => $vuln['repository']['name'],
+                'repository_id'             => $vuln['repository']['id'],
+                'repository_description'    => $vuln['repository']['description'],
+                'ip'                        => $vuln['ip'],
+                'acceptRisk'                => $vuln['acceptRisk'],
+                'stigSeverity'              => $vuln['stigSeverity'],
+                'pluginText'                => $vuln['pluginText'],
+                'pluginInfo'                => $vuln['pluginInfo'],
+                'recastRisk'                => $vuln['recastRisk'],
+                'description'               => $vuln['description'],
+                'baseScore'                 => $vuln['baseScore'],
+                'seeAlso'                   => $vuln['seeAlso'],
+                'firstSeen'                 => $firstseen,
+                'lastSeen'                  => $lastseen,
+                'hasBeenMitigated'          => $vuln['hasBeenMitigated'],
+                'vulnPubDate'               => $vuln_pub_date,
+                'macAddress'                => $vuln['macAddress'],
+                'version'                   => $vuln['version'],
+                'protocol'                  => $vuln['protocol'],
+                'pluginID'                  => $vuln['pluginID'],
+                'severity_id'               => $vuln['severity']['id'],
+                'severity_name'             => $vuln['severity']['name'],
+                'severity_description'      => $vuln['severity']['description'],
+                'port'                      => $vuln['port'],
+                'riskFactor'                => $vuln['riskFactor'],
+                'exploitAvailable'          => $vuln['exploitAvailable'],
+                'patchPubDate'              => $patch_pub_date,
+                'cvssVector'                => $vuln['cvssVector'],
+                'solution'                  => $vuln['solution'],
+                'xref'                      => $vuln['xref'],
+            ];
+        }
+
+        foreach($critical_vulns as $vuln)
+        {
+            // extract timestamp values that we care about and convert them to datetimes
+            $first_seen = Carbon::createFromTimestamp($vuln['firstSeen']);
+            $last_seen = Carbon::createFromTimestamp($vuln['lastSeen']);
+
+            $first_seen_pieces = explode(' ', $first_seen);
+            $firstseen = $first_seen_pieces[0].'T'.$first_seen_pieces[1];
+
+            $last_seen_pieces = explode(' ', $last_seen);
+            $lastseen = $last_seen_pieces[0].'T'.$last_seen_pieces[1];
+
+            // if vulnPubDate or patchPubDate equals -1 then just set it to null - otherwise convert timestamp to datetime
+            if ($vuln['vulnPubDate'] == '-1') {
+                $vuln_pub_date = null;
+            } else {
+                $vuln_pub_date = Carbon::createFromTimestamp($vuln['vulnPubDate']);
+            }
+
+            if ($vuln['patchPubDate'] == '-1') {
+                $patch_pub_date = null;
+            } else {
+                $patch_pub_date = Carbon::createFromTimestamp($vuln['patchPubDate']);
+            }
+
+            if ($vuln['pluginPubDate'] == '-1') {
+                $plugin_pub_date = null;
+            } else {
+                $plugin_pub_date = Carbon::createFromTimestamp($vuln['pluginPubDate']);
+            }
+
+            if ($vuln['pluginModDate'] == '-1') {
+                $plugin_mod_date = null;
+            } else {
+                $plugin_mod_date = Carbon::createFromTimestamp($vuln['pluginModDate']);
+            }
+
+            $criticalvulns[] = [
+                'cpe'                       => $vuln['cpe'],
+                'pluginName'                => $vuln['pluginName'],
+                'cve'                       => $vuln['cve'],
+                'exploitEase'               => $vuln['exploitEase'],
+                'family_type'               => $vuln['family']['type'],
+                'family_name'               => $vuln['family']['name'],
+                'family_id'                 => $vuln['family']['id'],
+                'bid'                       => $vuln['bid'],
+                'temporalScore'             => $vuln['temporalScore'],
+                'exploitFrameworks'         => $vuln['exploitFrameworks'],
+                'synopsis'                  => $vuln['synopsis'],
+                'netbiosName'               => $vuln['netbiosName'],
+                'pluginPubDate'             => $plugin_pub_date,
+                'checkType'                 => $vuln['checkType'],
+                'pluginModDate'             => $plugin_mod_date,
+                'dnsName'                   => $vuln['dnsName'],
+                'repository_name'           => $vuln['repository']['name'],
+                'repository_id'             => $vuln['repository']['id'],
+                'repository_description'    => $vuln['repository']['description'],
+                'ip'                        => $vuln['ip'],
+                'acceptRisk'                => $vuln['acceptRisk'],
+                'stigSeverity'              => $vuln['stigSeverity'],
+                'pluginText'                => $vuln['pluginText'],
+                'pluginInfo'                => $vuln['pluginInfo'],
+                'recastRisk'                => $vuln['recastRisk'],
+                'description'               => $vuln['description'],
+                'baseScore'                 => $vuln['baseScore'],
+                'seeAlso'                   => $vuln['seeAlso'],
+                'firstSeen'                 => $firstseen,
+                'lastSeen'                  => $lastseen,
+                'hasBeenMitigated'          => $vuln['hasBeenMitigated'],
+                'vulnPubDate'               => $vuln_pub_date,
+                'macAddress'                => $vuln['macAddress'],
+                'version'                   => $vuln['version'],
+                'protocol'                  => $vuln['protocol'],
+                'pluginID'                  => $vuln['pluginID'],
+                'severity_id'               => $vuln['severity']['id'],
+                'severity_name'             => $vuln['severity']['name'],
+                'severity_description'      => $vuln['severity']['description'],
+                'port'                      => $vuln['port'],
+                'riskFactor'                => $vuln['riskFactor'],
+                'exploitAvailable'          => $vuln['exploitAvailable'],
+                'patchPubDate'              => $patch_pub_date,
+                'cvssVector'                => $vuln['cvssVector'],
+                'solution'                  => $vuln['solution'],
+                'xref'                      => $vuln['xref'],
+            ];
+        }
+
+        Log::info('collected '.count($mediumvulns).' medium vulnerabiliites');
+        Log::info('collected '.count($highvulns).' high vulnerabilities');
+        Log::info('collected '.count($criticalvulns).' critical vulnerabilities');
+
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach ($mediumvulns as $vuln) {
+            $url = 'http://10.243.32.36:9200/securitycenter_vulns_medium/securitycenter_vulns_medium/';
+
+            $post = [
+                'doc'           => $vuln,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('SecurityCenter medium vuln was successfully inserted into ES: '.$vuln['ip']);
+            } else {
+                Log::error('Something went wrong inserting SecurityCenter medium vuln: '.$vuln['ip']);
+                die('Something went wrong inserting SecurityCenter medium vuln: '.$vuln['ip'].PHP_EOL);
+            }
+        }
+
+        foreach ($highvulns as $vuln) {
+            $url = 'http://10.243.32.36:9200/securitycenter_vulns_high/securitycenter_vulns_high/';
+
+            $post = [
+                'doc'           => $vuln,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('SecurityCenter high vuln was successfully inserted into ES: '.$vuln['ip']);
+            } else {
+                Log::error('Something went wrong inserting SecurityCenter high vuln: '.$vuln['ip']);
+                die('Something went wrong inserting SecurityCenter high vuln: '.$vuln['ip'].PHP_EOL);
+            }
+        }
+
+        foreach ($criticalvulns as $vuln) {
+            $url = 'http://10.243.32.36:9200/securitycenter_vulns_critical/securitycenter_vulns_critical/';
+
+            $post = [
+                'doc'           => $vuln,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('SecurityCenter critical vuln was successfully inserted into ES: '.$vuln['ip']);
+            } else {
+                Log::error('Something went wrong inserting SecurityCenter critical vuln: '.$vuln['ip']);
+                die('Something went wrong inserting SecurityCenter critical vuln: '.$vuln['ip'].PHP_EOL);
+            }
+        }
 
         // dump vulnerability datasets to file
-        file_put_contents(storage_path('app/collections/sc_medvulns_collection.json'), \Metaclassing\Utility::encodeJson($medium_vulns));
-        file_put_contents(storage_path('app/collections/sc_highvulns_collection.json'), \Metaclassing\Utility::encodeJson($high_vulns));
-        file_put_contents(storage_path('app/collections/sc_criticalvulns_collection.json'), \Metaclassing\Utility::encodeJson($critical_vulns));
+        file_put_contents(storage_path('app/collections/sc_medvulns_collection.json'), \Metaclassing\Utility::encodeJson($mediumvulns));
+        file_put_contents(storage_path('app/collections/sc_highvulns_collection.json'), \Metaclassing\Utility::encodeJson($highvulns));
+        file_put_contents(storage_path('app/collections/sc_criticalvulns_collection.json'), \Metaclassing\Utility::encodeJson($criticalvulns));
 
         /*
          * [2] Process critical, high and medium vulnerabilities into database
@@ -127,9 +462,9 @@ class GetSecurityCenterVulns extends Command
 
         Log::info(PHP_EOL.'*******************************************************'.PHP_EOL.'* Starting SecurityCenter vulnerabilities processing! *'.PHP_EOL.'*******************************************************');
 
-        $this->processVulnsBySeverity($medium_vulns, 2);
-        $this->processVulnsBySeverity($high_vulns, 3);
-        $this->processVulnsBySeverity($critical_vulns, 4);
+        $this->processVulnsBySeverity($mediumvulns, 2);
+        $this->processVulnsBySeverity($highvulns, 3);
+        $this->processVulnsBySeverity($criticalvulns, 4);
 
         Log::info('* Completed SecurityCenter critical, high and medium vulnerabilities! *');
     }
@@ -217,54 +552,19 @@ class GetSecurityCenterVulns extends Command
 
         // cycle through vulnerabilities to create and update models
         foreach ($vulns as $vuln) {
-            // extract timestamp values that we care about and convert them to datetimes
-            $first_seen = Carbon::createFromTimestamp($vuln['firstSeen']);
-            $last_seen = Carbon::createFromTimestamp($vuln['lastSeen']);
-
-            // if vulnPubDate or patchPubDate equals -1 then just set it to null - otherwise convert timestamp to datetime
-            if ($vuln['vulnPubDate'] == '-1') {
-                $vuln_pub_date = null;
-            } else {
-                $vuln_pub_date = Carbon::createFromTimestamp($vuln['vulnPubDate']);
-            }
-
-            if ($vuln['patchPubDate'] == '-1') {
-                $patch_pub_date = null;
-            } else {
-                $patch_pub_date = Carbon::createFromTimestamp($vuln['patchPubDate']);
-            }
-
             // switch on the provided severity id and create the corresponding new vulnerability
             switch ($sev_id) {
                 case 2:
-                    // setup severity array, values never change
-                    $severity = [
-                            'id'            => '2',
-                            'name'          => 'Medium',
-                    ];
-
                     Log::info('creating medium severity vulnerability record for: '.$vuln['pluginName']);
                     $new_vuln = new SecurityCenterMedium();
                     break;
 
                 case 3:
-                    // setup severity array, values never change
-                    $severity = [
-                            'id'            => '3',
-                            'name'          => 'High',
-                    ];
-
                     Log::info('creating high severity vulnerability record for: '.$vuln['pluginName']);
                     $new_vuln = new SecurityCenterHigh();
                     break;
 
                 case 4:
-                    // setup severity array, values never change
-                    $severity = [
-                               'id'            => '4',
-                               'name'          => 'Critical',
-                    ];
-
                     Log::info('creating critical severity vulnerability record for: '.$vuln['pluginName']);
                     $new_vuln = new SecurityCenterCritical();
                     break;
@@ -275,11 +575,11 @@ class GetSecurityCenterVulns extends Command
             }
 
             $new_vuln->dns_name = $vuln['dnsName'];
-            $new_vuln->severity_id = $severity['id'];
-            $new_vuln->severity_name = $severity['name'];
+            $new_vuln->severity_id = $vuln['severity_id'];
+            $new_vuln->severity_name = $vuln['severity_name'];
             $new_vuln->risk_factor = $vuln['riskFactor'];
-            $new_vuln->first_seen = $first_seen;
-            $new_vuln->last_seen = $last_seen;
+            $new_vuln->first_seen = $vuln['firstSeen'];
+            $new_vuln->last_seen = $vuln['lastSeen'];
             $new_vuln->protocol = $vuln['protocol'];
             $new_vuln->ip_address = $vuln['ip'];
             $new_vuln->port = $vuln['port'];
@@ -287,8 +587,8 @@ class GetSecurityCenterVulns extends Command
             $new_vuln->exploit_available = $vuln['exploitAvailable'];
             $new_vuln->exploit_ease = $vuln['exploitEase'];
             $new_vuln->exploit_frameworks = $vuln['exploitFrameworks'];
-            $new_vuln->vuln_public_date = $vuln_pub_date;
-            $new_vuln->patch_public_date = $patch_pub_date;
+            $new_vuln->vuln_public_date = $vuln['vulnPubDate'];
+            $new_vuln->patch_public_date = $vuln['patchPubDate'];
             $new_vuln->has_been_mitigated = $vuln['hasBeenMitigated'];
             $new_vuln->solution = $vuln['solution'];
             $new_vuln->plugin_id = $vuln['pluginID'];
