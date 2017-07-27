@@ -81,7 +81,7 @@ class GetSecurityCenterSumIPVulns extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         $url = getenv('SECURITYCENTER_URL').'/rest/analysis';
-        
+
         $count = 0;
 
         do {
@@ -106,18 +106,17 @@ class GetSecurityCenterSumIPVulns extends Command
             // extract vulnerability results and add to collection
             $total_records = $resp['response']['totalRecords'];
             $returned_records = $resp['response']['returnedRecords'];
-            
+
             $collection[] = $resp['response']['results'];
 
             Log::info('collected '.$returned_records.' sumip vulnerabilities');
             $count += $returned_records;
-        }
-        while($count < $total_records);
+        } while ($count < $total_records);
 
         // cycle through collection and build a simple array
         $sumipvulns = [];
-        foreach($collection as $result) {
-            foreach($result as $vuln) {
+        foreach ($collection as $result) {
+            foreach ($result as $vuln) {
                 $sumipvulns[] = $vuln;
             }
         }
@@ -125,8 +124,7 @@ class GetSecurityCenterSumIPVulns extends Command
         // cycle through simply array and flatten array structure
         $sumip_vulns = [];
 
-        foreach($sumipvulns as $vuln)
-        {
+        foreach ($sumipvulns as $vuln) {
             $repository_id = $vuln['repository']['id'];
             $repository_name = $vuln['repository']['name'];
             $repository_desc = $vuln['repository']['description'];
