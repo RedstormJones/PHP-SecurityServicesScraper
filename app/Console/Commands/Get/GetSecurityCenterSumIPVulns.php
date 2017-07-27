@@ -81,30 +81,118 @@ class GetSecurityCenterSumIPVulns extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         $url = getenv('SECURITYCENTER_URL').'/rest/analysis';
+        
+        $count = 0;
 
-        $post = [
-            'type'          => 'vuln',
-            'sourceType'    => 'cumulative',
-            'query'         => [
-                'tool'          => 'sumip',
+        do {
+            $post = [
                 'type'          => 'vuln',
-                'startOffset'   => 0,
-                'endOffset'     => 2000,
-            ],
+                'sourceType'    => 'cumulative',
+                'query'         => [
+                    'tool'          => 'sumip',
+                    'type'          => 'vuln',
+                    'startOffset'   => $count,
+                    'endOffset'     => $count + 1000,
+                ],
+            ];
+
+            // send request for resource, capture response and dump to file
+            $response = $crawler->post($url, $url, \Metaclassing\Utility::encodeJson($post));
+
+            // JSON decode response
+            $resp = \Metaclassing\Utility::decodeJson($response);
+            Log::info($resp);
+
+            // extract vulnerability results and add to collection
+            $total_records = $resp['response']['totalRecords'];
+            $returned_records = $resp['response']['returnedRecords'];
+            
+            $collection[] = $resp['response']['results'];
+
+            Log::info('collected '.$returned_records.' sumip vulnerabilities');
+            $count += $returned_records;
+        }
+        while($count < $total_records);
+
+        // cycle through collection and build a simple array
+        $sumipvulns = [];
+        foreach($collection as $result) {
+            foreach($result as $vuln) {
+                $sumipvulns[] = $vuln;
+            }
+        }
+
+        // cycle through simply array and flatten array structure
+        $sumip_vulns = [];
+
+        foreach($sumipvulns as $vuln)
+        {
+            $repository_id = $vuln['repository']['id'];
+            $repository_name = $vuln['repository']['name'];
+            $repository_desc = $vuln['repository']['description'];
+
+            $sumip_vulns[] = [
+                'repository_id'             => $repository_id,
+                'repository_name'           => $repository_name,
+                'repository_description'    => $repository_desc,
+                'lastUnauthRun'             => $vuln['lastUnauthRun'],
+                'lastAuthRun'               => $vuln['lastAuthRun'],
+                'osCPE'                     => $vuln['osCPE'],
+                'dnsName'                   => $vuln['dnsName'],
+                'ip'                        => $vuln['ip'],
+                'severityInfo'              => $vuln['severityInfo'],
+                'severityLow'               => $vuln['severityLow'],
+                'severityMedium'            => $vuln['severityMedium'],
+                'severityHigh'              => $vuln['severityHigh'],
+                'severityCritical'          => $vuln['severityCritical'],
+                'netbiosName'               => $vuln['netbiosName'],
+                'score'                     => $vuln['score'],
+                'total'                     => $vuln['total'],
+                'biosGUID'                  => $vuln['biosGUID'],
+                'macAddress'                => $vuln['macAddress'],
+                'mcafeeGUID'                => $vuln['mcafeeGUID'],
+                'tpmID'                     => $vuln['tpmID'],
+                'policyName'                => $vuln['policyName'],
+                'pluginSet'                 => $vuln['pluginSet'],
+            ];
+        }
+        Log::info('total sumip vulnerability records: '.count($sumip_vulns));
+
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
         ];
 
-        // send request for resource, capture response and dump to file
-        $response = $crawler->post($url, $url, \Metaclassing\Utility::encodeJson($post));
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-        // JSON decode response
-        $resp = \Metaclassing\Utility::decodeJson($response);
+        foreach ($sumip_vulns as $vuln) {
+            $policy_name_pieces = explode('/', $vuln['policyName']);
+            $es_id = $policy_name_pieces[0].'-'.$vuln['ip'];
+            $url = 'http://10.243.32.36:9200/securitycenter_sumip_vulns/securitycenter_sumip_vulns/'.$es_id;
+            //Log::info('HTTP Post to elasticsearch: '.$url);
 
-        // extract vulnerability results and add to collection
-        $collection = $resp['response']['results'];
+            $post = [
+                'doc'           => $vuln,
+                'doc_as_upsert' => true,
+            ];
 
-        Log::info('collected '.count($collection).' sumip vulnerabilities');
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
 
-        file_put_contents(storage_path('app/collections/sc_sumip_vulns.json'), \Metaclassing\Utility::encodeJson($collection));
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('SecurityCenter sumIP vuln was successfully inserted into ES: '.$vuln['ip']);
+            } else {
+                Log::error('Something went wrong inserting SecurityCenter sumIP vuln: '.$vuln['ip']);
+                die('Something went wrong inserting SecurityCenter sumIP vuln: '.$vuln['ip'].PHP_EOL);
+            }
+        }
+
+        file_put_contents(storage_path('app/collections/sc_sumip_vulns.json'), \Metaclassing\Utility::encodeJson($sumip_vulns));
 
         /*
          * [2] Process Security Center IP summary vulnerabilities into database
@@ -112,11 +200,7 @@ class GetSecurityCenterSumIPVulns extends Command
 
         Log::info(PHP_EOL.'**************************************************************'.PHP_EOL.'* Starting SecurityCenter sum IP vulnerabilities processing! *'.PHP_EOL.'**************************************************************');
 
-        foreach ($collection as $vuln) {
-            $repository_id = $vuln['repository']['id'];
-            $repository_name = $vuln['repository']['name'];
-            $repository_desc = $vuln['repository']['description'];
-
+        foreach ($sumip_vulns as $vuln) {
             $exists = SecurityCenterSumIpVulns::where('ip_address', $vuln['ip'])->value('id');
 
             if ($exists) {
@@ -139,9 +223,9 @@ class GetSecurityCenterSumIPVulns extends Command
                     'netbios_name'      => $vuln['netbiosName'],
                     'os_cpe'            => $vuln['osCPE'],
                     'bios_guid'         => $vuln['biosGUID'],
-                    'repository_id'     => $repository_id,
-                    'repository_name'   => $repository_name,
-                    'repository_desc'   => $repository_desc,
+                    'repository_id'     => $vuln['repository_id'],
+                    'repository_name'   => $vuln['repository_name'],
+                    'repository_desc'   => $vuln['repository_description'],
                     'data'              => \Metaclassing\Utility::encodeJson($vuln),
                 ]);
 
@@ -169,9 +253,9 @@ class GetSecurityCenterSumIPVulns extends Command
                 $new_vuln->netbios_name = $vuln['netbiosName'];
                 $new_vuln->os_cpe = $vuln['osCPE'];
                 $new_vuln->bios_guid = $vuln['biosGUID'];
-                $new_vuln->repository_id = $repository_id;
-                $new_vuln->repository_name = $repository_name;
-                $new_vuln->repository_desc = $repository_desc;
+                $new_vuln->repository_id = $vuln['repository_id'];
+                $new_vuln->repository_name = $vuln['repository_name'];
+                $new_vuln->repository_desc = $vuln['repository_description'];
                 $new_vuln->data = \Metaclassing\Utility::encodeJson($vuln);
 
                 $new_vuln->save();
