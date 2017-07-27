@@ -204,6 +204,9 @@ class GetCylanceDevices extends Command
             $created_date = $this->stringToDate($device['Created']);
             $offline_date = $this->stringToDate($device['OfflineDate']);
 
+            $created_date_pieces = explode(' ', $created_date);
+            $createddate = $created_date_pieces[0].'T'.$created_date_pieces[1];
+
             // extract user from last users text
             preg_match($user_regex, $device['LastUsersText'], $user_hits);
             if (isset($user_hits[1])) {
@@ -221,7 +224,7 @@ class GetCylanceDevices extends Command
                 'LastUsersText'                 => $last_user,
                 'DeviceId'                      => $device['DeviceId'],
                 'OfflineDate'                   => $offline_date,
-                'Created'                       => $created_date,
+                'Created'                       => $createddate,
                 'Waived'                        => $device['Waived'],
                 'Unsafe'                        => $device['Unsafe'],
                 'ScriptCount'                   => $device['ScriptCount'],
@@ -264,7 +267,7 @@ class GetCylanceDevices extends Command
 
             $post = [
                 'doc'           => $device,
-                'doc_as_upsert' => true,
+                'doc_as_upsert' => true
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
