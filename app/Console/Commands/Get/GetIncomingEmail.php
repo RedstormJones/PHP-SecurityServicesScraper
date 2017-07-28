@@ -184,15 +184,18 @@ class GetIncomingEmail extends Command
                 $sender = $email['Sender Domain'];
             }
 
-            $begin_date_pieces = explode(' ', $email['Begin Date']);
-            $es_id = $begin_date_pieces[0].'-'.$begin_date_pieces[1].'-'.$sender;
+            $begin_date_pieces = explode(' ', rtrim($email['Begin Date'], ' GMT'));
+            $begin_date = $begin_date_pieces[0].'T'.$begin_date_pieces[1];
+            $email['Begin Date'] = $begin_date;
 
-            $url = 'http://10.243.32.36:9200/incoming_emails/incoming_emails/'.$es_id;
-            Log::info('HTTP Post to elasticsearch: '.$url);
+            $end_date_pieces = explode(' ', rtrim($email['End Date'], ' GMT'));
+            $end_date = $end_date_pieces[0].'T'.$end_date_pieces[1];
+            $email['End Date'] = $end_date;
+
+            $url = 'http://10.243.32.36:9200/incoming_emails/incoming_emails/';
 
             $post = [
                 'doc'           => $email,
-                'doc_as_upsert' => true,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
@@ -201,10 +204,10 @@ class GetIncomingEmail extends Command
             Log::info($response);
 
             if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('Incoming email was successfully inserted into ES: '.$es_id);
+                Log::info('Incoming email was successfully inserted into ES: '.$email['Sender Domain']);
             } else {
-                Log::error('Something went wrong inserting incoming email: '.$es_id);
-                die('Something went wrong inserting incoming email: '.$es_id.PHP_EOL);
+                Log::error('Something went wrong inserting incoming email: '.$email['Sender Domain']);
+                die('Something went wrong inserting incoming email: '.$email['Sender Domain'].PHP_EOL);
             }
         }
 
@@ -214,7 +217,7 @@ class GetIncomingEmail extends Command
         /********************************************
          * [2] Process incoming email into database *
          ********************************************/
-
+        /*
         Log::info(PHP_EOL.'***************************************'.PHP_EOL.'* Starting incoming email processing! *'.PHP_EOL.'***************************************');
 
         Log::info('creating '.$count.' new email records...');
@@ -250,6 +253,7 @@ class GetIncomingEmail extends Command
         }
 
         $this->processDeletes();
+        */
 
         Log::info('* Incoming email completed! *'.PHP_EOL);
     }
