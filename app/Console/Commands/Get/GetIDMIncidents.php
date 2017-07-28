@@ -113,21 +113,20 @@ class GetIDMIncidents extends Command
             $opened_at_pieces = explode(' ', $incident['opened_at']);
             $opened_at_date = $opened_at_pieces[0].'T'.$opened_at_pieces[1];
 
-            if($resolved_at['display_value']) {
+            if ($resolved_at['display_value']) {
                 $resolved_at_pieces = explode(' ', $resolved_at['display_value']);
                 $resolved_at['display_value'] = $resolved_at_pieces[0].'T'.$resolved_at_pieces[1];
             }
 
-            if($updated_on['display_value']) {
+            if ($updated_on['display_value']) {
                 $updated_on_pieces = explode(' ', $updated_on['display_value']);
                 $updated_on['display_value'] = $updated_on_pieces[0].'T'.$updated_on_pieces[1];
             }
 
-            if($closed_at['display_value']) {
+            if ($closed_at['display_value']) {
                 $closed_at_pieces = explode(' ', $closed_at['display_value']);
                 $closed_at['display_value'] = $closed_at_pieces[0].'T'.$closed_at_pieces[1];
             }
-
 
             $idm_incidents[] = [
                 'u_task_preferred_contact'      => $incident['u_task_preferred_contact'],

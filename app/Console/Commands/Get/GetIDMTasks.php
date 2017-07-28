@@ -332,7 +332,7 @@ class GetIDMTasks extends Command
             }
         }
         */
-        
+
         Log::info('* Completed ServiceNow IDM tasks! *');
     }
 
