@@ -107,6 +107,28 @@ class GetIDMIncidents extends Command
             $problem_id = $this->handleNull($incident['problem_id']);
             $alternative_contact = $this->handleNull($incident['u_alternative_contact']);
 
+            $created_on_pieces = explode(' ', $incident['sys_created_on']);
+            $created_on_date = $created_on_pieces[0].'T'.$created_on_pieces[1];
+
+            $opened_at_pieces = explode(' ', $incident['opened_at']);
+            $opened_at_date = $opened_at_pieces[0].'T'.$opened_at_pieces[1];
+
+            if($resolved_at['display_value']) {
+                $resolved_at_pieces = explode(' ', $resolved_at['display_value']);
+                $resolved_at['display_value'] = $resolved_at_pieces[0].'T'.$resolved_at_pieces[1];
+            }
+
+            if($updated_on['display_value']) {
+                $updated_on_pieces = explode(' ', $updated_on['display_value']);
+                $updated_on['display_value'] = $updated_on_pieces[0].'T'.$updated_on_pieces[1];
+            }
+
+            if($closed_at['display_value']) {
+                $closed_at_pieces = explode(' ', $closed_at['display_value']);
+                $closed_at['display_value'] = $closed_at_pieces[0].'T'.$closed_at_pieces[1];
+            }
+
+
             $idm_incidents[] = [
                 'u_task_preferred_contact'      => $incident['u_task_preferred_contact'],
                 'time_worked'                   => $incident['time_worked'],
@@ -125,7 +147,7 @@ class GetIDMIncidents extends Command
                 'additional_assignee_list'      => $incident['additional_assignee_list'],
                 'priority'                      => $incident['priority'],
                 'group_list'                    => $incident['group_list'],
-                'sys_created_on'                => $incident['sys_created_on'],
+                'sys_created_on'                => $created_on_date,
                 'u_followup_outlook_notify'     => $incident['u_followup_outlook_notify'],
                 'u_hr_case'                     => $incident['u_hr_case'],
                 'upon_approval'                 => $incident['upon_approval'],
@@ -175,7 +197,7 @@ class GetIDMIncidents extends Command
                 'work_start'                    => $incident['work_start'],
                 'work_notes'                    => $incident['work_notes'],
                 'business_duration'             => $incident['business_duration'],
-                'opened_at'                     => $incident['opened_at'],
+                'opened_at'                     => $opened_at_date,
                 'severity'                      => $incident['severity'],
                 'correlation_display'           => $incident['correlation_display'],
                 'subcategory'                   => $incident['subcategory'],
@@ -260,10 +282,9 @@ class GetIDMIncidents extends Command
         /*
          * [2] Process IDM incidents into database
          */
-
+        /*
         Log::info(PHP_EOL.'**************************************'.PHP_EOL.'* Starting IDM incidents processing! *'.PHP_EOL.'**************************************');
 
-        /*
         // cycle through IDM incidents and add the new ones
         foreach ($idm_incidents as $incident) {
             // try to find existing record with matching sys_id
@@ -275,7 +296,7 @@ class GetIDMIncidents extends Command
                 $incidentmodel = ServiceNowIdmIncident::find($exists);
                 $incidentmodel->update([
                     'closed_at'             => $incident['closed_at'],
-                    'updated_on'            => $incident['updated_on'],
+                    'updated_on'            => $incident['sys_updated_on'],
                     'assignment_group'      => $incident['assignment_group'],
                     'resolved_by'           => $incident['resolved_by'],
                     'assigned_to'           => $incident['assigned_to'],
@@ -374,9 +395,9 @@ class GetIDMIncidents extends Command
         } else {
             /*
             * otherwise if data is null then create and set the array key
-            * 'display_value' to the literal string 'null' and return it
+            * 'display_value' to an empty string and return it
             */
-            $data['display_value'] = 'null';
+            $data['display_value'] = null;
 
             return $data;
         }

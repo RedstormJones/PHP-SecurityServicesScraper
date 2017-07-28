@@ -100,6 +100,34 @@ class GetIDMTasks extends Command
             $sys_domain = $this->handleNull($task['sys_domain']);
             $cmdb_ci = $this->handleNull($task['cmdb_ci']);
             $project_ref = $this->handleNull($task['u_project_ref']);
+            $due_date = $this->handleNull($task['due_date']);
+            $expected_start = $this->handleNull($task['expected_start']);
+
+            $created_on_pieces = explode(' ', $task['sys_created_on']);
+            $created_on_date = $created_on_pieces[0].'T'.$created_on_pieces[1];
+
+            $opened_at_pieces = explode(' ', $task['opened_at']);
+            $opened_at_date = $opened_at_pieces[0].'T'.$opened_at_pieces[1];
+
+            if ($due_date['display_value']) {
+                $due_date_pieces = explode(' ', $due_date['display_value']);
+                $due_date['display_value'] = $due_date_pieces[0].'T'.$due_date_pieces[1];
+            }
+
+            if ($expected_start['display_value']) {
+                $expected_start_pieces = explode(' ', $expected_start['display_value']);
+                $expected_start['display_value'] = $expected_start_pieces[0].'T'.$expected_start_pieces[1];
+            }
+
+            if ($updated_on['display_value']) {
+                $updated_on_pieces = explode(' ', $updated_on['display_value']);
+                $updated_on['display_value'] = $updated_on_pieces[0].'T'.$updated_on_pieces[1];
+            }
+
+            if ($closed_at['display_value']) {
+                $closed_at_pieces = explode(' ', $closed_at['display_value']);
+                $closed_at['display_value'] = $closed_at_pieces[0].'T'.$closed_at_pieces[1];
+            }
 
             $idm_tasks[] = [
                 'urgency'                       => $task['urgency'],
@@ -115,7 +143,7 @@ class GetIDMTasks extends Command
                 'approval_history'              => $task['approval_history'],
                 'u_task_preferred_contact'      => $task['u_task_preferred_contact'],
                 'u_project_ref'                 => $project_ref['display_value'],
-                'expected_start'                => $task['expected_start'],
+                'expected_start'                => $expected_start['display_value'],
                 'comments_and_work_notes'       => $task['comments_and_work_notes'],
                 'close_notes'                   => $close_notes['display_value'],
                 'correlation_display'           => $task['correlation_display'],
@@ -123,7 +151,7 @@ class GetIDMTasks extends Command
                 'u_customer_action'             => $task['u_customer_action'],
                 'approval'                      => $task['approval'],
                 'company'                       => $company['display_value'],
-                'sys_created_on'                => $task['sys_created_on'],
+                'sys_created_on'                => $created_on_date,
                 'follow_up'                     => $task['follow_up'],
                 'escalation'                    => $task['escalation'],
                 'location'                      => $location['display_value'],
@@ -140,7 +168,7 @@ class GetIDMTasks extends Command
                 'u_initial_assignment_group'    => $initial_assign_group['display_value'],
                 'upon_reject'                   => $task['upon_reject'],
                 'u_auto_close_date'             => $task['u_auto_close_date'],
-                'opened_at'                     => $task['opened_at'],
+                'opened_at'                     => $opened_at_date,
                 'reassignment_count'            => $task['reassignment_count'],
                 'assignment_group'              => $assign_group['display_value'],
                 'impact'                        => $task['impact'],
@@ -161,7 +189,7 @@ class GetIDMTasks extends Command
                 'department'                    => $department['display_value'],
                 'u_followup_outlook_notify'     => $task['u_followup_outlook_notify'],
                 'description'                   => $task['description'],
-                'due_date'                      => $task['due_date'],
+                'due_date'                      => $due_date['display_value'],
                 'short_description'             => $task['short_description'],
                 'skills'                        => $task['skills'],
                 'sys_class_name'                => $task['sys_class_name'],
@@ -223,7 +251,7 @@ class GetIDMTasks extends Command
         /*
          * [2] Process IDM tasks into database
          */
-
+        /*
         Log::info(PHP_EOL.'**********************************'.PHP_EOL.'* Starting IDM tasks processing! *'.PHP_EOL.'**********************************');
 
         foreach ($idm_tasks as $task) {
@@ -303,7 +331,8 @@ class GetIDMTasks extends Command
                 $new_task->save();
             }
         }
-
+        */
+        
         Log::info('* Completed ServiceNow IDM tasks! *');
     }
 
@@ -330,10 +359,10 @@ class GetIDMTasks extends Command
             }
         } else {
             /*
-            * otherwise if data is null then create and set the key
-            * 'display_value' to the literal string 'null' and return it
+            * otherwise if data is null then create and set the array key
+            * 'display_value' to an empty string and return it
             */
-            $data['display_value'] = 'null';
+            $data['display_value'] = null;
 
             return $data;
         }
