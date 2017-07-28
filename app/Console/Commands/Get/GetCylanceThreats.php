@@ -276,8 +276,8 @@ class GetCylanceThreats extends Command
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
 
             // log the POST response then JSON decode it
-            Log::info($json_response);
             $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
 
             if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
                 Log::info('Cylance threat was successfully inserted into ES: '.$threat['ThreatId']);

@@ -253,8 +253,8 @@ class GetCylanceThreatDetailsForBlocked extends Command
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
 
             // log the POST response then JSON decode it
-            Log::info($json_response);
             $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
 
             if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
                 Log::info('Cylance device threat was successfully inserted into ES: '.$device_threat['DeviceId']);
@@ -409,10 +409,12 @@ class GetCylanceThreatDetailsForBlocked extends Command
             preg_match($date_regex, $date_str, $date_hits);
 
             $datetime = Carbon::createFromTimestamp(intval($date_hits[1]) / 1000)->toDateTimeString();
+            $datetime_pieces = explode(' ', $datetime);
+            $date_time = $datetime_pieces[0].'T'.$datetime_pieces[1];
         } else {
-            $datetime = null;
+            $date_time = null;
         }
 
-        return $datetime;
+        return $date_time;
     }
 }
