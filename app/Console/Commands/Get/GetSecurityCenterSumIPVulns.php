@@ -98,10 +98,10 @@ class GetSecurityCenterSumIPVulns extends Command
 
             // send request for resource, capture response and dump to file
             $response = $crawler->post($url, $url, \Metaclassing\Utility::encodeJson($post));
+            file_put_contents($response_path.'sc_sumip_vulns.dump', $response);
 
             // JSON decode response
             $resp = \Metaclassing\Utility::decodeJson($response);
-            Log::info($resp);
 
             // extract vulnerability results and add to collection
             $total_records = $resp['response']['totalRecords'];
@@ -125,16 +125,22 @@ class GetSecurityCenterSumIPVulns extends Command
         $sumip_vulns = [];
 
         foreach ($sumipvulns as $vuln) {
+            $date_added = str_replace(' ', 'T', Carbon::now());
+
             $repository_id = $vuln['repository']['id'];
             $repository_name = $vuln['repository']['name'];
             $repository_desc = $vuln['repository']['description'];
 
+            $last_unauth_run = str_replace(' ', 'T', Carbon::createFromTimestamp(intval($vuln['lastUnauthRun'])));
+            $last_auth_run = str_replace(' ', 'T', Carbon::createFromTimestamp(intval($vuln['lastAuthRun'])));
+
             $sumip_vulns[] = [
+                'date_added'                => $date_added,
                 'repository_id'             => $repository_id,
                 'repository_name'           => $repository_name,
                 'repository_description'    => $repository_desc,
-                'lastUnauthRun'             => $vuln['lastUnauthRun'],
-                'lastAuthRun'               => $vuln['lastAuthRun'],
+                'lastUnauthRun'             => $last_unauth_run,
+                'lastAuthRun'               => $last_auth_run,
                 'osCPE'                     => $vuln['osCPE'],
                 'dnsName'                   => $vuln['dnsName'],
                 'ip'                        => $vuln['ip'],
@@ -156,6 +162,8 @@ class GetSecurityCenterSumIPVulns extends Command
         }
         Log::info('total sumip vulnerability records: '.count($sumip_vulns));
 
+        file_put_contents(storage_path('app/collections/sc_sumip_vulns.json'), \Metaclassing\Utility::encodeJson($sumip_vulns));
+
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -167,14 +175,11 @@ class GetSecurityCenterSumIPVulns extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         foreach ($sumip_vulns as $vuln) {
-            $policy_name_pieces = explode('/', $vuln['policyName']);
-            $es_id = $policy_name_pieces[0].'-'.$vuln['ip'];
-            $url = 'http://10.243.32.36:9200/securitycenter_sumip_vulns/securitycenter_sumip_vulns/'.$es_id;
+            $url = 'http://10.243.32.36:9200/securitycenter_sumip_vulns/securitycenter_sumip_vulns/';
             //Log::info('HTTP Post to elasticsearch: '.$url);
 
             $post = [
                 'doc'           => $vuln,
-                'doc_as_upsert' => true,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
@@ -190,12 +195,11 @@ class GetSecurityCenterSumIPVulns extends Command
             }
         }
 
-        file_put_contents(storage_path('app/collections/sc_sumip_vulns.json'), \Metaclassing\Utility::encodeJson($sumip_vulns));
-
         /*
          * [2] Process Security Center IP summary vulnerabilities into database
          */
 
+        /*
         Log::info(PHP_EOL.'**************************************************************'.PHP_EOL.'* Starting SecurityCenter sum IP vulnerabilities processing! *'.PHP_EOL.'**************************************************************');
 
         foreach ($sumip_vulns as $vuln) {
@@ -262,6 +266,7 @@ class GetSecurityCenterSumIPVulns extends Command
 
         // process deletes on old records
         $this->processDeletes();
+        */
 
         Log::info('* Completed SecurityCenter IP summary vulnerabilities! *');
     }
