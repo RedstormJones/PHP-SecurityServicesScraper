@@ -67,7 +67,8 @@ class GetSCCMSystems extends Command
 
         $systems = [];
 
-        foreach ($sccm_systems as $system) {
+        foreach($sccm_systems as $system)
+        {
             $image_date = $this->handleDate($system['ImageDate']);
             $ad_last_logon = $this->handleDate($system['ADLastLogon']);
             $ad_password_last_set = $this->handleDate($system['ADPasswordLastSet']);
@@ -77,9 +78,67 @@ class GetSCCMSystems extends Command
             $sccm_last_health_eval = $this->handleDate($system['SCCMLastHealthEval']);
             $sccm_last_hw_scan = $this->handleDate($system['SCCMLastHWScan']);
             $sccm_last_sw_scan = $this->handleDate($system['SCCMLastSWScan']);
+            $sccm_policy_request = $this->handleDate($system['SCCMPolicyRequest']);
 
-            if ($system['DaysLastLogon'] != '') {
-                $days_since_last_logon = $system['DaysLastLogon'];
+            if ($system['DeviceStatLastCheckDate']) {
+                $device_stat_last_check_pieces = explode(' ', $system['DeviceStatLastCheckDate']);
+                $device_stat_last_check = $device_stat_last_check_pieces[0].'T'.$device_stat_last_check_pieces[1];
+            } else {
+                $device_stat_last_check = null;
+            }
+
+            if ($image_date) {
+                $image_date_pieces = explode(' ', $image_date);
+                $image_date = $image_date_pieces[0].'T'.$image_date_pieces[1];
+            }
+
+            if ($ad_last_logon) {
+                $ad_last_logon_pieces = explode(' ', $ad_last_logon);
+                $ad_last_logon = $ad_last_logon_pieces[0].'T'.$ad_last_logon_pieces[1];
+            }
+
+            if ($ad_password_last_set) {
+                $ad_pwd_last_set_pieces = explode(' ', $ad_password_last_set);
+                $ad_password_last_set = $ad_pwd_last_set_pieces[0].'T'.$ad_pwd_last_set_pieces[1];
+            }
+
+            if ($ad_modified) {
+                $ad_modified_pieces = explode(' ', $ad_modified);
+                $ad_modified = $ad_modified_pieces[0].'T'.$ad_modified_pieces[1];
+            }
+
+            if ($ad_when_changed) {
+                $ad_when_changed_pieces = explode(' ', $ad_when_changed);
+                $ad_when_changed = $ad_when_changed_pieces[0].'T'.$ad_when_changed_pieces[1];
+            }
+
+            if ($sccm_last_heartbeat) {
+                $sccm_last_hb_pieces = explode(' ', $sccm_last_heartbeat);
+                $sccm_last_heartbeat = $sccm_last_hb_pieces[0].'T'.$sccm_last_hb_pieces[1];
+            }
+
+            if ($sccm_last_health_eval) {
+                $sccm_last_he_pieces = explode(' ', $sccm_last_health_eval);
+                $sccm_last_health_eval = $sccm_last_he_pieces[0].'T'.$sccm_last_he_pieces[1];
+            }
+
+            if ($sccm_last_hw_scan) {
+                $sccm_last_hw_pieces = explode(' ', $sccm_last_hw_scan);
+                $sccm_last_hw_scan = $sccm_last_hw_pieces[0].'T'.$sccm_last_hw_pieces[1];
+            }
+
+            if ($sccm_last_sw_scan) {
+                $sccm_last_sw_pieces = explode(' ', $sccm_last_sw_scan);
+                $sccm_last_sw_scan = $sccm_last_sw_pieces[0].'T'.$sccm_last_sw_pieces[1];
+            }
+
+            if ($sccm_policy_request) {
+                $sccm_policy_request_pieces = explode(' ', $sccm_policy_request);
+                $sccm_policy_request = $sccm_policy_request_pieces[0].'T'.$sccm_policy_request_pieces[1];
+            }
+
+            if ($system['DaysLastLogon']) {
+                $days_since_last_logon = intval($system['DaysLastLogon']);
             } else {
                 $days_since_last_logon = 0;
             }
@@ -93,7 +152,7 @@ class GetSCCMSystems extends Command
                 'ClientStatus'              => $system['ClientStatus'],
                 'OperatingSystem'           => $system['OperatingSystem'],
                 'SCCMLastHeartBeat'         => $sccm_last_heartbeat,
-                'SCCMPolicyRequest'         => $system['SCCMPolicyRequest'],
+                'SCCMPolicyRequest'         => $sccm_policy_request,
                 'MetricScriptVersion'       => $system['MetricScriptVersion'],
                 'Processor'                 => $system['Processor'],
                 'LastLogonUserName'         => $system['LastLogonUserName'],
@@ -128,7 +187,7 @@ class GetSCCMSystems extends Command
                 'PowerShellVersion'         => $system['PowerShellVersion'],
                 'PhysicalRAM'               => $system['PhysicalRAM'],
                 'Manufacturer'              => $system['Manufacturer'],
-                'DeviceStatLastCheckDate'   => $system['DeviceStatLastCheckDate'],
+                'DeviceStatLastCheckDate'   => $device_stat_last_check,
                 'DeviceStatVersion'         => $system['DeviceStatVersion'],
                 'SiteID'                    => $system['SiteID'],
                 'SCCMLastSWScan'            => $sccm_last_sw_scan,
@@ -151,6 +210,8 @@ class GetSCCMSystems extends Command
                 'SCCMLastHealthResult'      => $system['SCCMLastHealthResult'],
             ];
         }
+
+        file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), \Metaclassing\Utility::encodeJson($systems));
 
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
@@ -184,12 +245,11 @@ class GetSCCMSystems extends Command
             }
         }
 
-        file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), \Metaclassing\Utility::encodeJson($systems));
-
         /***********************************
          * Process new SCCM systems upload *
          ***********************************/
 
+        /*
         Log::info(PHP_EOL.PHP_EOL.'********************************************'.PHP_EOL.'* Starting SCCM systems upload processing! *'.PHP_EOL.'********************************************');
 
         foreach ($systems as $system) {
@@ -320,6 +380,7 @@ class GetSCCMSystems extends Command
 
         Log::info('processing deletes...');
         $this->processDeletes();
+        */
 
         Log::info('* Completed SCCM system processing! *'.PHP_EOL);
     }
