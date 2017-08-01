@@ -67,8 +67,7 @@ class GetSCCMSystems extends Command
 
         $systems = [];
 
-        foreach($sccm_systems as $system)
-        {
+        foreach ($sccm_systems as $system) {
             $image_date = $this->handleDate($system['ImageDate']);
             $ad_last_logon = $this->handleDate($system['ADLastLogon']);
             $ad_password_last_set = $this->handleDate($system['ADPasswordLastSet']);

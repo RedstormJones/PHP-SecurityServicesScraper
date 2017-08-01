@@ -167,7 +167,7 @@ class GetIronPortThreats extends Command
 
         $email_threats = [];
 
-        foreach($ironport_threats as $threat) {
+        foreach ($ironport_threats as $threat) {
             $begin_date_pieces = explode(' ', $threat['Begin Date']);
             $begin_date = $begin_date_pieces[0].'T'.$begin_date_pieces[1];
 
