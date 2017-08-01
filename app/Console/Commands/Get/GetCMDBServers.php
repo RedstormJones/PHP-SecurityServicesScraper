@@ -99,6 +99,51 @@ class GetCMDBServers extends Command
             $department = $this->handleNull($server['department']);
             $sys_domain = $this->handleNull($server['sys_domain']);
 
+            $created_on_pieces = explode(' ', $server['sys_created_on']);
+            $created_on = $created_on_pieces[0].'T'.$created_on_pieces[1];
+
+            if ($server['sys_updated_on']) {
+                $updated_on_pieces = explode(' ', $server['sys_updated_on']);
+                $updated_on = $updated_on_pieces[0].'T'.$updated_on_pieces[1];
+            } else {
+                $updated_on = null;
+            }
+
+            if ($server['order_date']) {
+                $order_date_pieces = explode(' ', $server['order_date']);
+                $order_date = $order_date_pieces[0].'T'.$order_date_pieces[1];
+            } else {
+                $order_date = null;
+            }
+
+            if ($server['first_discovered']) {
+                $first_disc_pieces = explode(' ', $server['first_discovered']);
+                $first_discovered = $first_disc_pieces[0].'T'.$first_disc_pieces[1];
+            } else {
+                $first_discovered = null;
+            }
+
+            if ($server['last_discovered']) {
+                $last_disc_pieces = explode(' ', $server['last_discovered']);
+                $last_discovered = $last_disc_pieces[0].'T'.$last_disc_pieces[1];
+            } else {
+                $last_discovered = null;
+            }
+
+            if ($server['checked_in']) {
+                $checked_in_pieces = explode(' ', $server['checked_in']);
+                $checked_in = $checked_in_pieces[0].'T'.$checked_in_pieces[1];
+            } else {
+                $checked_in = null;
+            }
+
+            if ($server['checked_out']) {
+                $checked_out_pieces = explode(' ', $server['checked_out']);
+                $checked_out = $checked_out_pieces[0].'T'.$checked_out_pieces[1];
+            } else {
+                $checked_out = null;
+            }
+
             $cmdb_servers[] = [
                 'x_bmgr_support_ent_bomgar_appliance_name'  => $server['x_bmgr_support_ent_bomgar_appliance_name'],
                 'can_print'                                 => $server['can_print'],
@@ -138,7 +183,7 @@ class GetCMDBServers extends Command
                 'manufacturer'                              => $manufacturer['display_value'],
                 'department'                                => $department['display_value'],
                 'cost'                                      => $server['cost'],
-                'order_date'                                => $server['order_date'],
+                'order_date'                                => $order_date,
                 'cd_rom'                                    => $server['cd_rom'],
                 'justification'                             => $server['justification'],
                 'install_date'                              => $server['install_date'],
@@ -177,25 +222,25 @@ class GetCMDBServers extends Command
                 'due_in'                                    => $server['due_in'],
                 'chassis_type'                              => $server['chassis_type'],
                 'u_auto_route'                              => $server['u_auto_route'],
-                'first_discovered'                          => $server['first_discovered'],
+                'first_discovered'                          => $first_discovered,
                 'cost_cc'                                   => $server['cost_cc'],
                 'u_notes'                                   => $server['u_notes'],
                 'sys_class_name'                            => $server['sys_class_name'],
                 'u_build_by'                                => $build_by['display_value'],
                 'default_gateway'                           => $server['default_gateway'],
-                'checked_out'                               => $server['checked_out'],
+                'checked_out'                               => $checked_out,
                 'os_address_width'                          => $server['os_address_width'],
                 'category'                                  => $server['category'],
                 'cd_speed'                                  => $server['cd_speed'],
                 'maintenance_schedule'                      => $server['maintenance_schedule'],
                 'sys_updated_by'                            => $server['sys_updated_by'],
                 'floppy'                                    => $server['floppy'],
-                'sys_created_on'                            => $server['sys_created_on'],
-                'sys_updated_on'                            => $server['sys_updated_on'],
+                'sys_created_on'                            => $created_on,
+                'sys_updated_on'                            => $updated_on,
                 'u_data_center'                             => $server['u_data_center'],
                 'discovery_source'                          => $server['discovery_source'],
                 'unverified'                                => $server['unverified'],
-                'last_discovered'                           => $server['last_discovered'],
+                'last_discovered'                           => $last_discovered,
                 'lease_id'                                  => $server['lease_id'],
                 'attributes'                                => $server['attributes'],
                 'skip_sync'                                 => $server['skip_sync'],
@@ -210,7 +255,7 @@ class GetCMDBServers extends Command
                 'cpu_name'                                  => $server['cpu_name'],
                 'u_district'                                => $district['display_value'],
                 'name'                                      => $server['name'],
-                'checked_in'                                => $server['checked_in'],
+                'checked_in'                                => $checked_in,
                 'os'                                        => $server['os'],
                 'cpu_manufacturer'                          => $cpu_manufacturer['display_value'],
                 'u_bpo'                                     => $bpo['display_value'],
