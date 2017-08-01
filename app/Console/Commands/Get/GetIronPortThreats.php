@@ -165,6 +165,30 @@ class GetIronPortThreats extends Command
             $ironport_threats[$j] = $d;
         }
 
+        $email_threats = [];
+
+        foreach($ironport_threats as $threat) {
+            $begin_date_pieces = explode(' ', $threat['Begin Date']);
+            $begin_date = $begin_date_pieces[0].'T'.$begin_date_pieces[1];
+
+            $end_date_pieces = explode(' ', $threat['End Date']);
+            $end_date = $end_date_pieces[0].'T'.$end_date_pieces[1];
+
+            $email_threats[] = [
+                'begin_date'        => $begin_date,
+                'end_date'          => $end_date,
+                'category'          => $threat['Category'],
+                'threat_name'       => $threat['Threat Name'],
+                'total_messages'    => intval($threat['Total Messages']),
+                'begin_timestamp'   => $threat['Begin Timestamp'],
+                'end_timestamp'     => $threat['End Timestamp'],
+                'description'       => $threat['Description'],
+            ];
+        }
+
+        // JSON encode data and dump to file
+        file_put_contents(storage_path('app/collections/ironport_threats.json'), \Metaclassing\Utility::encodeJson($email_threats));
+
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -175,16 +199,12 @@ class GetIronPortThreats extends Command
         // setup curl HTTP headers with $headers
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-        foreach ($ironport_threats as $threat) {
-            $begin_date_pieces = explode(' ', $threat['Begin Date']);
-            $es_id = $begin_date_pieces[0];
-
-            $url = 'http://10.243.32.36:9200/ironport_threats/ironport_threats/'.$es_id;
+        foreach ($email_threats as $threat) {
+            $url = 'http://10.243.32.36:9200/ironport_threats/ironport_threats/';
             Log::info('HTTP Post to elasticsearch: '.$url);
 
             $post = [
                 'doc'           => $threat,
-                'doc_as_upsert' => true,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
@@ -193,20 +213,18 @@ class GetIronPortThreats extends Command
             Log::info($response);
 
             if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('IronPort threat was successfully inserted into ES: '.$es_id);
+                Log::info('IronPort threat was successfully inserted into ES: '.$threat['begin_date']);
             } else {
-                Log::error('Something went wrong inserting IronPort threat: '.$es_id);
-                die('Something went wrong inserting IronPort threat: '.$es_id.PHP_EOL);
+                Log::error('Something went wrong inserting IronPort threat: '.$threat['begin_date']);
+                die('Something went wrong inserting IronPort threat: '.$threat['begin_date'].PHP_EOL);
             }
         }
-
-        // JSON encode data and dump to file
-        file_put_contents(storage_path('app/collections/ironport_threats.json'), \Metaclassing\Utility::encodeJson($ironport_threats));
 
         /*
          * [2] Process IronPort threats into database
          */
 
+        /*
         Log::info(PHP_EOL.'*****************************************'.PHP_EOL.'* Starting IronPort threats processing! *'.PHP_EOL.'*****************************************');
 
         foreach ($ironport_threats as $threat) {
@@ -247,6 +265,7 @@ class GetIronPortThreats extends Command
                 $new_threat->save();
             }
         }
+        */
 
         Log::info('* Completed IronPort threats! *');
     }
