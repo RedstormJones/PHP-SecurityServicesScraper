@@ -5,6 +5,7 @@ namespace App\Console\Commands\Get;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\SecurityCenter\SecurityCenterSeveritySummary;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -103,17 +104,22 @@ class GetSecurityCenterSeveritySummary extends Command
         $sev_sums = [];
 
         foreach ($collection as $sev) {
-            $sev_id = $sev['severity']['id'];
+            $date_added = str_replace(' ', 'T', Carbon::now());
+
+            $sev_id = intval($sev['severity']['id']);
             $sev_name = $sev['severity']['name'];
             $sev_desc = $sev['severity']['description'];
 
             $sev_sums[] = [
+                'date_added'            => $date_added,
                 'severity_id'           => $sev_id,
                 'severity_name'         => $sev_name,
                 'severity_description'  => $sev_desc,
-                'severity_count'        => $sev['count'],
+                'severity_count'        => intval($sev['count']),
             ];
         }
+
+        file_put_contents(storage_path('app/collections/sc_severity_summary.json'), \Metaclassing\Utility::encodeJson($sev_sums));
 
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
@@ -126,12 +132,11 @@ class GetSecurityCenterSeveritySummary extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         foreach ($sev_sums as $sev_sum) {
-            $url = 'http://10.243.32.36:9200/securitycenter_severity_summary/securitycenter_severity_summary/'.$sev_sum['severity_id'];
+            $url = 'http://10.243.32.36:9200/securitycenter_severity_summary/securitycenter_severity_summary/';
             Log::info('HTTP Post to elasticsearch: '.$url);
 
             $post = [
                 'doc'           => $sev_sum,
-                'doc_as_upsert' => true,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
@@ -147,12 +152,11 @@ class GetSecurityCenterSeveritySummary extends Command
             }
         }
 
-        file_put_contents(storage_path('app/collections/sc_severity_summary.json'), \Metaclassing\Utility::encodeJson($sev_sums));
-
         /*
          * [2] Process Security Center severity summaries into database
          */
 
+        /*
         Log::info(PHP_EOL.'********************************************************'.PHP_EOL.'* Starting SecurityCenter severity summary processing! *'.PHP_EOL.'********************************************************');
 
         foreach ($sev_sums as $sev_sum) {
@@ -188,6 +192,7 @@ class GetSecurityCenterSeveritySummary extends Command
                 $new_summary->save();
             }
         }
+        */
 
         Log::info('* Completed SecurityCenter IP summary vulnerabilities! *');
     }

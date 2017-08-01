@@ -5,6 +5,7 @@ namespace App\Console\Commands\Get;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\SecurityCenter\SecurityCenterAssetVuln;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -96,27 +97,33 @@ class GetSecurityCenterAssetVulns extends Command
         $asset_vulns = [];
 
         foreach ($assetsummary as $asset) {
+            $date_added = str_replace(' ', 'T', Carbon::now());
+
             $asset_name = $asset['asset']['name'];
             $asset_type = $asset['asset']['type'];
-            $asset_id = $asset['asset']['id'];
+            $asset_id = intval($asset['asset']['id']);
             $asset_status = $asset['asset']['status'];
             $asset_desc = $asset['asset']['description'];
 
             $asset_vulns[] = [
+                'date_added'        => $date_added,
                 'asset_name'        => $asset_name,
                 'asset_type'        => $asset_type,
                 'asset_id'          => $asset_id,
                 'asset_status'      => $asset_status,
                 'asset_description' => $asset_desc,
-                'asset_score'       => $asset['score'],
-                'total_vulns'       => $asset['total'],
-                'info_vulns'        => $asset['severityInfo'],
-                'low_vulns'         => $asset['severityLow'],
-                'medium_vulns'      => $asset['severityMedium'],
-                'high_vulns'        => $asset['severityHigh'],
-                'critical_vulns'    => $asset['severityCritical'],
+                'asset_score'       => intval($asset['score']),
+                'total_vulns'       => intval($asset['total']),
+                'info_vulns'        => intval($asset['severityInfo']),
+                'low_vulns'         => intval($asset['severityLow']),
+                'medium_vulns'      => intval($asset['severityMedium']),
+                'high_vulns'        => intval($asset['severityHigh']),
+                'critical_vulns'    => intval($asset['severityCritical']),
             ];
         }
+
+        // JSON encode simple array and dump to file
+        file_put_contents(storage_path('app/collections/sc_asset_summary.json'), \Metaclassing\Utility::encodeJson($asset_vulns));
 
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
@@ -129,12 +136,11 @@ class GetSecurityCenterAssetVulns extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         foreach ($asset_vulns as $asset) {
-            $url = 'http://10.243.32.36:9200/securitycenter_asset_vulns/securitycenter_asset_vulns/'.$asset['asset_id'];
+            $url = 'http://10.243.32.36:9200/securitycenter_asset_vulns/securitycenter_asset_vulns/';
             Log::info('HTTP Post to elasticsearch: '.$url);
 
             $post = [
                 'doc'           => $asset,
-                'doc_as_upsert' => true,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
@@ -150,13 +156,11 @@ class GetSecurityCenterAssetVulns extends Command
             }
         }
 
-        // JSON encode simple array and dump to file
-        file_put_contents(storage_path('app/collections/sc_asset_summary.json'), \Metaclassing\Utility::encodeJson($asset_vulns));
-
         /*
          * [2] Process asset vulnerabilities into database
          */
 
+        /*
         Log::info(PHP_EOL.'**********************************************'.PHP_EOL.'* Starting asset vulnerabilities processing! *'.PHP_EOL.'**********************************************');
 
         foreach ($asset_vulns as $asset_data) {
@@ -198,6 +202,7 @@ class GetSecurityCenterAssetVulns extends Command
                 $new_asset->save();
             }
         }
+        */
 
         Log::info('* Completed SecurityCenter asset vulnerabilities! *');
     }
