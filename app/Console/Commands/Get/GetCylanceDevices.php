@@ -290,6 +290,7 @@ class GetCylanceDevices extends Command
          * [2] Process devices into database *
          *************************************/
 
+        /*
         Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance devices processing! *'.PHP_EOL.'****************************************');
 
         foreach ($cylance_devices_final as $device) {
@@ -329,6 +330,7 @@ class GetCylanceDevices extends Command
 
         // process soft deletes for old records
         $this->processDeletes();
+        */
 
         Log::info('* Cylance devices completed! *'.PHP_EOL);
     }
