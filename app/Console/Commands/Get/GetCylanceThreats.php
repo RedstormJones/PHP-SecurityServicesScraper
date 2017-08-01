@@ -294,6 +294,7 @@ class GetCylanceThreats extends Command
          * [2] Process threats into database *
          *************************************/
 
+        /*
         Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance threats processing! *'.PHP_EOL.'****************************************');
 
         foreach ($cylance_threats_final as $threat) {
@@ -344,6 +345,7 @@ class GetCylanceThreats extends Command
 
         // process soft deletes for old records
         $this->processDeletes();
+        */
 
         Log::info('* Cylance threats completed! *'.PHP_EOL);
     }
