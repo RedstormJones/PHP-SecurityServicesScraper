@@ -262,7 +262,7 @@ class GetCylanceThreatDetailsForAllowed extends Command
                 die('Something went wrong inserting device: '.$device_threat['DeviceId'].PHP_EOL);
             }
         }
-        
+
         Log::info('* Cylance allowed threat details completed! *');
     }
 
