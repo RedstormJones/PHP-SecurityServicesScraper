@@ -8,7 +8,6 @@ use App\Cylance\CylanceThreat;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use Phpreboot\Stopwatch\StopWatch;
 
 class GetCylanceThreatDetailsForAllowed extends Command
 {
@@ -48,10 +47,6 @@ class GetCylanceThreatDetailsForAllowed extends Command
          ************************************************************/
 
         Log::info(PHP_EOL.PHP_EOL.'****************************************************'.PHP_EOL.'* Starting Cylance allowed threat details crawler! *'.PHP_EOL.'****************************************************');
-
-        // start a stopwatch
-        $stopwatch = new StopWatch();
-        $stopwatch->start();
 
         $crawler = $this->authenticateToCylance();
 
@@ -161,10 +156,19 @@ class GetCylanceThreatDetailsForAllowed extends Command
             $first_found = $this->stringToDate($data['FirstFound']);
             $offline_date = $this->stringToDate($data['OfflineDate']);
 
+            $last_found = null;
             $device_files = [];
 
             foreach ($data['DeviceFiles'] as $device_file) {
                 $first_seen = $this->stringToDate($device_file['FirstSeen']);
+
+                if ($last_found) {
+                    if ($first_seen && (strcmp($first_seen, $last_found) > 0)) {
+                        $last_found = $first_seen;
+                    }
+                } else {
+                    $last_found = $first_seen;
+                }
 
                 $device_files[] = [
                     'FilePath'              => $device_file['FilePath'],
@@ -190,6 +194,7 @@ class GetCylanceThreatDetailsForAllowed extends Command
                 'DeviceName'            => $data['DeviceName'],
                 'Added'                 => $added,
                 'FirstFound'            => $first_found,
+                'LastFound'             => $last_found,
                 'OfflineDate'           => $offline_date,
                 'PolicyName'            => $data['PolicyName'],
                 'AgentVersion'          => $data['AgentVersion'],
@@ -224,6 +229,8 @@ class GetCylanceThreatDetailsForAllowed extends Command
             ];
         }
 
+        file_put_contents(storage_path('app/collections/allowed_threat_details.json'), \Metaclassing\Utility::encodeJson($device_threat_details));
+
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -235,26 +242,18 @@ class GetCylanceThreatDetailsForAllowed extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         foreach ($device_threat_details as $device_threat) {
-            if (preg_match('/\s/', $device_threat['FileName'])) {
-                $filename = str_replace(' ', '', $device_threat['FileName']);
-            } else {
-                $filename = $device_threat['FileName'];
-            }
-
-            $es_id = $device_threat['DeviceId'].'-'.$filename;
-            $url = 'http://10.243.32.36:9200/cylance_threat_details_allowed/cylance_threat_details_allowed/'.$es_id.'/_update';
+            $url = 'http://10.243.32.36:9200/cylance_threat_details_allowed/cylance_threat_details_allowed/';
             Log::info('HTTP Post to elasticsearch: '.$url);
 
             $post = [
-                'doc'           => $device_threat,
-                'doc_as_upsert' => true,
+                'doc'   => $device_threat,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
 
             // log the POST response then JSON decode it
             $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($json_response);
+            Log::info($response);
 
             if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
                 Log::info('Cylance device threat was successfully inserted into ES: '.$device_threat['DeviceId']);
@@ -263,24 +262,7 @@ class GetCylanceThreatDetailsForAllowed extends Command
                 die('Something went wrong inserting device: '.$device_threat['DeviceId'].PHP_EOL);
             }
         }
-
-        file_put_contents(storage_path('app/collections/allowed_threat_details.json'), \Metaclassing\Utility::encodeJson($device_threat_details));
-
-        // stop stopwatch, calculate hour/min/sec values and log execution time
-        $stopwatch->stop();
-        $execution_time = $stopwatch->getTime();
-        $execution_secs = (int) ($execution_time % 60);
-        $execution_mins = (int) ($execution_time / 60);
-        $execution_hours = (int) ($execution_mins / 60);
-
-        if ($execution_mins > 59) {
-            $additional_hours = (int) ($execution_mins / 60);
-
-            $execution_mins = (int) ($execution_mins % 60);
-            $execution_hours += $additional_hours;
-        }
-        Log::info('Allowed threat details execution time: '.$execution_hours.':'.$execution_mins.':'.$execution_secs);
-
+        
         Log::info('* Cylance allowed threat details completed! *');
     }
 
@@ -404,7 +386,7 @@ class GetCylanceThreatDetailsForAllowed extends Command
      */
     public function stringToDate($date_str)
     {
-        if ($date_str != null) {
+        if ($date_str) {
             $date_regex = '/\/Date\((\d+)\)\//';
             preg_match($date_regex, $date_str, $date_hits);
 
