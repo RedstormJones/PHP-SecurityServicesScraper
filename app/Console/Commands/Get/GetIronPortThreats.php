@@ -200,11 +200,13 @@ class GetIronPortThreats extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         foreach ($email_threats as $threat) {
-            $url = 'http://10.243.32.36:9200/ironport_threats/ironport_threats/';
+            $es_id = $threat['begin_date'];
+            $url = 'http://10.243.32.36:9200/ironport_threats/ironport_threats/'.$es_id;
             Log::info('HTTP Post to elasticsearch: '.$url);
 
             $post = [
                 'doc'           => $threat,
+                'doc_as_upsert' => true,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
