@@ -212,8 +212,7 @@ class GetSpamEmail extends Command
 
         $spam_emails = [];
 
-        foreach($spam_array as $spam)
-        {
+        foreach($spam_array as $spam) {
             $time_added_raw = str_replace(' (GMT -05:00)', '', $spam['time_added']);
             $time_added = Carbon::createFromFormat('d M Y H:i', $time_added_raw)->toDateTimeString();
 
