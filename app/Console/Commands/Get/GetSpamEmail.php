@@ -188,17 +188,17 @@ class GetSpamEmail extends Command
 
             Log::info('spam email scrape for page '.$page.' complete - got '.count($spam['search_result']).' spam records');
 
-            // set count to total number of messages
-            $count = $spam['num_msgs'];
+            // set total to total number of messages
+            $total = $spam['num_msgs'];
 
             $i += $pagesize;   // increment by number of records per page
             $page++;    // increment to next page
 
             // sleep for 1 second before hammering on IronPort again
             sleep(1);
-        } while ($i < $count);
+        } while ($i < $total);
 
-        $spam_emails = [];
+        $spam_array = [];
 
         // first level is simple sequencail array of 1,2,3
         foreach ($collection as $response) {
@@ -206,19 +206,81 @@ class GetSpamEmail extends Command
             $results = $response['search_result'];
             foreach ($results as $spammer) {
                 // this is confusing logic.
-                $spam_emails[] = $spammer;
+                $spam_array[] = $spammer;
             }
         }
 
-        // Now we ahve a simple array [1,2,3] of all the threat records,
-        // each threat record is a key=>value pair collection / assoc array
-        //\Metaclassing\Utility::dumper($spam_emails);
+        $spam_emails = [];
+
+        foreach($spam_array as $spam)
+        {
+            $time_added_raw = str_replace(' (GMT -05:00)', '', $spam['time_added']);
+            $time_added = Carbon::createFromFormat('d M Y H:i', $time_added_raw)->toDateTimeString();
+
+            $time_added_pieces = explode(' ', $time_added);
+            $time_added = $time_added_pieces[0].'T'.$time_added_pieces[1];
+
+            $spam_emails[] = [
+                'time_added'            => $time_added,
+                'is_copy'               => $spam['is_copy'],
+                'encrypt_on_release'    => $spam['encrypt_on_release'],
+                'recipients'            => $spam['recipients'],
+                'quarantine_names'      => $spam['quarantine_names'],
+                'esa_id'                => $spam['esa_id'],
+                'in_other_quarantines'  => $spam['in_other_quarantines'],
+                'subject'               => $spam['subject'],
+                'mid'                   => $spam['mid'],
+                'reason'                => $spam['reason'],
+                'expiration'            => $spam['expiration'],
+                'size'                  => $spam['size'],
+                'sender'                => $spam['sender'],
+                'dlp_violated'          => $spam['dlp_violated'],
+                'other_quarantines'     => $spam['other_quarantines'],
+                'other'                 => $spam['other'],
+                'quarantines'           => $spam['quarantines'],
+                'tracking'              => $spam['tracking'],
+            ];
+        }
+
         file_put_contents(storage_path('app/collections/spam.json'), \Metaclassing\Utility::encodeJson($spam_emails));
+
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach ($spam_emails as $spam) {
+            $url = 'http://10.243.32.36:9200/ironport_spam/ironport_spam/'.$spam['mid'];
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            $post = [
+                'doc'           => $spam,
+                'doc_as_upsert' => true,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('IronPort spam email was successfully inserted into ES: '.$spam['mid']);
+            } else {
+                Log::error('Something went wrong upserting IronPort spam email: '.$spam['mid']);
+                die('Something went wrong upserting IronPort spam email: '.$spam['mid'].PHP_EOL);
+            }
+        }
 
         /*
          * [2] Process spam emails into database
          */
 
+        /*
         Log::info(PHP_EOL.'***********************************'.PHP_EOL.'* Starting spam email processing! *'.PHP_EOL.'***********************************');
 
         $time_added_regex = '/(.+) \(.+\)/';
@@ -271,6 +333,7 @@ class GetSpamEmail extends Command
         }
 
         $this->processDeletes();
+        */
 
         Log::info('* Completed IronPort spam emails! *');
     }
