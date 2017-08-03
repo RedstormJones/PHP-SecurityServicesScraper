@@ -117,6 +117,8 @@ class GetSecurityCenterVulns extends Command
         $criticalvulns = [];
 
         foreach ($medium_vulns as $vuln) {
+            $date_added = str_replace(' ', 'T', Carbon::now());
+
             // extract timestamp values that we care about and convert them to datetimes
             $first_seen = Carbon::createFromTimestamp($vuln['firstSeen']);
             $last_seen = Carbon::createFromTimestamp($vuln['lastSeen']);
@@ -132,27 +134,36 @@ class GetSecurityCenterVulns extends Command
                 $vuln_pub_date = null;
             } else {
                 $vuln_pub_date = Carbon::createFromTimestamp($vuln['vulnPubDate']);
+                $vuln_pub_date_pieces = explode(' ', $vuln_pub_date);
+                $vuln_pub_date = $vuln_pub_date_pieces[0].'T'.$vuln_pub_date_pieces[1];
             }
 
             if ($vuln['patchPubDate'] == '-1') {
                 $patch_pub_date = null;
             } else {
                 $patch_pub_date = Carbon::createFromTimestamp($vuln['patchPubDate']);
+                $patch_pub_date_pieces = explode(' ', $patch_pub_date);
+                $patch_pub_date = $patch_pub_date_pieces[0].'T'.$patch_pub_date_pieces[1];
             }
 
             if ($vuln['pluginPubDate'] == '-1') {
                 $plugin_pub_date = null;
             } else {
                 $plugin_pub_date = Carbon::createFromTimestamp($vuln['pluginPubDate']);
+                $plugin_pub_date_pieces = explode(' ', $plugin_pub_date);
+                $plugin_pub_date = $plugin_pub_date_pieces[0].'T'.$plugin_pub_date_pieces[1];
             }
 
             if ($vuln['pluginModDate'] == '-1') {
                 $plugin_mod_date = null;
             } else {
                 $plugin_mod_date = Carbon::createFromTimestamp($vuln['pluginModDate']);
+                $plugin_mod_date_pieces = explode(' ', $plugin_mod_date);
+                $plugin_mod_date = $plugin_mod_date_pieces[0].'T'.$plugin_mod_date_pieces[1];
             }
 
             $mediumvulns[] = [
+                'date_added'                => $date_added,
                 'cpe'                       => $vuln['cpe'],
                 'pluginName'                => $vuln['pluginName'],
                 'cve'                       => $vuln['cve'],
@@ -203,6 +214,8 @@ class GetSecurityCenterVulns extends Command
         }
 
         foreach ($high_vulns as $vuln) {
+            $date_added = str_replace(' ', 'T', Carbon::now());
+
             // extract timestamp values that we care about and convert them to datetimes
             $first_seen = Carbon::createFromTimestamp($vuln['firstSeen']);
             $last_seen = Carbon::createFromTimestamp($vuln['lastSeen']);
@@ -218,27 +231,36 @@ class GetSecurityCenterVulns extends Command
                 $vuln_pub_date = null;
             } else {
                 $vuln_pub_date = Carbon::createFromTimestamp($vuln['vulnPubDate']);
+                $vuln_pub_date_pieces = explode(' ', $vuln_pub_date);
+                $vuln_pub_date = $vuln_pub_date_pieces[0].'T'.$vuln_pub_date_pieces[1];
             }
 
             if ($vuln['patchPubDate'] == '-1') {
                 $patch_pub_date = null;
             } else {
                 $patch_pub_date = Carbon::createFromTimestamp($vuln['patchPubDate']);
+                $patch_pub_date_pieces = explode(' ', $patch_pub_date);
+                $patch_pub_date = $patch_pub_date_pieces[0].'T'.$patch_pub_date_pieces[1];
             }
 
             if ($vuln['pluginPubDate'] == '-1') {
                 $plugin_pub_date = null;
             } else {
                 $plugin_pub_date = Carbon::createFromTimestamp($vuln['pluginPubDate']);
+                $plugin_pub_date_pieces = explode(' ', $plugin_pub_date);
+                $plugin_pub_date = $plugin_pub_date_pieces[0].'T'.$plugin_pub_date_pieces[1];
             }
 
             if ($vuln['pluginModDate'] == '-1') {
                 $plugin_mod_date = null;
             } else {
                 $plugin_mod_date = Carbon::createFromTimestamp($vuln['pluginModDate']);
+                $plugin_mod_date_pieces = explode(' ', $plugin_mod_date);
+                $plugin_mod_date = $plugin_mod_date_pieces[0].'T'.$plugin_mod_date_pieces[1];
             }
 
             $highvulns[] = [
+                'date_added'                => $date_added,
                 'cpe'                       => $vuln['cpe'],
                 'pluginName'                => $vuln['pluginName'],
                 'cve'                       => $vuln['cve'],
@@ -289,6 +311,8 @@ class GetSecurityCenterVulns extends Command
         }
 
         foreach ($critical_vulns as $vuln) {
+            $date_added = str_replace(' ', 'T', Carbon::now());
+
             // extract timestamp values that we care about and convert them to datetimes
             $first_seen = Carbon::createFromTimestamp($vuln['firstSeen']);
             $last_seen = Carbon::createFromTimestamp($vuln['lastSeen']);
@@ -304,27 +328,36 @@ class GetSecurityCenterVulns extends Command
                 $vuln_pub_date = null;
             } else {
                 $vuln_pub_date = Carbon::createFromTimestamp($vuln['vulnPubDate']);
+                $vuln_pub_date_pieces = explode(' ', $vuln_pub_date);
+                $vuln_pub_date = $vuln_pub_date_pieces[0].'T'.$vuln_pub_date_pieces[1];
             }
 
             if ($vuln['patchPubDate'] == '-1') {
                 $patch_pub_date = null;
             } else {
                 $patch_pub_date = Carbon::createFromTimestamp($vuln['patchPubDate']);
+                $patch_pub_date_pieces = explode(' ', $patch_pub_date);
+                $patch_pub_date = $patch_pub_date_pieces[0].'T'.$patch_pub_date_pieces[1];
             }
 
             if ($vuln['pluginPubDate'] == '-1') {
                 $plugin_pub_date = null;
             } else {
                 $plugin_pub_date = Carbon::createFromTimestamp($vuln['pluginPubDate']);
+                $plugin_pub_date_pieces = explode(' ', $plugin_pub_date);
+                $plugin_pub_date = $plugin_pub_date_pieces[0].'T'.$plugin_pub_date_pieces[1];
             }
 
             if ($vuln['pluginModDate'] == '-1') {
                 $plugin_mod_date = null;
             } else {
                 $plugin_mod_date = Carbon::createFromTimestamp($vuln['pluginModDate']);
+                $plugin_mod_date_pieces = explode(' ', $plugin_mod_date);
+                $plugin_mod_date = $plugin_mod_date_pieces[0].'T'.$plugin_mod_date_pieces[1];
             }
 
             $criticalvulns[] = [
+                'date_added'                => $date_added,
                 'cpe'                       => $vuln['cpe'],
                 'pluginName'                => $vuln['pluginName'],
                 'cve'                       => $vuln['cve'],
@@ -378,6 +411,11 @@ class GetSecurityCenterVulns extends Command
         Log::info('collected '.count($highvulns).' high vulnerabilities');
         Log::info('collected '.count($criticalvulns).' critical vulnerabilities');
 
+        // dump vulnerability datasets to file
+        file_put_contents(storage_path('app/collections/sc_medvulns_collection.json'), \Metaclassing\Utility::encodeJson($mediumvulns));
+        file_put_contents(storage_path('app/collections/sc_highvulns_collection.json'), \Metaclassing\Utility::encodeJson($highvulns));
+        file_put_contents(storage_path('app/collections/sc_criticalvulns_collection.json'), \Metaclassing\Utility::encodeJson($criticalvulns));
+
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -392,7 +430,7 @@ class GetSecurityCenterVulns extends Command
             $url = 'http://10.243.32.36:9200/securitycenter_vulns_medium/securitycenter_vulns_medium/';
 
             $post = [
-                'doc'           => $vuln,
+                'doc'   => $vuln,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
@@ -412,7 +450,7 @@ class GetSecurityCenterVulns extends Command
             $url = 'http://10.243.32.36:9200/securitycenter_vulns_high/securitycenter_vulns_high/';
 
             $post = [
-                'doc'           => $vuln,
+                'doc'   => $vuln,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
@@ -432,7 +470,7 @@ class GetSecurityCenterVulns extends Command
             $url = 'http://10.243.32.36:9200/securitycenter_vulns_critical/securitycenter_vulns_critical/';
 
             $post = [
-                'doc'           => $vuln,
+                'doc'   => $vuln,
             ];
 
             $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
@@ -448,20 +486,17 @@ class GetSecurityCenterVulns extends Command
             }
         }
 
-        // dump vulnerability datasets to file
-        file_put_contents(storage_path('app/collections/sc_medvulns_collection.json'), \Metaclassing\Utility::encodeJson($mediumvulns));
-        file_put_contents(storage_path('app/collections/sc_highvulns_collection.json'), \Metaclassing\Utility::encodeJson($highvulns));
-        file_put_contents(storage_path('app/collections/sc_criticalvulns_collection.json'), \Metaclassing\Utility::encodeJson($criticalvulns));
-
         /*
          * [2] Process critical, high and medium vulnerabilities into database
          */
 
+        /*
         Log::info(PHP_EOL.'*******************************************************'.PHP_EOL.'* Starting SecurityCenter vulnerabilities processing! *'.PHP_EOL.'*******************************************************');
 
         $this->processVulnsBySeverity($mediumvulns, 2);
         $this->processVulnsBySeverity($highvulns, 3);
         $this->processVulnsBySeverity($criticalvulns, 4);
+        */
 
         Log::info('* Completed SecurityCenter critical, high and medium vulnerabilities! *');
     }
