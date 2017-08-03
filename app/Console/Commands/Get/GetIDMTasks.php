@@ -102,6 +102,9 @@ class GetIDMTasks extends Command
             $project_ref = $this->handleNull($task['u_project_ref']);
             $due_date = $this->handleNull($task['due_date']);
             $expected_start = $this->handleNull($task['expected_start']);
+            $work_start = $this->handleNull($task['work_start']);
+            $work_end = $this->handleNull($task['work_end']);
+            $internal_name = $this->handleNull($task['u_internal_name']);
 
             $created_on_pieces = explode(' ', $task['sys_created_on']);
             $created_on_date = $created_on_pieces[0].'T'.$created_on_pieces[1];
@@ -127,6 +130,16 @@ class GetIDMTasks extends Command
             if ($closed_at['display_value']) {
                 $closed_at_pieces = explode(' ', $closed_at['display_value']);
                 $closed_at['display_value'] = $closed_at_pieces[0].'T'.$closed_at_pieces[1];
+            }
+
+            if ($work_start['display_value']) {
+                $work_start_pieces = explode(' ', $work_start['display_value']);
+                $work_start['display_value'] = $work_start_pieces[0].'T'.$work_start_pieces[1];
+            }
+
+            if ($work_end['display_value']) {
+                $work_end_pieces = explode(' ', $work_end['display_value']);
+                $work_end['display_value'] = $work_end_pieces[0].'T'.$work_end_pieces[1];
             }
 
             $idm_tasks[] = [
@@ -161,7 +174,7 @@ class GetIDMTasks extends Command
                 'correlation_id'                => $task['correlation_id'],
                 'calendar_duration'             => $task['calendar_duration'],
                 'made_sla'                      => $task['made_sla'],
-                'work_start'                    => $task['work_start'],
+                'work_start'                    => $work_start['display_value'],
                 'number'                        => $task['number'],
                 'u_sub_state'                   => $task['u_sub_state'],
                 'sys_id'                        => $task['sys_id'],
@@ -183,7 +196,7 @@ class GetIDMTasks extends Command
                 'knowledge'                     => $task['knowledge'],
                 'assigned_to'                   => $assigned_to['display_value'],
                 'contact_type'                  => $task['contact_type'],
-                'u_internal_name'               => $task['u_internal_name'],
+                'u_internal_name'               => $internal_name['display_value'],
                 'closed_by'                     => $closed_by['display_value'],
                 'user_input'                    => $task['user_input'],
                 'department'                    => $department['display_value'],
@@ -206,7 +219,7 @@ class GetIDMTasks extends Command
                 'work_notes_list'               => $task['work_notes_list'],
                 'comments'                      => $comments['display_value'],
                 'service_offering'              => $task['service_offering'],
-                'work_end'                      => $task['work_end'],
+                'work_end'                      => $work_end['display_value'],
                 'work_notes'                    => $work_notes['display_value'],
                 'parent'                        => $parent['display_value'],
                 'state'                         => $task['state'],
