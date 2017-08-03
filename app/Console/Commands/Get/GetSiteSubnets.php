@@ -5,6 +5,7 @@ namespace App\Console\Commands\Get;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\Netman\SiteSubnet;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -60,21 +61,53 @@ class GetSiteSubnets extends Command
 
         $collection = [];
 
-        foreach ($site_subnets as $site_subnet) {
-            $data = [];
+        foreach ($site_subnets as $site) {
+            $date_added = str_replace(' ', 'T', Carbon::now());
 
-            $pieces = explode(',', $site_subnet);
+            $pieces = explode(',', $site);
             $ip_pieces = explode('/', $pieces[0]);
 
-            $data['ip_prefix'] = trim($pieces[0]);
-            $data['site'] = trim($pieces[1]);
-            $data['ip_address'] = trim($ip_pieces[0]);
-            $data['netmask'] = trim($ip_pieces[1]);
-
-            $collection[] = $data;
+            $collection[] = [
+                'date_added'    => $date_added,
+                'ip_prefix'     => trim($pieces[0]),
+                'site'          => trim($pieces[1]),
+                'ip_address'    => trim($ip_pieces[0]),
+                'netmask'       => trim($ip_pieces[1]),
+            ];
         }
 
         Log::info('Netman site subnets count: '.count($collection));
+
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+
+        // setup curl HTTP headers with $headers
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        foreach ($collection as $site) {
+            $url = 'http://10.243.32.36:9200/netman_site_subnets/netman_site_subnets/';
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            $post = [
+                'doc'   => $site,
+            ];
+
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('Site subnet was successfully inserted into ES: '.$site['site']);
+            } else {
+                Log::error('Something went wrong inserting site subnet: '.$site['site']);
+                die('Something went wrong inserting site subnet: '.$site['site'].PHP_EOL);
+            }
+        }
 
         file_put_contents(storage_path('app/collections/subnet_collection.json'), \Metaclassing\Utility::encodeJson($collection));
 
@@ -82,6 +115,7 @@ class GetSiteSubnets extends Command
          * [2] Process site subnet records into database
          */
 
+        /*
         Log::info(PHP_EOL.'************************************'.PHP_EOL.'* Starting site subnet processing! *'.PHP_EOL.'************************************');
 
         // get rid of existing site subnet records
@@ -100,6 +134,7 @@ class GetSiteSubnets extends Command
 
             $site->save();
         }
+        */
 
         Log::info('* Completed Netman site subnets! *');
     }
