@@ -79,7 +79,7 @@ class GetSecurityIncidents extends Command
 
         $security_incidents = [];
 
-        foreach($incidents as $incident) {
+        foreach ($incidents as $incident) {
             // handle null values for these particular fields this is not very pretty, but it works
             $resolved_by = $this->handleNull($incident['resolved_by']);
             $assigned_to = $this->handleNull($incident['assigned_to']);
