@@ -78,5 +78,5 @@ class ProcessOutsideHostTrafficSnapshots extends Command
         }
     }
 
-   // end of function processDeletes()
+    // end of function processDeletes()
 }

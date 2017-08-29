@@ -185,6 +185,7 @@ class AuthController extends Controller
 
         // We maintain a user table for permissions building and group lookup, NOT authentication and credentials
         $credentials = ['dn' => $data['dn'], 'password' => ''];
+
         try {
             // This should NEVER fail.
             if (!$token = JWTAuth::attempt($credentials)) {
@@ -210,6 +211,7 @@ class AuthController extends Controller
         if (!$this->ldap) {
             // Load the ldap library that pre-dates autoloaders
             require_once base_path().'/vendor/adldap/adldap/src/adLDAP.php';
+
             try {
                 $this->ldap = new \adLDAP\adLDAP([
                                                     'base_dn'            => env('LDAP_BASEDN'),

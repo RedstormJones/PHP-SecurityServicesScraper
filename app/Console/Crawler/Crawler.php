@@ -130,9 +130,9 @@ class Crawler
         /* Convert it if it is anything but UTF-8 */
         /* You can change "UTF-8"  to "UTF-8//IGNORE" to
            ignore conversion errors and still output something reasonable */
-         if (isset($charset) && strtoupper($charset) != 'UTF-8') {
-             $data = iconv($charset, 'UTF-8', $data);
-         }
+        if (isset($charset) && strtoupper($charset) != 'UTF-8') {
+            $data = iconv($charset, 'UTF-8', $data);
+        }
 
         return $data;
     }

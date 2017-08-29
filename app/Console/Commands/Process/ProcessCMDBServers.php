@@ -162,7 +162,7 @@ class ProcessCMDBServers extends Command
         $this->processDeletes();
     }
 
-   // end of function handle()
+    // end of function handle()
 
     /**
      * Function to handle null values.
