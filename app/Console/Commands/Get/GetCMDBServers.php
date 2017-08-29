@@ -315,7 +315,7 @@ class GetCMDBServers extends Command
         /*************************************
          * [2] Process servers into database *
          *************************************/
-
+        /*
         Log::info(PHP_EOL.'*************************************'.PHP_EOL.'* Starting CMDB servers processing! *'.PHP_EOL.'*************************************');
 
         foreach ($cmdb_servers as $server) {
@@ -420,7 +420,8 @@ class GetCMDBServers extends Command
         }
 
         $this->processDeletes();
-
+        */
+        
         Log::info('* CMDB servers completed! *'.PHP_EOL);
     }
 
@@ -431,17 +432,28 @@ class GetCMDBServers extends Command
      */
     public function handleNull($data)
     {
-        // if data is not null then just return it
+        // if data is not null then check if 'display_value' is set
         if ($data) {
-            return $data;
+            // if 'display_value' is set then just return data
+            if (isset($data['display_value'])) {
+                return $data;
+            } else {
+                /*
+                 otherwise, create an one element array with a key of 'display_value'
+                 and a value of whatever the data is, and return it 
+                */
+                $some_data['display_value'] = $data;
+
+                return $some_data;
+            }
         } else {
             /*
-            * otherwise, create and set the key 'display_vaue'
-            * to the literal string 'null' and return it
+             otherwise, create an one element array with a key of 'display_value'
+             and a value of null, and return it 
             */
-            $data['display_value'] = 'null';
+            $some_data['display_value'] = null;
 
-            return $data;
+            return $some_data;
         }
     }
 

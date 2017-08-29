@@ -128,9 +128,7 @@ class Kernel extends ConsoleKernel
         */
         $schedule->command('get:securitytasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');             // runs hourly on week days between 06:00am and 06:00pm
         $schedule->command('get:idmtasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');                  // runs hourly on week days between 06:00am and 06:00pm
-        //$schedule->command('get:saproleauthtasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');          // runs hourly on week days between 06:00am and 06:00pm
 
-        //$schedule->command('get:saproleauthincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');      // runs hourly on week days between 06:00am and 06:00pm
         $schedule->command('get:idmincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');              // runs hourly on week days between 06:00am and 06:00pm
         $schedule->command('get:securityincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');         // runs hourly on week days between 06:00am and 06:00pm
 
