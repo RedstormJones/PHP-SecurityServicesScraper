@@ -150,7 +150,7 @@ class ProcessSecurityIncidents extends Command
         }   // end of foreach
     }
 
-   // end of function handle()
+    // end of function handle()
 
     /**
      * Function to handle null values.
@@ -184,5 +184,5 @@ class ProcessSecurityIncidents extends Command
         }
     }
 
-   // end of function handleNull()
+    // end of function handleNull()
 }   // end of ProcessSecurityIncidents command class

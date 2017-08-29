@@ -99,7 +99,7 @@ class CrawlInsideHostTrafficSnapshots extends Command
         file_put_contents(storage_path('app/collections/insidehost_apptraffic.json'), \Metaclassing\Utility::encodeJson($app_dashboard_collection));
     }
 
-   // end of function handle()
+    // end of function handle()
 
     /**
      * Function to convert post information from an assoc array to a string.
@@ -119,5 +119,5 @@ class CrawlInsideHostTrafficSnapshots extends Command
         return $poststring;
     }
 
-   // end of function postArrayToString()
+    // end of function postArrayToString()
 }   // end of command class CrawlInsideHostTrafficSnapshots

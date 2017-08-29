@@ -421,7 +421,7 @@ class GetCMDBServers extends Command
 
         $this->processDeletes();
         */
-        
+
         Log::info('* CMDB servers completed! *'.PHP_EOL);
     }
 
@@ -440,7 +440,7 @@ class GetCMDBServers extends Command
             } else {
                 /*
                  otherwise, create an one element array with a key of 'display_value'
-                 and a value of whatever the data is, and return it 
+                 and a value of whatever the data is, and return it
                 */
                 $some_data['display_value'] = $data;
 
@@ -449,7 +449,7 @@ class GetCMDBServers extends Command
         } else {
             /*
              otherwise, create an one element array with a key of 'display_value'
-             and a value of null, and return it 
+             and a value of null, and return it
             */
             $some_data['display_value'] = null;
 
