@@ -387,18 +387,18 @@ class GetIDMIncidents extends Command
                 * otherwise we're dealing with a date string, so set the value
                 * of an array key named 'display_value' to the date string
                 */
-                $some_date['display_value'] = $data;
+                $some_data['display_value'] = $data;
 
-                return $some_date;
+                return $some_data;
             }
         } else {
             /*
             * otherwise if data is null then create and set the array key
             * 'display_value' to an empty string and return it
             */
-            $data['display_value'] = null;
+            $some_data['display_value'] = null;
 
-            return $data;
+            return $some_data;
         }
     }
 }

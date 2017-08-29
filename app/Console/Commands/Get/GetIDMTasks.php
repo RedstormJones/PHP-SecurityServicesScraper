@@ -366,18 +366,18 @@ class GetIDMTasks extends Command
                 * otherwise we're dealing with a date string, so create a variable
                 * and set the key 'display_value' to the date string
                 */
-                $some_date['display_value'] = $data;
+                $some_data['display_value'] = $data;
 
-                return $some_date;
+                return $some_data;
             }
         } else {
             /*
             * otherwise if data is null then create and set the array key
             * 'display_value' to an empty string and return it
             */
-            $data['display_value'] = null;
+            $some_data['display_value'] = null;
 
-            return $data;
+            return $some_data;
         }
     }
 }
