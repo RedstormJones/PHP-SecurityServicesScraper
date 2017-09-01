@@ -86,7 +86,7 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on monthly schedule
         */
-        $schedule->command('get:phishmescenarios')->monthlyOn(1, '03:00')->timezone('America/Chicago');     // runs every month on the 1st at 03:00am
+        //$schedule->command('get:phishmescenarios')->monthlyOn(1, '03:00')->timezone('America/Chicago');     // runs every month on the 1st at 03:00am
 
         /*
         * Commands run on weekly-ish schedule
