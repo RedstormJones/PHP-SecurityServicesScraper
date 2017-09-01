@@ -118,7 +118,7 @@ class GetSecurityCenterVulns extends Command
 
         // cycle through low vulnerabilities and build simple array
         foreach ($low_collection as $result) {
-            foreach($result as $vuln) {
+            foreach ($result as $vuln) {
                 $low_vulns[] = $vuln;
             }
         }
