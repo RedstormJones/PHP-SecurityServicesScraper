@@ -644,7 +644,6 @@ class GetSecurityCenterVulns extends Command
         // setup curl HTTP headers with $headers
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-
         foreach ($criticalvulns as $vuln) {
             $url = 'http://10.243.32.36:9200/securitycenter_vulns_critical/securitycenter_vulns_critical/';
 
