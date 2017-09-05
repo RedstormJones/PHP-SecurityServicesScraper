@@ -570,6 +570,20 @@ class GetSecurityCenterVulns extends Command
                 $plugin_mod_date = $plugin_mod_date_pieces[0].'T'.$plugin_mod_date_pieces[1];
             }
 
+            $plugin_text_regex = '/<plugin_output>\sRemote operating system : ((.+\s)*)Confidence level : (\d+)\sMethod : (.+)/';
+            if ($vuln['pluginID'] == '11936') {
+                preg_match($plugin_text_regex, $vuln['pluginText'], $hits);
+
+                $os_identification = $hits[1];
+                $confidence_level = $hits[3];
+                $method_used = $hits[4];
+            }
+            else {
+                $os_identification = null;
+                $confidence_level = null;
+                $method_used = null;
+            }
+
             $infovulns[] = [
                 'date_added'                => $date_added,
                 'cpe'                       => $vuln['cpe'],
@@ -618,6 +632,9 @@ class GetSecurityCenterVulns extends Command
                 'cvssVector'                => $vuln['cvssVector'],
                 'solution'                  => $vuln['solution'],
                 'xref'                      => $vuln['xref'],
+                'os_identification'         => $os_identification,
+                'os_confidence_level'       => $confidence_level,
+                'os_identification_method'  => $method_used,
             ];
         }
 
@@ -754,17 +771,14 @@ class GetSecurityCenterVulns extends Command
         // point url to the resource we want
         $url = getenv('SECURITYCENTER_URL').'/rest/analysis';
 
-        // instantiate the collections array, set count to 0 and set endoffset to 1000 (since pagesize = 1000)
         $collection = [];
         $count = 0;
-        $endoffset = 1000;
+        $endoffset = 10000;
         $page = 1;
 
         do {
             // setup post array
             $post = [
-                'page'          => 'all',
-                'page_size'     => 1000,
                 'type'          => 'vuln',
                 'sourceType'    => 'cumulative',
                 'query'         => [
