@@ -254,10 +254,10 @@ class GetCylanceDevices extends Command
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
-        $url = "http://10.243.36.9:9200/_xpack/security/_authenticate";
+        $url = 'http://10.243.36.9:9200/_xpack/security/_authenticate';
         $headers = [
-            "authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ==",
-            "cache-control: no-cache",
+            'authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ==',
+            'cache-control: no-cache',
         ];
 
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
