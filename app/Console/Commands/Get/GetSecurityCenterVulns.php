@@ -577,8 +577,7 @@ class GetSecurityCenterVulns extends Command
                 $os_identification = $hits[1];
                 $confidence_level = $hits[3];
                 $method_used = $hits[4];
-            }
-            else {
+            } else {
                 $os_identification = null;
                 $confidence_level = null;
                 $method_used = null;
