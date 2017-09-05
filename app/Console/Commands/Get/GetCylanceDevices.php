@@ -254,15 +254,32 @@ class GetCylanceDevices extends Command
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
+        $url = "http://10.243.36.9:9200/_xpack/security/_authenticate";
+        $headers = [
+            "authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ==",
+            "cache-control: no-cache",
+        ];
+
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+        $raw_response = $crawler->get($url);
+        $response = \Metaclassing\Utility::decodeJson($raw_response);
+
+        if (!array_key_exists('enabled', $response) || !$response['enabled']) {
+            Log::error('[!] authentication to Elastic failed!'.PHP_EOL.$response);
+            die('[!] ERROR: authentication to Elastic failed!'.PHP_EOL);
+        }
+
+        /*
         $headers = [
             'Content-Type: application/json',
         ];
 
         // setup curl HTTP headers with $headers
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+        */
 
         foreach ($cylance_devices_final as $device) {
-            $url = 'http://10.243.32.36:9200/cylance_devices/cylance_devices/'.$device['DeviceId'];
+            $url = 'http://10.243.36.9:9200/cylance_devices/cylance_devices/'.$device['DeviceId'];
             Log::info('HTTP Post to elasticsearch: '.$url);
 
             $post = [
