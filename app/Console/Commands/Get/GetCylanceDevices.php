@@ -269,15 +269,6 @@ class GetCylanceDevices extends Command
             die('[!] ERROR: authentication to Elastic failed!'.PHP_EOL);
         }
 
-        /*
-        $headers = [
-            'Content-Type: application/json',
-        ];
-
-        // setup curl HTTP headers with $headers
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-        */
-
         foreach ($cylance_devices_final as $device) {
             $url = 'http://10.243.36.9:9200/cylance_devices/cylance_devices/'.$device['DeviceId'];
             Log::info('HTTP Post to elasticsearch: '.$url);
