@@ -72,6 +72,7 @@ class Kernel extends ConsoleKernel
         Commands\Crawl\CrawlCMDBServers::class,
         Commands\Crawl\CrawlIdmIncidents::class,
         Commands\Crawl\CrawlSapRoleAuthIncidents::class,
+        Commands\TestCylanceDeviceToKafka::class,
     ];
 
     /**

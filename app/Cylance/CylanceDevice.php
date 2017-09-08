@@ -7,34 +7,41 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CylanceDevice extends Model
 {
-    use SoftDeletes;
-
-    protected $dates = ['deleted_at'];
-
-    protected $table = 'cylance_devices';
-
     /*
     * The attributes that are mass assignable.
     *
     * @var array
     */
     protected $fillable = [
-        'device_id',
-        'device_name',
-        'zones_text',
-        'files_unsafe',
-        'files_quarantined',
-        'files_abnormal',
-        'files_waived',
-        'files_analyzed',
-        'agent_version_text',
-        'last_users_text',
-        'os_versions_text',
-        'ip_addresses_text',
-        'mac_addresses_text',
-        'policy_name',
-        'device_created_at',
-        'device_offline_date',
-        'data',
+        'Abnormal',
+        'AgentVersionText',
+        'BackgroundDetection',
+        'ClientStatus',
+        'Created',
+        'DeviceId',
+        'DeviceLdapDistinguishedName',
+        'DeviceLdapGroupMembership',
+        'DnsName',
+        'FilesAnalyzed',
+        'IPAddresses',
+        'IPAddressesText',
+        'IsOffline',
+        'IsSafe',
+        'LastUsersText',
+        'MacAddressesText',
+        'MemoryProtection',
+        'Name',
+        'OfflineDate',
+        'OSVersionsText',
+        'PolicyName',
+        'Quarantined',
+        'RequiresUpdate',
+        'ScriptCount',
+        'Unsafe',
+        'Waived',
+        'ZoneRole',
+        'ZoneRoleText',
+        'Zones',
+        'ZonesText',
     ];
 }

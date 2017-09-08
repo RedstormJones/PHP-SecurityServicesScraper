@@ -5,6 +5,7 @@ namespace App\Console\Commands\Get;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use App\Cylance\CylanceDevice;
+use App\Jobs\SendCylanceDevice;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -251,6 +252,18 @@ class GetCylanceDevices extends Command
 
         Log::info('devices successfully collected: '.count($cylance_devices_final));
 
+        // JSON encode and dump devices array to file
+        file_put_contents(storage_path('app/collections/cylance_devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices_final));
+
+        /*
+        foreach($cylance_devices as $device) {
+            $cylance_device = new CylanceDevice;
+            $cylance_device->fill($device);
+
+            SendCylanceDevice::dispatch($cylance_device)->onConnection('kafka')->onQueue('cylance_devices');
+        }
+        */
+
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -273,6 +286,9 @@ class GetCylanceDevices extends Command
             $url = 'http://10.243.36.9:9200/cylance_devices/cylance_devices/'.$device['DeviceId'];
             Log::info('HTTP Post to elasticsearch: '.$url);
 
+            $dt = Carbon::now();
+            $device['LastUpdated'] = $dt->toAtomString();
+
             $post = [
                 'doc'           => $device,
                 'doc_as_upsert' => true,
@@ -290,9 +306,6 @@ class GetCylanceDevices extends Command
                 die('Something went wrong inserting device: '.$device['DeviceId'].PHP_EOL);
             }
         }
-
-        // JSON encode and dump devices array to file
-        file_put_contents(storage_path('app/collections/cylance_devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices_final));
 
         /*************************************
          * [2] Process devices into database *
