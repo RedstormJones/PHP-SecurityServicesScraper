@@ -2,13 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Cylance\CylanceDevice;
 use App\Jobs\SendCylanceDevice;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use Rapide\LaravelQueueKafka\Queue\Jobs\KafkaJob;
-use Rapide\LaravelQueueKafka\Queue\KafkaQueue;
-use RdKafka\Message;
 
 class TestCylanceDeviceToKafka extends Command
 {
@@ -47,7 +43,7 @@ class TestCylanceDeviceToKafka extends Command
         $cylance_devices = \Metaclassing\Utility::decodeJson($contents);
 
         // cycle through Cylance devices
-        foreach($cylance_devices as $cylance_device) {
+        foreach ($cylance_devices as $cylance_device) {
             $job = (new SendCylanceDevice($cylance_device))->onConnection('kafka')->onQueue('cylance_devices');
             Log::info($job->cylance_device);
             dispatch($job);

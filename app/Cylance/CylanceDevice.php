@@ -3,7 +3,6 @@
 namespace App\Cylance;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CylanceDevice extends Model
 {
