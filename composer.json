@@ -22,7 +22,7 @@
         "doctrine/dbal": ">=2.5",
         "nesbot/carbon": "~1.21",
         "phpreboot/stopwatch": "^1.0",
-        "rapide/laravel-queue-kafka": "dev-master"
+        "nmred/kafka-php": "0.2.*"
     },
     "minimum-stability": "dev",
     "require-dev": {

@@ -12,7 +12,7 @@ class SendCylanceDevice implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $cylance_device = [];
+    public $cylance_device;
 
     /**
      * Create a new job instance.

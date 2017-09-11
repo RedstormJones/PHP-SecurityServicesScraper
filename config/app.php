@@ -192,12 +192,6 @@ return [
         * Bouncer for user authorization
         */
         Silber\Bouncer\BouncerServiceProvider::class,
-
-        /*
-        * Rapide laravel-queue-kafka
-        */
-        Rapide\LaravelQueueKafka\LaravelQueueKafkaServiceProvider::class,
-
     ],
 
     /*

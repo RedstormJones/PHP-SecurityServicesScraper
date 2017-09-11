@@ -42,11 +42,23 @@ class TestCylanceDeviceToKafka extends Command
         $contents = file_get_contents(storage_path('app/collections/cylance_devices.json'));
         $cylance_devices = \Metaclassing\Utility::decodeJson($contents);
 
+
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
         // cycle through Cylance devices
         foreach ($cylance_devices as $cylance_device) {
-            $job = (new SendCylanceDevice($cylance_device))->onConnection('kafka')->onQueue('cylance_devices');
-            Log::info($job->cylance_device);
-            dispatch($job);
+            //Log::info($cylance_device);
+
+            $result = $producer->send([
+                [
+                    'topic' => 'cylance_devices',
+                    'value' => \Metaclassing\Utility::encodeJson($cylance_device),
+                ],
+            ]);
+
+            Log::info($result);
         }
     }
 }
