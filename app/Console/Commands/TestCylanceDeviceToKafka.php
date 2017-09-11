@@ -41,7 +41,6 @@ class TestCylanceDeviceToKafka extends Command
         $contents = file_get_contents(storage_path('app/collections/cylance_devices.json'));
         $cylance_devices = \Metaclassing\Utility::decodeJson($contents);
 
-
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
         $producer = new \Kafka\Producer();
