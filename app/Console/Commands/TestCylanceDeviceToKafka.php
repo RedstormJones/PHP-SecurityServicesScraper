@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\SendCylanceDevice;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
