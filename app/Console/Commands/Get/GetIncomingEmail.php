@@ -166,7 +166,7 @@ class GetIncomingEmail extends Command
 
         $incoming_emails_final = [];
 
-        foreach($incoming_emails as $email) {
+        foreach ($incoming_emails as $email) {
             if (preg_match('/\s/', $email['Sender Domain'])) {
                 $sender = str_replace(' ', '_', $email['Sender Domain']);
             } elseif (preg_match('/http:\/\//', $email['Sender Domain']) || preg_match('/https:\/\//', $email['Sender Domain'])) {
@@ -205,7 +205,7 @@ class GetIncomingEmail extends Command
                 'Clean'                                 => $email['Clean'],
                 'DetectedByAdvancedMalwareProtection'   => $email['Detected by Advanced Malware Protection'],
                 'orig_value'                            => $email['orig_value'],
-                'VirusDetected'                         => $email['Virus Detected'],                
+                'VirusDetected'                         => $email['Virus Detected'],
             ];
         }
 

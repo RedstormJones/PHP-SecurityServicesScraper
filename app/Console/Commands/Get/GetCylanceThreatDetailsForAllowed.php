@@ -245,7 +245,7 @@ class GetCylanceThreatDetailsForAllowed extends Command
 
             Log::info($result);
         }
-        
+
         /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
