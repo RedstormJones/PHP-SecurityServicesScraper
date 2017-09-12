@@ -248,6 +248,25 @@ class GetSecurityIncidents extends Command
             ];
         }
 
+        // JSON encode and dump incident collection to file
+        file_put_contents(storage_path('app/collections/security_incidents_collection.json'), \Metaclassing\Utility::encodeJson($security_incidents));
+
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($security_incidents as $incident) {
+            $result = $producer->send([
+                [
+                    'topic' => 'servicenow_security_incidents',
+                    'value' => \Metaclassing\Utility::encodeJson($incident),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -279,9 +298,7 @@ class GetSecurityIncidents extends Command
                 die('Something went wrong inserting Security incident: '.$incident['sys_id'].PHP_EOL);
             }
         }
-
-        // JSON encode and dump incident collection to file
-        file_put_contents(storage_path('app/collections/security_incidents_collection.json'), \Metaclassing\Utility::encodeJson($security_incidents));
+        */
 
         /*
          * [2] Process security incidents into database

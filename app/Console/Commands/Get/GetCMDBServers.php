@@ -277,6 +277,25 @@ class GetCMDBServers extends Command
             ];
         }
 
+        // JSON encode and dump CMDB servers to file
+        file_put_contents(storage_path('app/collections/cmdb_servers_collection.json'), \Metaclassing\Utility::encodeJson($cmdb_servers));
+
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($cmdb_servers as $server) {
+            $result = $producer->send([
+                [
+                    'topic' => 'servicenow_cmdb_servers',
+                    'value' => \Metaclassing\Utility::encodeJson($server),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -308,9 +327,7 @@ class GetCMDBServers extends Command
                 die('Something went wrong inserting CMDB server: '.$server['name'].PHP_EOL);
             }
         }
-
-        // JSON encode and dump CMDB servers to file
-        file_put_contents(storage_path('app/collections/cmdb_servers_collection.json'), \Metaclassing\Utility::encodeJson($servers));
+        */
 
         /*************************************
          * [2] Process servers into database *

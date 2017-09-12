@@ -243,6 +243,22 @@ class GetSpamEmail extends Command
 
         file_put_contents(storage_path('app/collections/spam.json'), \Metaclassing\Utility::encodeJson($spam_emails));
 
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($spam_emails as $spam) {
+            $result = $producer->send([
+                [
+                    'topic' => 'ironport_spam_email',
+                    'value' => \Metaclassing\Utility::encodeJson($spam),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -274,6 +290,7 @@ class GetSpamEmail extends Command
                 die('Something went wrong upserting IronPort spam email: '.$spam['mid'].PHP_EOL);
             }
         }
+        */
 
         /*
          * [2] Process spam emails into database

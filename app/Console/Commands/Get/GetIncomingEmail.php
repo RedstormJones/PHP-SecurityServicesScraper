@@ -164,6 +164,70 @@ class GetIncomingEmail extends Command
             $incoming_emails[$j] = $d;
         }
 
+        $incoming_emails_final = [];
+
+        foreach($incoming_emails as $email) {
+            if (preg_match('/\s/', $email['Sender Domain'])) {
+                $sender = str_replace(' ', '_', $email['Sender Domain']);
+            } elseif (preg_match('/http:\/\//', $email['Sender Domain']) || preg_match('/https:\/\//', $email['Sender Domain'])) {
+                $sender_pieces = explode('/', $email['Sender Domain']);
+                $sender = $sender_pieces[2];
+            } else {
+                $sender = $email['Sender Domain'];
+            }
+
+            $begin_date_pieces = explode(' ', rtrim($email['Begin Date'], ' GMT'));
+            $begin_date = $begin_date_pieces[0].'T'.$begin_date_pieces[1];
+
+            $end_date_pieces = explode(' ', rtrim($email['End Date'], ' GMT'));
+            $end_date = $end_date_pieces[0].'T'.$end_date_pieces[1];
+
+            $incoming_emails_final[] = [
+                'Social'                                => $email['Social'],
+                'TotalAttempted'                        => $email['Total Attempted'],
+                'TotalThreat'                           => $email['Total Threat'],
+                'EndDate'                               => $end_date,
+                'BeginDate'                             => $begin_date,
+                'StoppedByReputationFiltering'          => $email['Stopped by Reputation Filtering'],
+                'StoppedAsInvalidRecipients'            => $email['Stopped as Invalid Recipients'],
+                'SpamDetected'                          => $email['Spam Detected'],
+                'Bulk'                                  => $email['Bulk'],
+                'StoppedByDMARC'                        => $email['Stopped by DMARC'],
+                'SenderDomain'                          => $sender,
+                'BeginTimestamp'                        => $email['Begin Timestamp'],
+                'EndTimestamp'                          => $email['End Timestamp'],
+                'StoppedByContentFilter'                => $email['Stopped by Content Filter'],
+                'ConnectionsAccepted'                   => $email['Connections Accepted'],
+                'ConnectionsRejected'                   => $email['Connections Rejected'],
+                'Marketing'                             => $email['Marketing'],
+                'StoppedByRecipientThrottling'          => $email['Stopped by Recipient Throttling'],
+                'TotalGraymails'                        => $email['Total Graymails'],
+                'Clean'                                 => $email['Clean'],
+                'DetectedByAdvancedMalwareProtection'   => $email['Detected by Advanced Malware Protection'],
+                'orig_value'                            => $email['orig_value'],
+                'VirusDetected'                         => $email['Virus Detected'],                
+            ];
+        }
+
+        // JSON encode data and dump to file
+        file_put_contents(storage_path('app/collections/incoming_email.json'), json_encode($incoming_emails_final));
+
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($incoming_emails_final as $email) {
+            $result = $producer->send([
+                [
+                    'topic' => 'ironport_incoming_email',
+                    'value' => \Metaclassing\Utility::encodeJson($email),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -210,9 +274,7 @@ class GetIncomingEmail extends Command
                 die('Something went wrong inserting incoming email: '.$email['Sender Domain'].PHP_EOL);
             }
         }
-
-        // JSON encode data and dump to file
-        file_put_contents(storage_path('app/collections/incoming_email.json'), json_encode($incoming_emails));
+        */
 
         /********************************************
          * [2] Process incoming email into database *

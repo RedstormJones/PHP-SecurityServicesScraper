@@ -254,6 +254,26 @@ class GetCylanceThreats extends Command
 
         Log::info('threats successfully collected: '.count($cylance_threats));
 
+        // JSON encode and dump devices array to file
+        file_put_contents(storage_path('app/collections/cylance_threats.json'), \Metaclassing\Utility::encodeJson($cylance_threats_final));
+
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        // cycle through Cylance threats
+        foreach ($cylance_threats_final as $cylance_threat) {
+            $result = $producer->send([
+                [
+                    'topic' => 'cylance_threats',
+                    'value' => \Metaclassing\Utility::encodeJson($cylance_threat),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -286,9 +306,7 @@ class GetCylanceThreats extends Command
                 die('Something went wrong inserting device: '.$threat['ThreatId'].PHP_EOL);
             }
         }
-
-        // JSON encode and dump devices array to file
-        file_put_contents(storage_path('app/collections/cylance_threats.json'), \Metaclassing\Utility::encodeJson($cylance_threats_final));
+        */
 
         /*************************************
          * [2] Process threats into database *

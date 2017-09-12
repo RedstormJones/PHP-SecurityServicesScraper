@@ -78,6 +78,24 @@ class GetSiteSubnets extends Command
 
         Log::info('Netman site subnets count: '.count($collection));
 
+        file_put_contents(storage_path('app/collections/subnet_collection.json'), \Metaclassing\Utility::encodeJson($collection));
+
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($collection as $site_subnet) {
+            $result = $producer->send([
+                [
+                    'topic' => 'site_subnets',
+                    'value' => \Metaclassing\Utility::encodeJson($site_subnet),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -108,8 +126,7 @@ class GetSiteSubnets extends Command
                 die('Something went wrong inserting site subnet: '.$site['site'].PHP_EOL);
             }
         }
-
-        file_put_contents(storage_path('app/collections/subnet_collection.json'), \Metaclassing\Utility::encodeJson($collection));
+        */
 
         /*
          * [2] Process site subnet records into database

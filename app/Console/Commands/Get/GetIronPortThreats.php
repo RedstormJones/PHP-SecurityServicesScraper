@@ -189,6 +189,22 @@ class GetIronPortThreats extends Command
         // JSON encode data and dump to file
         file_put_contents(storage_path('app/collections/ironport_threats.json'), \Metaclassing\Utility::encodeJson($email_threats));
 
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($email_threats as $threat) {
+            $result = $producer->send([
+                [
+                    'topic' => 'ironport_email_threats',
+                    'value' => \Metaclassing\Utility::encodeJson($threat),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -221,6 +237,7 @@ class GetIronPortThreats extends Command
                 die('Something went wrong inserting IronPort threat: '.$threat['begin_date'].PHP_EOL);
             }
         }
+        */
 
         /*
          * [2] Process IronPort threats into database

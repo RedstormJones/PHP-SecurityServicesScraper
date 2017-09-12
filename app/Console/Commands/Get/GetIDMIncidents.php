@@ -240,6 +240,25 @@ class GetIDMIncidents extends Command
             ];
         }
 
+        // JSON encode and dump incident collection to file
+        file_put_contents(storage_path('app/collections/idm_incidents_collection.json'), \Metaclassing\Utility::encodeJson($idm_incidents));
+
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($idm_incidents as $incident) {
+            $result = $producer->send([
+                [
+                    'topic' => 'servicenow_idm_incidents',
+                    'value' => \Metaclassing\Utility::encodeJson($incident),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -271,9 +290,7 @@ class GetIDMIncidents extends Command
                 die('Something went wrong inserting IDM incident: '.$incident['sys_id'].PHP_EOL);
             }
         }
-
-        // JSON encode and dump incident collection to file
-        file_put_contents(storage_path('app/collections/idm_incidents_collection.json'), \Metaclassing\Utility::encodeJson($idm_incidents));
+        */
 
         /*
          * [2] Process IDM incidents into database

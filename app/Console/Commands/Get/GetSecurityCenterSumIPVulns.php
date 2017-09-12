@@ -164,6 +164,22 @@ class GetSecurityCenterSumIPVulns extends Command
 
         file_put_contents(storage_path('app/collections/sc_sumip_vulns.json'), \Metaclassing\Utility::encodeJson($sumip_vulns));
 
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($sumip_vulns as $vuln) {
+            $result = $producer->send([
+                [
+                    'topic' => 'securitycenter_ipvulns_summary',
+                    'value' => \Metaclassing\Utility::encodeJson($vuln),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -194,6 +210,7 @@ class GetSecurityCenterSumIPVulns extends Command
                 die('Something went wrong inserting SecurityCenter sumIP vuln: '.$vuln['ip'].PHP_EOL);
             }
         }
+        */
 
         /*
          * [2] Process Security Center IP summary vulnerabilities into database

@@ -100,8 +100,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:ironportthreats')->dailyAt('02:00')->timezone('America/Chicago');           // runs daily at 02:00am
         $schedule->command('get:incomingemail')->dailyAt('02:05')->timezone('America/Chicago');             // runs daily at 02:05am
 
-        $schedule->command('get:server2003burndown')->dailyAt('04:50')->timezone('America/Chicago');        // runs daily at 04:50am
-        $schedule->command('get:sccmsystems')->dailyAt('05:00')->timezone('America/Chicago');               // runs daily at 05:00am
+        //$schedule->command('get:server2003burndown')->dailyAt('04:50')->timezone('America/Chicago');        // runs daily at 04:50am
+        //$schedule->command('get:sccmsystems')->dailyAt('05:00')->timezone('America/Chicago');               // runs daily at 05:00am
 
         $schedule->command('get:sitesubnets')->dailyAt('09:00')->timezone('America/Chicago');               // runs daily at 09:00am
 

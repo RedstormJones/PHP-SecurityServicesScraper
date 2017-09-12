@@ -121,6 +121,22 @@ class GetSecurityCenterSeveritySummary extends Command
 
         file_put_contents(storage_path('app/collections/sc_severity_summary.json'), \Metaclassing\Utility::encodeJson($sev_sums));
 
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($sev_sums as $sev) {
+            $result = $producer->send([
+                [
+                    'topic' => 'securitycenter_severity_summary',
+                    'value' => \Metaclassing\Utility::encodeJson($sev),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -151,6 +167,7 @@ class GetSecurityCenterSeveritySummary extends Command
                 die('Something went wrong inserting SecurityCenter severity summary: '.$sev_sum['severity_description'].PHP_EOL);
             }
         }
+        */
 
         /*
          * [2] Process Security Center severity summaries into database

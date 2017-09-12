@@ -224,6 +224,25 @@ class GetIDMTasks extends Command
             ];
         }
 
+        // JSON encode and dump incident collection to file
+        file_put_contents(storage_path('app/collections/idm_tasks_collection.json'), \Metaclassing\Utility::encodeJson($idm_tasks));
+
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($idm_tasks as $task) {
+            $result = $producer->send([
+                [
+                    'topic' => 'servicenow_idm_tasks',
+                    'value' => \Metaclassing\Utility::encodeJson($task),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -255,9 +274,7 @@ class GetIDMTasks extends Command
                 die('Something went wrong inserting IDM task: '.$task['sys_id'].PHP_EOL);
             }
         }
-
-        // JSON encode and dump incident collection to file
-        file_put_contents(storage_path('app/collections/idm_tasks_collection.json'), \Metaclassing\Utility::encodeJson($idm_tasks));
+        */
 
         /*
          * [2] Process IDM tasks into database

@@ -231,6 +231,22 @@ class GetCylanceThreatDetailsForBlocked extends Command
 
         file_put_contents(storage_path('app/collections/blocked_threat_details.json'), \Metaclassing\Utility::encodeJson($device_threat_details));
 
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($device_threat_details as $threat_detail) {
+            $result = $producer->send([
+                [
+                    'topic' => 'cylance_threat_details_blocked',
+                    'value' => \Metaclassing\Utility::encodeJson($threat_detail),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -262,6 +278,7 @@ class GetCylanceThreatDetailsForBlocked extends Command
                 die('Something went wrong inserting device: '.$device_threat['DeviceId'].PHP_EOL);
             }
         }
+        */
 
         Log::info('* Cylance blocked threat details completed! *');
     }

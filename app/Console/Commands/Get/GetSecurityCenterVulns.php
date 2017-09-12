@@ -650,6 +650,66 @@ class GetSecurityCenterVulns extends Command
         file_put_contents(storage_path('app/collections/sc_lowvulns_collection.json'), \Metaclassing\Utility::encodeJson($lowvulns));
         file_put_contents(storage_path('app/collections/sc_infovulns_collection.json'), \Metaclassing\Utility::encodeJson($infovulns));
 
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($criticalvulns as $vuln) {
+            $result = $producer->send([
+                [
+                    'topic' => 'securitycenter_critical_vulns',
+                    'value' => \Metaclassing\Utility::encodeJson($vuln),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        foreach ($highvulns as $vuln) {
+            $result = $producer->send([
+                [
+                    'topic' => 'securitycenter_high_vulns',
+                    'value' => \Metaclassing\Utility::encodeJson($vuln),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        foreach ($mediumvulns as $vuln) {
+            $result = $producer->send([
+                [
+                    'topic' => 'securitycenter_medium_vulns',
+                    'value' => \Metaclassing\Utility::encodeJson($vuln),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        foreach ($lowvulns as $vuln) {
+            $result = $producer->send([
+                [
+                    'topic' => 'securitycenter_low_vulns',
+                    'value' => \Metaclassing\Utility::encodeJson($vuln),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        foreach ($infovulns as $vuln) {
+            $result = $producer->send([
+                [
+                    'topic' => 'securitycenter_info_vulns',
+                    'value' => \Metaclassing\Utility::encodeJson($vuln),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -754,6 +814,7 @@ class GetSecurityCenterVulns extends Command
                 die('Something went wrong inserting SecurityCenter info vuln: '.$response['_id'].PHP_EOL);
             }
         }
+        */
 
         Log::info('* Completed SecurityCenter critical, high, medium, low and info vulnerabilities! *');
     }

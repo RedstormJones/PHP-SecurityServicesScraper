@@ -224,6 +224,25 @@ class GetSecurityTasks extends Command
             ];
         }
 
+        // JSON encode and dump incident collection to file
+        file_put_contents(storage_path('app/collections/security_tasks_collection.json'), \Metaclassing\Utility::encodeJson($security_tasks));
+
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($security_tasks as $task) {
+            $result = $producer->send([
+                [
+                    'topic' => 'servicenow_security_tasks',
+                    'value' => \Metaclassing\Utility::encodeJson($task),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -255,9 +274,7 @@ class GetSecurityTasks extends Command
                 die('Something went wrong inserting Security task: '.$task['sys_id'].PHP_EOL);
             }
         }
-
-        // JSON encode and dump incident collection to file
-        file_put_contents(storage_path('app/collections/security_tasks_collection.json'), \Metaclassing\Utility::encodeJson($security_tasks));
+        */
 
         /*
          * [2] Process security tasks into database

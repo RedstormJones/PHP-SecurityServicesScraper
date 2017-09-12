@@ -255,15 +255,25 @@ class GetCylanceDevices extends Command
         // JSON encode and dump devices array to file
         file_put_contents(storage_path('app/collections/cylance_devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices_final));
 
-        /*
-        foreach($cylance_devices as $device) {
-            $cylance_device = new CylanceDevice;
-            $cylance_device->fill($device);
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
 
-            SendCylanceDevice::dispatch($cylance_device)->onConnection('kafka')->onQueue('cylance_devices');
+        // cycle through Cylance devices
+        foreach ($cylance_devices_final as $cylance_device) {
+            //Log::info($cylance_device);
+
+            $result = $producer->send([
+                [
+                    'topic' => 'cylance_devices',
+                    'value' => \Metaclassing\Utility::encodeJson($cylance_device),
+                ],
+            ]);
+
+            Log::info($result);
         }
-        */
 
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -306,6 +316,7 @@ class GetCylanceDevices extends Command
                 die('Something went wrong inserting device: '.$device['DeviceId'].PHP_EOL);
             }
         }
+        */
 
         /*************************************
          * [2] Process devices into database *

@@ -125,6 +125,22 @@ class GetSecurityCenterAssetVulns extends Command
         // JSON encode simple array and dump to file
         file_put_contents(storage_path('app/collections/sc_asset_summary.json'), \Metaclassing\Utility::encodeJson($asset_vulns));
 
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($asset_vulns as $vuln) {
+            $result = $producer->send([
+                [
+                    'topic' => 'securitycenter_asset_vulns',
+                    'value' => \Metaclassing\Utility::encodeJson($vuln),
+                ],
+            ]);
+
+            Log::info($result);
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -155,6 +171,7 @@ class GetSecurityCenterAssetVulns extends Command
                 die('Something went wrong inserting SecurityCenter asset vuln: '.$asset['asset_name'].PHP_EOL);
             }
         }
+        */
 
         /*
          * [2] Process asset vulnerabilities into database
