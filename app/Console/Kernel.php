@@ -24,13 +24,8 @@ class Kernel extends ConsoleKernel
         Commands\Get\GetIronPortThreats::class,
         Commands\Get\GetSecurityIncidents::class,
         Commands\Get\GetIDMIncidents::class,
-        Commands\Get\GetSAPRoleAuthIncidents::class,
         Commands\Get\GetSecurityTasks::class,
         Commands\Get\GetIDMTasks::class,
-        Commands\Get\GetSAPRoleAuthTasks::class,
-        Commands\Get\GetInsideHostTrafficSnapshots::class,
-        Commands\Get\GetOutsideHostTrafficSnapshots::class,
-        Commands\Get\GetPhishMeScenarios::class,
         Commands\Get\GetSiteSubnets::class,
         Commands\Get\GetSpamEmail::class,
         Commands\Get\GetSecurityCenterAssetVulns::class,
@@ -72,7 +67,6 @@ class Kernel extends ConsoleKernel
         Commands\Crawl\CrawlCMDBServers::class,
         Commands\Crawl\CrawlIdmIncidents::class,
         Commands\Crawl\CrawlSapRoleAuthIncidents::class,
-        Commands\TestCylanceDeviceToKafka::class,
     ];
 
     /**
