@@ -176,7 +176,11 @@ class GetSecurityCenterSumIPVulns extends Command
                 ],
             ]);
 
-            Log::info($result);
+            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
+                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+            } else {
+                Log::info('[*] Data successfully sent to Kafka: '.$vuln['dnsName']);
+            }
         }
 
         /*

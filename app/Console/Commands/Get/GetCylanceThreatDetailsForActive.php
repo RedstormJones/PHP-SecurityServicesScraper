@@ -54,13 +54,78 @@ class GetCylanceThreatDetailsForActive extends Command
          * [2] Query for active threat details *
          ***************************************/
 
+        // change url to point to the threat list
+        $url = 'https:/'.'/protect.cylance.com/Threats/ListThreatsOverview';
+
+        // setup collection array and variables for paging
+        $collection = [];
+        $i = 0;
+        $page = 1;
+        $page_size = 1000;
+
+        // setup necessary post data
+        $post = [
+            'sort'      => 'ActiveInDevices-desc',
+            'page'      => $page,
+            'pageSize'  => $page_size,
+            'group'     => '',
+            'aggregate' => '',
+            'filter'    => '',
+        ];
+
+        Log::info('starting page scrape loop');
+
+        do {
+            Log::info('scraping loop for page '.$page);
+
+            // set the post page to our current page number
+            $post['page'] = $page;
+
+            // post data to webpage and capture response, which is hopefully a list of devices
+            $response = $crawler->post($url, '', $this->postArrayToString($post));
+
+            // dump raw response to threats.dump.* file where * is the page number
+            file_put_contents(storage_path('app/responses/threats.dump.'.$page), $response);
+
+            // json decode the response
+            $threats = json_decode($response, true);
+
+            // save this pages response array to our collection
+            $collection[] = $threats;
+
+            // set count to the total number of devices returned with each response.
+            // this should not change from response to response
+            $count = $threats['Total'];
+
+            Log::info('scrape for page '.$page.' complete - got '.count($threats['Data']).' threats');
+
+            $i += $page_size;   // increment i by page_size
+            $page++;            // increment the page number
+
+            sleep(1);   // wait a second before hammering on their webserver again
+        } while ($i < $count);
+
+        $threat_ids = [];
+
+        // first level is simple sequencail array of 1,2,3
+        foreach ($collection as $response) {
+            // next level down is associative, the KEY we care about is 'Data'
+            $results = $response['Data'];
+            foreach ($results as $threat) {
+                if ($threat['ActiveInDevices']) {
+                    // this is confusing logic.
+                    $threat_ids[] = $threat['Id'];
+                }
+            }
+        }
+
         // used to save off threat id-specific collections to be aggregated later
         $active_threat_details = [];
 
         // pluck a collection of threat id's from the securitymetrics db
-        $threat_ids = CylanceThreat::where('active_in_devices', '>', 0)->pluck('threat_id');
+        //$threat_ids = CylanceThreat::where('active_in_devices', '>', 0)->pluck('threat_id');
 
-        Log::info('threat id count from securitymetrics db: '.$threat_ids->count());
+        Log::info('threat id count: '.count($threat_ids));
 
         // cycle through threat id's and query for active threat details
         foreach ($threat_ids as $threat_id) {
@@ -243,7 +308,11 @@ class GetCylanceThreatDetailsForActive extends Command
                 ],
             ]);
 
-            Log::info($result);
+            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
+                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+            } else {
+                Log::info('[*] Data successfully sent to Kafka: '.$threat_detail['DeviceId']);
+            }
         }
 
         /*

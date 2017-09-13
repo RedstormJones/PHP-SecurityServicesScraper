@@ -662,7 +662,11 @@ class GetSecurityCenterVulns extends Command
                 ],
             ]);
 
-            Log::info($result);
+            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
+                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+            } else {
+                Log::info('[*] Critical vulnerability data successfully sent to Kafka: '.$vuln['dnsName']);
+            }
         }
 
         foreach ($highvulns as $vuln) {
@@ -673,7 +677,11 @@ class GetSecurityCenterVulns extends Command
                 ],
             ]);
 
-            Log::info($result);
+            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
+                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+            } else {
+                Log::info('[*] High vulnerability data successfully sent to Kafka: '.$vuln['dnsName']);
+            }
         }
 
         foreach ($mediumvulns as $vuln) {
@@ -684,7 +692,11 @@ class GetSecurityCenterVulns extends Command
                 ],
             ]);
 
-            Log::info($result);
+            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
+                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+            } else {
+                Log::info('[*] Medium vulnerability data successfully sent to Kafka: '.$vuln['dnsName']);
+            }
         }
 
         foreach ($lowvulns as $vuln) {
@@ -695,7 +707,11 @@ class GetSecurityCenterVulns extends Command
                 ],
             ]);
 
-            Log::info($result);
+            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
+                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+            } else {
+                Log::info('[*] Low vulnerability data successfully sent to Kafka: '.$vuln['dnsName']);
+            }
         }
 
         foreach ($infovulns as $vuln) {
@@ -706,7 +722,11 @@ class GetSecurityCenterVulns extends Command
                 ],
             ]);
 
-            Log::info($result);
+            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
+                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+            } else {
+                Log::info('[*] Info vulnerability data successfully sent to Kafka: '.$vuln['dnsName']);
+            }
         }
 
         /*
