@@ -260,7 +260,8 @@ class GetCylanceDevices extends Command
 
         // cycle through Cylance devices
         foreach ($cylance_devices_final as $cylance_device) {
-            //Log::info($cylance_device);
+            $dt = Carbon::now();
+            $cylance_device['UpsertDate'] = $dt->toDateString();
 
             $result = $producer->send([
                 [
