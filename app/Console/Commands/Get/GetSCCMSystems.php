@@ -5,6 +5,7 @@ namespace App\Console\Commands\Get;
 use App\SCCM\SCCMSystem;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class GetSCCMSystems extends Command
@@ -212,6 +213,27 @@ class GetSCCMSystems extends Command
 
         file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), \Metaclassing\Utility::encodeJson($systems));
 
+        $config = \Kafka\ProducerConfig::getInstance();
+        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+        $producer = new \Kafka\Producer();
+
+        foreach ($systems as $system) {
+
+            $result = $producer->send([
+                [
+                    'topic' => 'sccm_systems',
+                    'value' => \Metaclassing\Utility::encodeJson($system),
+                ],
+            ]);
+
+            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
+                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+            } else {
+                Log::info('[*] Data successfully sent to Kafka: '.$system['SystemName']);
+            }
+        }
+
+        /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -243,142 +265,6 @@ class GetSCCMSystems extends Command
                 die('Something went wrong inserting SCCM system: '.$system['SystemName'].PHP_EOL);
             }
         }
-
-        /***********************************
-         * Process new SCCM systems upload *
-         ***********************************/
-
-        /*
-        Log::info(PHP_EOL.PHP_EOL.'********************************************'.PHP_EOL.'* Starting SCCM systems upload processing! *'.PHP_EOL.'********************************************');
-
-        foreach ($systems as $system) {
-            $exists = SCCMSystem::where('system_name', $system['SystemName'])->value('id');
-
-            if ($exists) {
-                Log::info('updating SCCM system model '.$system['SystemName'].' - client_activity: '.$system['ClientActivity']);
-
-                // update model
-                $system_model = SCCMSystem::findOrFail($exists);
-
-                $system_model->update([
-                    'district'                  => $system['District'],
-                    'region'                    => $system['Region'],
-                    'group'                     => $system['Group'],
-                    'owner'                     => $system['Owner'],
-                    'days_since_last_logon'     => $system['DaysLastLogon'],
-                    'stale_45days'              => $system['Stale45Days'],
-                    'client_activity'           => $system['ClientActivity'],
-                    'client_status'             => $system['ClientStatus'],
-                    'client_version'            => $system['ClientVersion'],
-                    'operating_system'          => $system['OperatingSystem'],
-                    'operating_system_version'  => $system['OperatingSystemVersion'],
-                    'os_roundup'                => $system['OSRoundup'],
-                    'os_arch'                   => $system['OSArch'],
-                    'system_role'               => $system['SystemRole'],
-                    'serial_number'             => $system['SerialNumber'],
-                    'chassis_type'              => $system['ChassisType'],
-                    'manufacturer'              => $system['Manufacturer'],
-                    'model'                     => $system['Model'],
-                    'processor'                 => $system['Processor'],
-                    'image_source'              => $system['ImageSource'],
-                    'image_date'                => $system['ImageDate'],
-                    'coe_compliant'             => $system['COECompliant'],
-                    'ps_version'                => $system['PowerShellVersion'],
-                    'patch_total'               => $system['PatchTotal'],
-                    'patch_installed'           => $system['PatchInstalled'],
-                    'patch_missing'             => $system['PatchMissing'],
-                    'patch_unknown'             => $system['PatchUnknown'],
-                    'patch_percent'             => $system['PatchPercent'],
-                    'scep_installed'            => $system['SCEPInstalled'],
-                    'cylance_installed'         => $system['CylanceInstalled'],
-                    'anyconnect_installed'      => $system['AnyConnectInstalled'],
-                    'anyconnect_websecurity'    => $system['AnyConnectWebSecurity'],
-                    'bitlocker_status'          => $system['BitLockerStatus'],
-                    'tpm_enabled'               => $system['TPM_IsEnabled'],
-                    'tpm_activated'             => $system['TPM_IsActivated'],
-                    'tpm_owned'                 => $system['TPM_IsOwned'],
-                    'ie_version'                => $system['IEVersion'],
-                    'ad_location'               => $system['ADLocation'],
-                    'primary_users'             => $system['PrimaryUsers'],
-                    'last_logon_username'       => $system['LastLogonUserName'],
-                    'ad_last_logon'             => $system['ADLastLogon'],
-                    'ad_password_last_set'      => $system['ADPasswordLastSet'],
-                    'ad_modified'               => $system['ADModified'],
-                    'sccm_last_heartbeat'       => $system['SCCMLastHeartBeat'],
-                    'sccm_management_point'     => $system['SCCMManagementPoint'],
-                    'sccm_last_health_eval'     => $system['SCCMLastHealthEval'],
-                    'sccm_last_health_result'   => $system['SCCMLastHealthResult'],
-                    'report_date'               => $system['ReportDate'],
-                    'data'                      => \Metaclassing\Utility::encodeJson($system),
-                ]);
-
-                $system_model->save();
-
-                // touch system model to update the 'updated_at' timestamp in case nothing was changed
-                $system_model->touch();
-            } else {
-                // create model
-                Log::info('creating new SCCM system model: '.$system['SystemName']);
-
-                $system_model = new SCCMSystem();
-
-                $system_model->system_name = $system['SystemName'];
-                $system_model->district = $system['District'];
-                $system_model->region = $system['Region'];
-                $system_model->group = $system['Group'];
-                $system_model->owner = $system['Owner'];
-                $system_model->days_since_last_logon = $system['DaysLastLogon'];
-                $system_model->stale_45days = $system['Stale45Days'];
-                $system_model->client_activity = $system['ClientActivity'];
-                $system_model->client_status = $system['ClientStatus'];
-                $system_model->client_version = $system['ClientVersion'];
-                $system_model->operating_system = $system['OperatingSystem'];
-                $system_model->operating_system_version = $system['OperatingSystemVersion'];
-                $system_model->os_roundup = $system['OSRoundup'];
-                $system_model->os_arch = $system['OSArch'];
-                $system_model->system_role = $system['SystemRole'];
-                $system_model->serial_number = $system['SerialNumber'];
-                $system_model->chassis_type = $system['ChassisType'];
-                $system_model->manufacturer = $system['Manufacturer'];
-                $system_model->model = $system['Model'];
-                $system_model->processor = $system['Processor'];
-                $system_model->image_source = $system['ImageSource'];
-                $system_model->image_date = $system['ImageDate'];
-                $system_model->coe_compliant = $system['COECompliant'];
-                $system_model->ps_version = $system['PowerShellVersion'];
-                $system_model->patch_total = $system['PatchTotal'];
-                $system_model->patch_installed = $system['PatchInstalled'];
-                $system_model->patch_missing = $system['PatchMissing'];
-                $system_model->patch_unknown = $system['PatchUnknown'];
-                $system_model->patch_percent = $system['PatchPercent'];
-                $system_model->scep_installed = $system['SCEPInstalled'];
-                $system_model->cylance_installed = $system['CylanceInstalled'];
-                $system_model->anyconnect_installed = $system['AnyConnectInstalled'];
-                $system_model->anyconnect_websecurity = $system['AnyConnectWebSecurity'];
-                $system_model->bitlocker_status = $system['BitLockerStatus'];
-                $system_model->tpm_enabled = $system['TPM_IsEnabled'];
-                $system_model->tpm_activated = $system['TPM_IsActivated'];
-                $system_model->tpm_owned = $system['TPM_IsOwned'];
-                $system_model->ie_version = $system['IEVersion'];
-                $system_model->ad_location = $system['ADLocation'];
-                $system_model->primary_users = $system['PrimaryUsers'];
-                $system_model->last_logon_username = $system['LastLogonUserName'];
-                $system_model->ad_last_logon = $system['ADLastLogon'];
-                $system_model->ad_password_last_set = $system['ADPasswordLastSet'];
-                $system_model->ad_modified = $system['ADModified'];
-                $system_model->sccm_last_heartbeat = $system['SCCMLastHeartBeat'];
-                $system_model->sccm_management_point = $system['SCCMManagementPoint'];
-                $system_model->sccm_last_health_eval = $system['SCCMLastHealthEval'];
-                $system_model->sccm_last_health_result = $system['SCCMLastHealthResult'];
-                $system_model->report_date = $system['ReportDate'];
-                $system_model->data = \Metaclassing\Utility::encodeJson($system);
-
-                $system_model->save();
-            }
-        }
-
-        Log::info('processing deletes...');
-        $this->processDeletes();
         */
 
         Log::info('* Completed SCCM system processing! *'.PHP_EOL);
@@ -413,7 +299,7 @@ class GetSCCMSystems extends Command
     public function handleDate($date)
     {
         if ($date) {
-            $retval = Carbon::createFromFormat('n/j/Y g:i:s', substr($date, 0, -3));
+            $retval = Carbon::createFromFormat('n/j/Y G:i:s', $date);
         } else {
             $retval = null;
         }
