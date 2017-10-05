@@ -301,6 +301,9 @@ class GetCylanceThreatDetailsForActive extends Command
         $producer = new \Kafka\Producer();
 
         foreach ($device_threat_details as $threat_detail) {
+            $threat_detail['ThreatDetailId'] = $threat_detail['DeviceId'].'_'.$threat_detail['FileName'];
+            $threat_detail['UpsertDate'] = Carbon::now()->toAtomString();
+
             $result = $producer->send([
                 [
                     'topic' => 'cylance_threat_details_active',

@@ -263,8 +263,7 @@ class GetCylanceThreats extends Command
 
         // cycle through Cylance threats
         foreach ($cylance_threats_final as $cylance_threat) {
-            $dt = Carbon::now();
-            $cylance_threat['UpsertDate'] = $dt->toDateString();
+            $cylance_threat['UpsertDate'] = Carbon::now()->toAtomString();
 
             $result = $producer->send([
                 [
