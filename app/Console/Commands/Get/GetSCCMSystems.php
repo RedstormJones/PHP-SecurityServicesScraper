@@ -5,7 +5,6 @@ namespace App\Console\Commands\Get;
 use App\SCCM\SCCMSystem;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class GetSCCMSystems extends Command
@@ -218,7 +217,6 @@ class GetSCCMSystems extends Command
         $producer = new \Kafka\Producer();
 
         foreach ($systems as $system) {
-
             $result = $producer->send([
                 [
                     'topic' => 'sccm_systems',
