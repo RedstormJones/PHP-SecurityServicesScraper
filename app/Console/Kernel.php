@@ -34,6 +34,8 @@ class Kernel extends ConsoleKernel
         Commands\Get\GetSecurityCenterSeveritySummary::class,
         Commands\Get\GetSCCMSystems::class,
         Commands\Get\GetServer2003Burndown::class,
+        Commands\Get\GetMFATickets::class,
+        Commands\Get\GetProofPointSIEM::class,
         Commands\Process\ProcessCylanceDevices::class,
         Commands\Process\ProcessCylanceThreats::class,
         Commands\Process\ProcessIncomingEmail::class,
@@ -129,6 +131,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:allowedthreatdetails')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');       // runs hourly on week days between 06:00am and 06:00pm
         $schedule->command('get:blockedthreatdetails')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');       // runs hourly on week days between 06:00am and 06:00pm
         $schedule->command('get:suspiciousthreatdetails')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');    // runs hourly on week days between 06:00am and 06:00pm
+
+        /*
+        * Commands run every minute
+        */
+        $schedule->command('get:proofpointsiem')->everyMinute()->timezone('America/Chicago');    // runs every minute
     }
 
     /**
