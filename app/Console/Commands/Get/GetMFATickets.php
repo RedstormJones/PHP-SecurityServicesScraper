@@ -67,7 +67,7 @@ class GetMFATickets extends Command
     }
 
     /**
-     * Get ServiceNow incidents
+     * Get ServiceNow incidents.
      *
      * @return mixed
      */
@@ -91,30 +91,25 @@ class GetMFATickets extends Command
         file_put_contents(storage_path('app/responses/kss_mfa_incidents.json'), $kss_response);
         $response = \Metaclassing\Utility::decodeJson($kss_response);
         $incident_set[] = $response['result'];
-        
+
         $incidents = [];
-        foreach($incident_set as $set)
-        {
-            foreach($set as $incident)
-            {
+        foreach ($incident_set as $set) {
+            foreach ($set as $incident) {
                 $incidents[] = $incident;
             }
         }
         Log::info('[-] total MFA incidents count: '.count($incidents));
 
-        foreach ($incidents as $incident)
-        {
+        foreach ($incidents as $incident) {
             //Log::info('[-] checking incident: '.$incident['number'].' - '.$incident['short_description']);
-            if (preg_match($mfa_regex, $incident['short_description']) === 1 || preg_match($mfa_regex, $incident['description']) === 1)
-            {
+            if (preg_match($mfa_regex, $incident['short_description']) === 1 || preg_match($mfa_regex, $incident['description']) === 1) {
                 Log::info('[+] MFA incident found: '.$incident['short_description']);
             }
         }
     }
 
-
     /**
-     * Get ServiceNow tasks
+     * Get ServiceNow tasks.
      *
      * @return mixed
      */
@@ -140,20 +135,16 @@ class GetMFATickets extends Command
         $task_set[] = $response['result'];
 
         $tasks = [];
-        foreach ($task_set as $set)
-        {
-            foreach ($set as $task)
-            {
+        foreach ($task_set as $set) {
+            foreach ($set as $task) {
                 $tasks[] = $task;
             }
         }
         Log::info('[-] total MFA tasks count: '.count($tasks));
 
-        foreach ($tasks as $task)
-        {
+        foreach ($tasks as $task) {
             //Log::info('[-] checking task: '.$task['number'].' - '.$task['short_description']);
-            if (preg_match($mfa_regex, $task['short_description']) === 1 || preg_match($mfa_regex, $task['description']) === 1)
-            {
+            if (preg_match($mfa_regex, $task['short_description']) === 1 || preg_match($mfa_regex, $task['description']) === 1) {
                 Log::info('[+] MFA task found: '.$task['short_description']);
             }
         }

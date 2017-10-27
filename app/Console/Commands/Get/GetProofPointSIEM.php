@@ -60,7 +60,7 @@ class GetProofPointSIEM extends Command
         $json_response = $crawler->get($url);
         file_put_contents(storage_path('app/responses/proofpoint.response'), $json_response);
 
-        if(\Metaclassing\Utility::isJson($json_response)) {
+        if (\Metaclassing\Utility::isJson($json_response)) {
             $response = \Metaclassing\Utility::decodeJson($json_response);
             file_put_contents(storage_path('app/collections/proofpoint_siem.json'), \Metaclassing\Utility::encodeJson($response));
 
