@@ -81,11 +81,10 @@ class GetProofPointSIEM extends Command
             $clicks_permitted = $response['clicksPermitted'];
             $clicks_blocked = $response['clicksBlocked'];
 
-            if (count($messages_delivered) === 0 AND
-                count($messages_blocked) === 0 AND
-                count($clicks_permitted) === 0 AND
-                count($clicks_blocked) === 0)
-            {
+            if (count($messages_delivered) === 0 and
+                count($messages_blocked) === 0 and
+                count($clicks_permitted) === 0 and
+                count($clicks_blocked) === 0) {
                 Log::info('[*] no new data retrieved from ProofPoint - terminating execution');
                 die('[*] no new data retrieved from ProofPoint - terminating execution...'.PHP_EOL);
             }
