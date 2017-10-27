@@ -77,14 +77,11 @@ class GetProofPointSIEM extends Command
                 ],
             ]);
 
-            Log::info($result);
-            /*
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
                 Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
                 Log::info('[*] ProofPoint SIEM data successfully sent to Kafka');
             }
-            */
         } else {
             Log::error('[!] ProofPoint response not valid JSON: '.json_last_error());
             die('[!] ERROR: ProofPoint response not valid JSON: '.json_last_error().PHP_EOL);
