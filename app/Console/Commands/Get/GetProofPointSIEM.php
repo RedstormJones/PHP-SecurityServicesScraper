@@ -58,7 +58,7 @@ class GetProofPointSIEM extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $header);
 
         // define target url
-        $url = 'https://tap-api-v2.proofpoint.com/v2/siem/all?format=json&sinceSeconds=3600';
+        $url = 'https://tap-api-v2.proofpoint.com/v2/siem/all?format=json&sinceSeconds=60';
 
         // send GET request to url and dump response to file
         $json_response = $crawler->get($url);
@@ -67,13 +67,14 @@ class GetProofPointSIEM extends Command
         // try to JSON decode the response
         try {
             $response = \Metaclassing\Utility::decodeJson($json_response);
-            $error = 'No errors detected';
+            $error = "No errors detected";
         } catch (\Exception $e) {
             $error = $e->getMessage();
         }
 
         // check if decoding the JSON response was successful
         if (!\Metaclassing\Utility::testJsonError()) {
+
             file_put_contents(storage_path('app/collections/proofpoint_siem.json'), \Metaclassing\Utility::encodeJson($response));
 
             $messages_delivered = $response['messagesDelivered'];
@@ -81,10 +82,11 @@ class GetProofPointSIEM extends Command
             $clicks_permitted = $response['clicksPermitted'];
             $clicks_blocked = $response['clicksBlocked'];
 
-            if (count($messages_delivered) === 0 and
-                count($messages_blocked) === 0 and
-                count($clicks_permitted) === 0 and
+            if (count($messages_delivered) === 0 AND
+                count($messages_blocked) === 0 AND
+                count($clicks_permitted) === 0 AND
                 count($clicks_blocked) === 0) {
+
                 Log::info('[*] no new data retrieved from ProofPoint - terminating execution');
                 die('[*] no new data retrieved from ProofPoint - terminating execution...'.PHP_EOL);
             }
