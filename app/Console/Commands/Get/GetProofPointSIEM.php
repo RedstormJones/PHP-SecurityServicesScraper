@@ -67,15 +67,13 @@ class GetProofPointSIEM extends Command
         // try to JSON decode the response
         try {
             $response = \Metaclassing\Utility::decodeJson($json_response);
-            $error = "No errors detected";
-        }
-        catch (\Exception $e) {
+            $error = 'No errors detected';
+        } catch (\Exception $e) {
             $error = $e->getMessage();
         }
 
         // check if decoding the JSON response was successful
         if (!\Metaclassing\Utility::testJsonError()) {
-
             file_put_contents(storage_path('app/collections/proofpoint_siem.json'), \Metaclassing\Utility::encodeJson($response));
 
             $messages_delivered = $response['messagesDelivered'];
