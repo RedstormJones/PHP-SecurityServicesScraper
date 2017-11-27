@@ -5,7 +5,6 @@ namespace App\Console\Commands\Get;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class GetEventIDLogs extends Command
 {
@@ -72,31 +71,30 @@ class GetEventIDLogs extends Command
             4767,
             4776,
             4625,
-            4771
+            4771,
         ];
 
-        foreach ($event_ids as $event_id)
-        {
+        foreach ($event_ids as $event_id) {
             $search_query = [
                 'query' => [
                     'bool'  => [
                         'must'  => [
                             [
                                 'match' => [
-                                    'event_id'  => $event_id
-                                ]
+                                    'event_id'  => $event_id,
+                                ],
                             ],
                             [
                                 'range' => [
                                     '@timestamp'    => [
                                         'gte'   => '2017-11-01T00:00:00Z',
-                                        'lte'   => 'now'
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
+                                        'lte'   => 'now',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ];
 
             $json_response = $crawler->post($winlogbeat_url, '', \Metaclassing\Utility::encodeJson($search_query));
@@ -106,18 +104,15 @@ class GetEventIDLogs extends Command
 
             $event_data = [];
 
-            foreach ($hits as $hit)
-            {
+            foreach ($hits as $hit) {
                 $event_data[] = $hit['_source'];
             }
 
-            if ($event_id == 4726 OR $event_id == 4732 OR $event_id == 6272 OR $event_id == 6273)
-            {
+            if ($event_id == 4726 or $event_id == 4732 or $event_id == 6272 or $event_id == 6273) {
                 echo PHP_EOL.PHP_EOL.'EVENT ID: '.$event_id.PHP_EOL;
                 print_r($event_data);
             }
             //file_put_contents(storage_path('app/responses/winlogbeat/windowslogs_eventid_'.$event_id.'.json'), \Metaclassing\Utility::encodeJson($event_data));
         }
-
     }
 }
