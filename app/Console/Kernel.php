@@ -36,6 +36,7 @@ class Kernel extends ConsoleKernel
         Commands\Get\GetServer2003Burndown::class,
         Commands\Get\GetMFATickets::class,
         Commands\Get\GetProofPointSIEM::class,
+        Commands\Get\GetEventIDLogs::class,
         Commands\Process\ProcessCylanceDevices::class,
         Commands\Process\ProcessCylanceThreats::class,
         Commands\Process\ProcessIncomingEmail::class,
@@ -69,6 +70,7 @@ class Kernel extends ConsoleKernel
         Commands\Crawl\CrawlCMDBServers::class,
         Commands\Crawl\CrawlIdmIncidents::class,
         Commands\Crawl\CrawlSapRoleAuthIncidents::class,
+        Commands\TestO365Api::class,
     ];
 
     /**
@@ -92,7 +94,7 @@ class Kernel extends ConsoleKernel
         /*
         * Commands run on daily schedule
         */
-        $schedule->command('get:ironportthreats')->dailyAt('02:00')->timezone('America/Chicago');           // runs daily at 02:00am
+        //$schedule->command('get:ironportthreats')->dailyAt('02:00')->timezone('America/Chicago');           // runs daily at 02:00am
         $schedule->command('get:incomingemail')->dailyAt('02:05')->timezone('America/Chicago');             // runs daily at 02:05am
 
         $schedule->command('get:sccmsystems')->dailyAt('05:00')->timezone('America/Chicago');               // runs daily at 05:00am
