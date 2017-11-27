@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class TestO365Api extends Command
 {
@@ -61,7 +60,7 @@ class TestO365Api extends Command
         $access_token = $response['access_token'];
         echo 'access_token: '.$access_token.PHP_EOL;
 
-        #$url = 'https://manage.office.com/api/v1.0/'.$ms_tenant_id.'/activity/feed/subscriptions/content?contentType=Audit.Exchange&PublisherIdentifier='.$ms_tenant_id;
+        //$url = 'https://manage.office.com/api/v1.0/'.$ms_tenant_id.'/activity/feed/subscriptions/content?contentType=Audit.Exchange&PublisherIdentifier='.$ms_tenant_id;
         $url = 'https://manage.office.com/api/v1.0/subscriptions/content?contentType=Audit.General&PublisherIdentifier='.$ms_tenant_id;
 
         $headers = [
