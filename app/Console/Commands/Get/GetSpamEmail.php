@@ -62,7 +62,7 @@ class GetSpamEmail extends Command
         // set url
         $url = getenv('IRONPORT_SMA');
 
-        // hit webpage and try to capture CSRF token, otherwise die
+        // hit webpage
         $response = $crawler->get($url);
         file_put_contents($response_path.'spam_login.page', $response);
 
@@ -77,7 +77,7 @@ class GetSpamEmail extends Command
 
             $post = [
                 'action'        => 'Login',
-                'action_type'   => 'ajax_validation',
+                //'action_type'   => 'ajax_validation',
                 'referrer'      => '',
                 'screen'        => 'login',
                 'username'      => $username,
