@@ -77,7 +77,6 @@ class GetSpamEmail extends Command
 
             $post = [
                 'action'        => 'Login',
-                //'action_type'   => 'ajax_validation',
                 'referrer'      => '',
                 'screen'        => 'login',
                 'username'      => $username,
@@ -203,11 +202,12 @@ class GetSpamEmail extends Command
         }
 
         $spam_emails = [];
+        $time_added_regex = '/(\d{2} \w{3} \d{4} \d{1,2}:\d{2})/';
 
         foreach ($spam_array as $spam) {
-            $time_added_raw = str_replace(' (GMT -05:00)', '', $spam['time_added']);
-            $time_added = Carbon::createFromFormat('d M Y H:i', $time_added_raw)->toDateTimeString();
-
+            // get the time_added datetime and format it correctly - there's probably a better way to do this
+            preg_match($time_added_regex, $spam['time_added'], $hits);
+            $time_added = Carbon::createFromFormat('d M Y H:i', $hits[1])->toDateTimeString();
             $time_added_pieces = explode(' ', $time_added);
             $time_added = $time_added_pieces[0].'T'.$time_added_pieces[1];
 
