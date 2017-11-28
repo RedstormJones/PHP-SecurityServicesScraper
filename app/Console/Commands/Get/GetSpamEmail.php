@@ -64,7 +64,7 @@ class GetSpamEmail extends Command
 
         // hit webpage and try to capture CSRF token, otherwise die
         $response = $crawler->get($url);
-        file_put_contents($response_path.'ironport_login.spam.dump', $response);
+        file_put_contents($response_path.'spam_login.page', $response);
 
         // set regex string to dashboard page <title> element
         $regex = '/(<title>.*Centralized Services &gt; System Status <\/title>)/';
@@ -86,6 +86,7 @@ class GetSpamEmail extends Command
 
             // try to login
             $response = $crawler->post($url, $url, $this->postArrayToString($post));
+            file_put_contents($response_path.'spam_login.response', $response);
 
             // increment tries and set regex back to dashboard <title>
             $tries++;
