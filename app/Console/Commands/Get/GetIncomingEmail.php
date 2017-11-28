@@ -66,26 +66,17 @@ class GetIncomingEmail extends Command
         $response = $crawler->get($url);
 
         // set regex string to dashboard page <title> element
-        $regex = '/(<title>        Cisco         Content Security Management Appliance   M804 \(dh1146-sma1\.iphmx\.com\) -         Centralized Services &gt; System Status <\/title>)/';
+        $regex = '/(<title>.*Centralized Services &gt; System Status <\/title>)/';
         $tries = 0;
+
         // while NOT at the dashboard page
         while (!preg_match($regex, $response, $hits) && $tries <= 3) {
-            // find CSRFKey value
-            $regex = '/CSRFKey=([\w-]+)/';
-
-            if (preg_match($regex, $response, $hits)) {
-                $csrftoken = $hits[1];
-            } else {
-                Log::error('Error: could not get CSRF token');
-                die('Error: could not get CSRF token'.PHP_EOL);
-            }
-
             // set login url and post data
             $url = getenv('IRONPORT_SMA').'/login';
 
             $post = [
                 'action'    => 'Login',
-                'referrer'  => getenv('IRONPORT_SMA').'/default',
+                'referrer'  => '',
                 'screen'    => 'login',
                 'username'  => $username,
                 'password'  => $password,
@@ -96,7 +87,7 @@ class GetIncomingEmail extends Command
 
             // increment tries and set regex back to dashboard <title>
             $tries++;
-            $regex = '/(<title>        Cisco         Content Security Management Appliance   M804 \(dh1146-sma1\.iphmx\.com\) -         Centralized Services &gt; System Status <\/title>)/';
+            $regex = '/(<title>.*Centralized Services &gt; System Status <\/title>)/';
         }
         // once out of the login loop, if tries is > 3 then we didn't login so die
         if ($tries > 3) {
