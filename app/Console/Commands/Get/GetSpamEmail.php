@@ -67,30 +67,21 @@ class GetSpamEmail extends Command
         file_put_contents($response_path.'ironport_login.spam.dump', $response);
 
         // set regex string to dashboard page <title> element
-        $regex = '/(<title>        Cisco         Content Security Management Appliance   M804 \(dh1146-sma1\.iphmx\.com\) -         Centralized Services &gt; System Status <\/title>)/';
+        $regex = '/(<title>.*Centralized Services &gt; System Status <\/title>)/';
         $tries = 0;
 
         // while NOT at the dashboard page
         while (!preg_match($regex, $response, $hits) && $tries <= 3) {
-            // find CSRFKey value
-            $regex = '/CSRFKey=([\w-]+)/';
-
-            if (preg_match($regex, $response, $hits)) {
-                $csrftoken = $hits[1];
-            } else {
-                Log::error('could not get CSRF token');
-                die('Error: could not get CSRF token'.PHP_EOL);
-            }
-
             // set login URL and post data
             $url = getenv('IRONPORT_SMA').'/login';
 
             $post = [
-                'action'    => 'Login',
-                'referrer'  => getenv('IRONPORT_SMA').'/default',
-                'screen'    => 'login',
-                'username'  => $username,
-                'password'  => $password,
+                'action'        => 'Login',
+                'action_type'   => 'ajax_validation',
+                'referrer'      => '',
+                'screen'        => 'login',
+                'username'      => $username,
+                'password'      => $password,
             ];
 
             // try to login
@@ -98,7 +89,7 @@ class GetSpamEmail extends Command
 
             // increment tries and set regex back to dashboard <title>
             $tries++;
-            $regex = '/(<title>        Cisco         Content Security Management Appliance   M804 \(dh1146-sma1\.iphmx\.com\) -         Centralized Services &gt; System Status <\/title>)/';
+            $regex = '/(<title>.*Centralized Services &gt; System Status <\/title>)/';
         }
         // once out of the login loop, if tries is > 3 then we didn't login so die
         if ($tries > 3) {
@@ -119,8 +110,8 @@ class GetSpamEmail extends Command
             $csrftoken = $hits[1];
         } else {
             // if no CSRFToken, pop smoke
-            Log::error('could not get CSRF token');
-            die('Error: could not get CSRF Token'.PHP_EOL);
+            Log::error('could not get CSRF token from quarantines page');
+            die('Error: could not get CSRF token from quarantines page'.PHP_EOL);
         }
 
         // setup url and referer to go to the Centralized Policy spam quarantine
@@ -191,8 +182,8 @@ class GetSpamEmail extends Command
             // set total to total number of messages
             $total = $spam['num_msgs'];
 
-            $i += $pagesize;   // increment by number of records per page
-            $page++;    // increment to next page
+            $i += $pagesize;    // increment by number of records per page
+            $page++;            // increment to next page
 
             // sleep for 1 second before hammering on IronPort again
             sleep(1);
@@ -294,65 +285,6 @@ class GetSpamEmail extends Command
                 die('Something went wrong upserting IronPort spam email: '.$spam['mid'].PHP_EOL);
             }
         }
-        */
-
-        /*
-         * [2] Process spam emails into database
-         */
-
-        /*
-        Log::info(PHP_EOL.'***********************************'.PHP_EOL.'* Starting spam email processing! *'.PHP_EOL.'***********************************');
-
-        $time_added_regex = '/(.+) \(.+\)/';
-
-        foreach ($spam_emails as $spam) {
-            $reasons = '';
-            $time_added_hits = [];
-
-            // cycle through reasons
-            foreach ($spam['reason'] as $reason) {
-                // grab policy array and convert to a ';' separated string
-                $policy_arr = $reason[1];
-                $reason_str = implode('; ', $policy_arr);
-                // appeand to reasons string
-                $reasons .= $reason_str.'; ';
-            }
-
-            // normalize time added date
-            if (preg_match($time_added_regex, $spam['time_added'], $time_added_hits)) {
-                $time_added = Carbon::createFromFormat('d M Y H:i', $time_added_hits[1])->toDateTimeString();
-            } else {
-                $time_added = '';
-            }
-
-            // convert quarantine names and recipients arrays to strings
-            $quarantines = implode('; ', $spam['quarantine_names']);
-            $recipients = implode('; ', $spam['recipients']);
-
-            Log::info('processing spam record for: '.$spam['sender']);
-
-            $spam_model = IronPortSpamEmail::updateOrCreate(
-                [
-                    'mid'                 => $spam['mid'],
-                ],
-                [
-                    'subject'             => $spam['subject'],
-                    'size'                => $spam['size'],
-                    'quarantine_names'    => $quarantines,
-                    'time_added'          => $time_added,
-                    'reason'              => $reasons,
-                    'recipients'          => $recipients,
-                    'sender'              => $spam['sender'],
-                    'esa_id'              => $spam['esa_id'],
-                    'data'                => \Metaclassing\Utility::encodeJson($spam),
-                ]
-            );
-
-            // touch spam model to update the "updated_at" timestamp in case nothing was changed
-            $spam_model->touch();
-        }
-
-        $this->processDeletes();
         */
 
         Log::info('* Completed IronPort spam emails! *');
