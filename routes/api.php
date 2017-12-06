@@ -15,13 +15,12 @@ use Illuminate\Http\Request;
 
 $api = app('Dingo\Api\Routing\Router');
 
-/*
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:api');
 
+/*
 Route::auth();
-/**/
 
 $api->version('v1', function ($api) {
 
@@ -49,3 +48,4 @@ $api->version('v1', function ($api) {
 
     require __DIR__.'/api.sccm.php';
 });
+/**/
