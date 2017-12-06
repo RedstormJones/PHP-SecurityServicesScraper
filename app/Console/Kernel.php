@@ -13,31 +13,9 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\Get\GetCylanceDevices::class,
-        Commands\Get\GetCylanceThreats::class,
-        Commands\Get\GetCylanceThreatDetailsForActive::class,
-        Commands\Get\GetCylanceThreatDetailsForBlocked::class,
-        Commands\Get\GetCylanceThreatDetailsForAllowed::class,
-        Commands\Get\GetCylanceThreatDetailsForSuspicious::class,
-        Commands\Get\GetCMDBServers::class,
-        Commands\Get\GetIncomingEmail::class,
-        Commands\Get\GetIronPortThreats::class,
-        Commands\Get\GetSecurityIncidents::class,
-        Commands\Get\GetIDMIncidents::class,
-        Commands\Get\GetSecurityTasks::class,
-        Commands\Get\GetIDMTasks::class,
-        Commands\Get\GetSiteSubnets::class,
-        Commands\Get\GetSpamEmail::class,
-        Commands\Get\GetSecurityCenterAssetVulns::class,
-        Commands\Get\GetSecurityCenterVulns::class,
-        Commands\Get\GetSecurityCenterSumIPVulns::class,
-        Commands\Get\GetSecurityCenterSeveritySummary::class,
-        Commands\Get\GetSCCMSystems::class,
-        Commands\Get\GetServer2003Burndown::class,
-        Commands\Get\GetMFATickets::class,
-        Commands\Get\GetProofPointSIEM::class,
-        Commands\Get\GetEventIDLogs::class,
-        Commands\TestO365Api::class,
+        /*
+         * Commands\CommandName::class,
+         */
     ];
 
     /**
@@ -115,5 +93,7 @@ class Kernel extends ConsoleKernel
     protected function commands()
     {
         require base_path('routes/console.php');
+
+        $this->load(__DIR__.'/Commands');
     }
 }
