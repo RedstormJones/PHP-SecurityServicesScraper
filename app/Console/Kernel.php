@@ -28,17 +28,17 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         /*
-        * Commands run on monthly schedule
-        */
+         * Commands run on monthly schedule
+         */
 
         /*
-        * Commands run on weekly-ish schedule
-        */
+         * Commands run on weekly-ish schedule
+         */
         $schedule->command('get:securitycentervulns')->weekly()->tuesdays()->at('18:00')->timezone('America/Chicago');  // runs on Tuesdays at 06:00pm
 
         /*
-        * Commands run on daily schedule
-        */
+         * Commands run on daily schedule
+         */
         //$schedule->command('get:ironportthreats')->dailyAt('02:00')->timezone('America/Chicago');           // runs daily at 02:00am
         $schedule->command('get:incomingemail')->dailyAt('02:05')->timezone('America/Chicago');             // runs daily at 02:05am
 
@@ -53,8 +53,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:securitycenterassetvulns')->dailyAt('22:30')->timezone('America/Chicago');  // runs daily at 10:30pm
 
         /*
-        * Commands run multiple times a day
-        */
+         * Commands run multiple times a day
+         */
         $schedule->command('get:cylancedevices')->twiceDaily(8, 10)->timezone('America/Chicago');           // runs twice daily at 08:00am and 10:00am
         $schedule->command('get:cylancedevices')->twiceDaily(12, 14)->timezone('America/Chicago');          // runs twice daily at 12:00pm and 02:00pm
         $schedule->command('get:cylancedevices')->twiceDaily(16, 18)->timezone('America/Chicago');          // runs twice daily at 04:00pm and 06:00pm
@@ -66,8 +66,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:spamemail')->twiceDaily(4, 16)->timezone('America/Chicago');                // runs twice daily at 04:00am and 04:00pm
 
         /*
-        * Commands run on an hourly basis
-        */
+         * Commands run on an hourly basis
+         */
         $schedule->command('get:securitytasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');             // runs hourly on week days between 06:00am and 06:00pm
         $schedule->command('get:idmtasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');                  // runs hourly on week days between 06:00am and 06:00pm
 
@@ -80,8 +80,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:suspiciousthreatdetails')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');    // runs hourly on week days between 06:00am and 06:00pm
 
         /*
-        * Commands run every minute
-        */
+         * Commands run every minute
+         */
         $schedule->command('get:proofpointsiem')->everyMinute()->timezone('America/Chicago');    // runs every minute
     }
 
