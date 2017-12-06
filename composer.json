@@ -12,7 +12,7 @@
     ],
     "require": {
         "php": ">=5.6.4",
-        "laravel/framework": "5.4.*",
+        "laravel/framework": "5.5.*",
         "metaclassing/utility": "dev-master",
         "dingo/api": "1.0.x@dev",
         "adldap/adldap": "4.0.4.x-dev",
@@ -22,15 +22,17 @@
         "doctrine/dbal": ">=2.5",
         "nesbot/carbon": "~1.21",
         "phpreboot/stopwatch": "^1.0",
-        "nmred/kafka-php": "0.2.*"
+        "nmred/kafka-php": "0.2.*",
+        "microsoft/microsoft-graph": "dev-master"
     },
     "minimum-stability": "dev",
     "require-dev": {
         "fzaninotto/faker": "~1.4",
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "~5.7",
+        "phpunit/phpunit": "~6.0",
         "symfony/css-selector": "3.1.*",
-        "symfony/dom-crawler": "3.1.*"
+        "symfony/dom-crawler": "3.1.*",
+        "filp/whoops": "~2.0"
     },
     "autoload": {
         "classmap": [
@@ -59,6 +61,10 @@
         "post-update-cmd": [
             "Illuminate\\Foundation\\ComposerScripts::postUpdate",
             "php artisan optimize"
+        ],
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover"
         ]
     },
     "config": {
