@@ -4,7 +4,6 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use App\ServiceNow\cmdbServer;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -286,7 +285,7 @@ class GetCMDBServers extends Command
 
         foreach ($cmdb_servers as $server) {
             $server['upsert_date'] = Carbon::now()->toAtomString();
-            
+
             $result = $producer->send([
                 [
                     'topic' => 'servicenow_cmdb_servers',
