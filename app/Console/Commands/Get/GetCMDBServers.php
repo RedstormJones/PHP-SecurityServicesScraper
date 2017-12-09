@@ -73,13 +73,14 @@ class GetCMDBServers extends Command
         // JSON decode response
         $response = \Metaclassing\Utility::decodeJson($json_response);
 
-        // get the data we care about and tell the world how many records we got
+        // get the data we care about and log how many records we got
         $servers = $response['result'];
         Log::info('total server count: '.count($servers));
 
         $cmdb_servers = [];
 
         foreach ($servers as $server) {
+            // handle empty strings and null values
             $managed_by = $this->handleNull($server['managed_by']);
             $owned_by = $this->handleNull($server['owned_by']);
             $supported_by = $this->handleNull($server['supported_by']);
@@ -98,9 +99,11 @@ class GetCMDBServers extends Command
             $department = $this->handleNull($server['department']);
             $sys_domain = $this->handleNull($server['sys_domain']);
 
+            // format created on date
             $created_on_pieces = explode(' ', $server['sys_created_on']);
             $created_on = $created_on_pieces[0].'T'.$created_on_pieces[1];
 
+            // if updated on date exists then format otherwise set to null
             if ($server['sys_updated_on']) {
                 $updated_on_pieces = explode(' ', $server['sys_updated_on']);
                 $updated_on = $updated_on_pieces[0].'T'.$updated_on_pieces[1];
@@ -108,6 +111,7 @@ class GetCMDBServers extends Command
                 $updated_on = null;
             }
 
+            // if order date exists then format otherwise set to null
             if ($server['order_date']) {
                 $order_date_pieces = explode(' ', $server['order_date']);
                 $order_date = $order_date_pieces[0].'T'.$order_date_pieces[1];
@@ -115,6 +119,7 @@ class GetCMDBServers extends Command
                 $order_date = null;
             }
 
+            // if first discovered date exists then format otherwise set to null
             if ($server['first_discovered']) {
                 $first_disc_pieces = explode(' ', $server['first_discovered']);
                 $first_discovered = $first_disc_pieces[0].'T'.$first_disc_pieces[1];
@@ -122,6 +127,7 @@ class GetCMDBServers extends Command
                 $first_discovered = null;
             }
 
+            // if last discovered date exists then format otherwise set to null
             if ($server['last_discovered']) {
                 $last_disc_pieces = explode(' ', $server['last_discovered']);
                 $last_discovered = $last_disc_pieces[0].'T'.$last_disc_pieces[1];
@@ -129,6 +135,7 @@ class GetCMDBServers extends Command
                 $last_discovered = null;
             }
 
+            // if checked in date exists then format otherwise set to null
             if ($server['checked_in']) {
                 $checked_in_pieces = explode(' ', $server['checked_in']);
                 $checked_in = $checked_in_pieces[0].'T'.$checked_in_pieces[1];
@@ -136,6 +143,7 @@ class GetCMDBServers extends Command
                 $checked_in = null;
             }
 
+            // if checked out date exists then format otherwise set to null
             if ($server['checked_out']) {
                 $checked_out_pieces = explode(' ', $server['checked_out']);
                 $checked_out = $checked_out_pieces[0].'T'.$checked_out_pieces[1];
@@ -143,6 +151,7 @@ class GetCMDBServers extends Command
                 $checked_out = null;
             }
 
+            // add server to final array
             $cmdb_servers[] = [
                 'x_bmgr_support_ent_bomgar_appliance_name'  => $server['x_bmgr_support_ent_bomgar_appliance_name'],
                 'can_print'                                 => $server['can_print'],
@@ -279,13 +288,19 @@ class GetCMDBServers extends Command
         // JSON encode and dump CMDB servers to file
         file_put_contents(storage_path('app/collections/cmdb_servers_collection.json'), \Metaclassing\Utility::encodeJson($cmdb_servers));
 
+        // instantiate Kafka producer config and set broker IP
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+
+        // instantiate Kafka producer
         $producer = new \Kafka\Producer();
 
+        // cycle through servers
         foreach ($cmdb_servers as $server) {
+            // add upsert datetime
             $server['upsert_date'] = Carbon::now()->toAtomString();
 
+            // ship data to Kafka
             $result = $producer->send([
                 [
                     'topic' => 'servicenow_cmdb_servers',
@@ -293,6 +308,7 @@ class GetCMDBServers extends Command
                 ],
             ]);
 
+            // check for and log errors
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
                 Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
@@ -300,7 +316,7 @@ class GetCMDBServers extends Command
             }
         }
 
-        /*
+    /*
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -332,7 +348,7 @@ class GetCMDBServers extends Command
                 die('Something went wrong inserting CMDB server: '.$server['name'].PHP_EOL);
             }
         }
-        */
+    */
 
         Log::info('* CMDB servers completed! *'.PHP_EOL);
     }
