@@ -166,7 +166,7 @@ class GetCylanceDevices extends Command
             $devices = \Metaclassing\Utility::decodeJson($response);
 
             // save this pages response array to our collection
-            $collection[] = $devices;
+            $collection[] = $devices['Data'];
 
             // set count to the total number of devices returned with each response
             $count = $devices['Total'];
@@ -180,42 +180,52 @@ class GetCylanceDevices extends Command
             sleep(1);
         } while ($i < $count);
 
-        // instantiate cylance device list
-        $cylance_devices = [];
-
-        // first level is simple sequencial array of 1,2,3
-        foreach ($collection as $response) {
-            // next level down is associative, the KEY we care about is 'Data'
-            $results = $response['Data'];
-            foreach ($results as $device) {
-                // this is confusing logic.
-                $cylance_devices[] = $device;
-            }
-        }
+        // collapse collection into a simple array ( ex. [[1,2,3],[4,5,6],[7,8]] ==> [1,2,3,4,5,6,7,8] )
+        $devices = array_collapse($collection);
 
         // build final array of Cylance devices with all necessary values converted to usable format
-        $cylance_devices_final = [];
+        $cylance_devices = [];
         $user_regex = '/\w+\\\(\w+\.\w+-*\w+)/';
 
-        foreach ($cylance_devices as $device) {
-            $user_hits = [];
-
-            // format datetimes for updating device record
+        // cycle through devices
+        foreach ($devices as $device) {
+            // create datetime objects for the created and offline dates
             $created_date = $this->stringToDate($device['Created']);
             $offline_date = $this->stringToDate($device['OfflineDate']);
 
+            // format created date
             $created_date_pieces = explode(' ', $created_date);
-            $createddate = $created_date_pieces[0].'T'.$created_date_pieces[1];
+            $created_date = $created_date_pieces[0].'T'.$created_date_pieces[1];
+
+            // attempt to format offline date
+            $offline_date_pieces = explode(' ', $offline_date);
+
+            // check that explode returned multiple date pieces 
+            if (count($offline_date_pieces) > 1) {
+                // if yes, rebuild offline date
+                $offline_date = $offline_date_pieces[0].'T'.$offline_date_pieces[1];
+            } else {
+                // if no, set offline date to null
+                $offline_date = null;
+            }
+
+            // array to hold regex matches
+            $user = [];
 
             // extract user from last users text
-            preg_match($user_regex, $device['LastUsersText'], $user_hits);
-            if (isset($user_hits[1])) {
-                $last_user = ucwords(strtolower($user_hits[1]), '.');
+            preg_match($user_regex, $device['LastUsersText'], $user);
+
+            // check for value in matching group 1
+            if (isset($user[1])) {
+                // if set, format username
+                $last_user = ucwords(strtolower($user[1]), '.');
             } else {
+                // otherwise set to empty string
                 $last_user = '';
             }
 
-            $cylance_devices_final[] = [
+            // build final array
+            $cylance_devices[] = [
                 'DeviceLdapGroupMembership'     => $device['DeviceLdapGroupMembership'],
                 'ZoneRoleText'                  => $device['ZoneRoleText'],
                 'IsOffline'                     => $device['IsOffline'],
@@ -224,7 +234,7 @@ class GetCylanceDevices extends Command
                 'LastUsersText'                 => $last_user,
                 'DeviceId'                      => $device['DeviceId'],
                 'OfflineDate'                   => $offline_date,
-                'Created'                       => $createddate,
+                'Created'                       => $created_date,
                 'Waived'                        => $device['Waived'],
                 'Unsafe'                        => $device['Unsafe'],
                 'ScriptCount'                   => $device['ScriptCount'],
@@ -249,19 +259,25 @@ class GetCylanceDevices extends Command
             ];
         }
 
-        Log::info('devices successfully collected: '.count($cylance_devices_final));
+        // log device count
+        Log::info('[+] count of devices collected: '.count($cylance_devices));
 
         // JSON encode and dump devices array to file
-        file_put_contents(storage_path('app/collections/cylance_devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices_final));
+        file_put_contents(storage_path('app/collections/cylance_devices.json'), \Metaclassing\Utility::encodeJson($cylance_devices));
 
+        // instantiate a Kafka producer config and set the broker IP
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+
+        // instantiate new Kafka producer
         $producer = new \Kafka\Producer();
 
         // cycle through Cylance devices
-        foreach ($cylance_devices_final as $cylance_device) {
+        foreach ($cylance_devices as $cylance_device) {
+            // add upsert datetime
             $cylance_device['UpsertDate'] = Carbon::now()->toAtomString();
 
+            // ship data to Kafka
             $result = $producer->send([
                 [
                     'topic' => 'cylance_devices',
@@ -269,6 +285,7 @@ class GetCylanceDevices extends Command
                 ],
             ]);
 
+            // check for and log errors
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
                 Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
@@ -277,94 +294,48 @@ class GetCylanceDevices extends Command
         }
 
         /*
-        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-        $crawler = new \Crawler\Crawler($cookiejar);
+            $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+            $crawler = new \Crawler\Crawler($cookiejar);
 
-        $url = 'http://10.243.36.9:9200/_xpack/security/_authenticate';
-        $headers = [
-            'authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ==',
-            'cache-control: no-cache',
-        ];
-
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-        $raw_response = $crawler->get($url);
-        $response = \Metaclassing\Utility::decodeJson($raw_response);
-
-        if (!array_key_exists('enabled', $response) || !$response['enabled']) {
-            Log::error('[!] authentication to Elastic failed!'.PHP_EOL.$response);
-            die('[!] ERROR: authentication to Elastic failed!'.PHP_EOL);
-        }
-
-        foreach ($cylance_devices_final as $device) {
-            $url = 'http://10.243.36.9:9200/cylance_devices/cylance_devices/'.$device['DeviceId'];
-            Log::info('HTTP Post to elasticsearch: '.$url);
-
-            $dt = Carbon::now();
-            $device['LastUpdated'] = $dt->toAtomString();
-
-            $post = [
-                'doc'           => $device,
-                'doc_as_upsert' => true,
+            $url = 'http://10.243.36.9:9200/_xpack/security/_authenticate';
+            $headers = [
+                'authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ==',
+                'cache-control: no-cache',
             ];
 
-            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+            curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+            $raw_response = $crawler->get($url);
+            $response = \Metaclassing\Utility::decodeJson($raw_response);
 
-            $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($response);
-
-            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('Cylance device was successfully inserted into ES: '.$device['DeviceId']);
-            } else {
-                Log::error('Something went wrong inserting device: '.$device['DeviceId']);
-                die('Something went wrong inserting device: '.$device['DeviceId'].PHP_EOL);
+            if (!array_key_exists('enabled', $response) || !$response['enabled']) {
+                Log::error('[!] authentication to Elastic failed!'.PHP_EOL.$response);
+                die('[!] ERROR: authentication to Elastic failed!'.PHP_EOL);
             }
-        }
-        */
 
-        /*************************************
-         * [2] Process devices into database *
-         *************************************/
+            foreach ($cylance_devices as $device) {
+                $url = 'http://10.243.36.9:9200/cylance_devices/cylance_devices/'.$device['DeviceId'];
+                Log::info('HTTP Post to elasticsearch: '.$url);
 
-        /*
-        Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance devices processing! *'.PHP_EOL.'****************************************');
+                $dt = Carbon::now();
+                $device['LastUpdated'] = $dt->toAtomString();
 
-        foreach ($cylance_devices_final as $device) {
-            Log::info('processing Cylance device: '.$device['Name']);
+                $post = [
+                    'doc'           => $device,
+                    'doc_as_upsert' => true,
+                ];
 
-            // update model if it exists, otherwise create it
-            $device_model = CylanceDevice::withTrashed()->updateOrCreate(
-                [
-                    'device_id'            => $device['DeviceId'],
-                ],
-                [
-                    'device_name'          => $device['Name'],
-                    'zones_text'           => $device['ZonesText'],
-                    'files_unsafe'         => $device['Unsafe'],
-                    'files_quarantined'    => $device['Quarantined'],
-                    'files_abnormal'       => $device['Abnormal'],
-                    'files_waived'         => $device['Waived'],
-                    'files_analyzed'       => $device['FilesAnalyzed'],
-                    'agent_version_text'   => $device['AgentVersionText'],
-                    'last_users_text'      => $device['LastUsersText'],
-                    'os_versions_text'     => $device['OSVersionsText'],
-                    'ip_addresses_text'    => $device['IPAddressesText'],
-                    'mac_addresses_text'   => $device['MacAddressesText'],
-                    'policy_name'          => $device['PolicyName'],
-                    'device_created_at'    => $device['Created'],
-                    'device_offline_date'  => $device['OfflineDate'],
-                    'data'                 => \Metaclassing\Utility::encodeJson($device),
-                ]
-            );
+                $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
 
-            // touch device model to update 'updated_at' timestamp (in case nothing was changed)
-            $device_model->touch();
+                $response = \Metaclassing\Utility::decodeJson($json_response);
+                Log::info($response);
 
-            // restore device model to remove deleted_at timestamp
-            $device_model->restore();
-        }
-
-        // process soft deletes for old records
-        $this->processDeletes();
+                if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                    Log::info('Cylance device was successfully inserted into ES: '.$device['DeviceId']);
+                } else {
+                    Log::error('Something went wrong inserting device: '.$device['DeviceId']);
+                    die('Something went wrong inserting device: '.$device['DeviceId'].PHP_EOL);
+                }
+            }
         */
 
         Log::info('* Cylance devices completed! *'.PHP_EOL);
@@ -386,34 +357,6 @@ class GetCylanceDevices extends Command
         $poststring = implode('&', $postarray);
 
         return $poststring;
-    }
-
-    /**
-     * Delete old CylanceDevice models.
-     *
-     * @return void
-     */
-    public function processDeletes()
-    {
-        // create new datetime object and subtract one day to get delete_date
-        $delete_date = Carbon::now()->subHours(2);
-
-        // get all the devices
-        $devices = CylanceDevice::all();
-
-        /*
-        * For each device, get its updated_at timestamp, remove the time of day portion, and check
-        * it against delete_date to determine if its a stale record or not. If yes, delete it.
-        */
-        foreach ($devices as $device) {
-            $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $device->updated_at);
-
-            // if updated_at is less than or equal to delete_date then we soft delete the device
-            if ($updated_at->lt($delete_date)) {
-                Log::info('deleting device: '.$device->device_name);
-                $device->delete();
-            }
-        }
     }
 
     /**
