@@ -4,7 +4,6 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use App\Cylance\CylanceDevice;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -200,7 +199,7 @@ class GetCylanceDevices extends Command
             // attempt to format offline date
             $offline_date_pieces = explode(' ', $offline_date);
 
-            // check that explode returned multiple date pieces 
+            // check that explode returned multiple date pieces
             if (count($offline_date_pieces) > 1) {
                 // if yes, rebuild offline date
                 $offline_date = $offline_date_pieces[0].'T'.$offline_date_pieces[1];
