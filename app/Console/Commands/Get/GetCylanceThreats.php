@@ -4,7 +4,6 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use App\Cylance\CylanceThreat;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -166,7 +165,7 @@ class GetCylanceThreats extends Command
             $threats = json_decode($response, true);
 
             // save this pages response array to our collection
-            $collection[] = $threats;
+            $collection[] = $threats['Data'];
 
             // set count to the total number of devices returned with each response.
             // this should not change from response to response
@@ -180,22 +179,15 @@ class GetCylanceThreats extends Command
             sleep(1);   // wait a second before hammering on their webserver again
         } while ($i < $count);
 
+        // collapse collection into a simple array ( ex. [[1,2,3],[4,5,6],[7,8]] ==> [1,2,3,4,5,6,7,8] )
+        $threats = array_collapse($collection);
+
+        // instantiate final array
         $cylance_threats = [];
 
-        // first level is simple sequencail array of 1,2,3
-        foreach ($collection as $response) {
-            // next level down is associative, the KEY we care about is 'Data'
-            $results = $response['Data'];
-            foreach ($results as $threat) {
-                // this is confusing logic.
-                $cylance_threats[] = $threat;
-            }
-        }
-
-        $cylance_threats_final = [];
-
-        foreach ($cylance_threats as $threat) {
-            // format datetimes for threat record
+        // cylce through threats
+        foreach ($threats as $threat) {
+            // format datetimes
             $first_found = $this->stringToDate($threat['FirstFound']);
             $last_found = $this->stringToDate($threat['LastFound']);
             $active_last_found = $this->stringToDate($threat['ActiveLastFound']);
@@ -204,7 +196,8 @@ class GetCylanceThreats extends Command
             $suspicious_last_found = $this->stringToDate($threat['SuspiciousLastFound']);
             $cert_timestamp = $this->stringToDate($threat['CertTimeStamp']);
 
-            $cylance_threats_final[] = [
+            // build final array
+            $cylance_threats[] = [
                 'IsRunning'             => $threat['IsRunning'],
                 'DetectorId'            => $threat['DetectorId'],
                 'CertTimeStamp'         => $cert_timestamp,
@@ -252,19 +245,24 @@ class GetCylanceThreats extends Command
             ];
         }
 
-        Log::info('threats successfully collected: '.count($cylance_threats));
+        Log::info('[+] count of threats collected: '.count($cylance_threats));
 
         // JSON encode and dump devices array to file
-        file_put_contents(storage_path('app/collections/cylance_threats.json'), \Metaclassing\Utility::encodeJson($cylance_threats_final));
+        file_put_contents(storage_path('app/collections/cylance_threats.json'), \Metaclassing\Utility::encodeJson($cylance_threats));
 
+        // instantiate a Kafka producer config and set the broker IP
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+
+        // instantiate a Kafka producer
         $producer = new \Kafka\Producer();
 
         // cycle through Cylance threats
-        foreach ($cylance_threats_final as $cylance_threat) {
+        foreach ($cylance_threats as $cylance_threat) {
+            // add upsert datetime
             $cylance_threat['UpsertDate'] = Carbon::now()->toAtomString();
 
+            // ship data to Kafka
             $result = $producer->send([
                 [
                     'topic' => 'cylance_threats',
@@ -272,6 +270,7 @@ class GetCylanceThreats extends Command
                 ],
             ]);
 
+            // check for and log errors
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
                 Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
@@ -280,95 +279,38 @@ class GetCylanceThreats extends Command
         }
 
         /*
-        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-        $crawler = new \Crawler\Crawler($cookiejar);
+            $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+            $crawler = new \Crawler\Crawler($cookiejar);
 
-        $headers = [
-            'Content-Type: application/json',
-        ];
-
-        // setup curl HTTP headers with $headers
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-
-        foreach ($cylance_threats_final as $threat) {
-            $url = 'http://10.243.32.36:9200/cylance_threats/cylance_threats/'.$threat['ThreatId'];
-            Log::info('HTTP Post to elasticsearch: '.$url);
-
-            $post = [
-                'doc'           => $threat,
-                'doc_as_upsert' => true,
+            $headers = [
+                'Content-Type: application/json',
             ];
 
-            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+            // setup curl HTTP headers with $headers
+            curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-            // log the POST response then JSON decode it
-            $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($response);
+            foreach ($cylance_threats as $threat) {
+                $url = 'http://10.243.32.36:9200/cylance_threats/cylance_threats/'.$threat['ThreatId'];
+                Log::info('HTTP Post to elasticsearch: '.$url);
 
-            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('Cylance threat was successfully inserted into ES: '.$threat['ThreatId']);
-            } else {
-                Log::error('Something went wrong inserting device: '.$threat['ThreatId']);
-                die('Something went wrong inserting device: '.$threat['ThreatId'].PHP_EOL);
+                $post = [
+                    'doc'           => $threat,
+                    'doc_as_upsert' => true,
+                ];
+
+                $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+                // log the POST response then JSON decode it
+                $response = \Metaclassing\Utility::decodeJson($json_response);
+                Log::info($response);
+
+                if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                    Log::info('Cylance threat was successfully inserted into ES: '.$threat['ThreatId']);
+                } else {
+                    Log::error('Something went wrong inserting device: '.$threat['ThreatId']);
+                    die('Something went wrong inserting device: '.$threat['ThreatId'].PHP_EOL);
+                }
             }
-        }
-        */
-
-        /*************************************
-         * [2] Process threats into database *
-         *************************************/
-
-        /*
-        Log::info(PHP_EOL.'****************************************'.PHP_EOL.'* Starting Cylance threats processing! *'.PHP_EOL.'****************************************');
-
-        foreach ($cylance_threats_final as $threat) {
-            Log::info('processing Cylance threat: '.$threat['CommonName']);
-
-            $cylance_threat = CylanceThreat::withTrashed()->updateOrCreate(
-                [
-                    'threat_id'                => $threat['ThreatId'],
-                ],
-                [
-                    'common_name'              => $threat['CommonName'],
-                    'cylance_score'            => $threat['CylanceScore'],
-                    'active_in_devices'        => $threat['ActiveInDevices'],
-                    'allowed_in_devices'       => $threat['AllowedInDevices'],
-                    'blocked_in_devices'       => $threat['BlockedInDevices'],
-                    'suspicious_in_devices'    => $threat['SuspiciousInDevices'],
-                    'first_found'              => $first_found,
-                    'last_found'               => $last_found,
-                    'last_found_active'        => $active_last_found,
-                    'last_found_allowed'       => $allowed_last_found,
-                    'last_found_blocked'       => $blocked_last_found,
-                    'md5'                      => $threat['MD5'],
-                    'virustotal'               => $threat['VirusTotal'],
-                    'is_virustotal_threat'     => $threat['IsVirusTotalThreat'],
-                    'full_classification'      => $threat['FullClassification'],
-                    'is_unique_to_cylance'     => $threat['IsUniqueToCylance'],
-                    'is_safelisted'            => $threat['IsSafelisted'],
-                    'detected_by'              => $threat['DetectedBy'],
-                    'threat_priority'          => $threat['ThreatPriority'],
-                    'current_model'            => $threat['CurrentModel'],
-                    'priority'                 => $threat['Priority'],
-                    'file_size'                => $threat['FileSize'],
-                    'global_quarantined'       => $threat['IsGlobalQuarantined'],
-                    'signed'                   => $threat['Signed'],
-                    'cert_issuer'              => $threat['CertIssuer'],
-                    'cert_publisher'           => $threat['CertPublisher'],
-                    'cert_timestamp'           => $cert_timestamp,
-                    'data'                     => \Metaclassing\Utility::encodeJson($threat),
-                ]
-            );
-
-            // touch threat model to update the 'updated_at' timestamp (in case nothing was changed)
-            $cylance_threat->touch();
-
-            // restore threat model to remove deleted_at timestamp
-            $cylance_threat->restore();
-        }
-
-        // process soft deletes for old records
-        $this->processDeletes();
         */
 
         Log::info('* Cylance threats completed! *'.PHP_EOL);
@@ -390,27 +332,6 @@ class GetCylanceThreats extends Command
         $poststring = implode('&', $postarray);
 
         return $poststring;
-    }
-
-    /**
-     * Function to soft delete expired threat records.
-     *
-     * @return void
-     */
-    public function processDeletes()
-    {
-        $delete_date = Carbon::now()->subHours(2);
-
-        $threats = CylanceThreat::all();
-
-        foreach ($threats as $threat) {
-            $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $threat->updated_at);
-
-            if ($updated_at->lt($delete_date)) {
-                Log::info('deleting threat: '.$threat->common_name);
-                $threat->delete();
-            }
-        }
     }
 
     /**
