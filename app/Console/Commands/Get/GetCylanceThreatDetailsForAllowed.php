@@ -4,7 +4,6 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use App\Cylance\CylanceThreat;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -73,10 +72,10 @@ class GetCylanceThreatDetailsForAllowed extends Command
             'filter'    => '',
         ];
 
-        Log::info('starting page scrape loop');
+        Log::info('[+] starting query loop');
 
         do {
-            Log::info('scraping loop for page '.$page);
+            Log::info('[+] querying for page '.$page);
 
             // set the post page to our current page number
             $post['page'] = $page;
@@ -91,13 +90,13 @@ class GetCylanceThreatDetailsForAllowed extends Command
             $threats = json_decode($response, true);
 
             // save this pages response array to our collection
-            $collection[] = $threats;
+            $collection[] = $threats['Data'];
 
             // set count to the total number of devices returned with each response.
             // this should not change from response to response
             $count = $threats['Total'];
 
-            Log::info('scrape for page '.$page.' complete - got '.count($threats['Data']).' threats');
+            Log::info('[+] query for page '.$page.' complete - got '.count($threats['Data']).' threats');
 
             $i += $page_size;   // increment i by page_size
             $page++;            // increment the page number
@@ -105,31 +104,23 @@ class GetCylanceThreatDetailsForAllowed extends Command
             sleep(1);   // wait a second before hammering on their webserver again
         } while ($i < $count);
 
-        $threat_ids = [];
+        // collapse collection into a simple array ( ex. [[1,2,3],[4,5,6],[7,8]] ==> [1,2,3,4,5,6,7,8] )
+        $threats_collapsed = array_collapse($collection);
+        Log::info('[+] count of threats collected: '.count($threats_collapsed));
 
-        // first level is simple sequencail array of 1,2,3
-        foreach ($collection as $response) {
-            // next level down is associative, the KEY we care about is 'Data'
-            $results = $response['Data'];
-            foreach ($results as $threat) {
-                if ($threat['AllowedInDevices']) {
-                    // this is confusing logic.
-                    $threat_ids[] = $threat['Id'];
-                }
-            }
-        }
+        // turn threats collection into a Laravel Collection
+        $threats = collect($threats_collapsed);
+        Log::info('[+] count of threats in new collection: '.$threats->count());
 
-        // used to save off threat id-specific collections to be aggregated later
+        // pluck threat id's from collection where threat is seen active
+        $threat_ids = $threats->where('AllowedInDevices', '>', 0)->pluck('Id')->all();
+        Log::info('[+] count of plucked threat id\'s: '.count($threat_ids));
+
         $allowed_threat_details = [];
-
-        // pluck a collection of threat id's from the securitymetrics db
-        //$threat_ids = CylanceThreat::where('allowed_in_devices', '>', 0)->pluck('threat_id');
-
-        Log::info('threat id count: '.count($threat_ids));
 
         // cycle through threat id's and query for active threat details
         foreach ($threat_ids as $threat_id) {
-            Log::info('querying allowed threats for threat id: '.$threat_id);
+            Log::info('[+] querying allowed threats for threat id: '.$threat_id);
 
             // setup url
             $url = 'https:/'.'/protect.cylance.com/ThreatDetails/DevicesAllowed?filehashId='.$threat_id;
@@ -160,16 +151,16 @@ class GetCylanceThreatDetailsForAllowed extends Command
 
                 // if the response contains errors pop smoke and die
                 if ($threats['Errors']) {
-                    Log::error('Error: Cylance API is returning errors:: '.$threat['Errors']);
-                    die('Error: Cylance API is returning errors:: '.$threat['Errors'].PHP_EOL);
+                    Log::error('[!] Error: Cylance API is returning errors:: '.$threat['Errors']);
+                    die('[!] Error: Cylance API is returning errors:: '.$threat['Errors'].PHP_EOL);
                 } else {
                     // otherwise, add this page's response array to our collection
-                    $collection[] = $threats;
+                    $collection[] = $threats['Data'];
                 }
 
                 // set count to the total number of records returned (should not change from response to response)
                 $count = $threats['Total'];
-                Log::info('count of threat details records received: '.count($threats['Data']));
+                Log::info('[+] count of threat details records received: '.count($threats['Data']));
 
                 $i += $page_size;   // increment i by page_size
                 $page++;            // increment the page number
@@ -178,63 +169,36 @@ class GetCylanceThreatDetailsForAllowed extends Command
                 //sleep(1);
             } while ($i < $count);
 
-            /*
-             * after enumerating all active threats for the current threat id extract the data from each
-             * response in the collection array and add each object to the threat collection array
-             */
-
-            // used to build simple array of threat detail objects for a particular threat id
-            $threat_collection = [];
-
-            // first level is simple sequencail array of 1,2,3
-            foreach ($collection as $response) {
-                // next level down is associative, the KEY we care about is 'Data'
-                $results = $response['Data'];
-
-                foreach ($results as $threat) {
-                    // this is confusing logic.
-                    $threat_collection[] = $threat;
-                }
-            }
+            // collapse collection into a simple array ( ex. [[1,2,3],[4,5,6],[7,8]] ==> [1,2,3,4,5,6,7,8] )
+            $threats = array_collapse($collection);
 
             // save off threat collection for this threat id
-            $allowed_threat_details[] = $threat_collection;
+            $allowed_threat_details[] = $threats;
         }
 
-        // simple array to hold all threat detail objects collected in a simple array
-        $allowed_threats_collection = [];
-
-        foreach ($allowed_threat_details as $allowed_threats) {
-            foreach ($allowed_threats as $threat) {
-                $allowed_threats_collection[] = $threat;
-            }
-        }
+        // collapse collection into a simple array ( ex. [[1,2,3],[4,5,6],[7,8]] ==> [1,2,3,4,5,6,7,8] )
+        $allowed_threats_collection = array_collapse($allowed_threat_details);
 
         // log count
-        Log::info('total allowed threat collection count: '.count($allowed_threats_collection));
+        Log::info('[+] total allowed threat collection count: '.count($allowed_threats_collection));
 
         $device_threat_details = [];
 
-        Log::info('converting millisecond timestamps to datetimes...');
+        // cycle through allowed threats
         foreach ($allowed_threats_collection as $data) {
+            // format datetimes
             $added = $this->stringToDate($data['Added']);
             $first_found = $this->stringToDate($data['FirstFound']);
             $offline_date = $this->stringToDate($data['OfflineDate']);
 
-            $last_found = null;
             $device_files = [];
 
+            // cycle through device files
             foreach ($data['DeviceFiles'] as $device_file) {
+                // format first seen datetime
                 $first_seen = $this->stringToDate($device_file['FirstSeen']);
 
-                if ($last_found) {
-                    if ($first_seen && (strcmp($first_seen, $last_found) > 0)) {
-                        $last_found = $first_seen;
-                    }
-                } else {
-                    $last_found = $first_seen;
-                }
-
+                // build device files array
                 $device_files[] = [
                     'FilePath'              => $device_file['FilePath'],
                     'DriveType'             => $device_file['DriveType'],
@@ -248,6 +212,7 @@ class GetCylanceThreatDetailsForAllowed extends Command
                 ];
             }
 
+            // build final array
             $device_threat_details[] = [
                 'AgentEventId'          => $data['AgentEventId'],
                 'VDataId'               => $data['VDataId'],
@@ -259,7 +224,6 @@ class GetCylanceThreatDetailsForAllowed extends Command
                 'DeviceName'            => $data['DeviceName'],
                 'Added'                 => $added,
                 'FirstFound'            => $first_found,
-                'LastFound'             => $last_found,
                 'OfflineDate'           => $offline_date,
                 'PolicyName'            => $data['PolicyName'],
                 'AgentVersion'          => $data['AgentVersion'],
@@ -294,16 +258,25 @@ class GetCylanceThreatDetailsForAllowed extends Command
             ];
         }
 
+        // JSON encode and dump collection to file
         file_put_contents(storage_path('app/collections/allowed_threat_details.json'), \Metaclassing\Utility::encodeJson($device_threat_details));
 
+        // instantiate a Kafka producer config and set the broker IP
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+
+        // instantiate a Kafka producer
         $producer = new \Kafka\Producer();
 
+        // cycle through final array
         foreach ($device_threat_details as $threat_detail) {
+            // create unique id for upsert-ing
             $threat_detail['ThreatDetailId'] = $threat_detail['DeviceId'].'_'.$threat_detail['FileName'];
+
+            // add upsert datetime
             $threat_detail['UpsertDate'] = Carbon::now()->toAtomString();
 
+            // ship data to Kafka
             $result = $producer->send([
                 [
                     'topic' => 'cylance_threat_details_allowed',
@@ -311,6 +284,7 @@ class GetCylanceThreatDetailsForAllowed extends Command
                 ],
             ]);
 
+            // check for and log errors
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
                 Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
@@ -319,37 +293,37 @@ class GetCylanceThreatDetailsForAllowed extends Command
         }
 
         /*
-        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-        $crawler = new \Crawler\Crawler($cookiejar);
+            $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+            $crawler = new \Crawler\Crawler($cookiejar);
 
-        $headers = [
-            'Content-Type: application/json',
-        ];
-
-        // setup curl HTTP headers with $headers
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-
-        foreach ($device_threat_details as $device_threat) {
-            $url = 'http://10.243.32.36:9200/cylance_threat_details_allowed/cylance_threat_details_allowed/';
-            Log::info('HTTP Post to elasticsearch: '.$url);
-
-            $post = [
-                'doc'   => $device_threat,
+            $headers = [
+                'Content-Type: application/json',
             ];
 
-            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+            // setup curl HTTP headers with $headers
+            curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-            // log the POST response then JSON decode it
-            $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($response);
+            foreach ($device_threat_details as $device_threat) {
+                $url = 'http://10.243.32.36:9200/cylance_threat_details_allowed/cylance_threat_details_allowed/';
+                Log::info('HTTP Post to elasticsearch: '.$url);
 
-            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('Cylance device threat was successfully inserted into ES: '.$device_threat['DeviceId']);
-            } else {
-                Log::error('Something went wrong inserting device: '.$device_threat['DeviceId']);
-                die('Something went wrong inserting device: '.$device_threat['DeviceId'].PHP_EOL);
+                $post = [
+                    'doc'   => $device_threat,
+                ];
+
+                $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+                // log the POST response then JSON decode it
+                $response = \Metaclassing\Utility::decodeJson($json_response);
+                Log::info($response);
+
+                if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                    Log::info('Cylance device threat was successfully inserted into ES: '.$device_threat['DeviceId']);
+                } else {
+                    Log::error('Something went wrong inserting device: '.$device_threat['DeviceId']);
+                    die('Something went wrong inserting device: '.$device_threat['DeviceId'].PHP_EOL);
+                }
             }
-        }
         */
 
         Log::info('* Cylance allowed threat details completed! *');
