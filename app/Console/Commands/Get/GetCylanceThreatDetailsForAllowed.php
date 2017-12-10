@@ -160,7 +160,7 @@ class GetCylanceThreatDetailsForAllowed extends Command
 
                 // set count to the total number of records returned (should not change from response to response)
                 $count = $threats['Total'];
-                Log::info('[+] count of threat details records received: '.count($threats['Data']));
+                Log::info('[+] count of allowed threat records found: '.count($threats['Data']));
 
                 $i += $page_size;   // increment i by page_size
                 $page++;            // increment the page number
