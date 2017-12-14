@@ -119,12 +119,12 @@ class GetCylanceThreatDetailsForBlocked extends Command
         // used to save off threat id-specific collections to be aggregated later
         $blocked_threat_details = [];
 
+        // setup url
+        $url = 'https:/'.'/protect.cylance.com/ThreatDetails/DevicesBlocked?filehashId=';
+
         // cycle through threat id's and query for active threat details
         foreach ($threat_ids as $threat_id) {
             Log::info('querying blocked threats for threat id: '.$threat_id);
-
-            // setup url
-            $url = 'https:/'.'/protect.cylance.com/ThreatDetails/DevicesBlocked?filehashId='.$threat_id;
 
             // setup collection array and variables for paging
             $collection = [];
@@ -144,7 +144,7 @@ class GetCylanceThreatDetailsForBlocked extends Command
                 ];
 
                 // post data to webpage and capture response
-                $response = $crawler->post($url, '', $this->postArrayToString($post));
+                $response = $crawler->post(($url.$threat_id), '', $this->postArrayToString($post));
                 file_put_contents(storage_path('app/responses/blocked_threat_details.response'), $response);
 
                 // json decode the response
