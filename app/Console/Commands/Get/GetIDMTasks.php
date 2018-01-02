@@ -4,7 +4,7 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use App\ServiceNow\ServiceNowIdmTask;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -22,7 +22,7 @@ class GetIDMTasks extends Command
      *
      * @var string
      */
-    protected $description = 'Get new IDM tasks';
+    protected $description = 'Get Service Now IDM tasks';
 
     /**
      * Create a new command instance.
@@ -232,6 +232,9 @@ class GetIDMTasks extends Command
         $producer = new \Kafka\Producer();
 
         foreach ($idm_tasks as $task) {
+            // add upsert datetime
+            $task['upsert_date'] = Carbon::now()->toAtomString();
+
             $result = $producer->send([
                 [
                     'topic' => 'servicenow_idm_tasks',
@@ -245,125 +248,6 @@ class GetIDMTasks extends Command
                 Log::info('[*] Data successfully sent to Kafka: '.$task['number']);
             }
         }
-
-        /*
-        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-        $crawler = new \Crawler\Crawler($cookiejar);
-
-        $headers = [
-            'Content-Type: application/json',
-        ];
-
-        // setup curl HTTP headers with $headers
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-
-        foreach ($idm_tasks as $task) {
-            $url = 'http://10.243.32.36:9200/idm_tasks/idm_tasks/'.$task['sys_id'];
-            Log::info('HTTP Post to elasticsearch: '.$url);
-
-            $post = [
-                'doc'           => $task,
-                'doc_as_upsert' => true,
-            ];
-
-            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
-
-            $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($response);
-
-            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('IDM tasks was successfully inserted into ES: '.$task['sys_id']);
-            } else {
-                Log::error('Something went wrong inserting IDM task: '.$task['sys_id']);
-                die('Something went wrong inserting IDM task: '.$task['sys_id'].PHP_EOL);
-            }
-        }
-        */
-
-        /*
-         * [2] Process IDM tasks into database
-         */
-        /*
-        Log::info(PHP_EOL.'**********************************'.PHP_EOL.'* Starting IDM tasks processing! *'.PHP_EOL.'**********************************');
-
-        foreach ($idm_tasks as $task) {
-            $exists = ServiceNowIdmTask::where('sys_id', $task['sys_id'])->value('id');
-
-            if ($exists) {
-                $taskmodel = ServiceNowIdmTask::find($exists);
-
-                $taskmodel->update([
-                    'active'                => $task['active'],
-                    'updated_on'            => $task['sys_updated_on'],
-                    'updated_by'            => $task['sys_updated_by'],
-                    'closed_at'             => $task['closed_at'],
-                    'closed_by'             => $task['closed_by'],
-                    'close_notes'           => $task['close_notes'],
-                    'assignment_group'      => $task['assignment_group'],
-                    'assigned_to'           => $task['assigned_to'],
-                    'state'                 => $task['state'],
-                    'urgency'               => $task['urgency'],
-                    'impact'                => $task['impact'],
-                    'priority'              => $task['priority'],
-                    'time_worked'           => $task['time_worked'],
-                    'work_notes'            => $task['work_notes'],
-                    'comments'              => $task['comments'],
-                    'reassignment_count'    => $task['reassignment_count'],
-                    'modified_count'        => $task['sys_mod_count'],
-                    'cause_code'            => $task['u_cause_code'],
-                    'data'                  => \Metaclassing\Utility::encodeJson($task),
-                ]);
-
-                $taskmodel->save();
-
-                // touch task model to update the 'updated_at' timestamps in case nothing was changed
-                $taskmodel->touch();
-
-                Log::info('IDM task updated: '.$task['number']);
-            } else {
-                Log::info('creating new IDM task: '.$task['number']);
-
-                $new_task = new ServiceNowIdmTask();
-
-                $new_task->task_id = $task['number'];
-                $new_task->created_on = $task['sys_created_on'];
-                $new_task->created_by = $task['sys_created_by'];
-                $new_task->sys_id = $task['sys_id'];
-                $new_task->class_name = $task['sys_class_name'];
-                $new_task->parent = $task['parent'];
-                $new_task->active = $task['active'];
-                $new_task->updated_on = $task['sys_updated_on'];
-                $new_task->updated_by = $task['sys_updated_by'];
-                $new_task->opened_at = $task['opened_at'];
-                $new_task->opened_by = $task['opened_by'];
-                $new_task->closed_at = $task['closed_at'];
-                $new_task->closed_by = $task['closed_by'];
-                $new_task->close_notes = $task['close_notes'];
-                $new_task->initial_assignment_group = $task['u_initial_assignment_group'];
-                $new_task->assignment_group = $task['assignment_group'];
-                $new_task->assigned_to = $task['assigned_to'];
-                $new_task->state = $task['state'];
-                $new_task->urgency = $task['urgency'];
-                $new_task->impact = $task['impact'];
-                $new_task->priority = $task['priority'];
-                $new_task->time_worked = $task['time_worked'];
-                $new_task->short_description = $task['short_description'];
-                $new_task->description = $task['description'];
-                $new_task->work_notes = $task['work_notes'];
-                $new_task->comments = $task['comments'];
-                $new_task->reassignment_count = $task['reassignment_count'];
-                $new_task->district = $task['u_district_name'];
-                $new_task->company = $task['company'];
-                $new_task->department = $task['department'];
-                $new_task->modified_count = $task['sys_mod_count'];
-                $new_task->location = $task['location'];
-                $new_task->cause_code = $task['u_cause_code'];
-                $new_task->data = \Metaclassing\Utility::encodeJson($task);
-
-                $new_task->save();
-            }
-        }
-        */
 
         Log::info('* Completed ServiceNow IDM tasks! *');
     }

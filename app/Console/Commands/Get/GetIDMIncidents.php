@@ -4,7 +4,7 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use App\ServiceNow\ServiceNowIdmIncident;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -22,7 +22,7 @@ class GetIDMIncidents extends Command
      *
      * @var string
      */
-    protected $description = 'Get new IDM incidents';
+    protected $description = 'Get Servcie Now IDM incidents';
 
     /**
      * Create a new command instance.
@@ -248,6 +248,9 @@ class GetIDMIncidents extends Command
         $producer = new \Kafka\Producer();
 
         foreach ($idm_incidents as $incident) {
+            // add upsert datetime
+            $incident['upsert_date'] = Carbon::now()->toAtomString();
+
             $result = $producer->send([
                 [
                     'topic' => 'servicenow_idm_incidents',
@@ -261,129 +264,6 @@ class GetIDMIncidents extends Command
                 Log::info('[*] Data successfully sent to Kafka: '.$incident['number']);
             }
         }
-
-        /*
-        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-        $crawler = new \Crawler\Crawler($cookiejar);
-
-        $headers = [
-            'Content-Type: application/json',
-        ];
-
-        // setup curl HTTP headers with $headers
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-
-        foreach ($idm_incidents as $incident) {
-            $url = 'http://10.243.32.36:9200/idm_incidents/idm_incidents/'.$incident['sys_id'];
-            Log::info('HTTP Post to elasticsearch: '.$url);
-
-            $post = [
-                'doc'           => $incident,
-                'doc_as_upsert' => true,
-            ];
-
-            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
-
-            $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($response);
-
-            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('IDM incident was successfully inserted into ES: '.$incident['sys_id']);
-            } else {
-                Log::error('Something went wrong inserting IDM incident: '.$incident['sys_id']);
-                die('Something went wrong inserting IDM incident: '.$incident['sys_id'].PHP_EOL);
-            }
-        }
-        */
-
-        /*
-         * [2] Process IDM incidents into database
-         */
-        /*
-        Log::info(PHP_EOL.'**************************************'.PHP_EOL.'* Starting IDM incidents processing! *'.PHP_EOL.'**************************************');
-
-        // cycle through IDM incidents and add the new ones
-        foreach ($idm_incidents as $incident) {
-            // try to find existing record with matching sys_id
-            $exists = ServiceNowIdmIncident::where('sys_id', $incident['sys_id'])->value('id');
-
-            // if the incident already exists give it an update and a touch and move on
-            if ($exists) {
-                // get incident model and update the fields that could have changed
-                $incidentmodel = ServiceNowIdmIncident::find($exists);
-                $incidentmodel->update([
-                    'closed_at'             => $incident['closed_at'],
-                    'updated_on'            => $incident['sys_updated_on'],
-                    'assignment_group'      => $incident['assignment_group'],
-                    'resolved_by'           => $incident['resolved_by'],
-                    'assigned_to'           => $incident['assigned_to'],
-                    'resolved_at'           => $incident['resolved_at'],
-                    'state'                 => $incident['incident_state'],
-                    'duration'              => $incident['business_duration'],
-                    'time_worked'           => $incident['time_worked'],
-                    'reopen_count'          => $incident['reopen_count'],
-                    'urgency'               => $incident['urgency'],
-                    'impact'                => $incident['impact'],
-                    'severity'              => $incident['severity'],
-                    'priority'              => $incident['priority'],
-                    'active'                => $incident['active'],
-                    'reassignment_count'    => $incident['reassignment_count'],
-                    'calendar_duration'     => $incident['calendar_duration'],
-                    'escalation'            => $incident['escalation'],
-                    'modified_count'        => $incident['sys_mod_count'],
-                    'data'                  => \Metaclassing\Utility::encodeJson($incident),
-                ]);
-
-                $incidentmodel->save();
-
-                // touch incident model to update the 'updated_at' timestamp in case nothing was changed
-                $incidentmodel->touch();
-
-                Log::info('IDM incident updated: '.$incident['number']);
-            } else {
-                // otherwise, create a new security incident record
-                Log::info('creating new IDM incident: '.$incident['number']);
-
-                // create the new incident record
-                $new_incident = new ServiceNowIdmIncident();
-
-                $new_incident->incident_id = $incident['number'];
-                $new_incident->opened_at = $incident['opened_at'];
-                $new_incident->closed_at = $incident['closed_at'];
-                $new_incident->state = $incident['incident_state'];
-                $new_incident->duration = $incident['business_duration'];
-                $new_incident->initial_assignment_group = $incident['u_initial_assignment_group'];
-                $new_incident->sys_id = $incident['sys_id'];
-                $new_incident->time_worked = $incident['time_worked'];
-                $new_incident->reopen_count = $incident['reopen_count'];
-                $new_incident->urgency = $incident['urgency'];
-                $new_incident->impact = $incident['impact'];
-                $new_incident->severity = $incident['severity'];
-                $new_incident->priority = $incident['priority'];
-                $new_incident->email_contact = $incident['u_email_contact'];
-                $new_incident->description = $incident['description'];
-                $new_incident->district = $incident['u_district_name'];
-                $new_incident->updated_on = $incident['sys_updated_on'];
-                $new_incident->active = $incident['active'];
-                $new_incident->assignment_group = $incident['assignment_group'];
-                $new_incident->caller_id = $incident['caller_id'];
-                $new_incident->department = $incident['department'];
-                $new_incident->reassignment_count = $incident['reassignment_count'];
-                $new_incident->short_description = $incident['short_description'];
-                $new_incident->resolved_by = $incident['resolved_by'];
-                $new_incident->calendar_duration = $incident['calendar_duration'];
-                $new_incident->assigned_to = $incident['assigned_to'];
-                $new_incident->resolved_at = $incident['resolved_at'];
-                $new_incident->cmdb_ci = $incident['cmdb_ci'];
-                $new_incident->opened_by = $incident['opened_by'];
-                $new_incident->escalation = $incident['escalation'];
-                $new_incident->modified_count = $incident['sys_mod_count'];
-                $new_incident->data = \Metaclassing\Utility::encodeJson($incident);
-
-                $new_incident->save();
-            }
-        }
-        */
 
         Log::info('* IDM incidents completed! *'.PHP_EOL);
     }

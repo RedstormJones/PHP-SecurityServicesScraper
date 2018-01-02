@@ -4,7 +4,6 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use App\IronPort\IncomingEmail;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -173,30 +172,33 @@ class GetIncomingEmail extends Command
             $end_date_pieces = explode(' ', rtrim($email['End Date'], ' GMT'));
             $end_date = $end_date_pieces[0].'T'.$end_date_pieces[1];
 
+            $email_id = $begin_date.'_'.$sender;
+
             $incoming_emails_final[] = [
-                'Social'                                => $email['Social'],
-                'TotalAttempted'                        => $email['Total Attempted'],
-                'TotalThreat'                           => $email['Total Threat'],
-                'EndDate'                               => $end_date,
-                'BeginDate'                             => $begin_date,
-                'StoppedByReputationFiltering'          => $email['Stopped by Reputation Filtering'],
-                'StoppedAsInvalidRecipients'            => $email['Stopped as Invalid Recipients'],
-                'SpamDetected'                          => $email['Spam Detected'],
-                'Bulk'                                  => $email['Bulk'],
-                'StoppedByDMARC'                        => $email['Stopped by DMARC'],
-                'SenderDomain'                          => $sender,
-                'BeginTimestamp'                        => $email['Begin Timestamp'],
-                'EndTimestamp'                          => $email['End Timestamp'],
-                'StoppedByContentFilter'                => $email['Stopped by Content Filter'],
-                'ConnectionsAccepted'                   => $email['Connections Accepted'],
-                'ConnectionsRejected'                   => $email['Connections Rejected'],
-                'Marketing'                             => $email['Marketing'],
-                'StoppedByRecipientThrottling'          => $email['Stopped by Recipient Throttling'],
-                'TotalGraymails'                        => $email['Total Graymails'],
-                'Clean'                                 => $email['Clean'],
-                'DetectedByAdvancedMalwareProtection'   => $email['Detected by Advanced Malware Protection'],
-                'orig_value'                            => $email['orig_value'],
-                'VirusDetected'                         => $email['Virus Detected'],
+                'email_id'                                  => $email_id,
+                'social'                                    => $email['Social'],
+                'total_attempted'                           => $email['Total Attempted'],
+                'total_threat'                              => $email['Total Threat'],
+                'end_date'                                  => $end_date,
+                'begin_date'                                => $begin_date,
+                'stopped_by_reputation_filtering'           => $email['Stopped by Reputation Filtering'],
+                'stopped_as_invalid_recipients'             => $email['Stopped as Invalid Recipients'],
+                'spam_detected'                             => $email['Spam Detected'],
+                'bulk'                                      => $email['Bulk'],
+                'stopped_by_DMARC'                          => $email['Stopped by DMARC'],
+                'sender_domain'                             => $sender,
+                'begin_timestamp'                           => $email['Begin Timestamp'],
+                'end_timestamp'                             => $email['End Timestamp'],
+                'stopped_by_content_filter'                 => $email['Stopped by Content Filter'],
+                'connections_accepted'                      => $email['Connections Accepted'],
+                'connections_rejected'                      => $email['Connections Rejected'],
+                'marketing'                                 => $email['Marketing'],
+                'stopped_by_recipient_throttling'           => $email['Stopped by Recipient Throttling'],
+                'total_graymails'                           => $email['Total Graymails'],
+                'clean'                                     => $email['Clean'],
+                'detected_by_advanced_malware_protection'   => $email['Detected by Advanced Malware Protection'],
+                'orig_value'                                => $email['orig_value'],
+                'virus_detected'                            => $email['Virus Detected'],
             ];
         }
 
@@ -208,6 +210,9 @@ class GetIncomingEmail extends Command
         $producer = new \Kafka\Producer();
 
         foreach ($incoming_emails_final as $email) {
+            // add upsert datetime
+            $email['upsert_date'] = Carbon::now()->toAtomString();
+
             $result = $producer->send([
                 [
                     'topic' => 'ironport_incoming_email',
@@ -218,99 +223,9 @@ class GetIncomingEmail extends Command
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
                 Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
-                Log::info('[*] Data successfully sent to Kafka: '.$email['SenderDomain']);
+                Log::info('[*] Data successfully sent to Kafka: '.$email['sender_domain']);
             }
         }
-
-        /*
-        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-        $crawler = new \Crawler\Crawler($cookiejar);
-
-        $headers = [
-            'Content-Type: application/json',
-        ];
-
-        // setup curl HTTP headers with $headers
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-
-        foreach ($incoming_emails as $email) {
-            if (preg_match('/\s/', $email['Sender Domain'])) {
-                $sender = str_replace(' ', '_', $email['Sender Domain']);
-            } elseif (preg_match('/http:\/\//', $email['Sender Domain']) || preg_match('/https:\/\//', $email['Sender Domain'])) {
-                $sender_pieces = explode('/', $email['Sender Domain']);
-                $sender = $sender_pieces[2];
-            } else {
-                $sender = $email['Sender Domain'];
-            }
-
-            $begin_date_pieces = explode(' ', rtrim($email['Begin Date'], ' GMT'));
-            $begin_date = $begin_date_pieces[0].'T'.$begin_date_pieces[1];
-            $email['Begin Date'] = $begin_date;
-
-            $end_date_pieces = explode(' ', rtrim($email['End Date'], ' GMT'));
-            $end_date = $end_date_pieces[0].'T'.$end_date_pieces[1];
-            $email['End Date'] = $end_date;
-
-            $url = 'http://10.243.32.36:9200/incoming_emails/incoming_emails/';
-
-            $post = [
-                'doc'           => $email,
-            ];
-
-            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
-
-            $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($response);
-
-            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('Incoming email was successfully inserted into ES: '.$email['Sender Domain']);
-            } else {
-                Log::error('Something went wrong inserting incoming email: '.$email['Sender Domain']);
-                die('Something went wrong inserting incoming email: '.$email['Sender Domain'].PHP_EOL);
-            }
-        }
-        */
-
-        /********************************************
-         * [2] Process incoming email into database *
-         ********************************************/
-        /*
-        Log::info(PHP_EOL.'***************************************'.PHP_EOL.'* Starting incoming email processing! *'.PHP_EOL.'***************************************');
-
-        Log::info('creating '.$count.' new email records...');
-
-        foreach ($incoming_emails as $email) {
-            $begindate = rtrim($email['Begin Date'], ' GMT');
-            $enddate = rtrim($email['End Date'], ' GMT');
-
-            $new_email = new IncomingEmail();
-
-            $new_email->begin_date = $begindate;
-            $new_email->end_date = $enddate;
-            $new_email->sender_domain = $email['Sender Domain'];
-            $new_email->connections_rejected = $email['Connections Rejected'];
-            $new_email->connections_accepted = $email['Connections Accepted'];
-            $new_email->total_attempted = $email['Total Attempted'];
-            $new_email->stopped_by_recipient_throttling = $email['Stopped by Recipient Throttling'];
-            $new_email->stopped_by_reputation_filtering = $email['Stopped by Reputation Filtering'];
-            $new_email->stopped_by_content_filter = $email['Stopped by Content Filter'];
-            $new_email->stopped_as_invalid_recipients = $email['Stopped as Invalid Recipients'];
-            $new_email->spam_detected = $email['Spam Detected'];
-            $new_email->virus_detected = $email['Virus Detected'];
-            $new_email->amp_detected = $email['Detected by Advanced Malware Protection'];
-            $new_email->total_threats = $email['Total Threat'];
-            $new_email->marketing = $email['Marketing'];
-            $new_email->social = $email['Social'];
-            $new_email->bulk = $email['Bulk'];
-            $new_email->total_graymails = $email['Total Graymails'];
-            $new_email->clean = $email['Clean'];
-            $new_email->data = json_encode($email);
-
-            $new_email->save();
-        }
-
-        $this->processDeletes();
-        */
 
         Log::info('* Incoming email completed! *'.PHP_EOL);
     }
@@ -353,25 +268,5 @@ class GetIncomingEmail extends Command
         }
 
         return $arr;
-    }
-
-    /**
-     * Function to process softdeletes for incoming email.
-     *
-     * @return void
-     */
-    public function processDeletes()
-    {
-        $delete_date = Carbon::now()->subMonths(3)->toDateTimeString();
-
-        // get collection of incoming email models that are older than 90 days
-        $incomingemails = IncomingEmail::where('updated_at', '<', $delete_date)->get();
-
-        Log::info('deleting '.count($incomingemails).' stale email records...');
-
-        // cycle through the models in the returned collection and soft delete them
-        foreach ($incomingemails as $email) {
-            $email->delete();
-        }
     }
 }

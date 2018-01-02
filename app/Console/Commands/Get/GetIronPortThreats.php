@@ -4,7 +4,6 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use App\IronPort\IronPortThreat;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -239,53 +238,6 @@ class GetIronPortThreats extends Command
             } else {
                 Log::error('Something went wrong inserting IronPort threat: '.$threat['begin_date']);
                 die('Something went wrong inserting IronPort threat: '.$threat['begin_date'].PHP_EOL);
-            }
-        }
-        */
-
-        /*
-         * [2] Process IronPort threats into database
-         */
-
-        /*
-        Log::info(PHP_EOL.'*****************************************'.PHP_EOL.'* Starting IronPort threats processing! *'.PHP_EOL.'*****************************************');
-
-        foreach ($ironport_threats as $threat) {
-            $begindate = rtrim($threat['Begin Date'], ' GMT');
-            $enddate = rtrim($threat['End Date'], ' GMT');
-
-            $exists = IronPortThreat::where('begin_date', $begindate)->value('id');
-
-            if ($exists) {
-                // update threat record
-                $existing_threat = IronPortThreat::find($exists);
-                $existing_threat->update([
-                    'category'        => $threat['Category'],
-                    'threat_type'     => $threat['Threat Name'],
-                    'total_messages'  => $threat['Total Messages'],
-                    'data'            => \Metaclassing\Utility::encodeJson($threat),
-                ]);
-
-                $existing_threat->save();
-
-                // touch threat record to update the 'updated_at' timestamp in case nothing was changed
-                $existing_threat->touch();
-
-                Log::info('updated IronPort threat record for '.$threat['Threat Name'].' during '.$begindate);
-            } else {
-                // create new threat record
-                Log::info('creating IronPort threat record for '.$threat['Threat Name'].' during '.$begindate);
-
-                $new_threat = new IronPortThreat();
-
-                $new_threat->begin_date = $begindate;
-                $new_threat->end_date = $enddate;
-                $new_threat->category = $threat['Category'];
-                $new_threat->threat_type = $threat['Threat Name'];
-                $new_threat->total_messages = $threat['Total Messages'];
-                $new_threat->data = \Metaclassing\Utility::encodeJson($threat);
-
-                $new_threat->save();
             }
         }
         */

@@ -4,7 +4,6 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use App\IronPort\IronPortSpamEmail;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -42,10 +41,6 @@ class GetSpamEmail extends Command
      */
     public function handle()
     {
-        /*
-         * [1] Get spam email
-         */
-
         Log::info(PHP_EOL.PHP_EOL.'********************************'.PHP_EOL.'* Starting spam email crawler! *'.PHP_EOL.'********************************');
 
         $username = getenv('IRONPORT_USERNAME');
@@ -152,7 +147,7 @@ class GetSpamEmail extends Command
         $collection = [];
         $page = 1;
         $i = 0;
-        $pagesize = 1000;
+        $pagesize = 2000;
 
         do {
             // setup GET parameters and append to spam search url
@@ -170,17 +165,17 @@ class GetSpamEmail extends Command
             $geturl = $url.$this->postArrayToString($getmessages);
 
             // capture reponse and dump to file
-            $response = $crawler->get($geturl, $referer);
-            file_put_contents($response_path.'spam.dump.'.$page, $response);
+            $json_response = $crawler->get($geturl, $referer);
+            file_put_contents($response_path.'spam.dump.'.$page, $json_response);
 
             // JSON decode the response and add it to the spam collection
-            $spam = \Metaclassing\Utility::decodeJson($response);
-            $collection[] = $spam;
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            $collection[] = $response['search_result'];
 
-            Log::info('spam email scrape for page '.$page.' complete - got '.count($spam['search_result']).' spam records');
+            Log::info('spam email scrape for page '.$page.' complete - got '.count($response['search_result']).' spam records');
 
             // set total to total number of messages
-            $total = $spam['num_msgs'];
+            $total = $response['num_msgs'];
 
             $i += $pagesize;    // increment by number of records per page
             $page++;            // increment to next page
@@ -189,22 +184,13 @@ class GetSpamEmail extends Command
             sleep(1);
         } while ($i < $total);
 
-        $spam_array = [];
-
-        // first level is simple sequencail array of 1,2,3
-        foreach ($collection as $response) {
-            // next level down is associative, the KEY we care about is 'Data'
-            $results = $response['search_result'];
-            foreach ($results as $spammer) {
-                // this is confusing logic.
-                $spam_array[] = $spammer;
-            }
-        }
+        // collapse collection into a simple array ( ex. [[1,2,3],[4,5,6],[7,8]] ==> [1,2,3,4,5,6,7,8] )
+        $raw_spams = array_collapse($collection);
 
         $spam_emails = [];
         $time_added_regex = '/(\d{2} \w{3} \d{4} \d{1,2}:\d{2})/';
 
-        foreach ($spam_array as $spam) {
+        foreach ($raw_spams as $spam) {
             // get the time_added datetime and format it correctly - there's probably a better way to do this
             preg_match($time_added_regex, $spam['time_added'], $hits);
             $time_added = Carbon::createFromFormat('d M Y H:i', $hits[1])->toDateTimeString();
@@ -240,6 +226,9 @@ class GetSpamEmail extends Command
         $producer = new \Kafka\Producer();
 
         foreach ($spam_emails as $spam) {
+            // add upsert datetime
+            $spam['upsert_date'] = Carbon::now()->toAtomString();
+
             $result = $producer->send([
                 [
                     'topic' => 'ironport_spam_email',
@@ -253,40 +242,6 @@ class GetSpamEmail extends Command
                 Log::info('[*] Data successfully sent to Kafka: '.$spam['sender']);
             }
         }
-
-        /*
-        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-        $crawler = new \Crawler\Crawler($cookiejar);
-
-        $headers = [
-            'Content-Type: application/json',
-        ];
-
-        // setup curl HTTP headers with $headers
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-
-        foreach ($spam_emails as $spam) {
-            $url = 'http://10.243.32.36:9200/ironport_spam/ironport_spam/'.$spam['mid'];
-            Log::info('HTTP Post to elasticsearch: '.$url);
-
-            $post = [
-                'doc'           => $spam,
-                'doc_as_upsert' => true,
-            ];
-
-            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
-
-            $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($response);
-
-            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('IronPort spam email was successfully inserted into ES: '.$spam['mid']);
-            } else {
-                Log::error('Something went wrong upserting IronPort spam email: '.$spam['mid']);
-                die('Something went wrong upserting IronPort spam email: '.$spam['mid'].PHP_EOL);
-            }
-        }
-        */
 
         Log::info('* Completed IronPort spam emails! *');
     }
@@ -307,27 +262,5 @@ class GetSpamEmail extends Command
         $poststring = implode('&', $postarray);
 
         return $poststring;
-    }
-
-    /**
-     * Function to process softdeletes for spam email.
-     *
-     * @return void
-     */
-    public function processDeletes()
-    {
-        $delete_date = Carbon::now()->subMonths(3);
-        Log::info('spam delete date: '.$delete_date);
-
-        $spam_emails = IronPortSpamEmail::all();
-
-        foreach ($spam_emails as $spam) {
-            $updated_at = Carbon::createFromFormat('Y-m-d H:i:s', $spam->updated_at);
-
-            if ($updated_at->lt($delete_date)) {
-                Log::info('deleting spam record: '.$spam->id);
-                $spam->delete();
-            }
-        }
     }
 }

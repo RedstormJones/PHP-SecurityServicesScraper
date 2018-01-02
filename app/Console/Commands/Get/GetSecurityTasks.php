@@ -4,7 +4,7 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use App\ServiceNow\ServiceNowSecurityTask;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -22,7 +22,7 @@ class GetSecurityTasks extends Command
      *
      * @var string
      */
-    protected $description = 'Get new security tasks';
+    protected $description = 'Get Service Now security tasks';
 
     /**
      * Create a new command instance.
@@ -232,6 +232,9 @@ class GetSecurityTasks extends Command
         $producer = new \Kafka\Producer();
 
         foreach ($security_tasks as $task) {
+            // add upsert datetime
+            $task['upsert_date'] = Carbon::now()->toAtomString();
+
             $result = $producer->send([
                 [
                     'topic' => 'servicenow_security_tasks',
@@ -245,156 +248,6 @@ class GetSecurityTasks extends Command
                 Log::info('[*] Data successfully sent to Kafka: '.$task['number']);
             }
         }
-
-        /*
-        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-        $crawler = new \Crawler\Crawler($cookiejar);
-
-        $headers = [
-            'Content-Type: application/json',
-        ];
-
-        // setup curl HTTP headers with $headers
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-
-        foreach ($security_tasks as $task) {
-            $url = 'http://10.243.32.36:9200/security_tasks/security_tasks/'.$task['sys_id'];
-            Log::info('HTTP Post to elasticsearch: '.$url);
-
-            $post = [
-                'doc'           => $task,
-                'doc_as_upsert' => true,
-            ];
-
-            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
-
-            $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($response);
-
-            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('Security task was successfully inserted into ES: '.$task['sys_id']);
-            } else {
-                Log::error('Something went wrong inserting Security task: '.$task['sys_id']);
-                die('Something went wrong inserting Security task: '.$task['sys_id'].PHP_EOL);
-            }
-        }
-        */
-
-        /*
-         * [2] Process security tasks into database
-         */
-
-        /*
-        Log::info(PHP_EOL.'***************************************'.PHP_EOL.'* Starting security tasks processing! *'.PHP_EOL.'***************************************');
-
-        foreach ($tasks as $task) {
-            $exists = ServiceNowSecurityTask::where('sys_id', $task['sys_id'])->value('id');
-
-            if ($exists) {
-                $updated_on = $this->handleNull($task['sys_updated_on']);
-                $updated_by = $this->handleNull($task['sys_updated_by']);
-                $closed_at = $this->handleNull($task['closed_at']);
-                $closed_by = $this->handleNull($task['closed_by']);
-                $close_notes = $this->handleNull($task['close_notes']);
-                $assign_group = $this->handleNull($task['assignment_group']);
-                $assigned_to = $this->handleNull($task['assigned_to']);
-                $time_worked = $this->handleNull($task['time_worked']);
-                $work_notes = $this->handleNull($task['work_notes']);
-                $comments = $this->handleNull($task['comments']);
-                $cause_code = $this->handleNull($task['u_cause_code']);
-
-                $taskmodel = ServiceNowSecurityTask::find($exists);
-                $taskmodel->update([
-                    'active'                => $task['active'],
-                    'updated_on'            => $updated_on['display_value'],
-                    'updated_by'            => $updated_by['display_value'],
-                    'closed_at'             => $closed_at['display_value'],
-                    'closed_by'             => $closed_by['display_value'],
-                    'close_notes'           => $close_notes['display_value'],
-                    'assignment_group'      => $assign_group['display_value'],
-                    'assigned_to'           => $assigned_to['display_value'],
-                    'state'                 => $task['state'],
-                    'urgency'               => $task['urgency'],
-                    'impact'                => $task['impact'],
-                    'priority'              => $task['priority'],
-                    'time_worked'           => $time_worked['display_value'],
-                    'work_notes'            => $work_notes['display_value'],
-                    'comments'              => $comments['display_value'],
-                    'reassignment_count'    => $task['reassignment_count'],
-                    'modified_count'        => $task['sys_mod_count'],
-                    'cause_code'            => $cause_code['display_value'],
-                    'data'                  => \Metaclassing\Utility::encodeJson($task),
-                ]);
-
-                $taskmodel->save();
-
-                // touch task model to update the 'updated_at' timestamps in case nothing was changed
-                $taskmodel->touch();
-
-                Log::info('security task updated: '.$task['number']);
-            } else {
-                Log::info('creating new security task: '.$task['number']);
-
-                $parent = $this->handleNull($task['parent']);
-                $updated_on = $this->handleNull($task['sys_updated_on']);
-                $updated_by = $this->handleNull($task['sys_updated_by']);
-                $opened_by = $this->handleNull($task['opened_by']);
-                $closed_at = $this->handleNull($task['closed_at']);
-                $closed_by = $this->handleNull($task['closed_by']);
-                $close_notes = $this->handleNull($task['close_notes']);
-                $initial_assign_group = $this->handleNull($task['u_initial_assignment_group']);
-                $assign_group = $this->handleNull($task['assignment_group']);
-                $assigned_to = $this->handleNull($task['assigned_to']);
-                $time_worked = $this->handleNull($task['time_worked']);
-                $work_notes = $this->handleNull($task['work_notes']);
-                $comments = $this->handleNull($task['comments']);
-                $district = $this->handleNull($task['u_district_name']);
-                $company = $this->handleNull($task['company']);
-                $department = $this->handleNull($task['department']);
-                $location = $this->handleNull($task['location']);
-                $cause_code = $this->handleNull($task['u_cause_code']);
-
-                $new_task = new ServiceNowSecurityTask();
-
-                $new_task->task_id = $task['number'];
-                $new_task->created_on = $task['sys_created_on'];
-                $new_task->created_by = $task['sys_created_by'];
-                $new_task->sys_id = $task['sys_id'];
-                $new_task->class_name = $task['sys_class_name'];
-                $new_task->parent = $parent['display_value'];
-                $new_task->active = $task['active'];
-                $new_task->updated_on = $updated_on['display_value'];
-                $new_task->updated_by = $updated_by['display_value'];
-                $new_task->opened_at = $task['opened_at'];
-                $new_task->opened_by = $opened_by['display_value'];
-                $new_task->closed_at = $closed_at['display_value'];
-                $new_task->closed_by = $closed_by['display_value'];
-                $new_task->close_notes = $close_notes['display_value'];
-                $new_task->initial_assignment_group = $initial_assign_group['display_value'];
-                $new_task->assignment_group = $assign_group['display_value'];
-                $new_task->assigned_to = $assigned_to['display_value'];
-                $new_task->state = $task['state'];
-                $new_task->urgency = $task['urgency'];
-                $new_task->impact = $task['impact'];
-                $new_task->priority = $task['priority'];
-                $new_task->time_worked = $time_worked['display_value'];
-                $new_task->short_description = $task['short_description'];
-                $new_task->description = $task['description'];
-                $new_task->work_notes = $work_notes['display_value'];
-                $new_task->comments = $comments['display_value'];
-                $new_task->reassignment_count = $task['reassignment_count'];
-                $new_task->district = $district['display_value'];
-                $new_task->company = $company['display_value'];
-                $new_task->department = $department['display_value'];
-                $new_task->modified_count = $task['sys_mod_count'];
-                $new_task->location = $location['display_value'];
-                $new_task->cause_code = $cause_code['display_value'];
-                $new_task->data = \Metaclassing\Utility::encodeJson($task);
-
-                $new_task->save();
-            }
-        }
-        */
 
         Log::info('* Completed ServiceNow security tasks! *');
     }
