@@ -362,7 +362,6 @@ class GetCylanceThreatDetailsForActive extends Command
             // if we find the RequestVerificationToken then assign it to $csrftoken
             if (preg_match($regex, $response, $hits)) {
                 $csrftoken = $hits[1];
-                //Log::info('request verification token: '.$csrftoken);
             } else {
                 // otherwise, dump response and die
                 file_put_contents($response_path.'cylancethreats_error.dump', $response);
@@ -404,7 +403,6 @@ class GetCylanceThreatDetailsForActive extends Command
         // if we find the javascript token then set it to $token
         if (preg_match($regex, $response, $hits)) {
             $token = $hits[1];
-            //Log::info('threats token: '.$token);
         } else {
             // otherwise pop smoke and die
             Log::error('Error: could not get javascript token');
