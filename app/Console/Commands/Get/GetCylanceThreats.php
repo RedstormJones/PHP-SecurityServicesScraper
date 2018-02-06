@@ -241,7 +241,7 @@ class GetCylanceThreats extends Command
                 'Priority'              => $threat['Priority'],
                 'CommonName'            => $threat['CommonName'],
                 'FullClassification'    => $threat['FullClassification'],
-                'Infinity'              => $threat['Infinity'],
+                'Infinity'              => (string)$threat['Infinity'],
             ];
         }
 
