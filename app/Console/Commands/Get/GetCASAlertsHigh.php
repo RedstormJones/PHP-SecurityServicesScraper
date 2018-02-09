@@ -94,7 +94,7 @@ class GetCASAlertsHigh extends Command
                 $id = array_pull($alert, '_id');
                 $alert['alert_id'] = $id;
 
-                // pull timestamp from alert and convert to datetime, then add it back as alert_timestamp 
+                // pull timestamp from alert and convert to datetime, then add it back as alert_timestamp
                 $millisecond_timestamp = array_pull($alert, 'timestamp');
                 $alert_timestamp = Carbon::createFromTimestamp($millisecond_timestamp / 1000)->toAtomString();
                 $alert['alert_timestamp'] = $alert_timestamp;
@@ -104,7 +104,7 @@ class GetCASAlertsHigh extends Command
 
                 $ent_count = 1;
                 $entity_array = [];
-                
+
                 // cycle through entities
                 foreach ($entities as $entity) {
                     // save off the entity id and type
@@ -112,7 +112,7 @@ class GetCASAlertsHigh extends Command
                     $entity_type = $entity['type'];
 
                     // filter out id and type from entity object
-                    $filtered_entity = array_except($entity, ['id','type']);
+                    $filtered_entity = array_except($entity, ['id', 'type']);
 
                     // add the entity id back with it's corresponding count appended
                     $filtered_entity['id_'.$ent_count] = $entity_id;
