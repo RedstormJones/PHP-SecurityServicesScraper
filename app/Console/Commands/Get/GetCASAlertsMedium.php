@@ -143,6 +143,8 @@ class GetCASAlertsMedium extends Command
         // instantiate new Kafka producer
         $producer = new \Kafka\Producer();
 
+        Log::info('[+] sending ['.count($alerts).'] CAS medium alerts to Kafka...');
+
         // cycle through Cylance devices
         foreach ($alerts as $alert) {
             // add upsert datetime
@@ -160,9 +162,10 @@ class GetCASAlertsMedium extends Command
             if (isset($result[0]) && $result[0]['data'][0]['partitions'][0]['errorCode']) {
                 Log::error('[!] Error sending CAS medium alert to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
-                Log::info('[+] CAS medium alert successfully sent to Kafka: '.$alert['alert_id']);
+                //Log::info('[+] CAS medium alert successfully sent to Kafka: '.$alert['alert_id']);
             }
         }
+        Log::info('...DONE');
 
         Log::info('* CAS medium alerts completed! *'.PHP_EOL);
     }

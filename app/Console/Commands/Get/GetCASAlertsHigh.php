@@ -143,6 +143,8 @@ class GetCASAlertsHigh extends Command
         // instantiate new Kafka producer
         $producer = new \Kafka\Producer();
 
+        Log::info('[+] sending ['.count($alerts).'] CAS high alerts to Kafka...');
+
         // cycle through Cylance devices
         foreach ($alerts as $alert) {
             // add upsert datetime
@@ -160,9 +162,10 @@ class GetCASAlertsHigh extends Command
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
                 Log::error('[!] Error sending CAS high alert to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
-                Log::info('[+] CAS high alert successfully sent to Kafka: '.$alert['alert_id']);
+                //Log::info('[+] CAS high alert successfully sent to Kafka: '.$alert['alert_id']);
             }
         }
+        Log::info('[+] ...DONE');
 
         /*
             // new crawler object
