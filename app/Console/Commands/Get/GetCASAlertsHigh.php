@@ -41,22 +41,25 @@ class GetCASAlertsHigh extends Command
      */
     public function handle()
     {
+        Log::info(PHP_EOL.PHP_EOL.'***********************************'.PHP_EOL.'* Starting CAS High Alerts Query! *'.PHP_EOL.'***********************************');
+
         // setup file to hold cookie
-        $cookiejar = storage_path('app/cookies/cylancecookie.txt');
+        $cookiejar = storage_path('app/cookies/cas_cookie.txt');
 
         // create crawler object
         $crawler = new \Crawler\Crawler($cookiejar);
 
+        // get CAS token and url from environment file
         $cas_token = getenv('CAS_TOKEN');
         $cas_url = getenv('CAS_URL').'/api/v1/alerts/';
 
-        // use javascript token to setup necessary HTTP headers
+        // setup authorization header and apply to crawler object
         $headers = [
             'Authorization: Token '.$cas_token,
         ];
-
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
+        // setup post data
         $post_data = [
             'filters'   => [
                 'severity' => [
@@ -65,78 +68,57 @@ class GetCASAlertsHigh extends Command
             ],
         ];
 
-        $response = $crawler->post($cas_url, '', \Metaclassing\Utility::encodeJson($post_data));
-        file_put_contents(storage_path('app/responses/cas_alerts_high.json'), $response);
-
-        $data = \Metaclassing\Utility::decodeJson($response);
-        $high_alerts = $data['data'];
-
         $alerts = [];
+        $count = 0;
 
-        foreach ($high_alerts as $alert) {
-            if (isset($alert['_id'])) {
-                $alert_id = $alert['_id'];
-            } else {
-                $alert_id = 'ID NOT FOUND';
-                print_r($alert);
+        do {
+            $response = $crawler->post($cas_url, '', \Metaclassing\Utility::encodeJson($post_data));
+            file_put_contents(storage_path('app/responses/cas_alerts_high.json'), $response);
+
+            $data = \Metaclassing\Utility::decodeJson($response);
+            $high_alerts = $data['data'];
+
+            // add count of returned alerts to count
+            $count += count($high_alerts);
+
+            // set total
+            $total = $data['total'];
+
+            // cycle through alerts
+            foreach ($high_alerts as $alert) {
+                // pull _id from the alert and add it back as just id
+                $id = array_pull($alert, '_id');
+                $alert['alert_id'] = $id;
+
+                // convert millisecond timestamp to datetime
+                $alert_timestamp = Carbon::createFromTimestamp($alert['timestamp'] / 1000)->toAtomString();
+                $alert['alert_timestamp'] = $alert_timestamp;
+
+                $entities = array_pull($alert, 'entities');
+                $ent_count = 1;
+                $entity_array = [];
+                foreach ($entities as $entity) {
+                    $entity_id = $entity['id'];
+                    $filtered_entity = array_except($entity, ['id']);
+
+                    $filtered_entity['id_'.$ent_count] = $entity_id;
+                    $ent_count++;
+
+                    $entity_array[] = $filtered_entity;
+                }
+
+                $alert_no_entities = array_forget($alert, ['entities']);
+                $alert['entities'] = $entity_array;
+
+                // build alerts collection
+                $alerts[] = $alert;
             }
-
-            $alert_timestamp = Carbon::createFromTimestamp($alert['timestamp'] / 1000)->toAtomString();
-
-            $alerts[] = [
-                'alert_timestamp'       => $alert_timestamp,
-                'alert_id'              => $alert_id,
-                'alert_desc'            => $alert['description'],
-                'alert_title'           => $alert['title'],
-                'targeted_user'         => $alert['entities'][2]['id'],
-                'targeted_service'      => $alert['entities'][3]['label'],
-                'origin_type'           => $alert['entities'][4]['type'],
-                'origin_data'           => $alert['entities'][4]['label'],
-                'origin_location_type'  => $alert['entities'][5]['type'],
-                'origin_location'       => $alert['entities'][5]['label'],
-            ];
         }
+        while ($count < $total);
 
+        // JSON encode and dump alerts to file
         file_put_contents(storage_path('app/collections/cas_alerts_high.json'), \Metaclassing\Utility::encodeJson($alerts));
 
-        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-        $crawler = new \Crawler\Crawler($cookiejar);
-
-        $headers = [
-            'Authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ==',
-            'Content-Type: application/json',
-            'Cache-Control: no-cache',
-        ];
-
-        // setup curl HTTP headers with $headers
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-
-        foreach ($alerts as $alert) {
-            // add upsert datetime
-            $alert['UpsertDate'] = Carbon::now()->toAtomString();
-
-            $url = 'http://10.243.36.53:9200/cas_alerts_high/cas_alerts_high/'.$alert['alert_id'];
-            Log::info('HTTP Post to elasticsearch: '.$url);
-
-            $post = [
-                'doc'           => $alert,
-                'doc_as_upsert' => true,
-            ];
-
-            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
-
-            $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($response);
-
-            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('CAS high alert was successfully inserted into ES: '.$alert['alert_id']);
-            } else {
-                Log::error('Something went wrong inserting CAS high alert: '.$alert['alert_id']);
-                die('Something went wrong inserting CAS high alert: '.$alert['alert_id'].PHP_EOL);
-            }
-        }
-
-        /*
         // instantiate a Kafka producer config and set the broker IP
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
@@ -145,7 +127,7 @@ class GetCASAlertsHigh extends Command
         $producer = new \Kafka\Producer();
 
         // cycle through Cylance devices
-        foreach ($high_alerts as $alert) {
+        foreach ($alerts as $alert) {
             // add upsert datetime
             $alert['UpsertDate'] = Carbon::now()->toAtomString();
 
@@ -161,9 +143,56 @@ class GetCASAlertsHigh extends Command
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
                 Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
-                Log::info('[*] Data successfully sent to Kafka: '.$alert['_id']);
+                Log::info('[*] Data successfully sent to Kafka: '.$alert['alert_id']);
+            }
+        }
+
+
+
+        /*
+        // new crawler object
+        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        // setup headers and apply to crawler object
+        $headers = [
+            'Authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ==',
+            'Content-Type: application/json',
+            'Cache-Control: no-cache',
+        ];
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        // cycle through alerts collection
+        foreach ($alerts as $alert) {
+            // add upsert datetime
+            $alert['UpsertDate'] = Carbon::now()->toAtomString();
+
+            // setup elastic url
+            $url = 'http://10.243.36.53:9200/cas_alerts_high/cas_alerts_high/'.$alert['_id'];
+            Log::info('HTTP Post to elasticsearch: '.$url);
+
+            // setup post data
+            $post = [
+                'doc'           => $alert,
+                'doc_as_upsert' => true,
+            ];
+
+            // post upsert to elastic and capture response
+            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
+
+            // JSON decode response and check for errors
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+            Log::info($response);
+
+            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
+                Log::info('CAS high alert was successfully inserted into ES: '.$alert['_id']);
+            } else {
+                Log::error('Something went wrong inserting CAS high alert: '.$alert['_id']);
+                die('Something went wrong inserting CAS high alert: '.$alert['_id'].PHP_EOL);
             }
         }
         */
+
+
     }
 }
