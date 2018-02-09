@@ -113,8 +113,7 @@ class GetCASAlertsHigh extends Command
                 // build alerts collection
                 $alerts[] = $alert;
             }
-        }
-        while ($count < $total);
+        } while ($count < $total);
 
         // JSON encode and dump alerts to file
         file_put_contents(storage_path('app/collections/cas_alerts_high.json'), \Metaclassing\Utility::encodeJson($alerts));
@@ -146,8 +145,6 @@ class GetCASAlertsHigh extends Command
                 Log::info('[*] Data successfully sent to Kafka: '.$alert['alert_id']);
             }
         }
-
-
 
         /*
         // new crawler object
@@ -192,7 +189,5 @@ class GetCASAlertsHigh extends Command
             }
         }
         */
-
-
     }
 }
