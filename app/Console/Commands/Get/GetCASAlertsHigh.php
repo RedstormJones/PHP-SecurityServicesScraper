@@ -208,7 +208,6 @@ class GetCASAlertsHigh extends Command
             }
         */
 
-
         Log::info('* CAS high alerts completed! *'.PHP_EOL);
     }
 }
