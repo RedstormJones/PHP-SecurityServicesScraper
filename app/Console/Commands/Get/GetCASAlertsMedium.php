@@ -164,7 +164,6 @@ class GetCASAlertsMedium extends Command
             }
         }
 
-
         Log::info('* CAS medium alerts completed! *'.PHP_EOL);
     }
 }
