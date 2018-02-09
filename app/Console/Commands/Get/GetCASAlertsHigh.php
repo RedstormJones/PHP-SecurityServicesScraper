@@ -60,9 +60,9 @@ class GetCASAlertsHigh extends Command
         $post_data = [
             'filters'   => [
                 'severity' => [
-                    'eq'    => [2]
-                ]
-            ]
+                    'eq'    => [2],
+                ],
+            ],
         ];
 
         $response = $crawler->post($cas_url, '', \Metaclassing\Utility::encodeJson($post_data));
@@ -73,17 +73,16 @@ class GetCASAlertsHigh extends Command
 
         $alerts = [];
 
-        foreach ($high_alerts as $alert)
-        {
+        foreach ($high_alerts as $alert) {
             if (isset($alert['_id'])) {
                 $alert_id = $alert['_id'];
             } else {
-                $alert_id = "ID NOT FOUND";
+                $alert_id = 'ID NOT FOUND';
                 print_r($alert);
             }
 
             $alert_timestamp = Carbon::createFromTimestamp($alert['timestamp'] / 1000)->toAtomString();
-            
+
             $alerts[] = [
                 'alert_timestamp'       => $alert_timestamp,
                 'alert_id'              => $alert_id,
@@ -94,12 +93,11 @@ class GetCASAlertsHigh extends Command
                 'origin_type'           => $alert['entities'][4]['type'],
                 'origin_data'           => $alert['entities'][4]['label'],
                 'origin_location_type'  => $alert['entities'][5]['type'],
-                'origin_location'       => $alert['entities'][5]['label']
+                'origin_location'       => $alert['entities'][5]['label'],
             ];
         }
 
         file_put_contents(storage_path('app/collections/cas_alerts_high.json'), \Metaclassing\Utility::encodeJson($alerts));
-
 
         $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
@@ -137,7 +135,6 @@ class GetCASAlertsHigh extends Command
                 die('Something went wrong inserting CAS high alert: '.$alert['alert_id'].PHP_EOL);
             }
         }
-
 
         /*
         // instantiate a Kafka producer config and set the broker IP
