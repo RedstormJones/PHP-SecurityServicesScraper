@@ -69,11 +69,12 @@ class GetProofPointSIEM extends Command
             $response = \Metaclassing\Utility::decodeJson($json_response);
             $error = 'No errors detected';
         } catch (\Exception $e) {
+            $response = NULL;
             $error = $e->getMessage();
         }
 
         // check if decoding the JSON response was successful
-        if (!\Metaclassing\Utility::testJsonError()) {
+        if ($response) {
             file_put_contents(storage_path('app/collections/proofpoint_siem.json'), \Metaclassing\Utility::encodeJson($response));
 
             $messages_delivered = $response['messagesDelivered'];
@@ -113,8 +114,7 @@ class GetProofPointSIEM extends Command
             }
         } else {
             // otherwise pop smoke and bail
-            Log::error('[!] ProofPoint response not valid JSON: '.$error);
-            die('[!] ERROR: ProofPoint response not valid JSON: '.$error.PHP_EOL);
+            Log::info('[-] no data returned from ProofPoint SIEM API...');
         }
 
         Log::info('[*] ProofPoint SIEM command completed! [*]'.PHP_EOL);
