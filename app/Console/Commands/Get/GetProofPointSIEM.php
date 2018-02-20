@@ -69,7 +69,7 @@ class GetProofPointSIEM extends Command
             $response = \Metaclassing\Utility::decodeJson($json_response);
             $error = 'No errors detected';
         } catch (\Exception $e) {
-            $response = NULL;
+            $response = null;
             $error = $e->getMessage();
         }
 
