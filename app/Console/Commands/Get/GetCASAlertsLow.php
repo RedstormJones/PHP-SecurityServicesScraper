@@ -81,7 +81,7 @@ class GetCASAlertsLow extends Command
 
             // JSON decode response
             $data = \Metaclassing\Utility::decodeJson($response);
-            
+
             // check if the key data exists
             if (array_key_exists('data', $data)) {
                 // if yes the get the alerts
@@ -92,10 +92,9 @@ class GetCASAlertsLow extends Command
 
                 // add count of returned alerts to count
                 $count += count($low_alerts);
-            }
-            else {
+            } else {
                 // if no then M$ is probably throttling us, so sleep it off
-                sleep (5);
+                sleep(5);
             }
         } while ($count < $total);
 
