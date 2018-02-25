@@ -71,6 +71,7 @@ class GetCASAlertsHigh extends Command
 
         $high_alerts = [];
         $count = 0;
+        $total = 0;
 
         do {
             // post to CAS endpoint and capture reponse

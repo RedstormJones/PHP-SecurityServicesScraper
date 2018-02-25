@@ -71,6 +71,7 @@ class GetCASAlertsMedium extends Command
 
         $medium_alerts = [];
         $count = 0;
+        $total = 0;
 
         do {
             // post to CAS endpoint and capture reponse
