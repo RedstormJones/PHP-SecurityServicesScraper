@@ -67,71 +67,91 @@ class GetCASAlertsMedium extends Command
                 ],
             ],
         ];
+        $post_data_json = \Metaclassing\Utility::encodeJson($post_data);
 
-        $alerts = [];
+        $medium_alerts = [];
         $count = 0;
 
         do {
             // post to CAS endpoint and capture reponse
-            $response = $crawler->post($cas_url, '', \Metaclassing\Utility::encodeJson($post_data));
+            $response = $crawler->post($cas_url, '', $post_data_json);
 
             // dump response to file
-            file_put_contents(storage_path('app/responses/cas_alerts_medium.json'), $response);
+            file_put_contents(storage_path('app/responses/cas_response.json'), $response);
 
-            // JSON decode response and grab the data
+            // JSON decode response
             $data = \Metaclassing\Utility::decodeJson($response);
-            $medium_alerts = $data['data'];
 
-            // add count of returned alerts to count
-            $count += count($medium_alerts);
+            // check if the key data exists
+            if (array_key_exists('data', $data)) {
+                // if yes the get the alerts
+                $medium_alerts[] = $data['data'];
 
-            // set total
-            $total = $data['total'];
-
-            // cycle through alerts
-            foreach ($medium_alerts as $alert) {
-                // pull _id from the alert and add it back as just id
-                $id = array_pull($alert, '_id');
-                $alert['alert_id'] = $id;
-
-                // pull timestamp from alert and convert to datetime, then add it back as alert_timestamp
-                $millisecond_timestamp = array_pull($alert, 'timestamp');
-                $alert_timestamp = Carbon::createFromTimestamp($millisecond_timestamp / 1000)->toAtomString();
-                $alert['alert_timestamp'] = $alert_timestamp;
-
-                // pull the entities array from the alert
-                $entities = array_pull($alert, 'entities');
-
-                $ent_count = 1;
-                $entity_array = [];
-
-                // cycle through entities
-                foreach ($entities as $entity) {
-                    // save off the entity id and type
-                    $entity_id = $entity['id'];
-                    $entity_type = $entity['type'];
-
-                    // filter out id and type from entity object
-                    $filtered_entity = array_except($entity, ['id', 'type']);
-
-                    // add the entity id back with it's corresponding count appended
-                    $filtered_entity['id_'.$ent_count] = $entity_id;
-
-                    // increment entity count
-                    $ent_count++;
-
-                    // add entity to entity array with the type as the key
-                    $entity_array[$entity_type] = $filtered_entity;
-                }
-
-                // drop the current entity array from the alert object and replace it with the processed entity array
-                $alert_no_entities = array_forget($alert, ['entities']);
-                $alert['entities'] = $entity_array;
-
-                // build alerts collection
-                $alerts[] = $alert;
+                // set total
+                $total = $data['total'];
+                
+                // add count of returned alerts to count
+                $count += count($medium_alerts);
+            }
+            else {
+                // if no then M$ is probably throttling us, so sleep it off
+                sleep (5);
             }
         } while ($count < $total);
+
+        $medium_alerts = array_collapse($medium_alerts);
+
+        // dump alerts collection to file
+        file_put_contents(storage_path('app/responses/cas_alerts_medium_collection.json'), \Metaclassing\Utility::encodeJson($medium_alerts));
+
+        $alerts = [];
+
+        // cycle through alerts
+        foreach ($medium_alerts as $alert) {
+            // downstream processing will throw errors if data already has an _id key,
+            // so we need to pull _id from the alert and add it back as alert_id
+            $id = array_pull($alert, '_id');
+            $alert['alert_id'] = $id;
+
+            // pull timestamp from alert and convert to datetime, then add it back as alert_timestamp
+            $millisecond_timestamp = array_pull($alert, 'timestamp');
+            $alert_timestamp = Carbon::createFromTimestamp($millisecond_timestamp / 1000)->toAtomString();
+            $alert['alert_timestamp'] = $alert_timestamp;
+
+            // pull the entities array from the alert
+            $entities = array_pull($alert, 'entities');
+
+            $ent_count = 1;
+            $entity_array = [];
+
+            // cycle through entities
+            foreach ($entities as $entity) {
+                // downstream processing will throw errors if data already has an id or type key,
+                // so pull id and type, and add them back as entity_id and entity_type
+                $entity_id = array_pull($entity, 'id');
+                $entity_type = array_pull($entity, 'type');
+
+                $entity['entity'.$ent_count.'_id'] = $entity_id;
+                $entity['entity'.$ent_count.'_type'] = $entity_type;
+
+                // check for an entityType key and remove it
+                if (array_key_exists('entityType', $entity)) {
+                    array_forget($entity, 'entityType');
+                }
+
+                // add entity to entity array
+                $entity_array['entity'.$ent_count] = $entity;
+
+                // increment entity count
+                $ent_count++;
+            }
+
+            // add the entities array back to the alert
+            $alert['entities'] = $entity_array;
+
+            // build alerts collection
+            $alerts[] = $alert;
+        }
 
         // JSON encode and dump alerts to file
         file_put_contents(storage_path('app/collections/cas_alerts_medium.json'), \Metaclassing\Utility::encodeJson($alerts));
@@ -165,7 +185,6 @@ class GetCASAlertsMedium extends Command
                 //Log::info('[+] CAS medium alert successfully sent to Kafka: '.$alert['alert_id']);
             }
         }
-        Log::info('...DONE');
 
         Log::info('* CAS medium alerts completed! *'.PHP_EOL);
     }
