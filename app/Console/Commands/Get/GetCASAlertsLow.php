@@ -95,6 +95,8 @@ class GetCASAlertsLow extends Command
                 $count += count($low_alerts);
             } else {
                 // if no then M$ is probably throttling us, so sleep it off
+                Log::warning('[WARN] no data found in response: '.data);
+                Log::info('[+] sleeping it off (5 sec)...');
                 sleep(5);
             }
         } while ($count < $total);
