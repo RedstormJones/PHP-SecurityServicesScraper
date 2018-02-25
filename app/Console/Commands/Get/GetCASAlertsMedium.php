@@ -89,13 +89,12 @@ class GetCASAlertsMedium extends Command
 
                 // set total
                 $total = $data['total'];
-                
+
                 // add count of returned alerts to count
                 $count += count($medium_alerts);
-            }
-            else {
+            } else {
                 // if no then M$ is probably throttling us, so sleep it off
-                sleep (5);
+                sleep(5);
             }
         } while ($count < $total);
 
