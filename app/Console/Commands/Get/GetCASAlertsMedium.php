@@ -101,7 +101,7 @@ class GetCASAlertsMedium extends Command
                 preg_match($throttle_regex, $data['detail'], $hits);
 
                 Log::info('[+] sleeping it off ('.$hits[1].' sec)...');
-                sleep((float)$hits[1]);
+                sleep((float) $hits[1]);
             }
         } while ($count < $total);
 
