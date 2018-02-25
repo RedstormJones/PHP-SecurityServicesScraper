@@ -95,7 +95,7 @@ class GetCASAlertsMedium extends Command
                 $count += count($medium_alerts);
             } else {
                 // if no then M$ is probably throttling us, so sleep it off
-                Log::warning('[WARN] no data found in response: '.$data);
+                Log::warning('[WARN] no data found in response: '.$response);
                 Log::info('[+] sleeping it off (5 sec)...');
                 sleep(5);
             }
