@@ -97,7 +97,7 @@ class GetCASAlertsMedium extends Command
                 // if no then M$ is probably throttling us, so sleep it off
                 Log::warning('[WARN] no data found in response: '.$response);
 
-                $throttle_regex = '/Request was throttled\. Expected available in (\d\.\d) seconds\./';
+                $throttle_regex = '/Request was throttled\. Expected available in (\d\.\d) second[s]*\./';
                 preg_match($throttle_regex, $data['detail'], $hits);
 
                 Log::info('[+] sleeping it off ('.$hits[1].' sec)...');
