@@ -59,21 +59,23 @@ class GetCASAlertsHigh extends Command
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-        // setup post data
-        $post_data = [
-            'filters'   => [
-                'severity' => [
-                    'eq'    => [2],
-                ],
-            ],
-        ];
-        $post_data_json = \Metaclassing\Utility::encodeJson($post_data);
-
+        $has_next = true;
         $high_alerts = [];
         $count = 0;
         $total = 0;
 
         do {
+            // setup post data
+            $post_data = [
+                'filters'   => [
+                    'severity' => [
+                        'eq'    => 2,
+                    ]
+                ],
+                'skip'  => $count
+            ];
+            $post_data_json = \Metaclassing\Utility::encodeJson($post_data);
+
             // post to CAS endpoint and capture reponse
             $response = $crawler->post($cas_url, '', $post_data_json);
 
@@ -91,8 +93,11 @@ class GetCASAlertsHigh extends Command
                 // set total
                 $total = $data['total'];
 
+                // set has_next
+                $has_next = $data['hasNext'];
+
                 // add count of returned alerts to count
-                $count += count($high_alerts);
+                $count += count($data['data']);
             } else {
                 // if no then M$ is probably throttling us, so sleep it off
                 Log::warning('[WARN]: [CAS_ALERTS_HIGH] no data found in response: '.$data['detail']);
@@ -103,7 +108,7 @@ class GetCASAlertsHigh extends Command
                 Log::info('[+] [CAS_ALERTS_HIGH] sleeping it off ('.$hits[1].' sec)...');
                 sleep((float) $hits[1]);
             }
-        } while ($count < $total || !array_key_exists('data', $data));
+        } while ($has_next);
 
         $high_alerts = array_collapse($high_alerts);
 

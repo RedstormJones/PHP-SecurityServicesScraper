@@ -46,6 +46,15 @@ class GetCASAlertsMedium extends Command
         // setup file to hold cookie
         $cookiejar = storage_path('app/cookies/cas_cookie.txt');
 
+        /*
+        $filter_24hrs = Carbon::now()->subHours(24);
+        $filter_24hrs->timezone = 'America/Chicago';
+        $filter_24hrs_timestamp = $filter_24hrs->timestamp;
+        $filter_24hrs_datetime = $filter_24hrs->toDateTimeString();
+        Log::info('[+] [CAS_ALERTS_MEDIUM] filter 24 hours timestamp: '.$filter_24hrs_timestamp);
+        Log::info('[+] [CAS_ALERTS_MEDIUM] filter 24 hours datetime: '.$filter_24hrs_datetime);
+        */
+
         // create crawler object
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -59,21 +68,23 @@ class GetCASAlertsMedium extends Command
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-        // setup post data
-        $post_data = [
-            'filters'   => [
-                'severity' => [
-                    'eq'    => [1],
-                ],
-            ],
-        ];
-        $post_data_json = \Metaclassing\Utility::encodeJson($post_data);
-
+        $has_next = true;
         $medium_alerts = [];
         $count = 0;
         $total = 0;
 
         do {
+            // setup post data
+            $post_data = [
+                'filters'   => [
+                    'severity' => [
+                        'eq'    => 1,
+                    ]
+                ],
+                'skip'  => $count
+            ];
+            $post_data_json = \Metaclassing\Utility::encodeJson($post_data);
+
             // post to CAS endpoint and capture reponse
             $response = $crawler->post($cas_url, '', $post_data_json);
 
@@ -91,8 +102,11 @@ class GetCASAlertsMedium extends Command
                 // set total
                 $total = $data['total'];
 
+                // set has_next
+                $has_next = $data['hasNext'];
+
                 // add count of returned alerts to count
-                $count += count($medium_alerts);
+                $count += count($data['data']);
             } else {
                 // if no then M$ is probably throttling us, so sleep it off
                 Log::warning('[WARN]: [CAS_ALERTS_MEDIUM] no data found in response: '.$data['detail']);
@@ -103,7 +117,7 @@ class GetCASAlertsMedium extends Command
                 Log::info('[+] [CAS_ALERTS_MEDIUM] sleeping it off ('.$hits[1].' sec)...');
                 sleep((float) $hits[1]);
             }
-        } while ($count < $total);
+        } while ($has_next);
 
         $medium_alerts = array_collapse($medium_alerts);
 
