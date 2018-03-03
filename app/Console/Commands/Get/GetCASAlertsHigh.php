@@ -95,15 +95,15 @@ class GetCASAlertsHigh extends Command
                 $count += count($high_alerts);
             } else {
                 // if no then M$ is probably throttling us, so sleep it off
-                Log::warning('[WARN] no data found in response: '.$response);
+                Log::warning('[WARN]: [CAS_ALERTS_HIGH] no data found in response: '.$data['detail']);
 
                 $throttle_regex = '/Request was throttled\. Expected available in (\d+\.\d+) second[s]*\./';
                 preg_match($throttle_regex, $data['detail'], $hits);
 
-                Log::info('[+] sleeping it off ('.$hits[1].' sec)...');
+                Log::info('[+] [CAS_ALERTS_HIGH] sleeping it off ('.$hits[1].' sec)...');
                 sleep((float) $hits[1]);
             }
-        } while ($count < $total);
+        } while ($count < $total || !array_key_exists('data', $data));
 
         $high_alerts = array_collapse($high_alerts);
 
@@ -194,6 +194,6 @@ class GetCASAlertsHigh extends Command
             }
         }
 
-        Log::info('* CAS high alerts completed! *'.PHP_EOL);
+        Log::info('* [CAS_ALERTS_HIGH] CAS high alerts completed! *'.PHP_EOL);
     }
 }

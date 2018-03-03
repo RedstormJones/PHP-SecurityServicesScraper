@@ -95,12 +95,12 @@ class GetCASAlertsMedium extends Command
                 $count += count($medium_alerts);
             } else {
                 // if no then M$ is probably throttling us, so sleep it off
-                Log::warning('[WARN] no data found in response: '.$response);
+                Log::warning('[WARN]: [CAS_ALERTS_MEDIUM] no data found in response: '.$data['detail']);
 
                 $throttle_regex = '/Request was throttled\. Expected available in (\d+\.\d+) second[s]*\./';
                 preg_match($throttle_regex, $data['detail'], $hits);
 
-                Log::info('[+] sleeping it off ('.$hits[1].' sec)...');
+                Log::info('[+] [CAS_ALERTS_MEDIUM] sleeping it off ('.$hits[1].' sec)...');
                 sleep((float) $hits[1]);
             }
         } while ($count < $total);
@@ -194,6 +194,6 @@ class GetCASAlertsMedium extends Command
             }
         }
 
-        Log::info('* CAS medium alerts completed! *'.PHP_EOL);
+        Log::info('* [CAS_ALERTS_MEDIUM] CAS medium alerts completed! *'.PHP_EOL);
     }
 }
