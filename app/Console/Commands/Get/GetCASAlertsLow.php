@@ -120,7 +120,9 @@ class GetCASAlertsLow extends Command
 
             // pull timestamp from alert and convert to datetime, then add it back as alert_timestamp
             $millisecond_timestamp = array_pull($alert, 'timestamp');
-            $alert_timestamp = Carbon::createFromTimestamp($millisecond_timestamp / 1000)->toAtomString();
+            $alert_timestamp = Carbon::createFromTimestamp($millisecond_timestamp / 1000);
+            $alert_timestamp->timezone = 'America/Chicago';
+            $alert_timestamp = $alert_timestamp->toDateTimeString();
             $alert['alert_timestamp'] = $alert_timestamp;
 
             // pull the entities array from the alert
