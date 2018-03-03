@@ -70,9 +70,9 @@ class GetCASAlertsHigh extends Command
                 'filters'   => [
                     'severity' => [
                         'eq'    => 2,
-                    ]
+                    ],
                 ],
-                'skip'  => $count
+                'skip'  => $count,
             ];
             $post_data_json = \Metaclassing\Utility::encodeJson($post_data);
 

@@ -72,7 +72,7 @@ class GetCASAlertsLow extends Command
                         'eq'    => 0,
                     ],
                 ],
-                'skip'  => $count
+                'skip'  => $count,
             ];
             $post_data_json = \Metaclassing\Utility::encodeJson($post_data);
 
