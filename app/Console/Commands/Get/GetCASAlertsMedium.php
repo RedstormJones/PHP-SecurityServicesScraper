@@ -46,15 +46,6 @@ class GetCASAlertsMedium extends Command
         // setup file to hold cookie
         $cookiejar = storage_path('app/cookies/cas_cookie.txt');
 
-        /*
-        $filter_24hrs = Carbon::now()->subHours(24);
-        $filter_24hrs->timezone = 'America/Chicago';
-        $filter_24hrs_timestamp = $filter_24hrs->timestamp;
-        $filter_24hrs_datetime = $filter_24hrs->toDateTimeString();
-        Log::info('[+] [CAS_ALERTS_MEDIUM] filter 24 hours timestamp: '.$filter_24hrs_timestamp);
-        Log::info('[+] [CAS_ALERTS_MEDIUM] filter 24 hours datetime: '.$filter_24hrs_datetime);
-        */
-
         // create crawler object
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -185,7 +176,7 @@ class GetCASAlertsMedium extends Command
         // instantiate new Kafka producer
         $producer = new \Kafka\Producer();
 
-        Log::info('[+] sending ['.count($alerts).'] CAS medium alerts to Kafka...');
+        Log::info('[+] [CAS_ALERTS_MEDIUM] sending ['.count($alerts).'] CAS medium alerts to Kafka...');
 
         // cycle through Cylance devices
         foreach ($alerts as $alert) {
@@ -202,7 +193,7 @@ class GetCASAlertsMedium extends Command
 
             // check for and log errors
             if (isset($result[0]) && $result[0]['data'][0]['partitions'][0]['errorCode']) {
-                Log::error('[!] Error sending CAS medium alert to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+                Log::error('[!] [CAS_ALERTS_MEDIUM] Error sending CAS medium alert to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
                 //Log::info('[+] CAS medium alert successfully sent to Kafka: '.$alert['alert_id']);
             }

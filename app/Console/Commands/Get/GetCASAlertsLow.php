@@ -175,7 +175,7 @@ class GetCASAlertsLow extends Command
         // instantiate new Kafka producer
         $producer = new \Kafka\Producer();
 
-        Log::info('[+] sending ['.count($alerts).'] CAS low alerts to Kafka...');
+        Log::info('[+] [CAS_ALERTS_LOW] sending ['.count($alerts).'] CAS low alerts to Kafka...');
 
         // cycle through Cylance devices
         foreach ($alerts as $alert) {
@@ -192,7 +192,7 @@ class GetCASAlertsLow extends Command
 
             // check for and log errors
             if (isset($result[0]) && $result[0]['data'][0]['partitions'][0]['errorCode']) {
-                Log::error('[!] Error sending CAS low alert to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+                Log::error('[!] [CAS_ALERTS_LOW] Error sending CAS low alert to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
                 //Log::info('[+] CAS low alert successfully sent to Kafka: '.$alert['alert_id']);
             }
