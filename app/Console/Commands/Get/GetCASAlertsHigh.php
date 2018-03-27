@@ -139,21 +139,20 @@ class GetCASAlertsHigh extends Command
 
             // cycle through entities
             foreach ($entities as $entity) {
-                // downstream processing will throw errors if data already has an id or type key,
-                // so pull id and type, and add them back as entity_id and entity_type
+                // downstream processing will throw errors if data already has an id or type key, so pull id and type
                 $entity_id = array_pull($entity, 'id');
                 $entity_type = array_pull($entity, 'type');
 
-                $entity['entity'.$ent_count.'_id'] = $entity_id;
-                $entity['entity'.$ent_count.'_type'] = $entity_type;
+                // add id back as <type>_id
+                $entity[$entity_type.'_id'] = $entity_id;
 
                 // check for an entityType key and remove it
                 if (array_key_exists('entityType', $entity)) {
                     array_forget($entity, 'entityType');
                 }
 
-                // add entity to entity array
-                $entity_array['entity'.$ent_count] = $entity;
+                // add entity to entity array using the entity type as the key
+                $entity_array[$entity_type] = $entity;
 
                 // increment entity count
                 $ent_count++;
