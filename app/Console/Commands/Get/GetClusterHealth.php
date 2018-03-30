@@ -5,7 +5,6 @@ namespace App\Console\Commands\Get;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class GetClusterHealth extends Command
 {
@@ -48,7 +47,7 @@ class GetClusterHealth extends Command
         echo 'cluster health url: '.$cluster_health_url.PHP_EOL;
 
         $headers = [
-            'Authorization: Basic dHlsZXIuZmlsa2luczpMMlF1ZWVuMTNTbCFw'
+            'Authorization: Basic dHlsZXIuZmlsa2luczpMMlF1ZWVuMTNTbCFw',
         ];
 
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
@@ -67,9 +66,8 @@ class GetClusterHealth extends Command
         $new_status = $response['status'];
         if ($new_status == $old_status) {
             $status_string = 'Status unchanged: '.$new_status;
-        }
-        else {
-            $status_string = $old_status.'  --->  '.$new_status;            
+        } else {
+            $status_string = $old_status.'  --->  '.$new_status;
         }
 
         $old_relocating_shards = $old_response['relocating_shards'];
@@ -112,7 +110,7 @@ class GetClusterHealth extends Command
             'number_of_pending_tasks'       => $new_pending_tasks,
             'number_of_pending_tasks_delta' => $delta_pending_tasks,
             'max_task_queue_wait'           => $new_max_task_queue_wait,
-            'max_task_queue_wait_delta'     => $delta_max_task_queue_wait
+            'max_task_queue_wait_delta'     => $delta_max_task_queue_wait,
         ];
 
         $table_array = [
@@ -126,7 +124,7 @@ class GetClusterHealth extends Command
             'pending_tasks'         => $health_status['number_of_pending_tasks'],
             'pending_delta'         => $health_status['number_of_pending_tasks_delta'],
             'max_queue_wait'        => $health_status['max_task_queue_wait'],
-            'max_queue_wait_delta'  => $health_status['max_task_queue_wait_delta']
+            'max_queue_wait_delta'  => $health_status['max_task_queue_wait_delta'],
         ];
 
         $headers = array_keys($table_array);
@@ -144,57 +142,47 @@ class GetClusterHealth extends Command
                 $table_array['pending_tasks'],
                 $table_array['pending_delta'],
                 $table_array['max_queue_wait'],
-                $table_array['max_queue_wait_delta']
-            ]
+                $table_array['max_queue_wait_delta'],
+            ],
         ];
 
         if ($table_array['relocating_delta'] == 0) {
             $this->line('relocating_shard_delta: '.$table_array['relocating_delta']);
-        }
-        else if ($table_array['relocating_delta'] > 0) {
+        } elseif ($table_array['relocating_delta'] > 0) {
             $this->line('relocating_shards_delta: <fg=red>'.$table_array['relocating_delta'].'</>');
-        }
-        else {
+        } else {
             $this->line('relocating_shards_delta: <fg=green>'.$table_array['relocating_delta'].'</>');
         }
 
         if ($table_array['initializing_delta'] == 0) {
             $this->line('initializing_shard_delta: '.$table_array['initializing_delta']);
-        }
-        else if ($table_array['initializing_delta'] > 0) {
+        } elseif ($table_array['initializing_delta'] > 0) {
             $this->line('initializing_shards_delta: <fg=green>'.$table_array['initializing_delta'].'</>');
-        }
-        else {
+        } else {
             $this->line('initializing_shards_delta: <fg=red>'.$table_array['initializing_delta'].'</>');
         }
 
         if ($table_array['unassigned_delta'] == 0) {
             $this->line('unassigned_shard_delta: '.$table_array['unassigned_delta']);
-        }
-        else if ($table_array['unassigned_delta'] > 0) {
+        } elseif ($table_array['unassigned_delta'] > 0) {
             $this->line('unassigned_shards_delta: <fg=red>'.$table_array['unassigned_delta'].'</>');
-        }
-        else {
+        } else {
             $this->line('unassigned_shards_delta: <fg=green>'.$table_array['unassigned_delta'].'</>');
         }
 
         if ($table_array['pending_delta'] == 0) {
             $this->line('pending_tasks_delta: '.$table_array['pending_delta']);
-        }
-        else if ($table_array['pending_delta'] > 0) {
+        } elseif ($table_array['pending_delta'] > 0) {
             $this->line('pending_tasks_delta: <fg=red>'.$table_array['pending_delta'].'</>');
-        }
-        else {
+        } else {
             $this->line('pending_tasks_delta: <fg=green>'.$table_array['pending_delta'].'</>');
         }
 
         if ($table_array['max_queue_wait_delta'] == 0) {
             $this->line('max_task_queue_wait_delta: '.$table_array['max_queue_wait_delta']);
-        }
-        else if ($table_array['max_queue_wait_delta'] > 0) {
+        } elseif ($table_array['max_queue_wait_delta'] > 0) {
             $this->line('max_task_queue_wait_delta: <fg=red>'.$table_array['max_queue_wait_delta'].'</>');
-        }
-        else {
+        } else {
             $this->line('max_task_queue_wait_delta: <fg=green>'.$table_array['max_queue_wait_delta'].'</>');
         }
 
