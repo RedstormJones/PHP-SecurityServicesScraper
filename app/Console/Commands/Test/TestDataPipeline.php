@@ -41,10 +41,6 @@ class TestDataPipeline extends Command
 
         $test_log = file_get_contents(storage_path('app/tests/test.log'));
 
-
-
-
-
         // instantiate Kafka producer config and set broker IP
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
@@ -66,12 +62,12 @@ class TestDataPipeline extends Command
         } else {
             Log::info('[*] Data successfully sent to Kafka: '.$server['name']);
         }
-
     }
 
     public function isJson($string)
     {
         json_decode($string);
-        return (json_last_error() == JSON_ERROR_NONE);
+
+        return json_last_error() == JSON_ERROR_NONE;
     }
 }
