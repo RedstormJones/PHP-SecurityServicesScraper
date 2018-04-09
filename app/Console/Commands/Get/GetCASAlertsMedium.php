@@ -64,6 +64,15 @@ class GetCASAlertsMedium extends Command
         $count = 0;
         $total = 0;
 
+        $current_timestamp = Carbon::now()->timestamp;
+
+        $now_minus_10 = Carbon::now()->subMinutes(10);
+        $alert_threshold = $now_minus_10->timestamp;
+        $alert_threshold_ms = $alert_threshold * 1000;
+
+        Log::info('[+] current timestamp: '.$current_timestamp);
+        Log::info('[+] alert datetime threshold (ms): '.$alert_threshold_ms);
+
         do {
             // setup post data
             $post_data = [
@@ -71,6 +80,9 @@ class GetCASAlertsMedium extends Command
                     'severity' => [
                         'eq'    => 1,
                     ],
+                    'date'  => [
+                        'gte'   => $alert_threshold_ms,
+                    ]
                 ],
                 'skip'  => $count,
             ];
