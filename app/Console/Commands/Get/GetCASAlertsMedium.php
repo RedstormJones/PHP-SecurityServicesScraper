@@ -82,7 +82,7 @@ class GetCASAlertsMedium extends Command
                     ],
                     'date'  => [
                         'gte'   => $alert_threshold_ms,
-                    ]
+                    ],
                 ],
                 'skip'  => $count,
             ];
