@@ -44,7 +44,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('get:sccmsystems')->dailyAt('05:00')->timezone('America/Chicago');               // runs daily at 05:00am
 
-        #$schedule->command('get:sitesubnets')->dailyAt('09:00')->timezone('America/Chicago');               // runs daily at 09:00am
+        //$schedule->command('get:sitesubnets')->dailyAt('09:00')->timezone('America/Chicago');               // runs daily at 09:00am
 
         $schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');               // runs daily at 08:30pm
 
