@@ -75,42 +75,242 @@ class GetProofPointSIEM extends Command
 
         // check if decoding the JSON response was successful
         if ($response) {
-            file_put_contents(storage_path('app/collections/proofpoint_siem.json'), \Metaclassing\Utility::encodeJson($response));
-
             $messages_delivered = $response['messagesDelivered'];
             $messages_blocked = $response['messagesBlocked'];
             $clicks_permitted = $response['clicksPermitted'];
             $clicks_blocked = $response['clicksBlocked'];
 
-            if (count($messages_delivered) === 0 and
-                count($messages_blocked) === 0 and
-                count($clicks_permitted) === 0 and
-                count($clicks_blocked) === 0) {
-                Log::info('[*] no new data retrieved from ProofPoint - terminating execution');
-                die('[*] no new data retrieved from ProofPoint - terminating execution...'.PHP_EOL);
+            # if we didn't get any data then just die
+            if (count($messages_delivered) === 0 and count($messages_blocked) === 0 and count($clicks_permitted) === 0 and count($clicks_blocked) === 0) {
+                Log::info('[-] no new data retrieved from ProofPoint - terminating execution');
+                die('[-] no new data retrieved from ProofPoint - terminating execution...'.PHP_EOL);
             }
+
+            # final data collection array
+            $siem_data = [];
+
+            # normalize delivered messages
+            if (count($messages_delivered)) {
+                foreach ($messages_delivered as $msg) {
+
+                    # build message parts array
+                    $message_parts = [];
+
+                    if (count($msg['messageParts'])) {
+                        foreach ($msg['messageParts'] as $msg_part) {
+                            $message_parts[] = [
+                                'content_type'      => $msg_part['contentType'],
+                                'md5'               => $msg_part['md5'],
+                                'filename'          => $msg_part['filename'],
+                                'o_content_type'    => $msg_part['oContentType'],
+                                'sha256'            => $msg_part['sha256'],
+                                'disposition'       => $msg_part['disposition'],
+                                'sandbox_status'    => $msg_part['sandboxStatus']
+                            ];
+                        }
+                    }
+
+                    # build threats info map array
+                    $threats_info = [];
+
+                    if (count($msg['threatsInfoMap'])) {
+                        foreach ($msg['threatsInfoMap'] as $threat_info) {
+                            $threats_info[] = [
+                                'threat_type'       => $threat_info['threatType'],
+                                'threat'            => $threat_info['threat'],
+                                'campaign_id'       => $threat_info['campaignID'],
+                                'threat_id'         => $threat_info['threatID'],
+                                'threat_time'       => $threat_info['threatTime'],
+                                'classification'    => $threat_info['classification'],
+                                'threat_status'     => $threat_info['threatStatus'],
+                                'threat_url'        => $threat_info['threatUrl']
+                            ];
+                        }
+                    }
+
+                    $siem_data[] = [
+                        'qid'                   => $msg['QID'],
+                        'phish_score'           => $msg['phishScore'],
+                        'message_id'            => $msg['messageID'],
+                        'cluster'               => $msg['cluster'],
+                        'sender'                => $msg['sender'],
+                        'message_size'          => $msg['messageSize'],
+                        'message_guid'          => $msg['GUID'],
+                        'xmailer'               => $msg['xmailer'],
+                        'modulesRun'            => $msg['modulesRun'],
+                        'quarantine_rule'       => $msg['quarantineRule'],
+                        'sender_ip'             => $msg['senderIP'],
+                        'quarantine_folder'     => $msg['quarantineFolder'],
+                        'message_parts'         => $message_parts,
+                        'threats_info_map'      => $threats_info,
+                        'spam_score'            => $msg['spamScore'],
+                        'reply_to_address'      => $msg['replyToAddress'],
+                        'impostor_score'        => $msg['impostorScore'],
+                        'completely_rewritten'  => $msg['completelyRewritten'],
+                        'cluster'               => $msg['cluster'],
+                        'from_address'          => $msg['fromAddress'],
+                        'subject'               => $msg['subject'],
+                        'cc_addresses'          => $msg['ccAddresses'],
+                        'recipient'             => $msg['recipient'],
+                        'policy_routes'         => $msg['policyRoutes'],
+                        'malware_score'         => $msg['malwareScore'],
+                        'header_reply_to'       => $msg['headerReplyTo'],
+                        'message_time'          => $msg['messageTime'],
+                        'to_addresses'          => $msg['toAddresses'],
+                        'header_from'           => $msg['headerFrom'],
+                        'phish_score'           => $msg['phishScore'],
+                        'proofpoint_type'       => "MESSAGE_DELIVERED"
+                    ];
+                }
+            }
+
+
+            # normalize blocked messages
+            if (count($messages_blocked)) {
+                foreach ($messages_blocked as $msg) {
+
+                    # build message parts array
+                    $message_parts = [];
+
+                    if (count($msg['messageParts'])) {
+                        foreach ($msg['messageParts'] as $msg_part) {
+                            $message_parts[] = [
+                                'content_type'      => $msg_part['contentType'],
+                                'md5'               => $msg_part['md5'],
+                                'filename'          => $msg_part['filename'],
+                                'o_content_type'    => $msg_part['oContentType'],
+                                'sha256'            => $msg_part['sha256'],
+                                'disposition'       => $msg_part['disposition'],
+                                'sandbox_status'    => $msg_part['sandboxStatus']
+                            ];
+                        }
+                    }
+
+                    # build threats info map array
+                    $threats_info = [];
+
+                    if (count($msg['threatsInfoMap'])) {
+                        foreach ($msg['threatsInfoMap'] as $threat_info) {
+                            $threats_info[] = [
+                                'threat_type'       => $threat_info['threatType'],
+                                'threat'            => $threat_info['threat'],
+                                'campaign_id'       => $threat_info['campaignID'],
+                                'threat_id'         => $threat_info['threatID'],
+                                'threat_time'       => $threat_info['threatTime'],
+                                'classification'    => $threat_info['classification'],
+                                'threat_status'     => $threat_info['threatStatus'],
+                                'threat_url'        => $threat_info['threatUrl']
+                            ];
+                        }
+                    }
+
+                    $siem_data[] = [
+                        'qid'                   => $msg['QID'],
+                        'phish_score'           => $msg['phishScore'],
+                        'message_id'            => $msg['messageID'],
+                        'cluster'               => $msg['cluster'],
+                        'sender'                => $msg['sender'],
+                        'message_size'          => $msg['messageSize'],
+                        'message_guid'          => $msg['GUID'],
+                        'xmailer'               => $msg['xmailer'],
+                        'modulesRun'            => $msg['modulesRun'],
+                        'quarantine_rule'       => $msg['quarantineRule'],
+                        'sender_ip'             => $msg['senderIP'],
+                        'quarantine_folder'     => $msg['quarantineFolder'],
+                        'message_parts'         => $message_parts,
+                        'threats_info_map'      => $threats_info,
+                        'spam_score'            => $msg['spamScore'],
+                        'reply_to_address'      => $msg['replyToAddress'],
+                        'impostor_score'        => $msg['impostorScore'],
+                        'completely_rewritten'  => $msg['completelyRewritten'],
+                        'cluster'               => $msg['cluster'],
+                        'from_address'          => $msg['fromAddress'],
+                        'subject'               => $msg['subject'],
+                        'cc_addresses'          => $msg['ccAddresses'],
+                        'recipient'             => $msg['recipient'],
+                        'policy_routes'         => $msg['policyRoutes'],
+                        'malware_score'         => $msg['malwareScore'],
+                        'header_reply_to'       => $msg['headerReplyTo'],
+                        'message_time'          => $msg['messageTime'],
+                        'to_addresses'          => $msg['toAddresses'],
+                        'header_from'           => $msg['headerFrom'],
+                        'phish_score'           => $msg['phishScore'],
+                        'proofpoint_type'       => "MESSAGE_BLOCKED"
+                    ];
+                }
+            }
+
+            # normalize permitted clicks
+            if (count($clicks_permitted)) {
+                foreach ($clicks_permitted as $click) {
+                    $siem_data[] = [
+                        'campaign_id'       => $click['campaignID'],
+                        'threat_id'         => $click['threatID'],
+                        'url'               => $click['url'],
+                        'click_ip'          => $click['clickIP'],
+                        'message_guid'      => $click['GUID'],
+                        'recipient'         => $click['recipient'],
+                        'threat_status'     => $click['threatStatus'],
+                        'message_id'        => $click['messageID'],
+                        'threat_url'        => $click['threatURL'],
+                        'click_time'        => $click['clickTime'],
+                        'sender'            => $click['sender'],
+                        'threat_time'       => $click['threatTime'],
+                        'classification'    => $click['classification'],
+                        'sender_ip'         => $click['senderIP'],
+                        'user_agent'        => $click['userAgent'],
+                        'proofpoint_type'   => 'CLICK_PERMITTED'
+                    ];
+                }
+            }
+
+            # normalize blocked clicks
+            if (count($clicks_blocked)) {
+                foreach ($clicks_blocked as $click) {
+                    $siem_data[] = [
+                        'campaign_id'       => $click['campaignID'],
+                        'threat_id'         => $click['threatID'],
+                        'url'               => $click['url'],
+                        'click_ip'          => $click['clickIP'],
+                        'message_guid'      => $click['GUID'],
+                        'recipient'         => $click['recipient'],
+                        'threat_status'     => $click['threatStatus'],
+                        'message_id'        => $click['messageID'],
+                        'threat_url'        => $click['threatURL'],
+                        'click_time'        => $click['clickTime'],
+                        'sender'            => $click['sender'],
+                        'threat_time'       => $click['threatTime'],
+                        'classification'    => $click['classification'],
+                        'sender_ip'         => $click['senderIP'],
+                        'user_agent'        => $click['userAgent'],
+                        'proofpoint_type'   => 'CLICK_BLOCKED'
+                    ];
+                }
+            }
+
+
+            file_put_contents(storage_path('app/collections/proofpoint_siem.json'), \Metaclassing\Utility::encodeJson($siem_data));
 
             // setup a Kafka producer
             $config = \Kafka\ProducerConfig::getInstance();
             $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
             $producer = new \Kafka\Producer();
 
-            // add the current time to the data
-            $response['UpsertDate'] = Carbon::now()->toAtomString();
+            foreach ($siem_data as $data) {
+                // send data to Kafka
+                $result = $producer->send([
+                    [
+                        'topic' => 'proofpoint_siem',
+                        'value' => \Metaclassing\Utility::encodeJson($data),
+                    ],
+                ]);
 
-            // send data to Kafka
-            $result = $producer->send([
-                [
-                    'topic' => 'proofpoint_siem',
-                    'value' => \Metaclassing\Utility::encodeJson($response),
-                ],
-            ]);
-
-            // check for errors
-            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
-            } else {
-                Log::info('[*] ProofPoint SIEM data successfully sent to Kafka');
+                // check for errors
+                if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
+                    Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+                } else {
+                    Log::info('[*] ProofPoint SIEM data successfully sent to Kafka');
+                }
             }
         } else {
             // otherwise pop smoke and bail
