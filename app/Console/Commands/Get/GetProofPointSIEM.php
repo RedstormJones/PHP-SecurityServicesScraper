@@ -4,7 +4,6 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -80,20 +79,20 @@ class GetProofPointSIEM extends Command
             $clicks_permitted = $response['clicksPermitted'];
             $clicks_blocked = $response['clicksBlocked'];
 
-            # if we didn't get any data then just die
+            // if we didn't get any data then just die
             if (count($messages_delivered) === 0 and count($messages_blocked) === 0 and count($clicks_permitted) === 0 and count($clicks_blocked) === 0) {
                 Log::info('[-] no new data retrieved from ProofPoint - terminating execution');
                 die('[-] no new data retrieved from ProofPoint - terminating execution...'.PHP_EOL);
             }
 
-            # final data collection array
+            // final data collection array
             $siem_data = [];
 
-            # normalize delivered messages
+            // normalize delivered messages
             if (count($messages_delivered)) {
                 foreach ($messages_delivered as $msg) {
 
-                    # build message parts array
+                    // build message parts array
                     $message_parts = [];
 
                     if (count($msg['messageParts'])) {
@@ -105,12 +104,12 @@ class GetProofPointSIEM extends Command
                                 'o_content_type'    => $msg_part['oContentType'],
                                 'sha256'            => $msg_part['sha256'],
                                 'disposition'       => $msg_part['disposition'],
-                                'sandbox_status'    => $msg_part['sandboxStatus']
+                                'sandbox_status'    => $msg_part['sandboxStatus'],
                             ];
                         }
                     }
 
-                    # build threats info map array
+                    // build threats info map array
                     $threats_info = [];
 
                     if (count($msg['threatsInfoMap'])) {
@@ -123,7 +122,7 @@ class GetProofPointSIEM extends Command
                                 'threat_time'       => $threat_info['threatTime'],
                                 'classification'    => $threat_info['classification'],
                                 'threat_status'     => $threat_info['threatStatus'],
-                                'threat_url'        => $threat_info['threatUrl']
+                                'threat_url'        => $threat_info['threatUrl'],
                             ];
                         }
                     }
@@ -159,17 +158,16 @@ class GetProofPointSIEM extends Command
                         'to_addresses'          => $msg['toAddresses'],
                         'header_from'           => $msg['headerFrom'],
                         'phish_score'           => $msg['phishScore'],
-                        'proofpoint_type'       => "MESSAGE_DELIVERED"
+                        'proofpoint_type'       => 'MESSAGE_DELIVERED',
                     ];
                 }
             }
 
-
-            # normalize blocked messages
+            // normalize blocked messages
             if (count($messages_blocked)) {
                 foreach ($messages_blocked as $msg) {
 
-                    # build message parts array
+                    // build message parts array
                     $message_parts = [];
 
                     if (count($msg['messageParts'])) {
@@ -181,12 +179,12 @@ class GetProofPointSIEM extends Command
                                 'o_content_type'    => $msg_part['oContentType'],
                                 'sha256'            => $msg_part['sha256'],
                                 'disposition'       => $msg_part['disposition'],
-                                'sandbox_status'    => $msg_part['sandboxStatus']
+                                'sandbox_status'    => $msg_part['sandboxStatus'],
                             ];
                         }
                     }
 
-                    # build threats info map array
+                    // build threats info map array
                     $threats_info = [];
 
                     if (count($msg['threatsInfoMap'])) {
@@ -199,7 +197,7 @@ class GetProofPointSIEM extends Command
                                 'threat_time'       => $threat_info['threatTime'],
                                 'classification'    => $threat_info['classification'],
                                 'threat_status'     => $threat_info['threatStatus'],
-                                'threat_url'        => $threat_info['threatUrl']
+                                'threat_url'        => $threat_info['threatUrl'],
                             ];
                         }
                     }
@@ -235,12 +233,12 @@ class GetProofPointSIEM extends Command
                         'to_addresses'          => $msg['toAddresses'],
                         'header_from'           => $msg['headerFrom'],
                         'phish_score'           => $msg['phishScore'],
-                        'proofpoint_type'       => "MESSAGE_BLOCKED"
+                        'proofpoint_type'       => 'MESSAGE_BLOCKED',
                     ];
                 }
             }
 
-            # normalize permitted clicks
+            // normalize permitted clicks
             if (count($clicks_permitted)) {
                 foreach ($clicks_permitted as $click) {
                     $siem_data[] = [
@@ -259,12 +257,12 @@ class GetProofPointSIEM extends Command
                         'classification'    => $click['classification'],
                         'sender_ip'         => $click['senderIP'],
                         'user_agent'        => $click['userAgent'],
-                        'proofpoint_type'   => 'CLICK_PERMITTED'
+                        'proofpoint_type'   => 'CLICK_PERMITTED',
                     ];
                 }
             }
 
-            # normalize blocked clicks
+            // normalize blocked clicks
             if (count($clicks_blocked)) {
                 foreach ($clicks_blocked as $click) {
                     $siem_data[] = [
@@ -283,11 +281,10 @@ class GetProofPointSIEM extends Command
                         'classification'    => $click['classification'],
                         'sender_ip'         => $click['senderIP'],
                         'user_agent'        => $click['userAgent'],
-                        'proofpoint_type'   => 'CLICK_BLOCKED'
+                        'proofpoint_type'   => 'CLICK_BLOCKED',
                     ];
                 }
             }
-
 
             file_put_contents(storage_path('app/collections/proofpoint_siem.json'), \Metaclassing\Utility::encodeJson($siem_data));
 
