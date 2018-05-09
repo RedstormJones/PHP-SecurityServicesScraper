@@ -50,7 +50,7 @@ class ReindexElastic extends Command
 
         $cookiejar = storage_path('app/cookies/elastic_cookie.txt');
 
-        # cycle through indices
+        // cycle through indices
         foreach ($indices as $index) {
             $index = trim($index);
 
@@ -63,14 +63,14 @@ class ReindexElastic extends Command
             ];
             curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-            # reindex to temp index
+            // reindex to temp index
             $post = [
                 'source'    => [
-                    'index' => $index
+                    'index' => $index,
                 ],
                 'dest'      => [
-                    'index' => $index.'-temp'
-                ]
+                    'index' => $index.'-temp',
+                ],
             ];
 
             $post_json = \Metaclassing\Utility::encodeJson($post);
@@ -85,7 +85,7 @@ class ReindexElastic extends Command
                 die('[!] ERROR when attempting to reindex '.$index.PHP_EOL);
             }
 
-            # wait for task to complete before proceeding
+            // wait for task to complete before proceeding
             $task_id = $response['task'];
             Log::info('[+] reindex to temp task id: '.$task_id);
 
@@ -106,7 +106,7 @@ class ReindexElastic extends Command
                 $completed = $response['completed'];
             } while (!$completed);
 
-            # delete original index
+            // delete original index
             $url = 'https://secdatalp001:9200/'.$index;
 
             Log::info('[+] deleting original index '.$index);
@@ -122,7 +122,7 @@ class ReindexElastic extends Command
 
             sleep(3);
 
-            # reindex temp index back to original index
+            // reindex temp index back to original index
             $url = 'https://secdatalp001:9200/_reindex?wait_for_completion=false';
 
             $crawler = new \Crawler\Crawler($cookiejar);
@@ -134,11 +134,11 @@ class ReindexElastic extends Command
 
             $post = [
                 'source'    => [
-                    'index' => $index.'-temp'
+                    'index' => $index.'-temp',
                 ],
                 'dest'      => [
-                    'index' => $index
-                ]
+                    'index' => $index,
+                ],
             ];
 
             $post_json = \Metaclassing\Utility::encodeJson($post);
@@ -153,7 +153,7 @@ class ReindexElastic extends Command
                 die('[!] ERROR when attempting to reindex '.$index.' back to original'.PHP_EOL);
             }
 
-            # wait for task to complete before proceeding
+            // wait for task to complete before proceeding
             $task_id = $response['task'];
             Log::info('[+] reindex back to original task id: '.$task_id);
 
@@ -174,7 +174,7 @@ class ReindexElastic extends Command
                 $completed = $response['completed'];
             } while (!$completed);
 
-            # delete temp index
+            // delete temp index
             $url = 'https://secdatalp001:9200/'.$index.'-temp';
 
             Log::info('[+] deleting temp index '.$index.'-temp');
