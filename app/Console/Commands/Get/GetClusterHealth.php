@@ -47,7 +47,7 @@ class GetClusterHealth extends Command
         echo 'cluster health url: '.$cluster_health_url.PHP_EOL;
 
         $headers = [
-            'Authorization: Basic ***REMOVED***',
+            'Authorization: Basic '.getenv('ELASTIC_AUTH')
         ];
 
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);

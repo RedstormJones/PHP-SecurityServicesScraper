@@ -46,19 +46,18 @@ class ReindexElastic extends Command
 
         $indices = preg_split('/$\R?^/m', $indice_str);
 
-        // 'authorization: Basic ***REMOVED***' -H 'Content-Type: application/json'
-
         $cookiejar = storage_path('app/cookies/elastic_cookie.txt');
 
         // cycle through indices
         foreach ($indices as $index) {
             $index = trim($index);
+            Log::info('*** starting on index: '.$index.' ***');
 
-            $url = 'https://secdatalp001:9200/_reindex?wait_for_completion=false';
+            $url = getenv('ELASTIC_CLUSTER').'/_reindex?wait_for_completion=false';
 
             $crawler = new \Crawler\Crawler($cookiejar);
             $headers = [
-                'Authorization: Basic ***REMOVED***',
+                'Authorization: Basic '.getenv('ELASTIC_AUTH'),
                 'Content-Type: application/json',
             ];
             curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
@@ -91,13 +90,13 @@ class ReindexElastic extends Command
 
             $crawler = new \Crawler\Crawler($cookiejar);
             $headers = [
-                'Authorization: Basic ***REMOVED***',
+                'Authorization: Basic '.getenv('ELASTIC_AUTH'),
                 'Content-Type: application/json',
             ];
             curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
             do {
-                $url = 'https://secdatalp001:9200/_tasks/'.$task_id;
+                $url = getenv('ELASTIC_CLUSTER').'/_tasks/'.$task_id;
 
                 $json_response = $crawler->get($url);
                 file_put_contents(storage_path('app/responses/reindex_task.response'), $json_response);
@@ -107,7 +106,7 @@ class ReindexElastic extends Command
             } while (!$completed);
 
             // delete original index
-            $url = 'https://secdatalp001:9200/'.$index;
+            $url = getenv('ELASTIC_CLUSTER').'/'.$index;
 
             Log::info('[+] deleting original index '.$index);
 
@@ -123,11 +122,11 @@ class ReindexElastic extends Command
             sleep(3);
 
             // reindex temp index back to original index
-            $url = 'https://secdatalp001:9200/_reindex?wait_for_completion=false';
+            $url = getenv('ELASTIC_CLUSTER').'/_reindex?wait_for_completion=false';
 
             $crawler = new \Crawler\Crawler($cookiejar);
             $headers = [
-                'Authorization: Basic ***REMOVED***',
+                'Authorization: Basic '.getenv('ELASTIC_AUTH'),
                 'Content-Type: application/json',
             ];
             curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
@@ -159,13 +158,13 @@ class ReindexElastic extends Command
 
             $crawler = new \Crawler\Crawler($cookiejar);
             $headers = [
-                'Authorization: Basic ***REMOVED***',
+                'Authorization: Basic '.getenv('ELASTIC_AUTH'),
                 'Content-Type: application/json',
             ];
             curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
             do {
-                $url = 'https://secdatalp001:9200/_tasks/'.$task_id;
+                $url = getenv('ELASTIC_CLUSTER').'/_tasks/'.$task_id;
 
                 $json_response = $crawler->get($url);
                 file_put_contents(storage_path('app/responses/reindex_task.response'), $json_response);
@@ -175,7 +174,7 @@ class ReindexElastic extends Command
             } while (!$completed);
 
             // delete temp index
-            $url = 'https://secdatalp001:9200/'.$index.'-temp';
+            $url = getenv('ELASTIC_CLUSTER').'/'.$index.'-temp';
 
             Log::info('[+] deleting temp index '.$index.'-temp');
 
@@ -189,6 +188,8 @@ class ReindexElastic extends Command
             }
 
             sleep(3);
+
+            Log::info('*** reindex completed for: '.$index.' ***');
         }
     }
 }
