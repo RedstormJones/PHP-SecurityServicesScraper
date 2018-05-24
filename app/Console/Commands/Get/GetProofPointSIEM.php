@@ -57,7 +57,7 @@ class GetProofPointSIEM extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $header);
 
         // define target url
-        $url = 'https://tap-api-v2.proofpoint.com/v2/siem/all?format=json&sinceSeconds=60';
+        $url = 'https://tap-api-v2.proofpoint.com/v2/siem/all?format=json&sinceSeconds=3600';
 
         // send GET request to url and dump response to file
         $json_response = $crawler->get($url);
@@ -242,7 +242,7 @@ class GetProofPointSIEM extends Command
             if (count($clicks_permitted)) {
                 foreach ($clicks_permitted as $click) {
                     $siem_data[] = [
-                        'campaign_id'       => $click['campaignID'],
+                        'campaign_id'       => $click['campaignId'],
                         'threat_id'         => $click['threatID'],
                         'url'               => $click['url'],
                         'click_ip'          => $click['clickIP'],
@@ -266,7 +266,7 @@ class GetProofPointSIEM extends Command
             if (count($clicks_blocked)) {
                 foreach ($clicks_blocked as $click) {
                     $siem_data[] = [
-                        'campaign_id'       => $click['campaignID'],
+                        'campaign_id'       => $click['campaignId'],
                         'threat_id'         => $click['threatID'],
                         'url'               => $click['url'],
                         'click_ip'          => $click['clickIP'],
