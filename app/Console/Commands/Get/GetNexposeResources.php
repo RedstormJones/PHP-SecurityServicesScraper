@@ -4,10 +4,8 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-
 
 class GetNexposeResources extends Command
 {
@@ -65,7 +63,7 @@ class GetNexposeResources extends Command
 
         // auth header
         $headers = [
-            'Authorization: Basic '.$auth_str
+            'Authorization: Basic '.$auth_str,
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
@@ -81,22 +79,19 @@ class GetNexposeResources extends Command
 
             //$page_num = $response['page']['number'];
             //$total_pages = $response['page']['totalPages'];
-            
+
             $links = $response['links'];
-            
+
             $asset_resources[] = $response['resources'];
 
             foreach ($links as $link) {
                 if ($link['rel'] == 'next') {
                     $url = $link['href'];
                     break;
-                }
-                else {
-                    $url = Null;
+                } else {
+                    $url = null;
                 }
             }
-        }
-        while ($url);
-
+        } while ($url);
     }
 }
