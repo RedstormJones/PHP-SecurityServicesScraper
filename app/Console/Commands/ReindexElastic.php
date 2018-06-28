@@ -53,7 +53,7 @@ class ReindexElastic extends Command
             $index = trim($index);
             Log::info('*** starting on index: '.$index.' ***');
 
-            $url = getenv('ELASTIC_CLUSTER').'/_reindex?wait_for_completion=false';
+            $url = getenv('ELASTIC_CLUSTER').'/_reindex?requests_per_second=-1&wait_for_completion=false&refresh';
 
             $crawler = new \Crawler\Crawler($cookiejar);
             $headers = [
@@ -66,6 +66,7 @@ class ReindexElastic extends Command
             $post = [
                 'source'    => [
                     'index' => $index,
+                    'size'  => 10000,
                 ],
                 'dest'      => [
                     'index' => $index.'-temp',
@@ -122,7 +123,7 @@ class ReindexElastic extends Command
             sleep(3);
 
             // reindex temp index back to original index
-            $url = getenv('ELASTIC_CLUSTER').'/_reindex?wait_for_completion=false';
+            $url = getenv('ELASTIC_CLUSTER').'/_reindex?requests_per_second=-1&wait_for_completion=false&refresh';
 
             $crawler = new \Crawler\Crawler($cookiejar);
             $headers = [
@@ -134,6 +135,7 @@ class ReindexElastic extends Command
             $post = [
                 'source'    => [
                     'index' => $index.'-temp',
+                    'size'  => 10000,
                 ],
                 'dest'      => [
                     'index' => $index,
