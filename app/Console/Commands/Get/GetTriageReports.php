@@ -59,12 +59,12 @@ class GetTriageReports extends Command
 
         // create authorization header and set to crawler
         $headers = [
-            'Authorization: Token token='.$triage_email.':'.$triage_token
+            'Authorization: Token token='.$triage_email.':'.$triage_token,
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-        # include the response headers
-        curl_setopt($crawler->curl, CURLOPT_HEADER, True);
+        // include the response headers
+        curl_setopt($crawler->curl, CURLOPT_HEADER, true);
 
         $reports_array = [];
         $running_count = 0;
@@ -111,14 +111,13 @@ class GetTriageReports extends Command
                 if ($rheader_pieces[0] == 'Link') {
                     array_shift($rheader_pieces);
 
-                    $link_str = '';                   
+                    $link_str = '';
                     foreach ($rheader_pieces as $piece) {
                         $link_str .= $piece.':';
                     }
-                    
+
                     $rheader_array['Link'] = substr($link_str, 0, -1);
-                }
-                else {
+                } else {
                     $rheader_array[$rheader_pieces[0]] = $rheader_pieces[1];
                 }
             }
@@ -140,12 +139,11 @@ class GetTriageReports extends Command
 
                     // if we have the next URL then remove '<' and '>' and assign to reports url
                     if ($link_pieces[1] == ' rel="next"') {
-                        $reports_url = preg_replace('/[<>]/', "", $link_pieces[0]);
+                        $reports_url = preg_replace('/[<>]/', '', $link_pieces[0]);
                     }
                 }
             }
-        }
-        while ($running_count < $total);
+        } while ($running_count < $total);
 
         // collapse reports collection array down
         $reports_collection = array_collapse($reports_array);

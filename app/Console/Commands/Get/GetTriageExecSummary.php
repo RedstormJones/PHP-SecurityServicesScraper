@@ -56,13 +56,12 @@ class GetTriageExecSummary extends Command
         Log::info('[+] executive summary url: '.$exec_sum_url);
 
         $headers = [
-            'Authorization: Token token='.$triage_email.':'.$triage_token
+            'Authorization: Token token='.$triage_email.':'.$triage_token,
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         $json_response = $crawler->get($exec_sum_url);
 
         file_put_contents(storage_path('app/responses/triage_exec_sum.response'), $json_response);
-
     }
 }
