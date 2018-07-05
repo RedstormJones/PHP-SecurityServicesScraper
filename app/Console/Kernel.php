@@ -88,6 +88,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:casalertshigh')->everyMinute()->withoutOverlapping(2)->timezone('America/Chicago');
         $schedule->command('get:casalertsmedium')->everyMinute()->withoutOverlapping(2)->timezone('America/Chicago');
         $schedule->command('get:casalertslow')->everyMinute()->withoutOverlapping(2)->timezone('America/Chicago');
+
+        $schedule->command('get:triagereports')->hourly()->timezone('America/Chicago');
     }
 
     /**

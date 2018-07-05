@@ -51,7 +51,8 @@ class GetTriageReports extends Command
         $cookiejar = storage_path('app/cookies/triage_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
-        $start_date = Carbon::now()->subHour()->toATomString();
+        //$start_date = Carbon::now()->subHour()->toATomString();
+        $start_date = Carbon::now()->subMinute()->toATomString();
         $end_date = Carbon::now()->toAtomString();
 
         // setup triage url
@@ -176,7 +177,7 @@ class GetTriageReports extends Command
 
         /*
         foreach ($reports_collection as $report) {
-            // if $report['tags'] contains 'SIMULATION' or something like that, then
+            // if $report['triage_tags'] contains 'SIMULATION' or something like that, then
             // extract the gophish url and POST the report event to it somehow..
         }
         */
