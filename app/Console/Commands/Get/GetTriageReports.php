@@ -188,7 +188,7 @@ class GetTriageReports extends Command
                 // find GoPhish url in email_urls array
                 foreach ($report['email_urls'] as $url) {
                     // if we find the sub string 'gophish' in a url then we know we've found the GoPhish url
-                    if (strpos($url, 'gophish') !== false) {
+                    if (strpos($url, 'gophish') !== false && strpos($url, 'track') === false) {
                         $gophish_url = $url;
                         break;
                     }
