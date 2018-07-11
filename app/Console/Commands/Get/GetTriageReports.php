@@ -175,12 +175,46 @@ class GetTriageReports extends Command
 
         file_put_contents(storage_path('app/collections/triage_reports.json'), \Metaclassing\Utility::encodeJson($reports));
 
-        /*
-        foreach ($reports_collection as $report) {
+        Log::info('[+] checking for SIMULATION tags...');
+        foreach ($reports as $report) {
+            
             // if $report['triage_tags'] contains 'SIMULATION' or something like that, then
             // extract the gophish url and POST the report event to it somehow..
+            
+            // check if report is tagged SIMULATION
+            if (in_array('Simulation', $report['triage_tags'])) {
+                $gophish_url = null;
+
+                // find GoPhish url in email_urls array
+                foreach ($report['email_urls'] as $url) {
+                    // if we find the sub string 'gophish' in a url then we know we've found the GoPhish url
+                    if (strpos($url, 'gophish') !== false) {
+                        $gophish_url = $url;
+                        break;
+                    }
+                }
+
+                // check that we found the GoPhish url
+                if ($gophish_url) {
+                    Log::info('[+] GoPhish url found: '.$gophish_url);
+
+                    // explode and mend back together to create GoPhish report url
+                    $gophish_url_pieces = explode('?', $gophish_url);
+                    $gophish_report_url = $gophish_url_pieces[0].'/report?'.$gophish_url_pieces[1];
+                    Log::info('[+] GoPhish report url: '.$gophish_report_url);
+
+                    // hit GoPhish report endpoint to submit user's report
+                    $cookiejar = storage_path('app/cookies/gophish_cookie.txt');
+                    $crawler = new \Crawler\Crawler($cookiejar);
+                    
+                    $response = $crawler->get($gophish_report_url);
+
+                    file_put_contents(storage_path('app/responses/gophish_report.response'), $response);
+                }
+            }
         }
-        */
+
+        Log::info('[+] done reporting campaign reports to GoPhish!');
 
         // instantiate a Kafka producer config and set the broker IP
         $config = \Kafka\ProducerConfig::getInstance();
