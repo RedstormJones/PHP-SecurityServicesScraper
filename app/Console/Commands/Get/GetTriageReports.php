@@ -177,10 +177,10 @@ class GetTriageReports extends Command
 
         Log::info('[+] checking for SIMULATION tags...');
         foreach ($reports as $report) {
-            
+
             // if $report['triage_tags'] contains 'SIMULATION' or something like that, then
             // extract the gophish url and POST the report event to it somehow..
-            
+
             // check if report is tagged SIMULATION
             if (in_array('Simulation', $report['triage_tags'])) {
                 $gophish_url = null;
@@ -206,7 +206,7 @@ class GetTriageReports extends Command
                     // hit GoPhish report endpoint to submit user's report
                     $cookiejar = storage_path('app/cookies/gophish_cookie.txt');
                     $crawler = new \Crawler\Crawler($cookiejar);
-                    
+
                     $response = $crawler->get($gophish_report_url);
 
                     file_put_contents(storage_path('app/responses/gophish_report.response'), $response);
