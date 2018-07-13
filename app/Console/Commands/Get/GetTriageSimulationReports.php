@@ -180,13 +180,14 @@ class GetTriageSimulationReports extends Command
 
                 // attempt to parse out user rid
                 if (preg_match($rid_regex, $gophish_url_pieces[1], $hits)) {
-                    // push user rid onto rids array
                     $rid = $hits[1];
-                    array_push($rids, $rid);
 
                     // check if we've seen this rid before
                     if (!in_array($rid, $rids_reported)) {
-                        // if not then hit the GoPhish report endpoint to submit user's report
+                        // if not then push user rid onto rids array
+                        array_push($rids, $rid);
+
+                        // then hit the GoPhish report endpoint to submit user's report
                         $cookiejar = storage_path('app/cookies/gophish_cookie.txt');
                         $crawler = new \Crawler\Crawler($cookiejar);
 
