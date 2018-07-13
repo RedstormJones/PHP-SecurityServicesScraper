@@ -4,25 +4,24 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class GetTriageReports extends Command
+class GetTriageSimulationReports extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'get:triagereports';
+    protected $signature = 'get:simulationreports';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get Triage reports';
+    protected $description = 'Get Triage reports for phishing simulations and post report back to GoPhish';
 
     /**
      * Create a new command instance.
@@ -41,7 +40,7 @@ class GetTriageReports extends Command
      */
     public function handle()
     {
-        Log::info(PHP_EOL.PHP_EOL.'************************************'.PHP_EOL.'* Starting Triage Reports crawler! *'.PHP_EOL.'************************************');
+        Log::info(PHP_EOL.PHP_EOL.'***************************************'.PHP_EOL.'* Starting Triage Simulation Reports! *'.PHP_EOL.'***************************************');
 
         // get triage auth data
         $triage_token = getenv('TRIAGE_TOKEN');
@@ -52,11 +51,11 @@ class GetTriageReports extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         //$start_date = Carbon::now()->subHour()->toATomString();
-        $start_date = Carbon::now()->subMinutes(5)->toATomString();
-        $end_date = Carbon::now()->toAtomString();
+        //$start_date = Carbon::now()->subMinutes(5)->toATomString();
+        //$end_date = Carbon::now()->toAtomString();
 
         // setup triage url
-        $reports_url = getenv('TRIAGE_URL').'/reports?start_date='.$start_date.'&end_date='.$end_date;
+        $reports_url = getenv('TRIAGE_URL').'/reports?category_id=5&tags=Simulation';
 
         // create authorization header and set to crawler
         $headers = [
@@ -67,7 +66,7 @@ class GetTriageReports extends Command
         // include the response headers
         curl_setopt($crawler->curl, CURLOPT_HEADER, true);
 
-        $reports_array = [];
+        $simulation_array = [];
         $running_count = 0;
         do {
             Log::info('[+] reports url: '.$reports_url);
@@ -76,7 +75,7 @@ class GetTriageReports extends Command
             $str_response = $crawler->get($reports_url);
 
             // dump response to file
-            file_put_contents(storage_path('app/responses/triage_reports.response'), $str_response);
+            file_put_contents(storage_path('app/responses/triage_sim_reports.response'), $str_response);
 
             // get curl info
             $curl_info = $crawler->curl_getinfo();
@@ -89,13 +88,13 @@ class GetTriageReports extends Command
             $data = \Metaclassing\Utility::decodeJson(substr($str_response, $response_header_size));
 
             // add reports data to reports array
-            $reports_array[] = $data;
+            $simulation_array[] = $data;
             $running_count += count($data);
             Log::info('[+] running count: '.$running_count);
 
             // dump headers and data to file
-            file_put_contents(storage_path('app/responses/triage_headers.response'), $response_headers);
-            file_put_contents(storage_path('app/responses/triage_data.response'), \Metaclassing\Utility::encodeJson($data));
+            file_put_contents(storage_path('app/responses/triage_sim_headers.response'), $response_headers);
+            file_put_contents(storage_path('app/responses/triage_sim_data.response'), \Metaclassing\Utility::encodeJson($data));
 
             // explode response headers by new line
             $response_headers_array = explode("\n", trim($response_headers));
@@ -143,58 +142,47 @@ class GetTriageReports extends Command
             }
         } while ($running_count < $total);
 
-        // collapse reports collection array down
-        $reports_collection = array_collapse($reports_array);
-        Log::info('[+] reports collection count: '.count($reports_collection));
+        // collapse simulation array down to simple array
+        $simulation_collection = array_collapse($simulation_array);
+        Log::info('[+] simulation collection count: '.count($simulation_collection));
 
-        $reports = [];
+        file_put_contents(storage_path('app/collections/triage_sim_reports.json'), \Metaclassing\Utility::encodeJson($simulation_collection));
 
-        // data normalization
-        foreach ($reports_collection as $report) {
-            // downstream processing will throw errors if data already has an id and
-            // tag key, so pull id and tag and add back as triage_id and triage_tags
-            $triage_id = array_pull($report, 'id');
-            $triage_tags = array_pull($report, 'tags');
-            $report['triage_id'] = $triage_id;
-            $report['triage_tags'] = $triage_tags;
+        foreach ($simulation_collection as $report) {
+            Log::info('[+] searching for GoPhish url...');
+            $gophish_url = null;
 
-            // flatten out the email_urls array
-            $email_urls_array = [];
-            $email_urls = array_pull($report, 'email_urls');
-            foreach ($email_urls as $url) {
-                // this will give us an array of urls (strings) rather than an array of objects
-                $email_urls_array[] = $url['url'];
+            // find GoPhish url in email_urls array
+            foreach ($report['email_urls'] as $url) {
+                // looks for a string that contains 'gophish' and does not contain 'track'
+                if (strpos($url['url'], 'gophish') !== false && strpos($url['url'], 'track') === false) {
+                    $gophish_url = $url['url'];
+                    break;
+                }
             }
-            $report['email_urls'] = $email_urls_array;
 
-            $reports[] = $report;
-        }
+            // check that we found the GoPhish url
+            if ($gophish_url) {
+                Log::info('[+] found GoPhish url: '.$gophish_url);
 
-        file_put_contents(storage_path('app/collections/triage_reports.json'), \Metaclassing\Utility::encodeJson($reports));
+                // explode and mend back together to create GoPhish report url
+                $gophish_url_pieces = explode('?', $gophish_url);
+                $gophish_report_url = $gophish_url_pieces[0].'/report?'.$gophish_url_pieces[1];
+                Log::info('[+] GoPhish report url: '.$gophish_report_url);
 
-        // instantiate a Kafka producer config and set the broker IP
-        $config = \Kafka\ProducerConfig::getInstance();
-        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+                // hit GoPhish report endpoint to submit user's report
+                $cookiejar = storage_path('app/cookies/gophish_cookie.txt');
+                $crawler = new \Crawler\Crawler($cookiejar);
 
-        // instantiate new Kafka producer
-        $producer = new \Kafka\Producer();
+                $response = $crawler->get($gophish_report_url);
 
-        Log::info('[+] [TRIAGE_REPORTS] sending ['.count($reports).'] Triage reports to Kafka...');
-
-        // cycle through Cylance devices
-        foreach ($reports as $report) {
-            // ship data to Kafka
-            $result = $producer->send([
-                [
-                    'topic' => 'triage-reports',
-                    'value' => \Metaclassing\Utility::encodeJson($report),
-                ],
-            ]);
-
-            // check for and log errors
-            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                Log::error('[!] [TRIAGE_REPORTS] Error sending Triage reports to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+                file_put_contents(storage_path('app/responses/gophish_report.response'), $response);
+            }
+            else {
+                Log::error('[!] GoPhish url not found!');
             }
         }
+
+        Log::info('[+] done reporting campaign reports to GoPhish!');
     }
 }
