@@ -4,6 +4,7 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -51,11 +52,11 @@ class GetTriageSimulationReports extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         //$start_date = Carbon::now()->subHour()->toATomString();
-        //$start_date = Carbon::now()->subMinutes(5)->toATomString();
-        //$end_date = Carbon::now()->toAtomString();
+        $start_date = Carbon::now()->subMinutes(5)->toATomString();
+        $end_date = Carbon::now()->toAtomString();
 
         // setup triage url
-        $reports_url = getenv('TRIAGE_URL').'/reports?category_id=5&tags=Simulation';
+        $reports_url = getenv('TRIAGE_URL').'/reports?category_id=5&tags=Simulation&start_date='.$start_date.'&end_date='.$end_date;
 
         // create authorization header and set to crawler
         $headers = [
