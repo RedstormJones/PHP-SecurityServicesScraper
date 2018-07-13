@@ -177,8 +177,7 @@ class GetTriageSimulationReports extends Command
                 $response = $crawler->get($gophish_report_url);
 
                 file_put_contents(storage_path('app/responses/gophish_report.response'), $response);
-            }
-            else {
+            } else {
                 Log::error('[!] GoPhish url not found!');
             }
         }
