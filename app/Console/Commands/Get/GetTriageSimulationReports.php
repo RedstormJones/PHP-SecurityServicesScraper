@@ -43,6 +43,10 @@ class GetTriageSimulationReports extends Command
     {
         Log::info(PHP_EOL.PHP_EOL.'***************************************'.PHP_EOL.'* Starting Triage Simulation Reports! *'.PHP_EOL.'***************************************');
 
+        // read in rids from last run
+        $rids_reported = \Metaclassing\Utility::decodeJson(file_get_contents(storage_path('app/collections/gophish_rids_reported.json')));
+        Log::info('[+] count of rids already reported: '.count($rids_reported));
+
         // get triage auth data
         $triage_token = getenv('TRIAGE_TOKEN');
         $triage_email = getenv('TRIAGE_EMAIL');
@@ -149,11 +153,14 @@ class GetTriageSimulationReports extends Command
 
         file_put_contents(storage_path('app/collections/triage_sim_reports.json'), \Metaclassing\Utility::encodeJson($simulation_collection));
 
+        $rids = [];
+        $rid_regex = '/^rid=(\w+)$/';
+
         foreach ($simulation_collection as $report) {
             Log::info('[+] searching for GoPhish url...');
             $gophish_url = null;
 
-            // find GoPhish url in email_urls array
+            // attempt to find GoPhish url in email_urls array
             foreach ($report['email_urls'] as $url) {
                 // looks for a string that contains 'gophish' and does not contain 'track'
                 if (strpos($url['url'], 'gophish') !== false && strpos($url['url'], 'track') === false) {
@@ -171,16 +178,39 @@ class GetTriageSimulationReports extends Command
                 $gophish_report_url = $gophish_url_pieces[0].'/report?'.$gophish_url_pieces[1];
                 Log::info('[+] GoPhish report url: '.$gophish_report_url);
 
-                // hit GoPhish report endpoint to submit user's report
-                $cookiejar = storage_path('app/cookies/gophish_cookie.txt');
-                $crawler = new \Crawler\Crawler($cookiejar);
+                // attempt to parse out user rid
+                if (preg_match($rid_regex, $gophish_url_pieces[1], $hits)) {
+                    // push user rid onto rids array
+                    $rid = $hits[1];
+                    array_push($rids, $rid);
 
-                $response = $crawler->get($gophish_report_url);
+                    // check if we've seen this rid before
+                    if (!in_array($rid, $rids_reported)) {
+                        // if not then hit the GoPhish report endpoint to submit user's report
+                        $cookiejar = storage_path('app/cookies/gophish_cookie.txt');
+                        $crawler = new \Crawler\Crawler($cookiejar);
 
-                file_put_contents(storage_path('app/responses/gophish_report.response'), $response);
+                        $response = $crawler->get($gophish_report_url);
+
+                        file_put_contents(storage_path('app/responses/gophish_report.response'), $response);
+                    } else {
+                        // otherwise, we've capture this user's report already
+                        Log::info('[+] user already reported [rid='.$rid.']');
+                    }
+                } else {
+                    Log::error('[!] failed to match rid in GoPhish url');
+                }
             } else {
                 Log::error('[!] GoPhish url not found!');
             }
+        }
+
+        // check if we have rids to save
+        if (count($rids)) {
+            $rids = array_merge($rids_reported, $rids);
+
+            // dump collected rids to file for next execution
+            file_put_contents(storage_path('app/collections/gophish_rids_reported.json'), \Metaclassing\Utility::encodeJson($rids));
         }
 
         Log::info('[+] done reporting campaign reports to GoPhish!');
