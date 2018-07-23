@@ -55,9 +55,7 @@ class GetTriageSimulationReports extends Command
         $cookiejar = storage_path('app/cookies/triage_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
-        //$start_date = Carbon::now()->subHour()->toATomString();
-        //$start_date = Carbon::now()->subMinutes(300)->toATomString();
-        $start_date = Carbon::now('America/Chicago')->subMinutes(300)->toDateTimeString();
+        $start_date = Carbon::now('America/Chicago')->subMinutes(60)->toDateTimeString();
         $end_date = Carbon::now('America/Chicago')->toDateTimeString();
 
         // setup triage url
