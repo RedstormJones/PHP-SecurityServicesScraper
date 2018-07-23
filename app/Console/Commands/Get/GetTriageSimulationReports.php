@@ -57,8 +57,8 @@ class GetTriageSimulationReports extends Command
 
         //$start_date = Carbon::now()->subHour()->toATomString();
         //$start_date = Carbon::now()->subMinutes(300)->toATomString();
-        $start_date = Carbon::now()->subMinutes(300)->toDateTimeString();
-        $end_date = Carbon::now()->toDateTimeString();
+        $start_date = Carbon::now('America/Chicago')->subMinutes(300)->toDateTimeString();
+        $end_date = Carbon::now('America/Chicago')->toDateTimeString();
 
         // setup triage url
         $reports_url = getenv('TRIAGE_URL').'/reports?category_id=5&tags=Campaign&start_date='.$start_date.'&end_date='.$end_date;
