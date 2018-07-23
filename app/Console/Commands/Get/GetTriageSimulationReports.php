@@ -74,7 +74,7 @@ class GetTriageSimulationReports extends Command
         $simulation_array = [];
         $running_count = 0;
         do {
-            Log::info('[+] reports url: '.$reports_url);
+            Log::info('[+] Triage reports url: '.$reports_url);
 
             // execute request
             $str_response = $crawler->get($reports_url);
@@ -92,10 +92,12 @@ class GetTriageSimulationReports extends Command
             $response_headers = substr($str_response, 0, $response_header_size);
             $data = \Metaclassing\Utility::decodeJson(substr($str_response, $response_header_size));
 
-            // add reports data to reports array
+            // add report data to simulation array
             $simulation_array[] = $data;
+
+            // update and log running count
             $running_count += count($data);
-            Log::info('[+] running count: '.$running_count);
+            Log::info('[+] Triage reports running count: '.$running_count);
 
             // dump headers and data to file
             file_put_contents(storage_path('app/responses/triage_sim_headers.response'), $response_headers);
@@ -149,7 +151,7 @@ class GetTriageSimulationReports extends Command
 
         // collapse simulation array down to simple array
         $simulation_collection = array_collapse($simulation_array);
-        Log::info('[+] simulation collection count: '.count($simulation_collection));
+        Log::info('[+] Triage simulation reports collection count: '.count($simulation_collection));
 
         file_put_contents(storage_path('app/collections/triage_sim_reports.json'), \Metaclassing\Utility::encodeJson($simulation_collection));
 
@@ -157,7 +159,7 @@ class GetTriageSimulationReports extends Command
         $rid_regex = '/^rid=(\w+)$/';
 
         foreach ($simulation_collection as $report) {
-            Log::info('[+] searching for GoPhish url...');
+            Log::info('[+] searching Triage report URLs for GoPhish url...');
             $gophish_url = null;
 
             // attempt to find GoPhish url in email_urls array
