@@ -74,6 +74,7 @@ class GetProofPointSIEM extends Command
 
         // check if decoding the JSON response was successful
         if ($response) {
+            // get data from response
             $messages_delivered = $response['messagesDelivered'];
             $messages_blocked = $response['messagesBlocked'];
             $clicks_permitted = $response['clicksPermitted'];
@@ -113,7 +114,41 @@ class GetProofPointSIEM extends Command
                     $threats_info = [];
 
                     if (count($msg['threatsInfoMap'])) {
+                        // forensic reports array
+                        $forensic_reports = [];
+
                         foreach ($msg['threatsInfoMap'] as $threat_info) {
+                            // use threat ID to create forensics url
+                            $url = 'https://tap-api-v2.proofpoint.com/v2/forensics?threatId='.$threat_info['threatID'].'&format=json';
+
+                            // get threat forensic reports
+                            $json_response = $crawler->get($url);
+                            file_put_contents(storage_path('app/responses/pp_threat.response'), $json_response);
+
+                            // try to JSON decode the response
+                            try {
+                                $response = \Metaclassing\Utility::decodeJson($json_response);
+                                $error = 'No errors detected';
+                            } catch (\Exception $e) {
+                                $response = null;
+                                $error = $e->getMessage();
+                            }
+
+                            // build forensic reports array
+                            foreach ($response['reports'] as $report) {
+                                // add forensic reports to forensic_reports array
+                                $forensic_reports[] = [
+                                    'threat_id'     => $threat_info['threatID'],
+                                    'report_id'     => $report['id'],
+                                    'report_name'   => $report['name'],
+                                    'report_scope'  => $report['scope'],
+                                    'report_type'   => $report['type'],
+                                    'threat_status' => $report['threatStatus'],
+                                    'forensics'     => $report['forensics']
+                                ];
+                            }
+
+                            // build threats_info array
                             $threats_info[] = [
                                 'threat_type'       => $threat_info['threatType'],
                                 'threat'            => $threat_info['threat'],
@@ -136,12 +171,13 @@ class GetProofPointSIEM extends Command
                         'message_size'          => $msg['messageSize'],
                         'message_guid'          => $msg['GUID'],
                         'xmailer'               => $msg['xmailer'],
-                        'modulesRun'            => $msg['modulesRun'],
+                        'modules_run'            => $msg['modulesRun'],
                         'quarantine_rule'       => $msg['quarantineRule'],
                         'sender_ip'             => $msg['senderIP'],
                         'quarantine_folder'     => $msg['quarantineFolder'],
                         'message_parts'         => $message_parts,
                         'threats_info_map'      => $threats_info,
+                        'threat_forensics'      => $forensic_reports,
                         'spam_score'            => $msg['spamScore'],
                         'reply_to_address'      => $msg['replyToAddress'],
                         'impostor_score'        => $msg['impostorScore'],
@@ -188,7 +224,41 @@ class GetProofPointSIEM extends Command
                     $threats_info = [];
 
                     if (count($msg['threatsInfoMap'])) {
+                        // forensic reports array
+                        $forensic_reports = [];
+
                         foreach ($msg['threatsInfoMap'] as $threat_info) {
+                            // use threat ID to create forensics url
+                            $url = 'https://tap-api-v2.proofpoint.com/v2/forensics?threatId='.$threat_info['threatID'].'&format=json';
+
+                            // get threat forensic reports
+                            $json_response = $crawler->get($url);
+                            file_put_contents(storage_path('app/responses/pp_threat.response'), $json_response);
+
+                            // try to JSON decode the response
+                            try {
+                                $response = \Metaclassing\Utility::decodeJson($json_response);
+                                $error = 'No errors detected';
+                            } catch (\Exception $e) {
+                                $response = null;
+                                $error = $e->getMessage();
+                            }
+
+                            // build forensic reports array
+                            foreach ($response['reports'] as $report) {
+                                // add forensic reports to forensic_reports array
+                                $forensic_reports[] = [
+                                    'threat_id'     => $threat_info['threatID'],
+                                    'report_id'     => $report['id'],
+                                    'report_name'   => $report['name'],
+                                    'report_scope'  => $report['scope'],
+                                    'report_type'   => $report['type'],
+                                    'threat_status' => $report['threatStatus'],
+                                    'forensics'     => $report['forensics']
+                                ];
+                            }
+
+                            // build threats_info array
                             $threats_info[] = [
                                 'threat_type'       => $threat_info['threatType'],
                                 'threat'            => $threat_info['threat'],
@@ -211,12 +281,13 @@ class GetProofPointSIEM extends Command
                         'message_size'          => $msg['messageSize'],
                         'message_guid'          => $msg['GUID'],
                         'xmailer'               => $msg['xmailer'],
-                        'modulesRun'            => $msg['modulesRun'],
+                        'modules_run'            => $msg['modulesRun'],
                         'quarantine_rule'       => $msg['quarantineRule'],
                         'sender_ip'             => $msg['senderIP'],
                         'quarantine_folder'     => $msg['quarantineFolder'],
                         'message_parts'         => $message_parts,
                         'threats_info_map'      => $threats_info,
+                        'threat_forensics'      => $forensic_reports,
                         'spam_score'            => $msg['spamScore'],
                         'reply_to_address'      => $msg['replyToAddress'],
                         'impostor_score'        => $msg['impostorScore'],
@@ -241,6 +312,76 @@ class GetProofPointSIEM extends Command
             // normalize permitted clicks
             if (count($clicks_permitted)) {
                 foreach ($clicks_permitted as $click) {
+
+                    // build message parts array
+                    $message_parts = [];
+
+                    if (array_key_exists('messageParts', $click)) {
+                        foreach ($click['messageParts'] as $msg_part) {
+                            $message_parts[] = [
+                                'content_type'      => $msg_part['contentType'],
+                                'md5'               => $msg_part['md5'],
+                                'filename'          => $msg_part['filename'],
+                                'o_content_type'    => $msg_part['oContentType'],
+                                'sha256'            => $msg_part['sha256'],
+                                'disposition'       => $msg_part['disposition'],
+                                'sandbox_status'    => $msg_part['sandboxStatus'],
+                            ];
+                        }
+                    }
+
+                    // build threats info map array
+                    $threats_info = [];
+
+                    if (array_key_exists('threatsInfoMap', $click)) {
+                        // forensic reports array
+                        $forensic_reports = [];
+
+                        foreach ($msg['threatsInfoMap'] as $threat_info) {
+                            // use threat ID to create forensics url
+                            $url = 'https://tap-api-v2.proofpoint.com/v2/forensics?threatId='.$threat_info['threatID'].'&format=json';
+
+                            // get threat forensic reports
+                            $json_response = $crawler->get($url);
+                            file_put_contents(storage_path('app/responses/pp_threat.response'), $json_response);
+
+                            // try to JSON decode the response
+                            try {
+                                $response = \Metaclassing\Utility::decodeJson($json_response);
+                                $error = 'No errors detected';
+                            } catch (\Exception $e) {
+                                $response = null;
+                                $error = $e->getMessage();
+                            }
+
+                            // build forensic reports array
+                            foreach ($response['reports'] as $report) {
+                                // add forensic reports to forensic_reports array
+                                $forensic_reports[] = [
+                                    'threat_id'     => $threat_info['threatID'],
+                                    'report_id'     => $report['id'],
+                                    'report_name'   => $report['name'],
+                                    'report_scope'  => $report['scope'],
+                                    'report_type'   => $report['type'],
+                                    'threat_status' => $report['threatStatus'],
+                                    'forensics'     => $report['forensics']
+                                ];
+                            }
+
+                            // build threats_info array
+                            $threats_info[] = [
+                                'threat_type'       => $threat_info['threatType'],
+                                'threat'            => $threat_info['threat'],
+                                'campaign_id'       => $threat_info['campaignID'],
+                                'threat_id'         => $threat_info['threatID'],
+                                'threat_time'       => $threat_info['threatTime'],
+                                'classification'    => $threat_info['classification'],
+                                'threat_status'     => $threat_info['threatStatus'],
+                                'threat_url'        => $threat_info['threatUrl'],
+                            ];
+                        }
+                    }
+
                     $siem_data[] = [
                         'campaign_id'       => $click['campaignId'],
                         'threat_id'         => $click['threatID'],
@@ -257,6 +398,9 @@ class GetProofPointSIEM extends Command
                         'classification'    => $click['classification'],
                         'sender_ip'         => $click['senderIP'],
                         'user_agent'        => $click['userAgent'],
+                        'message_parts'     => $message_parts,
+                        'threats_info_map'  => $threats_info,
+                        'threat_forensics'  => $forensic_reports,
                         'proofpoint_type'   => 'CLICK_PERMITTED',
                     ];
                 }
@@ -265,6 +409,76 @@ class GetProofPointSIEM extends Command
             // normalize blocked clicks
             if (count($clicks_blocked)) {
                 foreach ($clicks_blocked as $click) {
+
+                    // build message parts array
+                    $message_parts = [];
+
+                    if (array_key_exists('messageParts', $click)) {
+                        foreach ($click['messageParts'] as $msg_part) {
+                            $message_parts[] = [
+                                'content_type'      => $msg_part['contentType'],
+                                'md5'               => $msg_part['md5'],
+                                'filename'          => $msg_part['filename'],
+                                'o_content_type'    => $msg_part['oContentType'],
+                                'sha256'            => $msg_part['sha256'],
+                                'disposition'       => $msg_part['disposition'],
+                                'sandbox_status'    => $msg_part['sandboxStatus'],
+                            ];
+                        }
+                    }
+
+                    // build threats info map array
+                    $threats_info = [];
+
+                    if (array_key_exists('threatsInfoMap', $click)) {
+                        // forensic reports array
+                        $forensic_reports = [];
+
+                        foreach ($msg['threatsInfoMap'] as $threat_info) {
+                            // use threat ID to create forensics url
+                            $url = 'https://tap-api-v2.proofpoint.com/v2/forensics?threatId='.$threat_info['threatID'].'&format=json';
+
+                            // get threat forensic reports
+                            $json_response = $crawler->get($url);
+                            file_put_contents(storage_path('app/responses/pp_threat.response'), $json_response);
+
+                            // try to JSON decode the response
+                            try {
+                                $response = \Metaclassing\Utility::decodeJson($json_response);
+                                $error = 'No errors detected';
+                            } catch (\Exception $e) {
+                                $response = null;
+                                $error = $e->getMessage();
+                            }
+
+                            // build forensic reports array
+                            foreach ($response['reports'] as $report) {
+                                // add forensic reports to forensic_reports array
+                                $forensic_reports[] = [
+                                    'threat_id'     => $threat_info['threatID'],
+                                    'report_id'     => $report['id'],
+                                    'report_name'   => $report['name'],
+                                    'report_scope'  => $report['scope'],
+                                    'report_type'   => $report['type'],
+                                    'threat_status' => $report['threatStatus'],
+                                    'forensics'     => $report['forensics']
+                                ];
+                            }
+
+                            // build threats_info array
+                            $threats_info[] = [
+                                'threat_type'       => $threat_info['threatType'],
+                                'threat'            => $threat_info['threat'],
+                                'campaign_id'       => $threat_info['campaignID'],
+                                'threat_id'         => $threat_info['threatID'],
+                                'threat_time'       => $threat_info['threatTime'],
+                                'classification'    => $threat_info['classification'],
+                                'threat_status'     => $threat_info['threatStatus'],
+                                'threat_url'        => $threat_info['threatUrl'],
+                            ];
+                        }
+                    }
+
                     $siem_data[] = [
                         'campaign_id'       => $click['campaignId'],
                         'threat_id'         => $click['threatID'],
@@ -281,6 +495,9 @@ class GetProofPointSIEM extends Command
                         'classification'    => $click['classification'],
                         'sender_ip'         => $click['senderIP'],
                         'user_agent'        => $click['userAgent'],
+                        'message_parts'     => $message_parts,
+                        'threats_info_map'  => $threats_info,
+                        'threat_forensics'  => $forensic_reports,
                         'proofpoint_type'   => 'CLICK_BLOCKED',
                     ];
                 }
