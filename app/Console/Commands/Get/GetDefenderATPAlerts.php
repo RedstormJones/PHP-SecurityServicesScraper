@@ -41,7 +41,7 @@ class GetDefenderATPAlerts extends Command
      */
     public function handle()
     {
-        Log::info('[+] *** Starting Defender ATP Alerts client ***');
+        Log::info(PHP_EOL.PHP_EOL.'*****************************************'.PHP_EOL.'* Starting Defender ATP Alerts command! *'.PHP_EOL.'*****************************************');
 
         $cookiejar = storage_path('app/cookies/atp_cookie.txt');
 
