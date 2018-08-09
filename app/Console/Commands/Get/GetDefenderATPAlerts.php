@@ -87,7 +87,7 @@ class GetDefenderATPAlerts extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         // try to hit the defender ATP alerts endpoint
-        $defender_api_url = getenv('DEFENDER_ALERTS_ENDPOINT').'?ago=PT12H';
+        $defender_api_url = getenv('DEFENDER_ALERTS_ENDPOINT').'?ago=PT1H';
 
         // capture response and dump to file
         Log::info('[+] requesting Defender ATP alerts for past 12 hours: '.$defender_api_url);
