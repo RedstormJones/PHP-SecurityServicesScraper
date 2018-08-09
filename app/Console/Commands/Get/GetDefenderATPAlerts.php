@@ -58,7 +58,7 @@ class GetDefenderATPAlerts extends Command
         $post_data = 'resource=https://graph.windows.net&client_id='.$app_id.'&client_secret='.$app_key.'&grant_type=client_credentials';
 
         $headers = [
-            'Content-Type: application/x-www-form-urlencoded'
+            'Content-Type: application/x-www-form-urlencoded',
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
@@ -72,8 +72,7 @@ class GetDefenderATPAlerts extends Command
             $response = \Metaclassing\Utility::decodeJson($json_response);
             $access_token = $response['access_token'];
             Log::info('[+] got access token...');
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             Log::error('[!] failed to get access token: '.$e->getMessage());
             die('[!] failed to get access token: '.$e->getMessage().PHP_EOL);
         }
@@ -83,7 +82,7 @@ class GetDefenderATPAlerts extends Command
 
         // setup auth headers and apply to crawler
         $headers = [
-            'Authorization: Bearer '.$access_token
+            'Authorization: Bearer '.$access_token,
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
@@ -99,8 +98,7 @@ class GetDefenderATPAlerts extends Command
         try {
             $response = \Metaclassing\Utility::decodeJson($json_response);
             Log::info('[+] received ['.count($response).'] alerts from Defender ATP');
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             Log::error('[!] failed to decode JSON response: '.$e->getMessage());
             die('[!] failed to decode JSON response: '.$e->getMessage().PHP_EOL);
         }
