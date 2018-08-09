@@ -90,7 +90,7 @@ class GetDefenderATPAlerts extends Command
         $defender_api_url = getenv('DEFENDER_ALERTS_ENDPOINT').'?ago=PT1H';
 
         // capture response and dump to file
-        Log::info('[+] requesting Defender ATP alerts for past 12 hours: '.$defender_api_url);
+        Log::info('[+] requesting Defender ATP alerts for past 1 hours: '.$defender_api_url);
         $json_response = $crawler->get($defender_api_url);
         file_put_contents(storage_path('app/responses/defender_alerts_response.json'), $json_response);
 
