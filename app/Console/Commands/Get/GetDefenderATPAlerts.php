@@ -143,7 +143,7 @@ class GetDefenderATPAlerts extends Command
             $producer = new \Kafka\Producer();
 
             // cycle through Cylance devices
-            foreach ($response as $alert) {
+            foreach ($defender_alerts as $alert) {
                 // add upsert datetime
                 $alert['UpsertDate'] = Carbon::now()->toAtomString();
 
