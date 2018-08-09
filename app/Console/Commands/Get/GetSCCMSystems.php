@@ -231,40 +231,6 @@ class GetSCCMSystems extends Command
             }
         }
 
-        /*
-        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-        $crawler = new \Crawler\Crawler($cookiejar);
-
-        $headers = [
-            'Content-Type: application/json',
-        ];
-
-        // setup curl HTTP headers with $headers
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-
-        foreach ($systems as $system) {
-            $url = 'http://10.243.32.36:9200/sccm_systems/sccm_systems/'.$system['SystemName'];
-            Log::info('HTTP Post to elasticsearch: '.$url);
-
-            $post = [
-                'doc'           => $system,
-                'doc_as_upsert' => true,
-            ];
-
-            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
-
-            $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($response);
-
-            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('SCCM system was successfully inserted into ES: '.$system['SystemName']);
-            } else {
-                Log::error('Something went wrong inserting SCCM system: '.$system['SystemName']);
-                die('Something went wrong inserting SCCM system: '.$system['SystemName'].PHP_EOL);
-            }
-        }
-        */
-
         Log::info('* Completed SCCM system processing! *'.PHP_EOL);
     }
 
