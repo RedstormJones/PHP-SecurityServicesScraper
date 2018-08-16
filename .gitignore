@@ -1,4 +1,4 @@
 .env
 /vendor
 composer.lock
-
+/app/Console/Commands/Test
