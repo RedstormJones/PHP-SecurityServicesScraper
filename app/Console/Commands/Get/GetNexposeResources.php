@@ -100,7 +100,7 @@ class GetNexposeResources extends Command
 
         $assets = [];
 
-        Log::info("[+] starting data normalization...");
+        Log::info('[+] starting data normalization...');
 
         // some data normalization
         foreach ($assets_array as $asset) {
@@ -141,9 +141,8 @@ class GetNexposeResources extends Command
 
                             if (array_key_exists('value', $config)) {
                                 $configs_array[$config['name']] = $config['value'];
-                            }
-                            else {
-                                $configs_array[$config['name']] = "";
+                            } else {
+                                $configs_array[$config['name']] = '';
                             }
                         }
 
@@ -195,7 +194,6 @@ class GetNexposeResources extends Command
                         // add users array back to service
                         $service['users'] = $users_array;
                     }
-
 
                     $services_array[$service['port']] = $service;
                 }
@@ -296,28 +294,23 @@ class GetNexposeResources extends Command
                         if (array_key_exists('fullName', $user)) {
                             // if fullName exists then use that value
                             $users_array['LOCAL-'.$local_account_count] = $user['fullName'];
-                        }
-                        else if (array_key_exists('name', $user)) {
+                        } elseif (array_key_exists('name', $user)) {
                             // otherwise if name exists then use that value
                             $users_array['LOCAL-'.$local_account_count] = $user['name'];
-                        }
-                        else {
+                        } else {
                             // otherwise...
-                            $users_array['LOCAL-'.$local_account_count] = "";
+                            $users_array['LOCAL-'.$local_account_count] = '';
                         }
-                    }
-                    else {
+                    } else {
                         if (array_key_exists('fullName', $user)) {
                             // if fullName exists then use that value
                             $users_array[$user['id']] = $user['fullName'];
-                        }
-                        else if (array_key_exists('name', $user)) {
+                        } elseif (array_key_exists('name', $user)) {
                             // otherwise if name exists then use that value
                             $users_array[$user['id']] = $user['name'];
-                        }
-                        else {
+                        } else {
                             // otherwise...
-                            $users_array[$user['id']] = "";
+                            $users_array[$user['id']] = '';
                         }
                     }
                 }
