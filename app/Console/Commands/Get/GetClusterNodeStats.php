@@ -61,8 +61,7 @@ class GetClusterNodeStats extends Command
         try {
             $response = \Metaclassing\Utility::decodeJson($json_response);
             $nodes = $response['nodes'];
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             // if an exception is thrown then pop smoke and bail
             Log::error('[!] failed to JSON decode response: '.$e->getMessage());
             die('[!] failed to JSON decode response: '.$e->getMessage().PHP_EOL);
@@ -70,7 +69,7 @@ class GetClusterNodeStats extends Command
 
         // build nodes_array
         $nodes_array = [];
-        
+
         foreach ($nodes as $key => $node) {
             // $key is the unique id for this particular node, soo add it to the node object
             $node['node_id'] = $key;
