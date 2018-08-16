@@ -40,21 +40,32 @@ class ReindexElastic extends Command
      */
     public function handle()
     {
+        // setup response path
         $response_path = storage_path('app/responses/');
 
+        // get indices from file
         $indice_str = file_get_contents(storage_path('app/collections/indices.txt'));
 
+        // use regex to split indice string into an array
         $indices = preg_split('/$\R?^/m', $indice_str);
 
+        // setup cookie
         $cookiejar = storage_path('app/cookies/elastic_cookie.txt');
 
         // cycle through indices
         foreach ($indices as $index) {
+            // trim off newline
             $index = trim($index);
             Log::info('*** starting on index: '.$index.' ***');
 
+            /****************************
+             * REINDEX ORIGINAL TO TEMP *
+             ****************************/
+
+            // build the reindex url
             $url = getenv('ELASTIC_CLUSTER').'/_reindex?requests_per_second=-1&wait_for_completion=false&refresh';
 
+            // instantiate a crawler and set headers
             $crawler = new \Crawler\Crawler($cookiejar);
             $headers = [
                 'Authorization: Basic '.getenv('ELASTIC_AUTH'),
@@ -73,13 +84,18 @@ class ReindexElastic extends Command
                 ],
             ];
 
+            // JSON encode post data
             $post_json = \Metaclassing\Utility::encodeJson($post);
             Log::info('[+] reindexing '.$index.' to '.$index.'-temp');
 
+            // post, capture response and dump to file
             $json_response = $crawler->post($url, '', $post_json);
             file_put_contents(storage_path('app/responses/reindex_to_temp.response'), $json_response);
 
+            // JSON decode response
             $response = \Metaclassing\Utility::decodeJson($json_response);
+
+            // check for failures
             if (array_key_exists('failures', $response) and count($response['failures'])) {
                 Log::error('[!] ERROR when attempting to reindex '.$index);
                 die('[!] ERROR when attempting to reindex '.$index.PHP_EOL);
@@ -89,6 +105,7 @@ class ReindexElastic extends Command
             $task_id = $response['task'];
             Log::info('[+] reindex to temp task id: '.$task_id);
 
+            // instantiate new crawler and set headers
             $crawler = new \Crawler\Crawler($cookiejar);
             $headers = [
                 'Authorization: Basic '.getenv('ELASTIC_AUTH'),
@@ -96,6 +113,7 @@ class ReindexElastic extends Command
             ];
             curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
+            // enter loop to check task status until its complete
             do {
                 $url = getenv('ELASTIC_CLUSTER').'/_tasks/'.$task_id;
 
@@ -106,25 +124,39 @@ class ReindexElastic extends Command
                 $completed = $response['completed'];
             } while (!$completed);
 
+            /*************************
+             * DELETE ORIGINAL INDEX *
+             *************************/
+
             // delete original index
             $url = getenv('ELASTIC_CLUSTER').'/'.$index;
 
             Log::info('[+] deleting original index '.$index);
 
+            // send delete request, capture response and dump to file
             $json_response = $crawler->delete($url);
             file_put_contents(storage_path('app/responses/delete_orig.response'), $json_response);
 
+            // JSON deocde response
             $response = \Metaclassing\Utility::decodeJson($json_response);
+
+            // check for failures
             if (array_key_exists('acknowledged', $response) and !$response['acknowledged']) {
                 Log::error('[!] ERROR when attempting to delete original index '.$index);
                 die('[!] ERROR when attempting to delete original index '.$index.PHP_EOL);
             }
 
+            // snooze
             sleep(3);
+
+            /****************************
+             * REINDEX TEMP TO ORIGINAL *
+             ****************************/
 
             // reindex temp index back to original index
             $url = getenv('ELASTIC_CLUSTER').'/_reindex?requests_per_second=-1&wait_for_completion=false&refresh';
 
+            // instantiate new crawler and set headers
             $crawler = new \Crawler\Crawler($cookiejar);
             $headers = [
                 'Authorization: Basic '.getenv('ELASTIC_AUTH'),
@@ -132,6 +164,7 @@ class ReindexElastic extends Command
             ];
             curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
+            // build post data
             $post = [
                 'source'    => [
                     'index' => $index.'-temp',
@@ -142,13 +175,18 @@ class ReindexElastic extends Command
                 ],
             ];
 
+            // JSON encode post data
             $post_json = \Metaclassing\Utility::encodeJson($post);
             Log::info('[+] reindexing '.$index.'-temp back to original index '.$index);
 
+            // post, capture response and dump to file
             $json_response = $crawler->post($url, '', $post_json);
             file_put_contents(storage_path('app/responses/reindex_back.response'), $json_response);
 
+            // JSON decode response
             $response = \Metaclassing\Utility::decodeJson($json_response);
+
+            // check for failures
             if (array_key_exists('failures', $response) and count($response['failures'])) {
                 Log::error('[!] ERROR when attempting to reindex '.$index.' back to original');
                 die('[!] ERROR when attempting to reindex '.$index.' back to original'.PHP_EOL);
@@ -174,6 +212,10 @@ class ReindexElastic extends Command
                 $response = \Metaclassing\Utility::decodeJson($json_response);
                 $completed = $response['completed'];
             } while (!$completed);
+
+            /*********************
+             * DELETE TEMP INDEX *
+             *********************/
 
             // delete temp index
             $url = getenv('ELASTIC_CLUSTER').'/'.$index.'-temp';
