@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Reindex;
 
 require_once app_path('Console/Crawler/Crawler.php');
 

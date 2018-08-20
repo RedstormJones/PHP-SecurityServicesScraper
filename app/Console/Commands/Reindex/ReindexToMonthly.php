@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Reindex;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
@@ -130,10 +130,10 @@ class ReindexToMonthly extends Command
              * DELETE DAILY INDICES *
              ************************/
 
+            Log::info('[+] deleting daily indices '.$daily_index_pattern);
+
             // delete original index
             $url = getenv('ELASTIC_CLUSTER').'/'.$daily_index_pattern;
-
-            Log::info('[+] deleting daily indices '.$daily_index_pattern);
 
             // send delete request, capture response and dump to file
             $json_response = $crawler->delete($url);
