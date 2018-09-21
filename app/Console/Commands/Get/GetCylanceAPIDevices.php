@@ -7,8 +7,6 @@ require_once app_path('Console/Crawler/Crawler.php');
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
-use JWTAuth;
-use JWTFactory;
 
 class GetCylanceAPIDevices extends Command
 {
@@ -55,7 +53,7 @@ class GetCylanceAPIDevices extends Command
         // setup headers
         $headers = [
             'Accept: application/json',
-            'Authorization: Bearer '.$access_token
+            'Authorization: Bearer '.$access_token,
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
@@ -98,11 +96,11 @@ class GetCylanceAPIDevices extends Command
 
         Log::info('[+] ...DONE');
 
-       /*
-         *
-         *  GET ALL DEVICE DETAILS
-         *
-         */
+        /*
+          *
+          *  GET ALL DEVICE DETAILS
+          *
+          */
         Log::info('[+] querying Cylance API for device details...');
 
         // device details array
@@ -129,7 +127,6 @@ class GetCylanceAPIDevices extends Command
 
         Log::info('[+] ...DONE');
 
-
         Log::info('[+] querying Cylance API for device threats and corresponding threat details...');
 
         // instantiate devices and threats array
@@ -142,11 +139,11 @@ class GetCylanceAPIDevices extends Command
 
             $collection = [];
 
-           /*
-             *
-             *  GET ALL DEVICE THREATS
-             *
-             */
+            /*
+              *
+              *  GET ALL DEVICE THREATS
+              *
+              */
             do {
                 // setup device threats url
                 $url = getenv('CYLANCE_ENDPOINT').'/devices/v2/'.$device['id'].'/threats?page='.$page_num.'&page_size='.$page_size;
@@ -171,12 +168,11 @@ class GetCylanceAPIDevices extends Command
             $device_threats = array_collapse($collection);
             file_put_contents(storage_path('app/responses/device-threats.json'), \Metaclassing\Utility::encodeJson($device_threats));
 
-
-           /*
-             *
-             *  GET ALL DEVICE THREAT DETAILS
-             *
-             */
+            /*
+              *
+              *  GET ALL DEVICE THREAT DETAILS
+              *
+              */
             $device_threat_details = [];
 
             foreach ($device_threats as $threat) {
@@ -194,8 +190,7 @@ class GetCylanceAPIDevices extends Command
                     $response = \Metaclassing\Utility::decodeJson($json_response);
 
                     $device_threat_details[] = $response;
-                }
-                else {
+                } else {
                     // otherwise, no threats for this device
                     Log::info('[+] no threat details found for: '.$threat['sha256']);
                 }
@@ -223,7 +218,7 @@ class GetCylanceAPIDevices extends Command
                 'os_version'            => $device['os_version'],
                 'date_first_registered' => $device['date_first_registered'],
                 'update_type'           => $device['update_type'],
-                'threats'               => $device_threat_details
+                'threats'               => $device_threat_details,
             ];
         }
 
@@ -270,7 +265,8 @@ class GetCylanceAPIDevices extends Command
      *
      * @return mixed
      */
-    public function generateAccessToken() {
+    public function generateAccessToken()
+    {
         // weird timestamp stuff
         $timeout = 1800;
         $now = Carbon::now('UTC');
@@ -296,14 +292,14 @@ class GetCylanceAPIDevices extends Command
             'iat'   => $epoch_time,
             'exp'   => $epoch_timeout,
             'jti'   => $jti_val,
-            'tid'   => $tid_val
+            'tid'   => $tid_val,
         ];
         $json_claims = \Metaclassing\Utility::encodeJson($claims);
 
         // JWT header
         $jwt_header = [
             'typ'   => 'JWT',
-            'alg'   => 'HS256'
+            'alg'   => 'HS256',
         ];
         $json_jwt_header = \Metaclassing\Utility::encodeJson($jwt_header);
 
@@ -320,7 +316,7 @@ class GetCylanceAPIDevices extends Command
 
         // setup auth post data
         $post_data = [
-            'auth_token'    => $auth_token
+            'auth_token'    => $auth_token,
         ];
 
         // instantiate new crawler
@@ -329,7 +325,7 @@ class GetCylanceAPIDevices extends Command
 
         // set headers
         $headers = [
-            'Content-Type: application/json; charset=utf-8'
+            'Content-Type: application/json; charset=utf-8',
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
@@ -343,8 +339,7 @@ class GetCylanceAPIDevices extends Command
         // get access token from response and return it
         if (array_key_exists('access_token', $response)) {
             return $response['access_token'];
-        }
-        else {
+        } else {
             // otherwise pop smoke and bail
             Log::error('[!] failed to get access token');
             die('[!] failed to get access token'.PHP_EOL);
