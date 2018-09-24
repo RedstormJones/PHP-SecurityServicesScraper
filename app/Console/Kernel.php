@@ -78,12 +78,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:suspiciousthreatdetails')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');    // runs hourly on week days between 06:00am and 06:00pm
         */
 
-        $schedule->command('get:triagereports')->everyFiveMinutes()->timezone('America/Chicago');                                           // runs every five minutes
-
         /*
-         * Commands run every ten minutes
+         * Commands run every five or ten minutes
          */
-        $schedule->command('get:simulationreports')->everyTenMinutes()->weekdays()->timezone('America/Chicago');
+        $schedule->command('get:triagereports')->everyFiveMinutes()->timezone('America/Chicago');                                           // runs every five minutes
+        $schedule->command('get:simulationreports')->everyTenMinutes()->weekdays()->timezone('America/Chicago');                            // runs every ten minutes
 
         /*
          * Commands run every minute
