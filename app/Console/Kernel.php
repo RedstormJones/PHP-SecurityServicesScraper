@@ -85,7 +85,7 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('get:proofpointsiem')->everyMinute()->withoutOverlapping()->timezone('America/Chicago');
 
-        $schedule->command('get:simulationreports')->everyMinute()->weekdays()->timezone('America/Chicago');
+        $schedule->command('get:simulationreports')->everyFiveMinutes()->weekdays()->timezone('America/Chicago');
 
         $schedule->command('get:casalertshigh')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
         $schedule->command('get:casalertsmedium')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
