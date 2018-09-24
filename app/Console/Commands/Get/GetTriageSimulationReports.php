@@ -59,7 +59,7 @@ class GetTriageSimulationReports extends Command
         $start_date = Carbon::now('America/Chicago')->subMinutes(420)->toDateTimeString();
         $end_date = Carbon::now('America/Chicago')->toDateTimeString();
         */
-        $start_date = Carbon::now()->subMinutes(420)->toDateTimeString();
+        $start_date = Carbon::now()->subMinutes(60)->toDateTimeString();
         $end_date = Carbon::now()->toDateTimeString();
 
         // setup triage url
