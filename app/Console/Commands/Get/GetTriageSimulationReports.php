@@ -59,7 +59,7 @@ class GetTriageSimulationReports extends Command
         $end_date = Carbon::now('America/Chicago')->toDateTimeString();
 
         // setup triage url
-        $reports_url = getenv('TRIAGE_URL').'/reports?category_id=5&tags=Campaign&start_date='.$start_date.'&end_date='.$end_date;
+        $reports_url = getenv('TRIAGE_URL').'/reports?category_id=5&tags=Simulation&start_date='.$start_date.'&end_date='.$end_date;
 
         // create authorization header and set to crawler
         $headers = [
