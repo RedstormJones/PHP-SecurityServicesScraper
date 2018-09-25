@@ -213,7 +213,6 @@ class GetCylanceAPIDevices extends Command
                         'running'               => $response['running'],
                         'unique_to_cylance'     => $response['unique_to_cylance'],
                     ];
-
                 } else {
                     // otherwise, no threats for this device
                     Log::info('[+] no threat details found for: '.$threat['sha256']);
@@ -225,7 +224,7 @@ class GetCylanceAPIDevices extends Command
 
             // if there are threats for this device then add an element to the array for each threat
             if (count($device_threat_details)) {
-                foreach($device_threat_details as $device_threat) {
+                foreach ($device_threat_details as $device_threat) {
                     $unique_id = $device['id'].'-'.$device_threat['md5'];
 
                     $devices_and_threats[] = [
@@ -250,8 +249,7 @@ class GetCylanceAPIDevices extends Command
                         'threat'                => $device_threat,
                     ];
                 }
-            }
-            else {
+            } else {
                 // otherwise just add the device with an empty threats array
                 $devices_and_threats[] = [
                     'name'                  => $device['name'],
@@ -272,7 +270,7 @@ class GetCylanceAPIDevices extends Command
                     'os_version'            => $device['os_version'],
                     'date_first_registered' => $device['date_first_registered'],
                     'update_type'           => $device['update_type'],
-                    'threat'                => NULL,
+                    'threat'                => null,
                 ];
             }
         }
