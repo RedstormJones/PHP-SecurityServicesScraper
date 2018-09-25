@@ -141,7 +141,7 @@ class GetCylanceAPIDevices extends Command
 
             /*
               *
-              *  GET ALL DEVICE THREATS
+              *  GET DEVICE THREATS
               *
               */
             do {
@@ -170,7 +170,7 @@ class GetCylanceAPIDevices extends Command
 
             /*
               *
-              *  GET ALL DEVICE THREAT DETAILS
+              *  GET THREAT DETAILS
               *
               */
             $device_threat_details = [];
@@ -189,7 +189,31 @@ class GetCylanceAPIDevices extends Command
                     // if yes, JSON decode and add to device_threat_details
                     $response = \Metaclassing\Utility::decodeJson($json_response);
 
-                    $device_threat_details[] = $response;
+                    // add threat info to device threat details array
+                    $device_threat_details[] = [
+                        'name'                  => $response['name'],
+                        'date_found'            => $threat['date_found'],
+                        'sha256'                => $response['sha256'],
+                        'file_path'             => $threat['file_path'],
+                        'file_status'           => $threat['file_status'],
+                        'cert_publisher'        => $response['cert_publisher'],
+                        'cert_issuer'           => $response['cert_issuer'],
+                        'cert_timestamp'        => $response['cert_timestamp'],
+                        'safelisted'            => $response['safelisted'],
+                        'signed'                => $response['signed'],
+                        'file_size'             => $response['file_size'],
+                        'global_quarantined'    => $response['global_quarantined'],
+                        'av_industry'           => $response['av_industry'],
+                        'classification'        => $response['classification'],
+                        'sub_classification'    => $response['sub_classification'],
+                        'auto_run'              => $response['auto_run'],
+                        'detected_by'           => $response['detected_by'],
+                        'cylance_score'         => $response['cylance_score'],
+                        'md5'                   => $response['md5'],
+                        'running'               => $response['running'],
+                        'unique_to_cylance'     => $response['unique_to_cylance'],
+                    ];
+
                 } else {
                     // otherwise, no threats for this device
                     Log::info('[+] no threat details found for: '.$threat['sha256']);
@@ -199,27 +223,58 @@ class GetCylanceAPIDevices extends Command
             // dump device threat details to file
             file_put_contents(storage_path('app/collections/cylanceapi-device-threats.json'), \Metaclassing\Utility::encodeJson($device_threat_details));
 
-            // rebuild object with device threats included
-            $devices_and_threats[] = [
-                'name'                  => $device['name'],
-                'state'                 => $device['state'],
-                'date_offline'          => $device['date_offline'],
-                'agent_version'         => $device['agent_version'],
-                'update_available'      => $device['update_available'],
-                'mac_addresses'         => $device['mac_addresses'],
-                'date_last_modified'    => $device['date_last_modified'],
-                'background_detection'  => $device['background_detection'],
-                'host_name'             => $device['host_name'],
-                'is_safe'               => $device['is_safe'],
-                'device_id'             => $device['id'],
-                'policy'                => $device['policy'],
-                'last_logged_in_user'   => $device['last_logged_in_user'],
-                'ip_addresses'          => $device['ip_addresses'],
-                'os_version'            => $device['os_version'],
-                'date_first_registered' => $device['date_first_registered'],
-                'update_type'           => $device['update_type'],
-                'threats'               => $device_threat_details,
-            ];
+            // if there are threats for this device then add an element to the array for each threat
+            if (count($device_threat_details)) {
+                foreach($device_threat_details as $device_threat) {
+                    $unique_id = $device['id'].'-'.$device_threat['md5'];
+
+                    $devices_and_threats[] = [
+                        'name'                  => $device['name'],
+                        'state'                 => $device['state'],
+                        'date_offline'          => $device['date_offline'],
+                        'agent_version'         => $device['agent_version'],
+                        'update_available'      => $device['update_available'],
+                        'mac_addresses'         => $device['mac_addresses'],
+                        'date_last_modified'    => $device['date_last_modified'],
+                        'background_detection'  => $device['background_detection'],
+                        'host_name'             => $device['host_name'],
+                        'is_safe'               => $device['is_safe'],
+                        'device_id'             => $device['id'],
+                        'unique_id'             => $unique_id,
+                        'policy'                => $device['policy'],
+                        'last_logged_in_user'   => $device['last_logged_in_user'],
+                        'ip_addresses'          => $device['ip_addresses'],
+                        'os_version'            => $device['os_version'],
+                        'date_first_registered' => $device['date_first_registered'],
+                        'update_type'           => $device['update_type'],
+                        'threat'                => $device_threat,
+                    ];
+                }
+            }
+            else {
+                // otherwise just add the device with an empty threats array
+                $devices_and_threats[] = [
+                    'name'                  => $device['name'],
+                    'state'                 => $device['state'],
+                    'date_offline'          => $device['date_offline'],
+                    'agent_version'         => $device['agent_version'],
+                    'update_available'      => $device['update_available'],
+                    'mac_addresses'         => $device['mac_addresses'],
+                    'date_last_modified'    => $device['date_last_modified'],
+                    'background_detection'  => $device['background_detection'],
+                    'host_name'             => $device['host_name'],
+                    'is_safe'               => $device['is_safe'],
+                    'device_id'             => $device['id'],
+                    'unique_id'             => $device['id'],
+                    'policy'                => $device['policy'],
+                    'last_logged_in_user'   => $device['last_logged_in_user'],
+                    'ip_addresses'          => $device['ip_addresses'],
+                    'os_version'            => $device['os_version'],
+                    'date_first_registered' => $device['date_first_registered'],
+                    'update_type'           => $device['update_type'],
+                    'threat'                => NULL,
+                ];
+            }
         }
 
         // JSON encode and dump devices and threats array to file
