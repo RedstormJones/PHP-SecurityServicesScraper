@@ -73,7 +73,7 @@ class GetMFATickets extends Command
      */
     public function getIncidents($crawler)
     {
-        $mfa_regex = '/.*(MFA|Multifactor|multifactor|Multi-factor|multi-factor|2 factor|2-factor|2factor).*/';
+        $mfa_regex = '/.*(MFA|Multifactor|multifactor|Multi-factor|multi-factor|2 factor|2-factor|2factor).*/i';
 
         $incident_set = [];
         $sec_url = 'https:/'.'/kiewit.service-now.com/api/now/v1/table/incident?sysparm_display_value=true&assignment_group=IM%20SEC%20-%20Security';
@@ -115,7 +115,7 @@ class GetMFATickets extends Command
      */
     public function getTasks($crawler)
     {
-        $mfa_regex = '/.*(MFA|Multifactor|multifactor|Multi-factor|multi-factor|2 factor|2-factor|2factor).*/';
+        $mfa_regex = '/.*(MFA|Multifactor|multifactor|Multi-factor|multi-factor|2 factor|2-factor|2factor).*/i';
 
         $task_set = [];
         $sec_url = 'https:/'.'/kiewit.service-now.com/api/now/v1/table/task?sysparm_display_value=true&assignment_group=IM%20SEC%20-%20Security';
