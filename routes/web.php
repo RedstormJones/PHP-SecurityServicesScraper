@@ -16,6 +16,10 @@ Route::get('/', function () {
     //return redirect('ui');
 });
 
+Route::get('/oauth.php', 'LoginController@oauth');
+//Route::get('/email', 'EmailController@showUserInfo');
+//Route::post('/email', 'EmailController@sendEmail');
+
 /*
 Auth::routes();
 
