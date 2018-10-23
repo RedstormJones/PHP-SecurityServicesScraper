@@ -204,7 +204,7 @@ class GetGraphSecurityAlerts extends Command
     {
         $postarray = [];
         foreach ($post as $key => $value) {
-            $postarray[] = $key.'='.(string)$value;
+            $postarray[] = $key.'='.(string) $value;
         }
 
         // takes the postarray array and concatenates together the values with &'s
