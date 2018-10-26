@@ -78,6 +78,8 @@ class Kernel extends ConsoleKernel
          * Commands run every five or ten minutes
          */
         $schedule->command('get:triagereports')->everyFiveMinutes()->timezone('America/Chicago');                                           // runs every five minutes
+
+        $schedule->command('check:winlogbeat')->everyTenMinutes()->timezone('America/Chicago');                                             // runs every ten minutes
         $schedule->command('get:simulationreports')->everyTenMinutes()->weekdays()->timezone('America/Chicago');                            // runs every ten minutes
 
         /*
