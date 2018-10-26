@@ -57,16 +57,18 @@ class GetSCCMSystems extends Command
             $keys[] = $label;
         }
 
-        Log::info('building SCCM systems associative array...');
+        Log::info('[+] building SCCM systems associative array...');
 
         // Bring it all together
         for ($j = 0; $j < $count; $j++) {
             $d = array_combine($keys, $sccm_data[$j]);
             $sccm_systems[$j] = $d;
         }
+        Log::info('[+] ...DONE');
 
         $systems = [];
 
+        Log::info('[+] normalizing SCCM systems data...');
         foreach ($sccm_systems as $system) {
             $image_date = $this->handleDate($system['ImageDate']);
             $ad_last_logon = $this->handleDate($system['ADLastLogon']);
@@ -209,9 +211,11 @@ class GetSCCMSystems extends Command
                 'SCCMLastHealthResult'      => $system['SCCMLastHealthResult'],
             ];
         }
+        Log::info('[+] ...SCCM systems normalization DONE');
 
         file_put_contents(storage_path('app/collections/sccm_systems_collection.json'), \Metaclassing\Utility::encodeJson($systems));
 
+        Log::info('[+] sending SCCM systems data to Kafka...');
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
         $producer = new \Kafka\Producer();
@@ -227,9 +231,10 @@ class GetSCCMSystems extends Command
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
                 Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
-                Log::info('[*] Data successfully sent to Kafka: '.$system['SystemName']);
+                //Log::info('[*] Data successfully sent to Kafka: '.$system['SystemName']);
             }
         }
+        Log::info('[+] ...SCCM systems to Kafka DONE');
 
         Log::info('* Completed SCCM system processing! *'.PHP_EOL);
     }
