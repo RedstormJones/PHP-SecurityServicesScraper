@@ -88,7 +88,6 @@ class CheckIndexHealthWinlogbeat extends Command
             $last_log_timestamp = Carbon::createFromFormat('Y-m-d\TH:i:s', $last_log_timestamp);
             Log::info('[+] carbon last log timestamp: '.$last_log_timestamp);
 
-
             if ($last_log_timestamp->lessThanOrEqualTo($threshold_timestamp)) {
                 // POP SMOKE!
                 $this->logToSlack($index.' has fallen 5 or more minutes behind!');
@@ -96,8 +95,7 @@ class CheckIndexHealthWinlogbeat extends Command
                 // we're good
                 Log::info('[+] '.$index.' within acceptable range');
             }
-        }
-        else {
+        } else {
             Log::error('[!] no hits found for search query..');
             die('[!] no hits found for search query..'.PHP_EOL);
         }
@@ -105,7 +103,8 @@ class CheckIndexHealthWinlogbeat extends Command
         Log::info('[***] winlogbeat index health check command completed! [***]'.PHP_EOL);
     }
 
-    public function logToSlack($message) {
+    public function logToSlack($message)
+    {
         $cookiejar = storage_path('app/cookies/slack-cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
