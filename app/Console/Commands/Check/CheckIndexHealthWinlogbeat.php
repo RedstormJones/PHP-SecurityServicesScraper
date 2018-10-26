@@ -112,7 +112,7 @@ class CheckIndexHealthWinlogbeat extends Command
     }
 
     /**
-     * Function to send alert and log messages to a particular Slack channel
+     * Function to send alert and log messages to a particular Slack channel.
      *
      * @return null
      */
