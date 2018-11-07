@@ -84,8 +84,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('check:winlogbeat')->everyTenMinutes()->timezone('America/Chicago');                                             // runs every ten minutes
         $schedule->command('check:elastalert')->everyTenMinutes()->timezone('America/Chicago');                                             // runs every ten minutes
         $schedule->command('check:syslog')->everyTenMinutes()->timezone('America/Chicago');                                                 // runs every ten minutes
-        $schedule->command('check:syslog_mcas')->everyTenMinutes()->timezone('America/Chicago');                                            // runs every ten minutes
-        $schedule->command('check:mfa_syslog')->everyTenMinutes()->timezone('America/Chicago');                                             // runs every ten minutes
+        $schedule->command('check:syslogmcas')->everyTenMinutes()->timezone('America/Chicago');                                            // runs every ten minutes
+        $schedule->command('check:mfasyslog')->everyTenMinutes()->timezone('America/Chicago');                                             // runs every ten minutes
 
         /*
          * Commands run every minute
