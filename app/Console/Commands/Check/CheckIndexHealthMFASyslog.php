@@ -46,7 +46,7 @@ class CheckIndexHealthMFASyslog extends Command
         // setup date and threshold variables
         $date = Carbon::now()->toDateString();
         $date = substr($date, 0, -3);
-        $threshold_timestamp = Carbon::now()->subMinutes(5);
+        $threshold_timestamp = Carbon::now()->subMinutes(15);
         Log::info('[+] threshold timestamp: '.$threshold_timestamp);
 
         // setup crawler
