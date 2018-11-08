@@ -98,7 +98,7 @@ class CheckIndexHealthMFASyslog extends Command
             // compare the last log's timestamp with the threshold timestamp
             if ($last_log_timestamp->lessThanOrEqualTo($threshold_timestamp)) {
                 // POP SMOKE!
-                $this->logToSlack($index.' has fallen 5 or more minutes behind!');
+                $this->logToSlack($index.' has fallen 15 or more minutes behind!');
             } else {
                 // we're good
                 Log::info('[+] '.$index.' within acceptable range');
