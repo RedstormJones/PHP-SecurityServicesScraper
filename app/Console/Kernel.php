@@ -77,15 +77,17 @@ class Kernel extends ConsoleKernel
         /*
          * Commands run every five or ten minutes
          */
-        $schedule->command('get:triagereports')->everyFiveMinutes()->timezone('America/Chicago');                                           // runs every five minutes
+        $schedule->command('get:triagereports')->everyFiveMinutes()->timezone('America/Chicago');                   // runs every five minutes
 
-        $schedule->command('get:simulationreports')->everyTenMinutes()->weekdays()->timezone('America/Chicago');                            // runs every ten minutes
+        $schedule->command('get:simulationreports')->everyTenMinutes()->weekdays()->timezone('America/Chicago');    // runs every ten minutes
 
-        $schedule->command('check:winlogbeat')->everyTenMinutes()->timezone('America/Chicago');                                             // runs every ten minutes
-        $schedule->command('check:elastalert')->everyTenMinutes()->timezone('America/Chicago');                                             // runs every ten minutes
-        $schedule->command('check:syslog')->everyTenMinutes()->timezone('America/Chicago');                                                 // runs every ten minutes
-        $schedule->command('check:syslogmcas')->everyTenMinutes()->timezone('America/Chicago');                                            // runs every ten minutes
-        $schedule->command('check:mfasyslog')->everyTenMinutes()->timezone('America/Chicago');                                             // runs every ten minutes
+        $schedule->command('check:winlogbeat')->everyTenMinutes()->timezone('America/Chicago');                     // runs every ten minutes
+        $schedule->command('check:elastalert')->everyTenMinutes()->timezone('America/Chicago');                     // runs every ten minutes
+        $schedule->command('check:syslog')->everyTenMinutes()->timezone('America/Chicago');                         // runs every ten minutes
+        $schedule->command('check:syslogmcas')->everyTenMinutes()->timezone('America/Chicago');                     // runs every ten minutes
+        $schedule->command('check:mfasyslog')->everyTenMinutes()->timezone('America/Chicago');                      // runs every ten minutes
+        $schedule->command('check:netflow')->everyTenMinutes()->timezone('America/Chicago');                        // runs every ten minutes
+        $schedule->command('check:packetbeat')->everyTenMinutes()->timezone('America/Chicago');                     // runs every ten minutes
 
         /*
          * Commands run every minute
