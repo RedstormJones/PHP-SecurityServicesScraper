@@ -123,7 +123,25 @@ class ReindexToMonthly extends Command
                 file_put_contents(storage_path('app/responses/reindex_to_monthly_task_response.json'), $json_response);
 
                 $response = \Metaclassing\Utility::decodeJson($json_response);
+
                 $completed = $response['completed'];
+                $task = $response['task'];
+                $status = $task['status'];
+                $description = $task['description'];
+                $total = $status['total'];
+                $created = $status['created'];
+
+                if ($total > 0) {
+                    $percent_complete = round(($created / $total)*100, 2);
+                } else {
+                    $percent_complete = 0;
+                }
+
+                // if not completed then sleep for 5 seconds
+                if (!$completed) {
+                    Log::info('[+] '.$description.' percent complete ...'.strval($percent_complete).'%');
+                    sleep(30);
+                }
             } while (!$completed);
 
             /************************
