@@ -132,7 +132,7 @@ class ReindexToMonthly extends Command
                 $created = $status['created'];
 
                 if ($total > 0) {
-                    $percent_complete = round(($created / $total)*100, 2);
+                    $percent_complete = round(($created / $total) * 100, 2);
                 } else {
                     $percent_complete = 0;
                 }
