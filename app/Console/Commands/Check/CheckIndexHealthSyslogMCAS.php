@@ -130,7 +130,7 @@ class CheckIndexHealthSyslogMCAS extends Command
         $post_data = [
             'channel'    => '#index-health-checks',
             'username'   => 'webhookbot',
-            'icon_emoji' => ':alert:',
+            'icon_emoji' => ':warning:',
             'text'       => $message,
         ];
 
