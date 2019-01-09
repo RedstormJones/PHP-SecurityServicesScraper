@@ -39,8 +39,6 @@ class Kernel extends ConsoleKernel
         /*
          * Commands run on daily schedule
          */
-        $schedule->command('get:sccmsystems')->dailyAt('05:00')->timezone('America/Chicago');               // runs daily at 05:00am
-
         $schedule->command('get:sitesubnets')->dailyAt('09:00')->timezone('America/Chicago');               // runs daily at 09:00am
 
         $schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');               // runs daily at 08:30pm
@@ -52,6 +50,8 @@ class Kernel extends ConsoleKernel
         /*
          * Commands run multiple times a day
          */
+        $schedule->command('get:sccmsystems')->twiceDaily(5, 13)->timezone('America/Chicago');              // runs twice daily at 05:00am and 01:00pm
+
         $schedule->command('get:cylanceapidevices')->twiceDaily(8, 10)->timezone('America/Chicago');           // runs twice daily at 08:00am and 10:00am
         $schedule->command('get:cylanceapidevices')->twiceDaily(12, 14)->timezone('America/Chicago');          // runs twice daily at 12:00pm and 02:00pm
         $schedule->command('get:cylanceapidevices')->twiceDaily(16, 18)->timezone('America/Chicago');          // runs twice daily at 04:00pm and 06:00pm
