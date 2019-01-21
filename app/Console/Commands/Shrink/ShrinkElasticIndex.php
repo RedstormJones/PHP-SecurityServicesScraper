@@ -86,8 +86,8 @@ class ShrinkElasticIndex extends Command
             $new_settings = [
                 'settings'  => [
                     'index.routing.allocation.require._name'    => $shrink_node,
-                    'index.blocks.write'                        => true
-                ]
+                    'index.blocks.write'                        => true,
+                ],
             ];
             $json_new_settings = \Metaclassing\Utility::encodeJson($new_settings);
 
@@ -203,12 +203,12 @@ class ShrinkElasticIndex extends Command
 
             $post_data = [
                 'settings'  => [
-                    'index.routing.allocation.require._name'    => NULL,
-                    'index.blocks.write'                        => NULL,
+                    'index.routing.allocation.require._name'    => null,
+                    'index.blocks.write'                        => null,
                     'index.number_of_shards'                    => 1,
                     'index.number_of_replicas'                  => 1,
                     'index.codec'                               => 'best_compression',
-                ]
+                ],
             ];
 
             // post request and capture JSON response
@@ -328,12 +328,13 @@ class ShrinkElasticIndex extends Command
     }
 
     /**
-     * Function to check Elasticsearch responses (as arrays) for the existence of an 'error' key. If response contains 
+     * Function to check Elasticsearch responses (as arrays) for the existence of an 'error' key. If response contains
      * the key 'error' then dump it to file and pop smoke.
      *
      * @return null
      */
-    public function checkResponseError($response, $err_msg) {
+    public function checkResponseError($response, $err_msg)
+    {
         if (array_key_exists('error', $response)) {
             Log::error($err_msg);
 
