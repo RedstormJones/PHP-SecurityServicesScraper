@@ -8,21 +8,21 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class GetSecurityTasks extends Command
+class GetGRCTasks extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'get:securitytasks';
+    protected $signature = 'get:grctasks';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get Service Now security tasks';
+    protected $description = 'Get GRC tasks from Service Now';
 
     /**
      * Create a new command instance.
@@ -42,10 +42,10 @@ class GetSecurityTasks extends Command
     public function handle()
     {
         /*
-         * [1] Get security tasks
+         * Get GRC tasks
          */
 
-        Log::info(PHP_EOL.PHP_EOL.'************************************'.PHP_EOL.'* Starting security tasks crawler! *'.PHP_EOL.'************************************');
+        Log::info(PHP_EOL.PHP_EOL.'*******************************'.PHP_EOL.'* Starting GRC tasks crawler! *'.PHP_EOL.'*******************************');
 
         // setup cookie jar
         $cookiejar = storage_path('app/cookies/servicenow_cookie.txt');
@@ -53,8 +53,8 @@ class GetSecurityTasks extends Command
         // instantiate crawler
         $crawler = new \Crawler\Crawler($cookiejar);
 
-        // point url to incidents table and add necessary query params
-        $assignment_group = urlencode('KTG Sec - Ops-Eng-IR');
+        // point url to tasks table and add necessary query params
+        $assignment_group = urlencode('KTG Sec - GRC');
         $url = 'https:/'.'/kiewit.service-now.com/api/now/v1/table/task?sysparm_display_value=true&active=true&assignment_group='.$assignment_group;
 
         // setup HTTP headers with basic auth
@@ -69,15 +69,15 @@ class GetSecurityTasks extends Command
         $json_response = $crawler->get($url);
 
         // dump response to file
-        file_put_contents(storage_path('app/responses/security_tasks.dump'), $json_response);
+        file_put_contents(storage_path('app/responses/grc_tasks.dump'), $json_response);
 
         // JSON decode response and extract result data
         $response = json_decode($json_response, true);
 
         $tasks = $response['result'];
-        Log::info('total security tasks count: '.count($tasks));
+        Log::info('total GRC tasks count: '.count($tasks));
 
-        $security_tasks = [];
+        $grc_tasks = [];
 
         foreach ($tasks as $task) {
             $parent = $this->handleNull($task['parent']);
@@ -143,7 +143,7 @@ class GetSecurityTasks extends Command
                 $work_end['display_value'] = $work_end_pieces[0].'T'.$work_end_pieces[1];
             }
 
-            $security_tasks[] = [
+            $grc_tasks[] = [
                 'urgency'                       => $task['urgency'],
                 'group_list'                    => $task['group_list'],
                 'active'                        => $task['active'],
@@ -226,19 +226,19 @@ class GetSecurityTasks extends Command
         }
 
         // JSON encode and dump incident collection to file
-        file_put_contents(storage_path('app/collections/security_tasks_collection.json'), \Metaclassing\Utility::encodeJson($security_tasks));
+        file_put_contents(storage_path('app/collections/grc_tasks_collection.json'), \Metaclassing\Utility::encodeJson($grc_tasks));
 
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
         $producer = new \Kafka\Producer();
 
-        foreach ($security_tasks as $task) {
+        foreach ($grc_tasks as $task) {
             // add upsert datetime
             $task['upsert_date'] = Carbon::now()->toAtomString();
 
             $result = $producer->send([
                 [
-                    'topic' => 'servicenow_security_tasks',
+                    'topic' => 'servicenow_grc_tasks',
                     'value' => \Metaclassing\Utility::encodeJson($task),
                 ],
             ]);
@@ -250,7 +250,7 @@ class GetSecurityTasks extends Command
             }
         }
 
-        Log::info('* Completed ServiceNow security tasks! *');
+        Log::info('* Completed ServiceNow GRC tasks! *');
     }
 
     /**

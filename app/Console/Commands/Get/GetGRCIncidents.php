@@ -8,21 +8,21 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
-class GetSecurityIncidents extends Command
+class GetGRCIncidents extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'get:securityincidents';
+    protected $signature = 'get:grcincidents';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Get Service Now security incidents';
+    protected $description = 'Get GRC incidents from Service Now';
 
     /**
      * Create a new command instance.
@@ -42,10 +42,10 @@ class GetSecurityIncidents extends Command
     public function handle()
     {
         /*
-         * [1] Get security incidents
+         * Get GRC incidents
          */
 
-        Log::info(PHP_EOL.PHP_EOL.'****************************************'.PHP_EOL.'* Starting security incidents crawler! *'.PHP_EOL.'****************************************');
+        Log::info(PHP_EOL.PHP_EOL.'***********************************'.PHP_EOL.'* Starting GRC incidents crawler! *'.PHP_EOL.'***********************************');
 
         // setup cookie jar
         $cookiejar = storage_path('app/cookies/servicenow_cookie.txt');
@@ -54,7 +54,7 @@ class GetSecurityIncidents extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // point url to incidents table and add necessary query params
-        $assignment_group = urlencode('KTG Sec - Ops-Eng-IR');
+        $assignment_group = urlencode('KTG Sec - GRC');
         $url = 'https:/'.'/kiewit.service-now.com/api/now/v1/table/incident?sysparm_display_value=true&assignment_group='.$assignment_group;
 
         // setup HTTP headers with basic auth
@@ -69,16 +69,16 @@ class GetSecurityIncidents extends Command
         $json_response = $crawler->get($url);
 
         // dump response to file
-        file_put_contents(storage_path('app/responses/security_incidents.dump'), $json_response);
+        file_put_contents(storage_path('app/responses/grc_incidents.dump'), $json_response);
 
         // JSON decode response
         $response = \Metaclassing\Utility::decodeJson($json_response);
 
         // grab the data we care about and tell the world how many incidents we have
         $incidents = $response['result'];
-        Log::info('total security incident count: '.count($incidents));
+        Log::info('total GRC incident count: '.count($incidents));
 
-        $security_incidents = [];
+        $grc_incidents = [];
 
         foreach ($incidents as $incident) {
             // handle null values for these particular fields this is not very pretty, but it works
@@ -137,7 +137,7 @@ class GetSecurityIncidents extends Command
                 $closed_at['display_value'] = null;
             }
 
-            $security_incidents[] = [
+            $grc_incidents[] = [
                 'parent_incident'               => $incident['parent_incident'],
                 'work_notes'                    => $incident['work_notes'],
                 'business_service'              => $incident['business_service'],
@@ -250,19 +250,19 @@ class GetSecurityIncidents extends Command
         }
 
         // JSON encode and dump incident collection to file
-        file_put_contents(storage_path('app/collections/security_incidents_collection.json'), \Metaclassing\Utility::encodeJson($security_incidents));
+        file_put_contents(storage_path('app/collections/grc_incidents_collection.json'), \Metaclassing\Utility::encodeJson($grc_incidents));
 
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
         $producer = new \Kafka\Producer();
 
-        foreach ($security_incidents as $incident) {
+        foreach ($grc_incidents as $incident) {
             // add upsert datetime
             $incident['upsert_date'] = Carbon::now()->toAtomString();
 
             $result = $producer->send([
                 [
-                    'topic' => 'servicenow_security_incidents',
+                    'topic' => 'servicenow_grc_incidents',
                     'value' => \Metaclassing\Utility::encodeJson($incident),
                 ],
             ]);
@@ -274,7 +274,7 @@ class GetSecurityIncidents extends Command
             }
         }
 
-        Log::info('* Completed ServiceNow security incidents! *');
+        Log::info('* Completed ServiceNow GRC incidents! *');
     }
 
     /**
