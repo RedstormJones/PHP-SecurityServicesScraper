@@ -54,7 +54,8 @@ class GetSecurityIncidents extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // point url to incidents table and add necessary query params
-        $url = 'https:/'.'/kiewit.service-now.com/api/now/v1/table/incident?sysparm_display_value=true&assignment_group=IM%20SEC%20-%20Security';
+        $assignment_group = urlencode('KTG SEC - Ops-Eng-IR');
+        $url = 'https:/'.'/kiewit.service-now.com/api/now/v1/table/incident?sysparm_display_value=true&assignment_group='.$assignment_group;
 
         // setup HTTP headers with basic auth
         $headers = [
