@@ -99,64 +99,6 @@ class GetSiteSubnets extends Command
             }
         }
 
-        /*
-        $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-        $crawler = new \Crawler\Crawler($cookiejar);
-
-        $headers = [
-            'Content-Type: application/json',
-        ];
-
-        // setup curl HTTP headers with $headers
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-
-        foreach ($collection as $site) {
-            $url = 'http://10.243.32.36:9200/netman_site_subnets/netman_site_subnets/';
-            Log::info('HTTP Post to elasticsearch: '.$url);
-
-            $post = [
-                'doc'   => $site,
-            ];
-
-            $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
-
-            $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info($response);
-
-            if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                Log::info('Site subnet was successfully inserted into ES: '.$site['site']);
-            } else {
-                Log::error('Something went wrong inserting site subnet: '.$site['site']);
-                die('Something went wrong inserting site subnet: '.$site['site'].PHP_EOL);
-            }
-        }
-        */
-
-        /*
-         * [2] Process site subnet records into database
-         */
-
-        /*
-        Log::info(PHP_EOL.'************************************'.PHP_EOL.'* Starting site subnet processing! *'.PHP_EOL.'************************************');
-
-        // get rid of existing site subnet records
-        $this->processDeletes();
-
-        foreach ($collection as $site_subnet) {
-            Log::info('creating new site subnet record for '.$site_subnet['site'].' with prefix of '.$site_subnet['ip_prefix']);
-
-            $site = new SiteSubnet();
-
-            $site->ip_prefix = $site_subnet['ip_prefix'];
-            $site->site = $site_subnet['site'];
-            $site->ip_address = $site_subnet['ip_address'];
-            $site->netmask = $site_subnet['netmask'];
-            $site->data = \Metaclassing\Utility::encodeJson($site_subnet);
-
-            $site->save();
-        }
-        */
-
         Log::info('* Completed Netman site subnets! *');
     }
 
