@@ -1,6 +1,8 @@
 <?php
 
-// this is a base class others are derived from
+/* 
+ * This class is based off Metaclassings PHP-Curler (https://github[.]com/metaclassing/PHP-Curler)
+ */
 
 namespace Crawler;
 
