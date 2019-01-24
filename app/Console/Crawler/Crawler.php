@@ -1,6 +1,6 @@
 <?php
 
-/* 
+/*
  * This class is based off Metaclassings PHP-Curler (https://github[.]com/metaclassing/PHP-Curler)
  */
 
