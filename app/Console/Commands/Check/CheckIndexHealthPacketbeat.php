@@ -69,7 +69,7 @@ class CheckIndexHealthPacketbeat extends Command
 
         // post search query, capture JSON response and dump to file
         $json_response = $crawler->post($es_url, '', $search_data);
-        file_put_contents(storage_path('app/responses/indexcheck-winlogbeat.json'), $json_response);
+        file_put_contents(storage_path('app/responses/indexcheck-packetbeat.json'), $json_response);
 
         try {
             // attempt to JSON decode response
