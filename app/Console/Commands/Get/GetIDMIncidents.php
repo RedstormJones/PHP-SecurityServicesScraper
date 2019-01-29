@@ -108,6 +108,8 @@ class GetIDMIncidents extends Command
                 $converted_from_task = $this->handleNUll($incident['u_converted_from_task']);
                 $problem_id = $this->handleNull($incident['problem_id']);
                 $alternative_contact = $this->handleNull($incident['u_alternative_contact']);
+                $rfc = $this->handleNull($incident['rfc']);
+                $associated_outage = $this->handleNull($incident['u_associated_outage']);
 
                 $created_on_pieces = explode(' ', $incident['sys_created_on']);
                 $created_on_date = $created_on_pieces[0].'T'.$created_on_pieces[1];
@@ -166,7 +168,7 @@ class GetIDMIncidents extends Command
                     'calendar_duration'             => $incident['calendar_duration'],
                     'location'                      => $location['display_value'],
                     'opened_by'                     => $opened_by['display_value'],
-                    'rfc'                           => $incident['rfc'],
+                    'rfc'                           => $rfc['display_value'],
                     'child_incidents'               => $incident['child_incidents'],
                     'parent'                        => $parent['display_value'],
                     'sys_tags'                      => $incident['sys_tags'],
@@ -215,7 +217,7 @@ class GetIDMIncidents extends Command
                     'sys_updated_on'                => $updated_on['display_value'],
                     'contact_type'                  => $incident['contact_type'],
                     'sys_class_name'                => $incident['sys_class_name'],
-                    'u_associated_outage'           => $incident['u_associated_outage'],
+                    'u_associated_outage'           => $associated_outage['display_value'],
                     'assignment_group'              => $assign_group['display_value'],
                     'approval_set'                  => $incident['approval_set'],
                     'u_vendor_name_task'            => $incident['u_vendor_name_task'],
