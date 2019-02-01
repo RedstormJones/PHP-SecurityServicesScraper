@@ -103,6 +103,17 @@ class CheckIndexHealthMFASyslog extends Command
                 // we're good
                 Log::info('[+] '.$index.' within acceptable range');
             }
+        } elseif (array_key_exists('error', $response)) {
+            // otherwise, check if we got an error
+            $error = $response['error'];
+
+            // build error string
+            $error_string = '[ERROR] '.$error['type'].' - '.$error['index'].PHP_EOL.'reason: '.$error['reason'];
+
+            // pop smoke and bail
+            Log::error('[!] '.$error_string);
+            $this->logToSlack($error_string);
+            die($error_string);
         } else {
             // otherwise, pop smoke and bail
             Log::error('[!] no hits found for search query..');
