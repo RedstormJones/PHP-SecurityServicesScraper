@@ -112,7 +112,7 @@ class CheckIndexHealthSyslogMCAS extends Command
 
             // pop smoke and bail
             Log::error('[!] '.$error_string);
-            $this->logToSlack($error_string);
+            //$this->logToSlack($error_string);
             die($error_string);
         } else {
             // otherwise, pop smoke and bail
