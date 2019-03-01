@@ -203,8 +203,8 @@ class ShrinkElasticIndex extends Command
 
             $post_data = [
                 'settings'  => [
-                    'index.routing.allocation.require._name'    => null,
-                    'index.blocks.write'                        => null,
+                    //'index.routing.allocation.require._name'    => null,
+                    //'index.blocks.write'                        => null,
                     'index.number_of_shards'                    => 1,
                     'index.number_of_replicas'                  => 1,
                     'index.codec'                               => 'best_compression',
