@@ -153,11 +153,16 @@ class GetCylanceAPIDevices extends Command
                 $json_response = $crawler->get($url);
                 file_put_contents(storage_path('app/responses/device-threats.json'), $json_response);
 
-                // JSON decode response
-                $response = \Metaclassing\Utility::decodeJson($json_response);
+                try {
+                    // attempt to JSON decode response
+                    $response = \Metaclassing\Utility::decodeJson($json_response);
 
-                // add device threats to collection
-                $collection[] = $response['page_items'];
+                    // add device threats to collection
+                    $collection[] = $response['page_items'];
+                } catch (\Exception $e) {
+                    // an exception will be thrown if the JSON response is empty, so catch it and carry on
+                    Log::error('[!] JSON response for device threats was empty: '.$e->getMessage());
+                }
 
                 // set total_pages and increment page_num
                 $total_pages = $response['total_pages'];
@@ -280,6 +285,7 @@ class GetCylanceAPIDevices extends Command
 
         Log::info('[+] ...DONE');
 
+        /*
         Log::info('[+] sending Cylance device logs to Kafka...');
 
         // instantiate a Kafka producer config and set the broker IP
@@ -309,6 +315,7 @@ class GetCylanceAPIDevices extends Command
         }
 
         Log::info('[+] ...DONE');
+        */
 
         Log::info('* Cylance API devices client completed! *'.PHP_EOL);
     }
@@ -373,7 +380,7 @@ class GetCylanceAPIDevices extends Command
         ];
 
         // instantiate new crawler
-        $cookiejar = storage_path('app/cookies/cylanceAPI.txt');
+        $cookiejar = storage_path('app/cookies/cylance-auth.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // set headers
