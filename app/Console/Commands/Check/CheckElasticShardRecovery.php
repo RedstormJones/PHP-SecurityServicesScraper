@@ -116,8 +116,7 @@ class CheckElasticShardRecovery extends Command
                         'recovered_size'    => $shard['index']['size']['recovered'],
                         'percent_complete'  => $shard['index']['size']['percent'],
                     ];
-                }
-                elseif ($shard['stage'] == 'TRANSLOG') {
+                } elseif ($shard['stage'] == 'TRANSLOG') {
                     $recoveries[] = [
                         'index'             => $index,
                         'shard_id'          => $shard['id'],
@@ -141,11 +140,10 @@ class CheckElasticShardRecovery extends Command
         foreach ($recoveries as $r) {
             if ($r['stage'] == 'INDEX') {
                 $r_string = $r['index']."\t".$r['stage']."\t\t".$r['shard_id']."\t".$r['shard_type']."\t".$r['source_host'].' =====> '.$r['target_host']."\t".$r['recovered_size'].'/'.$r['total_size']."\t\t".$r['percent_complete'];
-            }
-            elseif ($r['stage'] == 'TRANSLOG') {
+            } elseif ($r['stage'] == 'TRANSLOG') {
                 $r_string = $r['index']."\t".$r['stage']."\t".$r['shard_id']."\t".$r['shard_type']."\t".$r['source_host'].' =====> '.$r['target_host']."\t".$r['recovered_size'].'/'.$r['total_size']."\t".$r['percent_complete'];
             }
-            
+
             $this->comment($r_string);
         }
 
