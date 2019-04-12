@@ -85,8 +85,11 @@ class GetCylanceAPIDevices extends Command
             // add devices to collection array
             $collection[] = $response['page_items'];
 
-            // set total pages and increment page_num
-            $total_pages = $response['total_pages'];
+            if (array_key_exists('total_pages', $response)) {
+                // set total_pages and increment page_num
+                $total_pages = $response['total_pages'];
+            }
+
             $page_num++;
         } while ($page_num <= $total_pages);
 
@@ -164,8 +167,11 @@ class GetCylanceAPIDevices extends Command
                     Log::error('[!] JSON response for device threats was empty: '.$e->getMessage());
                 }
 
-                // set total_pages and increment page_num
-                $total_pages = $response['total_pages'];
+                if (array_key_exists('total_pages', $response)) {
+                    // set total_pages and increment page_num
+                    $total_pages = $response['total_pages'];
+                }
+
                 $page_num++;
             } while ($page_num <= $total_pages);
 
@@ -285,7 +291,6 @@ class GetCylanceAPIDevices extends Command
 
         Log::info('[+] ...DONE');
 
-        /*
         Log::info('[+] sending Cylance device logs to Kafka...');
 
         // instantiate a Kafka producer config and set the broker IP
@@ -315,7 +320,6 @@ class GetCylanceAPIDevices extends Command
         }
 
         Log::info('[+] ...DONE');
-        */
 
         Log::info('* Cylance API devices client completed! *'.PHP_EOL);
     }
