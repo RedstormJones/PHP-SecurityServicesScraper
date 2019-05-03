@@ -60,8 +60,8 @@ class CheckIndexHealthNetflow extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         // build the elastic url
-        $index = 'netflow-'.$date;
-        $es_url = getenv('ELASTIC_CLUSTER').'/'.$index.'/_search';
+        $index = 'netflow-search';
+        $es_url = getenv('ELASTIC_7_CLUSTER').'/'.$index.'/_search';
         Log::info('[+] elastic url: '.$es_url);
 
         // setup search query

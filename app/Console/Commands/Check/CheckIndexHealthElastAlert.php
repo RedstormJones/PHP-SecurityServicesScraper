@@ -61,7 +61,7 @@ class CheckIndexHealthElastAlert extends Command
 
         // build the elastic url
         $index = 'elastalert-productionhive_status*';
-        $es_url = getenv('ELASTIC_CLUSTER').'/'.$index.'/_search';
+        $es_url = getenv('ELASTIC_7_CLUSTER').'/'.$index.'/_search';
         Log::info('[+] elastic url: '.$es_url);
 
         // setup search query

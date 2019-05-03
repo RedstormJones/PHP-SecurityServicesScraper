@@ -61,8 +61,8 @@ class CheckIndexHealthMFASyslog extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         // build the elastic url
-        $index = 'mfa_syslog-'.$date;
-        $es_url = getenv('ELASTIC_CLUSTER').'/'.$index.'/_search';
+        $index = 'mfa-syslog-search';
+        $es_url = getenv('ELASTIC_7_CLUSTER').'/'.$index.'/_search';
         Log::info('[+] elastic url: '.$es_url);
 
         // setup search query
