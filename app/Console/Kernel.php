@@ -77,7 +77,6 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('get:simulationreports')->everyTenMinutes()->weekdays()->timezone('America/Chicago');    // runs every ten minutes
 
-        /*
         $schedule->command('check:winlogbeat')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                     // runs every ten minutes between the hours of 05:00am and 11:00pm
         $schedule->command('check:elastalert')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                     // runs every ten minutes between the hours of 05:00am and 11:00pm
         $schedule->command('check:syslog')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                         // runs every ten minutes between the hours of 05:00am and 11:00pm
@@ -85,7 +84,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('check:mfasyslog')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                      // runs every ten minutes between the hours of 05:00am and 11:00pm
         $schedule->command('check:netflow')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                        // runs every ten minutes between the hours of 05:00am and 11:00pm
         $schedule->command('check:packetbeat')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                     // runs every ten minutes between the hours of 05:00am and 11:00pm
-        */
 
         /*
          * Commands run every minute
