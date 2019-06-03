@@ -98,6 +98,12 @@ class GetNexposeSites extends Command
             $site_type = array_pull($site_nolinks, 'type');
             $site_nolinks['site_type'] = $site_type;
 
+            if (array_key_exists('lastScanTime', $site)) {
+                $last_scan_time = $site['lastScanTime'];
+            } else {
+                $last_scan_time = null;
+            }
+
             $sites_array[] = [
                 'site_id'           => $site['id'],
                 'site_name'         => $site['name'],
@@ -107,7 +113,7 @@ class GetNexposeSites extends Command
                 'scan_engine'       => $site['scanEngine'],
                 'scan_template'     => $site['scanTemplate'],
                 'risk_score'        => $site['riskScore'],
-                'last_scan_time'    => $site['lastScanTime'],
+                'last_scan_time'    => $last_scan_time,
                 'vulnerabilities'   => $site['vulnerabilities'],
             ];
         }
