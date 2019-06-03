@@ -66,8 +66,10 @@ class GetGraphSecurityAlerts extends Command
         $post_data = [
             'client_id'     => $client_id,
             'client_secret' => $client_secret,
-            'grant_type'    => 'refresh_token',
-            'scope'         => 'securityevents.read.all',
+            //'grant_type'    => 'refresh_token',
+            'grant_type'    => 'client_credentials',
+            //'scope'         => 'securityevents.read.all',
+            'scope'         => 'https://graph.microsoft.com/.default',
             'refresh_token' => $refresh_token,
             'redirect_uri'  => $redirect_uri,
         ];
@@ -81,7 +83,7 @@ class GetGraphSecurityAlerts extends Command
 
         // post for access and refresh tokens and dump to file
         Log::info('[+] posting for new access and refresh tokens...');
-        $json_response = $crawler->post($token_endpoint2, '', $post_data);
+        $json_response = $crawler->post($token_endpoint, '', $post_data);
         file_put_contents(storage_path('app/responses/mgsa_refresh_token_response.json'), $json_response);
 
         try {
@@ -91,9 +93,11 @@ class GetGraphSecurityAlerts extends Command
             Log::info('[+] got access token...');
 
             // get refresh token from response and dump to file
-            $refresh_token = $response['refresh_token'];
-            Log::info('[+] writing new refresh token to file...');
-            file_put_contents(storage_path('app/responses/mgsa_refresh_token.txt'), $refresh_token);
+            if (array_key_exists('refresh_token', $response)) {
+                $refresh_token = $response['refresh_token'];
+                Log::info('[+] writing new refresh token to file...');
+                file_put_contents(storage_path('app/responses/mgsa_refresh_token.txt'), $refresh_token);
+            }
         } catch (\Exception $e) {
             Log::error('[!] failed to get access token: '.$e->getMessage());
             die('[!] failed to get access token: '.$e->getMessage().PHP_EOL);
