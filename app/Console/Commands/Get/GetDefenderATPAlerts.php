@@ -46,7 +46,7 @@ class GetDefenderATPAlerts extends Command
         $cookiejar = storage_path('app/cookies/atp_cookie.txt');
 
         // get values from environment file
-        $token_endpoint = getenv('MS_OAUTH_TOKEN_ENDPOINT');
+        $token_endpoint = getenv('MS_OAUTH_DEFENDER_TOKEN_ENDPOINT');
         $app_id = getenv('MS_APP_ID');
         $app_key = getenv('MS_APP_KEY');
 
