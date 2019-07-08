@@ -2,11 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Cylance;
-use App\IronPort;
-use App\PhishMe;
-use App\SecurityCenter;
-
 class HomeController extends Controller
 {
     /**
