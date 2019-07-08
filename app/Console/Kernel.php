@@ -69,6 +69,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('get:nexposesites')->hourly()->timezone('America/Chicago');                                                      // runs hourly
         $schedule->command('get:graphsecurityalerts')->hourly()->timezone('America/Chicago');                                               // runs hourly
+        $schedule->command('get:threatindicators')->hourly()->timezone('America/Chicago');                                                  // runs hourly
 
         /*
          * Commands run every five or ten minutes
