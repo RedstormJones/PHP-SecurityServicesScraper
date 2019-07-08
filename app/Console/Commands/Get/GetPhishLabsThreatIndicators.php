@@ -53,7 +53,7 @@ class GetPhishLabsThreatIndicators extends Command
 
         // build auth header and add to crawler
         $headers = [
-            'Authorization: Basic '.$phishlabs_auth
+            'Authorization: Basic '.$phishlabs_auth,
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
@@ -81,14 +81,12 @@ class GetPhishLabsThreatIndicators extends Command
         if (array_key_exists('error', $response)) {
             Log::error('[GetPhishLabsThreatIndicators.php] error in response: '.$json_response);
             die('[GetPhishLabsThreatIndicators.php] error in response: '.$json_response.PHP_EOL);
-        }
-        elseif (array_key_exists('data', $response)) {
+        } elseif (array_key_exists('data', $response)) {
             $data = $response['data'];
 
             $indicators_count = $response['meta']['count'];
             Log::info('[GetPhishLabsThreatIndicators.php] count of indicators from last hour: '.$indicators_count);
-        }
-        else {
+        } else {
             Log::error('[GetPhishLabsThreatIndicators.php] unidentified response: '.$json_response);
             die('[GetPhishLabsThreatIndicators.php] unidentified response: '.$json_response);
         }
@@ -97,7 +95,7 @@ class GetPhishLabsThreatIndicators extends Command
         $indicators_collection = [];
 
         // cycle through "incidents"
-        foreach($data as $incident) {
+        foreach ($data as $incident) {
             // create incident array for these indicators
             $incident_info = [
                 'id'            => $incident['id'],
@@ -107,7 +105,7 @@ class GetPhishLabsThreatIndicators extends Command
             ];
 
             // cycle through incident indicators
-            foreach($incident['indicators'] as $indicator) {
+            foreach ($incident['indicators'] as $indicator) {
 
                 // check for indicator attributes
                 if (array_key_exists('attributes', $indicator)) {
@@ -131,7 +129,7 @@ class GetPhishLabsThreatIndicators extends Command
                         'indicator_type'        => $indicator['type'],
                         'false_positive'        => $indicator['falsePositive'],
                         'updated_at'            => $indicator['updatedAt'],
-                        'attributes'            => $attributes
+                        'attributes'            => $attributes,
                     ];
                 } else {
                     // add indicator w/o attributes to collection
@@ -174,7 +172,6 @@ class GetPhishLabsThreatIndicators extends Command
 
         Log::info('[GetPhishLabsThreatIndicators.php] DONE!');
     }
-
 
     /**
      * Function to convert post information from an assoc array to a string.
