@@ -162,6 +162,12 @@ class GetSCCMSystems extends Command
                 $site_id = null;
             }
 
+            if (array_key_exists('Region', $system)) {
+                $region = $system['Region'];
+            } else {
+                $region = null;
+            }
+
             $systems[] = [
                 'ReportDate'                => $system['ReportDate'],
                 'ADModified'                => $ad_modified,
@@ -211,7 +217,7 @@ class GetSCCMSystems extends Command
                 'SiteID'                    => $site_id,
                 'SCCMLastSWScan'            => $sccm_last_sw_scan,
                 'PrimaryUsers'              => $system['PrimaryUsers'],
-                'Region'                    => $system['Region'],
+                'Region'                    => $region,
                 'BitLockerStatus'           => $system['BitLockerStatus'],
                 'Stale45Days'               => $system['Stale45Days'],
                 'ADLocation'                => $system['ADLocation'],
