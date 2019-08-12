@@ -150,6 +150,12 @@ class GetSCCMSystems extends Command
                 $group = null;
             }
 
+            if (array_key_exists('ReportGroup', $system)) {
+                $report_group = $system['ReportGroup'];
+            } else {
+                $report_group = null;
+            }
+
             $systems[] = [
                 'ReportDate'                => $system['ReportDate'],
                 'ADModified'                => $ad_modified,
@@ -172,7 +178,7 @@ class GetSCCMSystems extends Command
                 'OSLanguage'                => $system['OSLanguage'],
                 'PatchPercent'              => $system['PatchPercent'],
                 'Owner'                     => $system['Owner'],
-                'ReportGroup'               => $system['ReportGroup'],
+                'ReportGroup'               => $report_group,
                 'TPM_IsOwned'               => $system['TPM_IsOwned'],
                 'PatchInstalled'            => $system['PatchInstalled'],
                 'SCCMLastHWScan'            => $sccm_last_hw_scan,
