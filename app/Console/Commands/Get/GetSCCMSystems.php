@@ -168,6 +168,12 @@ class GetSCCMSystems extends Command
                 $region = null;
             }
 
+            if (array_key_exists('VideoRAM', $system)) {
+                $video_ram = $system['VideoRAM'];
+            } else {
+                $video_ram = null;
+            }
+
             $systems[] = [
                 'ReportDate'                => $system['ReportDate'],
                 'ADModified'                => $ad_modified,
@@ -227,7 +233,7 @@ class GetSCCMSystems extends Command
                 'SystemRole'                => $system['SystemRole'],
                 'ImageSource'               => $system['ImageSource'],
                 'ClientActivity'            => $system['ClientActivity'],
-                'VideoRAM'                  => $system['VideoRAM'],
+                'VideoRAM'                  => $video_ram,
                 'PatchUnknown'              => $system['PatchUnknown'],
                 'ADLastLogon'               => $ad_last_logon,
                 'NETFrameworkAvailable'     => $system['NETFrameworkAvailable'],
