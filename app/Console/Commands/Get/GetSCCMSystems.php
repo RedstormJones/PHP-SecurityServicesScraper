@@ -144,10 +144,16 @@ class GetSCCMSystems extends Command
                 $days_since_last_logon = 0;
             }
 
+            if (array_key_exists('Group', $system)) {
+                $group = $system['Group'];
+            } else {
+                $group = null;
+            }
+
             $systems[] = [
                 'ReportDate'                => $system['ReportDate'],
                 'ADModified'                => $ad_modified,
-                'Group'                     => $system['Group'],
+                'Group'                     => $group,
                 'ADWhenChanged'             => $ad_when_changed,
                 'ClientVersion'             => $system['ClientVersion'],
                 'ClientStatus'              => $system['ClientStatus'],
