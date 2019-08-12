@@ -156,6 +156,12 @@ class GetSCCMSystems extends Command
                 $report_group = null;
             }
 
+            if (array_key_exists('SiteID', $system)) {
+                $site_id = $system['SiteID'];
+            } else {
+                $site_id = null;
+            }
+
             $systems[] = [
                 'ReportDate'                => $system['ReportDate'],
                 'ADModified'                => $ad_modified,
@@ -202,7 +208,7 @@ class GetSCCMSystems extends Command
                 'Manufacturer'              => $system['Manufacturer'],
                 'DeviceStatLastCheckDate'   => $device_stat_last_check,
                 'DeviceStatVersion'         => $system['DeviceStatVersion'],
-                'SiteID'                    => $system['SiteID'],
+                'SiteID'                    => $site_id,
                 'SCCMLastSWScan'            => $sccm_last_sw_scan,
                 'PrimaryUsers'              => $system['PrimaryUsers'],
                 'Region'                    => $system['Region'],
