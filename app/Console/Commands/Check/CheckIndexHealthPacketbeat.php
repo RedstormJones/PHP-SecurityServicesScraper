@@ -97,7 +97,8 @@ class CheckIndexHealthPacketbeat extends Command
             // compare the last log's timestamp with the threshold timestamp
             if ($last_log_timestamp->lessThanOrEqualTo($threshold_timestamp)) {
                 // POP SMOKE!
-                $this->logToSlack($index.' has fallen 5 or more minutes behind!');
+                //$this->logToSlack($index.' has fallen 5 or more minutes behind!');
+                $this->logToMSTeams($index.' has fallen 5 or more minutes behind!');
             } else {
                 // we're good
                 Log::info('[+] '.$index.' within acceptable range');
@@ -111,7 +112,8 @@ class CheckIndexHealthPacketbeat extends Command
 
             // pop smoke and bail
             Log::error('[!] '.$error_string);
-            $this->logToSlack($error_string);
+            //$this->logToSlack($error_string);
+            $this->logToMSTeams($error_string);
             die($error_string);
         } else {
             // otherwise, pop smoke and bail
@@ -159,5 +161,41 @@ class CheckIndexHealthPacketbeat extends Command
             Log::error('[!] post to slack channel failed!');
             die('[!] post to slack channel failed!'.PHP_EOL);
         }
+    }
+
+    /**
+     * Function to send alert and log messages to a particular MS Teams channel.
+     *
+     * @return null
+     */
+    public function logToMSTeams($message)
+    {
+        // setup crawler
+        $cookiejar = storage_path('app/cookies/ms-teams-cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        // setup MS Teams webhook url
+        $webhook_url = getenv('MS_TEAMS_INDEX_HEALTH_CHECK_WEBHOOK');
+
+        // build post data array
+        $post_data = [
+            'text'  => $message
+        ];
+
+        // JSON encode post data array
+        $json_post_data = \Metaclassing\Utility::encodeJson($post_data);
+        Log::info('[+] [CheckIndexHealthPacketbeat.php] MS Teams post data: '.$json_post_data);
+
+        // post message to MS Teams webhook, capture response and dump it to file
+        $response = $crawler->post($webhook_url, $webhook_url, $json_post_data);
+        file_put_contents(storage_path('app/responses/ms-teams-index-health-check.response'), $response);
+
+        $curl_info = $crawler->curl_getinfo();
+        var_dump($curl_info);
     }
 }

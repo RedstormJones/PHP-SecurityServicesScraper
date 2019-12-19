@@ -102,7 +102,6 @@ class CheckIndexHealthWinlogbeat extends Command
             } else {
                 // we're good
                 Log::info('[+] '.$index.' within acceptable range');
-                $this->logToMSTeams($index.' within acceptable range.');
             }
         } elseif (array_key_exists('error', $response)) {
             // otherwise, check if we got an error
