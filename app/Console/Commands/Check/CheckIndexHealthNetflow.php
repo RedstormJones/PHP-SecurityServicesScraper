@@ -41,12 +41,12 @@ class CheckIndexHealthNetflow extends Command
      */
     public function handle()
     {
-        Log::info(PHP_EOL.PHP_EOL.'****************************************'.PHP_EOL.'* Starting netflow Index Health Check! *'.PHP_EOL.'****************************************');
+        Log::info(PHP_EOL.'[CheckIndexHealthNetflow.php] Starting netflow Index Health Check!'.PHP_EOL);
 
         // setup date and threshold variables
         $date = Carbon::now()->toDateString();
         $threshold_timestamp = Carbon::now()->subMinutes(5);
-        Log::info('[+] threshold timestamp: '.$threshold_timestamp);
+        Log::info('[CheckIndexHealthNetflow.php] threshold timestamp: '.$threshold_timestamp);
 
         // setup crawler
         $cookiejar = storage_path('app/cookies/elasticsearch_health.txt');
@@ -62,7 +62,7 @@ class CheckIndexHealthNetflow extends Command
         // build the elastic url
         $index = 'netflow-search';
         $es_url = getenv('ELASTIC_7_CLUSTER').'/'.$index.'/_search';
-        Log::info('[+] elastic url: '.$es_url);
+        Log::info('[CheckIndexHealthNetflow.php] elastic url: '.$es_url);
 
         // setup search query
         $search_data = '{"query": {"match_all": {}},"size": 1,"sort": [{"@timestamp": {"order": "desc"}}]}';
@@ -76,8 +76,8 @@ class CheckIndexHealthNetflow extends Command
             $response = \Metaclassing\Utility::decodeJson($json_response);
         } catch (\Exception $e) {
             // pop smoke and bail
-            Log::error('[!] failed to decode JSON response: '.$e->getMessage());
-            die('[!] failed to decode JSON response: '.$e->getMessage().PHP_EOL);
+            Log::error('[!] [CheckIndexHealthNetflow.php] failed to decode JSON response: '.$e->getMessage());
+            die('[!] [CheckIndexHealthNetflow.php] failed to decode JSON response: '.$e->getMessage().PHP_EOL);
         }
 
         // check that we got any hits
@@ -88,11 +88,11 @@ class CheckIndexHealthNetflow extends Command
             // get rid of millisecond values from @timestamp
             $last_log_timestamp_pieces = explode('.', $last_log['@timestamp']);
             $last_log_timestamp = $last_log_timestamp_pieces[0];
-            Log::info('[+] last log timestamp: '.$last_log_timestamp);
+            Log::info('[CheckIndexHealthNetflow.php] last log timestamp: '.$last_log_timestamp);
 
             // use the last log timestamp string to create a Carbon datetime object for comparison
             $last_log_timestamp = Carbon::createFromFormat('Y-m-d\TH:i:s', $last_log_timestamp);
-            Log::info('[+] carbon last log timestamp: '.$last_log_timestamp);
+            Log::info('[CheckIndexHealthNetflow.php] carbon last log timestamp: '.$last_log_timestamp);
 
             // compare the last log's timestamp with the threshold timestamp
             if ($last_log_timestamp->lessThanOrEqualTo($threshold_timestamp)) {
@@ -101,14 +101,14 @@ class CheckIndexHealthNetflow extends Command
                 $this->logToMSTeams($index.' has fallen 5 or more minutes behind!');
             } else {
                 // we're good
-                Log::info('[+] '.$index.' within acceptable range');
+                Log::info('[CheckIndexHealthNetflow.php] '.$index.' within acceptable range');
             }
         } elseif (array_key_exists('error', $response)) {
             // otherwise, check if we got an error
             $error = $response['error'];
 
             // build error string
-            $error_string = '[ERROR] '.$error['type'].' - '.$error['index'].PHP_EOL.'reason: '.$error['reason'];
+            $error_string = '[!] [CheckIndexHealthNetflow.php] '.$error['type'].' - '.$error['index'].PHP_EOL.'reason: '.$error['reason'];
 
             // pop smoke and bail
             Log::error('[!] '.$error_string);
@@ -117,11 +117,11 @@ class CheckIndexHealthNetflow extends Command
             die($error_string);
         } else {
             // otherwise, pop smoke and bail
-            Log::error('[!] no hits found for search query..');
-            die('[!] no hits found for search query..'.PHP_EOL);
+            Log::error('[!] [CheckIndexHealthNetflow.php] no hits found for search query..');
+            die('[!] [CheckIndexHealthNetflow.php] no hits found for search query..'.PHP_EOL);
         }
 
-        Log::info('[***] netflow index health check command completed! [***]'.PHP_EOL);
+        Log::info('[CheckIndexHealthNetflow.php] netflow index health check command completed!'.PHP_EOL);
     }
 
     /**
@@ -148,7 +148,7 @@ class CheckIndexHealthNetflow extends Command
 
         // JSON encode post data array and append to payload=
         $json_post_data = 'payload='.\Metaclassing\Utility::encodeJson($post_data);
-        Log::info('[+] slack post data: '.$json_post_data);
+        Log::info('[CheckIndexHealthNetflow.php] slack post data: '.$json_post_data);
 
         // post message to Slack webhook, capture the response and dump it to file
         $response = $crawler->post($webhook_url, '', $json_post_data);
@@ -156,10 +156,10 @@ class CheckIndexHealthNetflow extends Command
 
         // check for an 'ok' response and log accordingly
         if ($response == 'ok') {
-            Log::info('[+] post to slack channel succeeded!');
+            Log::info('[CheckIndexHealthNetflow.php] post to slack channel succeeded!');
         } else {
-            Log::error('[!] post to slack channel failed!');
-            die('[!] post to slack channel failed!'.PHP_EOL);
+            Log::error('[!] [CheckIndexHealthNetflow.php] post to slack channel failed!');
+            die('[!] [CheckIndexHealthNetflow.php] post to slack channel failed!'.PHP_EOL);
         }
     }
 
@@ -189,13 +189,18 @@ class CheckIndexHealthNetflow extends Command
 
         // JSON encode post data array
         $json_post_data = \Metaclassing\Utility::encodeJson($post_data);
-        Log::info('[+] [CheckIndexHealthNetflow.php] MS Teams post data: '.$json_post_data);
+        Log::info('[CheckIndexHealthNetflow.php] MS Teams post data: '.$json_post_data);
 
         // post message to MS Teams webhook, capture response and dump it to file
         $response = $crawler->post($webhook_url, $webhook_url, $json_post_data);
         file_put_contents(storage_path('app/responses/ms-teams-index-health-check.response'), $response);
 
-        $curl_info = $crawler->curl_getinfo();
-        var_dump($curl_info);
+        // check response for errors
+        if ($response == 1) {
+            Log::info('[CheckIndexHealthNetflow.php] post to Teams channel successful!');
+        } else {
+            Log::error('[!] [CheckIndexHealthNetflow.php] post to Teams channel failed!');
+            die('[!] [CheckIndexHealthNetflow.php] post to Teams channel failed!'.PHP_EOL);
+        }
     }
 }
