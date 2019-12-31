@@ -184,7 +184,7 @@ class CheckIndexHealthNetflow extends Command
 
         // build post data array
         $post_data = [
-            'text'  => $message
+            'text'  => $message,
         ];
 
         // JSON encode post data array

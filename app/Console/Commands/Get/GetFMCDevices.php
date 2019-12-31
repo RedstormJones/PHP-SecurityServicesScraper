@@ -4,7 +4,6 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -43,7 +42,6 @@ class GetFMCDevices extends Command
     {
         Log::info(PHP_EOL.PHP_EOL.'################################'.PHP_EOL.'# Starting FMC devices client! #'.PHP_EOL.'################################');
 
-
         $cookiejar = storage_path('app/cookies/fmc_auth_cookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
 
@@ -55,7 +53,7 @@ class GetFMCDevices extends Command
         Log::info('[+] FMC auth url: '.$fmc_auth_url);
 
         $headers = [
-            'Authorization: Basic '.$auth_str
+            'Authorization: Basic '.$auth_str,
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($crawler->curl, CURLOPT_HEADER, 1);
@@ -80,26 +78,24 @@ class GetFMCDevices extends Command
         $headers_str = trim(substr($json_response, 0, $header_size));
         file_put_contents(storage_path('app/responses/fmc-auth-headers-response.txt'), $headers_str);
 
-        # setup token regex's
+        // setup token regex's
         $access_token_regex = '/^.*?X-auth-access-token\:\s(.*).*$/miu';
         $refresh_token_regex = '/^.*?X-auth-refresh-token\:\s(.*).*$/miu';
 
-        # parse out the access token from the response headers
+        // parse out the access token from the response headers
         if (preg_match($access_token_regex, $headers_str, $hits)) {
             $access_token = $hits[1];
             Log::info('[+] FMC access token: '.$access_token);
-        }
-        else {
+        } else {
             Log::error('[!] could not get access token from response headers..');
             die('[!] could not get access token from response headers..'.PHP_EOL);
         }
 
-        # parse out the refresh token from the response headers
+        // parse out the refresh token from the response headers
         if (preg_match($refresh_token_regex, $headers_str, $hits)) {
             $refresh_token = $hits[1];
             Log::info('[+] FMC refresh token: '.$refresh_token);
-        }
-        else {
+        } else {
             Log::error('[!] could not get refresh token from response headers..');
             die('[!] could not get refresh token from response headers..'.PHP_EOL);
         }
@@ -113,7 +109,7 @@ class GetFMCDevices extends Command
         $headers = [
             'Content-Type: application/json',
             'Accept: application/json',
-            'X-auth-access-token: '.$access_token
+            'X-auth-access-token: '.$access_token,
         ];
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
         //curl_setopt($crawler->curl, CURLOPT_HEADER, 1);
@@ -127,7 +123,6 @@ class GetFMCDevices extends Command
 
         $json_response = $crawler->get($fmc_devices_url);
         file_put_contents(storage_path('app/responses/fmc-devices-response.json'), $json_response);
-
 
         Log::info(PHP_EOL.PHP_EOL.'##########################'.PHP_EOL.'# Completed FMC devices! #'.PHP_EOL.'##########################');
     }
