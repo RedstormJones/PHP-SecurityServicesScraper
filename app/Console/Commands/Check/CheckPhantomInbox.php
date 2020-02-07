@@ -123,7 +123,6 @@ class CheckPhantomInbox extends Command
         Log::info('[CheckPhantomInbox.php] Phantom Inbox index health check command completed!'.PHP_EOL);
     }
 
-
     /**
      * Function to send alert and log messages to a particular MS Teams channel.
      *

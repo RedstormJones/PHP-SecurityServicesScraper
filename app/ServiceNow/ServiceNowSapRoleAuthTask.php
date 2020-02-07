@@ -53,5 +53,5 @@ class ServiceNowSapRoleAuthTask extends Model
         'location',
         'cause_code',
         'data',
-   ];
+    ];
 }
