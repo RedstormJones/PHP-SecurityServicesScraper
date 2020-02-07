@@ -9,8 +9,8 @@ use Illuminate\Queue\SerializesModels;
 
 class SCCMSystemsProcessingInitiated
 {
-    use InteractsWithSockets, SerializesModels;
-
+    use InteractsWithSockets;
+    use SerializesModels;
     /**
      * Create a new event instance.
      *

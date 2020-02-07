@@ -124,9 +124,9 @@ class AuthController extends Controller
         // TODO write some checking to make sure the cert DN matches the user DN in AD
 
         return [
-                'username' => $cn,
-                'dn'       => $dnstring,
-                ];
+            'username' => $cn,
+            'dn'       => $dnstring,
+        ];
     }
 
     protected function ldapauth(Request $request)
@@ -149,9 +149,9 @@ class AuthController extends Controller
         $ldapuser = $this->ldap->user()->info($username, ['*'])[0];
 
         return [
-                'username' => $ldapuser['cn'][0],
-                'dn'       => $ldapuser['dn'],
-                ];
+            'username' => $ldapuser['cn'][0],
+            'dn'       => $ldapuser['dn'],
+        ];
     }
 
     // This is called when any good authentication path succeeds, and creates a user in our table if they have not been seen before
@@ -214,13 +214,13 @@ class AuthController extends Controller
 
             try {
                 $this->ldap = new \adLDAP\adLDAP([
-                                                    'base_dn'            => env('LDAP_BASEDN'),
-                                                    'admin_username'     => env('LDAP_USER'),
-                                                    'admin_password'     => env('LDAP_PASS'),
-                                                    'domain_controllers' => [env('LDAP_HOST')],
-                                                    'ad_port'            => env('LDAP_PORT'),
-                                                    'account_suffix'     => '@'.env('LDAP_DOMAIN'),
-                                                ]);
+                    'base_dn'            => env('LDAP_BASEDN'),
+                    'admin_username'     => env('LDAP_USER'),
+                    'admin_password'     => env('LDAP_PASS'),
+                    'domain_controllers' => [env('LDAP_HOST')],
+                    'ad_port'            => env('LDAP_PORT'),
+                    'account_suffix'     => '@'.env('LDAP_DOMAIN'),
+                ]);
             } catch (\Exception $e) {
                 abort("Exception: {$e->getMessage()}");
             }

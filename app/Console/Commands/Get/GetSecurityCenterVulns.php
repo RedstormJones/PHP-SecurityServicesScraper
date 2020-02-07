@@ -759,9 +759,9 @@ class GetSecurityCenterVulns extends Command
                     'type'      => 'vuln',
                     'filters'   => [
                         [
-                        'filterName' => 'severity',
-                        'operator'   => '=',
-                        'value'      => $severity,
+                            'filterName' => 'severity',
+                            'operator'   => '=',
+                            'value'      => $severity,
                         ],
                     ],
                     'startOffset'   => $count,

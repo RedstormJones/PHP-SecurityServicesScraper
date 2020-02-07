@@ -53,5 +53,5 @@ class ServiceNowIdmTask extends Model
         'location',
         'cause_code',
         'data',
-   ];
+    ];
 }
