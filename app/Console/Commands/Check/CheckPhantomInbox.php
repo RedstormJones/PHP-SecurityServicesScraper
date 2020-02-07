@@ -1,0 +1,167 @@
+<?php
+
+namespace App\Console\Commands\Check;
+
+require_once app_path('Console/Crawler/Crawler.php');
+
+use Carbon\Carbon;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+
+class CheckPhantomInbox extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'check:phantom';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Check Phantom index health';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        Log::info(PHP_EOL.'[CheckPhantomInbox.php] Starting Phantom Inbox Index Health Check!'.PHP_EOL);
+
+        // setup date and threshold variables
+        $date = Carbon::now()->toDateString();
+        $threshold_timestamp = Carbon::now()->subMinutes(120);
+        Log::info('[CheckPhantomInbox.php] threshold timestamp: '.$threshold_timestamp);
+
+        // setup crawler
+        $cookiejar = storage_path('app/cookies/elasticsearch_health.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        // setup and apply auth header
+        $headers = [
+            'Content-Type: application/json',
+            'Authorization: Basic '.getenv('ELASTIC_AUTH'),
+        ];
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        // build the elastic url
+        $index = 'phantom-inbox-search';
+        $es_url = getenv('ELASTIC_7_CLUSTER').'/'.$index.'/_search';
+        Log::info('[CheckPhantomInbox.php] elastic url: '.$es_url);
+
+        // setup search query
+        $search_data = '{"query": {"match_all": {}},"size": 1,"sort": [{"@timestamp": {"order": "desc"}}]}';
+
+        // post search query, capture JSON response and dump to file
+        $json_response = $crawler->post($es_url, '', $search_data);
+        file_put_contents(storage_path('app/responses/indexcheck-phantom-inbox.json'), $json_response);
+
+        try {
+            // attempt to JSON decode response
+            $response = \Metaclassing\Utility::decodeJson($json_response);
+        } catch (\Exception $e) {
+            // pop smoke and bail
+            Log::error('[!] [CheckPhantomInbox.php] failed to decode JSON response: '.$e->getMessage());
+            die('[!] [CheckPhantomInbox.php] failed to decode JSON response: '.$e->getMessage().PHP_EOL);
+        }
+
+        // check that we got any hits
+        if (array_key_exists('hits', $response)) {
+            // get the last log data from the response
+            $last_log = $response['hits']['hits'][0]['_source'];
+
+            // get rid of millisecond values from @timestamp
+            $last_log_timestamp_pieces = explode('.', $last_log['@timestamp']);
+            $last_log_timestamp = $last_log_timestamp_pieces[0];
+            Log::info('[CheckPhantomInbox.php] last log timestamp: '.$last_log_timestamp);
+
+            // use the last log timestamp string to create a Carbon datetime object for comparison
+            $last_log_timestamp = Carbon::createFromFormat('Y-m-d\TH:i:s', $last_log_timestamp);
+            Log::info('[CheckPhantomInbox.php] carbon last log timestamp: '.$last_log_timestamp);
+
+            // compare the last log's timestamp with the threshold timestamp
+            if ($last_log_timestamp->lessThanOrEqualTo($threshold_timestamp)) {
+                // POP SMOKE!
+                $this->logToMSTeams($index.' has fallen 5 or more minutes behind!');
+            } else {
+                // we're good
+                Log::info('[CheckPhantomInbox.php] '.$index.' within acceptable range');
+            }
+        } elseif (array_key_exists('error', $response)) {
+            // otherwise, check if we got an error
+            $error = $response['error'];
+
+            // build error string
+            $error_string = '[!] [CheckPhantomInbox.php] '.$error['type'].' - '.$error['index'].PHP_EOL.'reason: '.$error['reason'];
+
+            // pop smoke and bail
+            Log::error('[!] '.$error_string);
+            //$this->logToSlack($error_string);
+            $this->logToMSTeams($error_string);
+            die($error_string);
+        } else {
+            // otherwise, pop smoke and bail
+            Log::error('[!] [CheckPhantomInbox.php] no hits found for search query..');
+            die('[!] [CheckPhantomInbox.php] no hits found for search query..'.PHP_EOL);
+        }
+
+        Log::info('[CheckPhantomInbox.php] Phantom Inbox index health check command completed!'.PHP_EOL);
+    }
+
+
+    /**
+     * Function to send alert and log messages to a particular MS Teams channel.
+     *
+     * @return null
+     */
+    public function logToMSTeams($message)
+    {
+        // setup crawler
+        $cookiejar = storage_path('app/cookies/ms-teams-cookie.txt');
+        $crawler = new \Crawler\Crawler($cookiejar);
+
+        $headers = [
+            'Content-Type: application/json',
+        ];
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        // setup MS Teams webhook url
+        $webhook_url = getenv('MS_TEAMS_INDEX_HEALTH_CHECK_WEBHOOK');
+
+        // build post data array
+        $post_data = [
+            'text'  => $message,
+        ];
+
+        // JSON encode post data array
+        $json_post_data = \Metaclassing\Utility::encodeJson($post_data);
+        Log::info('[CheckPhantomInbox.php] MS Teams post data: '.$json_post_data);
+
+        // post message to MS Teams webhook, capture response and dump it to file
+        $response = $crawler->post($webhook_url, $webhook_url, $json_post_data);
+        file_put_contents(storage_path('app/responses/ms-teams-index-health-check.response'), $response);
+
+        // check response for errors
+        if ($response == 1) {
+            Log::info('[CheckPhantomInbox.php] post to Teams channel successful!');
+        } else {
+            Log::error('[!] [CheckPhantomInbox.php] post to Teams channel failed!');
+            die('[!] [CheckPhantomInbox.php] post to Teams channel failed!'.PHP_EOL);
+        }
+    }
+}
