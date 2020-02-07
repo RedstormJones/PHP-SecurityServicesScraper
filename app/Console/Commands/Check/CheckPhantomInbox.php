@@ -97,7 +97,7 @@ class CheckPhantomInbox extends Command
             // compare the last log's timestamp with the threshold timestamp
             if ($last_log_timestamp->lessThanOrEqualTo($threshold_timestamp)) {
                 // POP SMOKE!
-                $this->logToMSTeams($index.' has fallen 5 or more minutes behind!');
+                $this->logToMSTeams($index.' has fallen 2 or more hours behind!');
             } else {
                 // we're good
                 Log::info('[CheckPhantomInbox.php] '.$index.' within acceptable range');
