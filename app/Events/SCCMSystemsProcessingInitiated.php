@@ -11,6 +11,7 @@ class SCCMSystemsProcessingInitiated
 {
     use InteractsWithSockets;
     use SerializesModels;
+
     /**
      * Create a new event instance.
      *

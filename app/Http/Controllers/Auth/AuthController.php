@@ -243,17 +243,19 @@ class AuthController extends Controller
                     $x509 = new \phpseclib\File\X509();
                     $cert = $x509->loadX509($asciicert);
                     $cn = \Metaclassing\Utility::recursiveArrayFindKeyValue(
-                                \Metaclassing\Utility::recursiveArrayTypeValueSearch(
+                        \Metaclassing\Utility::recursiveArrayTypeValueSearch(
                                     $x509->getDN(),
                                     'id-at-commonName'
-                                ), 'printableString'
-                            );
+                                ),
+                        'printableString'
+                    );
                     $issuer = \Metaclassing\Utility::recursiveArrayFindKeyValue(
-                                    \Metaclassing\Utility::recursiveArrayTypeValueSearch(
+                        \Metaclassing\Utility::recursiveArrayTypeValueSearch(
                                         $x509->getIssuerDN(),
                                         'id-at-commonName'
-                                    ), 'printableString'
-                                );
+                                    ),
+                        'printableString'
+                    );
                     $ldapuser['usercertificate'][$key] = "Bag Attributes\n"
                                                        ."\tcn=".$cn."\n"
                                                        ."\tserial=".$cert['tbsCertificate']['serialNumber']->toString()."\n"
