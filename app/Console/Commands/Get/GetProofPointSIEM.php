@@ -142,7 +142,7 @@ class GetProofPointSIEM extends Command
                                     'report_id'     => $report['id'],
                                     'report_name'   => $report['name'],
                                     'report_scope'  => $report['scope'],
-                                    'report_type'   => $report['type'],
+                                    //'report_type'   => $report['type'],
                                     'threat_status' => $report['threatStatus'],
                                     'forensics'     => $report['forensics'],
                                 ];
@@ -252,7 +252,7 @@ class GetProofPointSIEM extends Command
                                     'report_id'     => $report['id'],
                                     'report_name'   => $report['name'],
                                     'report_scope'  => $report['scope'],
-                                    'report_type'   => $report['type'],
+                                    //'report_type'   => $report['type'],
                                     'threat_status' => $report['threatStatus'],
                                     'forensics'     => $report['forensics'],
                                 ];
@@ -362,7 +362,7 @@ class GetProofPointSIEM extends Command
                                     'report_id'     => $report['id'],
                                     'report_name'   => $report['name'],
                                     'report_scope'  => $report['scope'],
-                                    'report_type'   => $report['type'],
+                                    //'report_type'   => $report['type'],
                                     'threat_status' => $report['threatStatus'],
                                     'forensics'     => $report['forensics'],
                                 ];
@@ -459,7 +459,7 @@ class GetProofPointSIEM extends Command
                                     'report_id'     => $report['id'],
                                     'report_name'   => $report['name'],
                                     'report_scope'  => $report['scope'],
-                                    'report_type'   => $report['type'],
+                                    //'report_type'   => $report['type'],
                                     'threat_status' => $report['threatStatus'],
                                     'forensics'     => $report['forensics'],
                                 ];
