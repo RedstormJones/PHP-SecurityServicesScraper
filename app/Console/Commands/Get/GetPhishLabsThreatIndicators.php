@@ -107,6 +107,11 @@ class GetPhishLabsThreatIndicators extends Command
             // cycle through incident indicators
             foreach ($incident['indicators'] as $indicator) {
 
+                $updated_at = NULL;
+                if (array_key_exists('updatedAt', $indicator)) {
+                    $updated_at = $indicator['updatedAt'];
+                }
+
                 // check for indicator attributes
                 if (array_key_exists('attributes', $indicator)) {
                     $attributes = [];
@@ -128,7 +133,7 @@ class GetPhishLabsThreatIndicators extends Command
                         'value'                 => $indicator['value'],
                         'indicator_type'        => $indicator['type'],
                         'false_positive'        => $indicator['falsePositive'],
-                        'updated_at'            => $indicator['updatedAt'],
+                        'updated_at'            => $updated_at,
                         'attributes'            => $attributes,
                     ];
                 } else {
@@ -140,7 +145,7 @@ class GetPhishLabsThreatIndicators extends Command
                         'value'                 => $indicator['value'],
                         'indicator_type'        => $indicator['type'],
                         'false_positive'        => $indicator['falsePositive'],
-                        'updated_at'            => $indicator['updatedAt'],
+                        'updated_at'            => $updated_at,
                     ];
                 }
             }

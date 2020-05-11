@@ -52,13 +52,16 @@ class Kernel extends ConsoleKernel
          */
         $schedule->command('get:sccmsystems')->twiceDaily(5, 13)->timezone('America/Chicago');              // runs twice daily at 05:00am and 01:00pm
 
+        /*
         $schedule->command('get:cylanceapidevices')->twiceDaily(8, 10)->timezone('America/Chicago');           // runs twice daily at 08:00am and 10:00am
         $schedule->command('get:cylanceapidevices')->twiceDaily(12, 14)->timezone('America/Chicago');          // runs twice daily at 12:00pm and 02:00pm
         $schedule->command('get:cylanceapidevices')->twiceDaily(16, 18)->timezone('America/Chicago');          // runs twice daily at 04:00pm and 06:00pm
+        */
 
         /*
          * Commands run on an hourly basis
          */
+        /*
         $schedule->command('get:securitytasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');             // runs hourly on week days between 06:00am and 06:00pm
         $schedule->command('get:grctasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');                  // runs hourly on week days between 06:00am and 06:00pm
         $schedule->command('get:idmtasks')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');                  // runs hourly on week days between 06:00am and 06:00pm
@@ -66,6 +69,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:securityincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');         // runs hourly on week days between 06:00am and 06:00pm
         $schedule->command('get:grcincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');              // runs hourly on week days between 06:00am and 06:00pm
         $schedule->command('get:idmincidents')->weekdays()->hourly()->between('06:00', '18:00')->timezone('America/Chicago');              // runs hourly on week days between 06:00am and 06:00pm
+        */
 
         $schedule->command('get:nexposesites')->hourly()->timezone('America/Chicago');                                                      // runs hourly
         $schedule->command('get:graphsecurityalerts')->hourly()->timezone('America/Chicago');                                               // runs hourly
