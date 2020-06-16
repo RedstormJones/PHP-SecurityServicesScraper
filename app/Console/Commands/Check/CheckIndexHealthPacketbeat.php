@@ -136,7 +136,7 @@ class CheckIndexHealthPacketbeat extends Command
      *
      * @return null
      */
-    public function logToSlack($message)
+    public function logToSlack($message, $log)
     {
         // setup crawler
         $cookiejar = storage_path('app/cookies/slack-cookie.txt');
