@@ -5,6 +5,8 @@ namespace App\Console\Commands\Check;
 require_once app_path('Console/Crawler/Crawler.php');
 
 use Carbon\Carbon;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -41,12 +43,17 @@ class CheckIndexHealthWinlogbeat extends Command
      */
     public function handle()
     {
-        Log::info(PHP_EOL.'[CheckIndexHealthWinlogbeat.php] Starting winlogbeat Index Health Check!'.PHP_EOL);
+        // setup logging config for this command
+        $today = Carbon::now()->toDateString();
+        $log = new Logger('index_health_check_winlogbeat');
+        $log->pushHandler(new StreamHandler(storage_path('logs/checks/'.$today.'_index_health_check_winlogbeat.log'), Logger::INFO));
+
+        $log->info('Starting winlogbeat Index Health Check!');
 
         // setup date and threshold variables
         $date = Carbon::now()->toDateString();
         $threshold_timestamp = Carbon::now()->subMinutes(5);
-        Log::info('[CheckIndexHealthWinlogbeat.php] threshold timestamp: '.$threshold_timestamp);
+        $log->info('threshold timestamp: '.$threshold_timestamp);
 
         // setup crawler
         $cookiejar = storage_path('app/cookies/elasticsearch_health.txt');
@@ -62,7 +69,7 @@ class CheckIndexHealthWinlogbeat extends Command
         // build the elastic url
         $index = 'winlogbeat-search';
         $es_url = getenv('ELASTIC_7_CLUSTER').'/'.$index.'/_search';
-        Log::info('[CheckIndexHealthWinlogbeat.php] elastic url: '.$es_url);
+        $log->info('elastic url: '.$es_url);
 
         // setup search query
         $search_data = '{"query": {"match_all": {}},"size": 1,"sort": [{"@timestamp": {"order": "desc"}}]}';
@@ -76,8 +83,8 @@ class CheckIndexHealthWinlogbeat extends Command
             $response = \Metaclassing\Utility::decodeJson($json_response);
         } catch (\Exception $e) {
             // pop smoke and bail
-            Log::error('[!] [CheckIndexHealthWinlogbeat.php] failed to decode JSON response: '.$e->getMessage());
-            die('[!] [CheckIndexHealthWinlogbeat.php] failed to decode JSON response: '.$e->getMessage().PHP_EOL);
+            $log->error('[ERROR] failed to decode JSON response: '.$e->getMessage());
+            die('[ERROR] failed to decode JSON response: '.$e->getMessage().PHP_EOL);
         }
 
         // check that we got any hits
@@ -88,11 +95,11 @@ class CheckIndexHealthWinlogbeat extends Command
             // get rid of millisecond values from @timestamp
             $last_log_timestamp_pieces = explode('.', $last_log['@timestamp']);
             $last_log_timestamp = $last_log_timestamp_pieces[0];
-            Log::info('[CheckIndexHealthWinlogbeat.php] last log timestamp: '.$last_log_timestamp);
+            $log->info('last log timestamp: '.$last_log_timestamp);
 
             // use the last log timestamp string to create a Carbon datetime object for comparison
             $last_log_timestamp = Carbon::createFromFormat('Y-m-d\TH:i:s', $last_log_timestamp);
-            Log::info('[CheckIndexHealthWinlogbeat.php] carbon last log timestamp: '.$last_log_timestamp);
+            $log->info('carbon last log timestamp: '.$last_log_timestamp);
 
             // compare the last log's timestamp with the threshold timestamp
             if ($last_log_timestamp->lessThanOrEqualTo($threshold_timestamp)) {
@@ -101,27 +108,27 @@ class CheckIndexHealthWinlogbeat extends Command
                 $this->logToMSTeams($index.' has fallen 5 or more minutes behind!', $log);
             } else {
                 // we're good
-                Log::info('[CheckIndexHealthWinlogbeat.php] '.$index.' within acceptable range');
+                $log->info($index.' within acceptable range');
             }
         } elseif (array_key_exists('error', $response)) {
             // otherwise, check if we got an error
             $error = $response['error'];
 
             // build error string
-            $error_string = '[!] [CheckIndexHealthWinlogbeat.php] '.$error['type'].PHP_EOL.'reason: '.$error['reason'];
+            $error_string = '[ERROR] '.$error['type'].PHP_EOL.'reason: '.$error['reason'];
 
             // pop smoke and bail
-            Log::error($error_string);
+            $log->error($error_string);
             //$this->logToSlack($error_string);
             $this->logToMSTeams($error_string, $log);
             die($error_string);
         } else {
             // otherwise, pop smoke and bail
-            Log::error('[!] [CheckIndexHealthWinlogbeat.php] no hits found for search query..');
-            die('[!] [CheckIndexHealthWinlogbeat.php] no hits found for search query..'.PHP_EOL);
+            $log->error('[ERROR] no hits found for search query..');
+            die('[ERROR] no hits found for search query..'.PHP_EOL);
         }
 
-        Log::info('[CheckIndexHealthWinlogbeat.php] winlogbeat index health check command completed!'.PHP_EOL);
+        $log->info('winlogbeat index health check command completed!'.PHP_EOL);
     }
 
     /**
@@ -148,7 +155,7 @@ class CheckIndexHealthWinlogbeat extends Command
 
         // JSON encode post data array and append to payload=
         $json_post_data = 'payload='.\Metaclassing\Utility::encodeJson($post_data);
-        Log::info('[+] slack post data: '.$json_post_data);
+        $log->info('[+] slack post data: '.$json_post_data);
 
         // post message to Slack webhook, capture the response and dump it to file
         $response = $crawler->post($webhook_url, '', $json_post_data);
@@ -156,9 +163,9 @@ class CheckIndexHealthWinlogbeat extends Command
 
         // check for an 'ok' response and log accordingly
         if ($response == 'ok') {
-            Log::info('[+] post to slack channel succeeded!');
+            $log->info('[+] post to slack channel succeeded!');
         } else {
-            Log::error('[!] post to slack channel failed!');
+            $log->error('[!] post to slack channel failed!');
             die('[!] post to slack channel failed!'.PHP_EOL);
         }
     }
@@ -189,7 +196,7 @@ class CheckIndexHealthWinlogbeat extends Command
 
         // JSON encode post data array
         $json_post_data = \Metaclassing\Utility::encodeJson($post_data);
-        Log::info('[CheckIndexHealthWinlogbeat.php] MS Teams post data: '.$json_post_data);
+        $log->info('MS Teams post data: '.$json_post_data);
 
         // post message to MS Teams webhook, capture response and dump it to file
         $response = $crawler->post($webhook_url, $webhook_url, $json_post_data);
@@ -197,10 +204,10 @@ class CheckIndexHealthWinlogbeat extends Command
 
         // check response for errors
         if ($response == 1) {
-            Log::info('[CheckIndexHealthWinlogbeat.php] post to Teams channel successful!');
+            $log->info('post to Teams channel successful!');
         } else {
-            Log::error('[!] [CheckIndexHealthWinlogbeat.php] post to Teams channel failed!');
-            die('[!] [CheckIndexHealthWinlogbeat.php] post to Teams channel failed!'.PHP_EOL);
+            $log->error('[ERROR] post to Teams channel failed!');
+            die('[ERROR] post to Teams channel failed!'.PHP_EOL);
         }
     }
 }

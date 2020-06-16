@@ -110,7 +110,9 @@ class GetCASAlertsMedium extends Command
 
                 // add count of returned alerts to count
                 $count += count($data['data']);
-            } else {
+            } 
+            /*
+            else {
                 // if no then M$ is probably throttling us, so sleep it off
                 Log::warning('[WARN]: [CAS_ALERTS_MEDIUM] no data found in response: '.$data['detail']);
 
@@ -120,6 +122,7 @@ class GetCASAlertsMedium extends Command
                 Log::info('[+] [CAS_ALERTS_MEDIUM] sleeping it off ('.$hits[1].' sec)...');
                 sleep((float) $hits[1]);
             }
+            /**/
         } while ($has_next);
 
         $medium_alerts = array_collapse($medium_alerts);

@@ -7,6 +7,8 @@ require_once app_path('Console/Crawler/Crawler.php');
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 class CheckIndexHealthMFASyslog extends Command
 {
@@ -41,13 +43,18 @@ class CheckIndexHealthMFASyslog extends Command
      */
     public function handle()
     {
-        Log::info(PHP_EOL.'[CheckIndexHealthMFASyslog.php] Starting MFA syslog Index Health Check!'.PHP_EOL);
+        // setup logging config for this command
+        $today = Carbon::now()->toDateString();
+        $log = new Logger('index_health_check_mfa_syslog');
+        $log->pushHandler(new StreamHandler(storage_path('logs/checks/'.$today.'_index_health_check_mfa_syslog.log'), Logger::INFO));
+
+        $log->info('Starting MFA syslog Index Health Check!');
 
         // setup date and threshold variables
         $date = Carbon::now()->toDateString();
         $date = substr($date, 0, -3);
         $threshold_timestamp = Carbon::now()->subMinutes(30);
-        Log::info('[CheckIndexHealthMFASyslog.php] threshold timestamp: '.$threshold_timestamp);
+        $log->info('threshold timestamp: '.$threshold_timestamp);
 
         // setup crawler
         $cookiejar = storage_path('app/cookies/elasticsearch_health.txt');
@@ -63,7 +70,7 @@ class CheckIndexHealthMFASyslog extends Command
         // build the elastic url
         $index = 'mfa-syslog-search';
         $es_url = getenv('ELASTIC_7_CLUSTER').'/'.$index.'/_search';
-        Log::info('[CheckIndexHealthMFASyslog.php] elastic url: '.$es_url);
+        $log->info('elastic url: '.$es_url);
 
         // setup search query
         $search_data = '{"query": {"match_all": {}},"size": 1,"sort": [{"@timestamp": {"order": "desc"}}]}';
@@ -77,8 +84,8 @@ class CheckIndexHealthMFASyslog extends Command
             $response = \Metaclassing\Utility::decodeJson($json_response);
         } catch (\Exception $e) {
             // pop smoke and bail
-            Log::error('[!] [CheckIndexHealthMFASyslog.php] failed to decode JSON response: '.$e->getMessage());
-            die('[!] [CheckIndexHealthMFASyslog.php] failed to decode JSON response: '.$e->getMessage().PHP_EOL);
+            $log->error('[ERROR] failed to decode JSON response: '.$e->getMessage());
+            die('[ERROR] failed to decode JSON response: '.$e->getMessage().PHP_EOL);
         }
 
         // check that we got any hits
@@ -89,11 +96,11 @@ class CheckIndexHealthMFASyslog extends Command
             // get rid of millisecond values from @timestamp
             $last_log_timestamp_pieces = explode('.', $last_log['@timestamp']);
             $last_log_timestamp = $last_log_timestamp_pieces[0];
-            Log::info('[CheckIndexHealthMFASyslog.php] last log timestamp: '.$last_log_timestamp);
+            $log->info('last log timestamp: '.$last_log_timestamp);
 
             // use the last log timestamp string to create a Carbon datetime object for comparison
             $last_log_timestamp = Carbon::createFromFormat('Y-m-d\TH:i:s', $last_log_timestamp);
-            Log::info('[CheckIndexHealthMFASyslog.php] carbon last log timestamp: '.$last_log_timestamp);
+            $log->info('carbon last log timestamp: '.$last_log_timestamp);
 
             // compare the last log's timestamp with the threshold timestamp
             if ($last_log_timestamp->lessThanOrEqualTo($threshold_timestamp)) {
@@ -102,27 +109,27 @@ class CheckIndexHealthMFASyslog extends Command
                 $this->logToMSTeams($index.' has fallen 30 or more minutes behind!', $log);
             } else {
                 // we're good
-                Log::info('[+] '.$index.' within acceptable range');
+                $log->info('[+] '.$index.' within acceptable range');
             }
         } elseif (array_key_exists('error', $response)) {
             // otherwise, check if we got an error
             $error = $response['error'];
 
             // build error string
-            $error_string = '[!] [CheckIndexHealthMFASyslog.php] '.$error['type'].' - '.$error['index'].PHP_EOL.'reason: '.$error['reason'];
+            $error_string = $error['type'].' - '.$error['index'].PHP_EOL.'reason: '.$error['reason'];
 
             // pop smoke and bail
-            Log::error('[!] '.$error_string);
+            $log->error('[ERROR] '.$error_string);
             //$this->logToSlack($error_string);
             $this->logToMSTeams($error_string, $log);
             die($error_string);
         } else {
             // otherwise, pop smoke and bail
-            Log::error('[!] [CheckIndexHealthMFASyslog.php] no hits found for search query..');
-            die('[!] [CheckIndexHealthMFASyslog.php] no hits found for search query..'.PHP_EOL);
+            $log->error('[ERROR] no hits found for search query..');
+            die('[ERROR] no hits found for search query..'.PHP_EOL);
         }
 
-        Log::info('[***] mfa_syslog index health check command completed! [***]'.PHP_EOL);
+        $log->info('mfa_syslog index health check command completed!');
     }
 
     /**
@@ -149,7 +156,7 @@ class CheckIndexHealthMFASyslog extends Command
 
         // JSON encode post data array and append to payload=
         $json_post_data = 'payload='.\Metaclassing\Utility::encodeJson($post_data);
-        Log::info('[+] slack post data: '.$json_post_data);
+        $log->info('[+] slack post data: '.$json_post_data);
 
         // post message to Slack webhook, capture the response and dump it to file
         $response = $crawler->post($webhook_url, '', $json_post_data);
@@ -157,10 +164,10 @@ class CheckIndexHealthMFASyslog extends Command
 
         // check for an 'ok' response and log accordingly
         if ($response == 'ok') {
-            Log::info('[+] post to slack channel succeeded!');
+            $log->info('[+] post to slack channel succeeded!');
         } else {
-            Log::error('[!] post to slack channel failed!');
-            die('[!] post to slack channel failed!'.PHP_EOL);
+            $log->error('[ERROR] post to slack channel failed!');
+            die('[ERROR] post to slack channel failed!'.PHP_EOL);
         }
     }
 
@@ -190,7 +197,7 @@ class CheckIndexHealthMFASyslog extends Command
 
         // JSON encode post data array
         $json_post_data = \Metaclassing\Utility::encodeJson($post_data);
-        Log::info('[CheckIndexHealthMFASyslog.php] MS Teams post data: '.$json_post_data);
+        $log->info('MS Teams post data: '.$json_post_data);
 
         // post message to MS Teams webhook, capture response and dump it to file
         $response = $crawler->post($webhook_url, $webhook_url, $json_post_data);
@@ -198,10 +205,10 @@ class CheckIndexHealthMFASyslog extends Command
 
         // check response for errors
         if ($response == 1) {
-            Log::info('[CheckIndexHealthMFASyslog.php] post to Teams channel successful!');
+            $log->info('post to Teams channel successful!');
         } else {
-            Log::error('[!] [CheckIndexHealthMFASyslog.php] post to Teams channel failed!');
-            die('[!] [CheckIndexHealthMFASyslog.php] post to Teams channel failed!'.PHP_EOL);
+            $log->error('[ERROR] post to Teams channel failed!');
+            die('[ERROR] post to Teams channel failed!'.PHP_EOL);
         }
     }
 }

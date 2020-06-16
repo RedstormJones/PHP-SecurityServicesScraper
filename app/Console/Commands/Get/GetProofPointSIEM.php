@@ -521,7 +521,9 @@ class GetProofPointSIEM extends Command
 
                 // check for errors
                 if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                    Log::error('[!] Error sending ProofPoint SIEM API data to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+                    //Log::error('[!] Error sending ProofPoint SIEM API data to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+                    Log::error('[!] Error sending ProofPoint SIEM API data to Kafka: '.\Metaclassing\Utility::encodeJson($result));
+                    Log::error('[!] Error sending ProofPoint SIEM API data to Kafka - size of attempted message: '. mb_strlen(serialize($data), '8bit'));
                 } else {
                     //Log::info('[*] ProofPoint SIEM data successfully sent to Kafka');
                 }

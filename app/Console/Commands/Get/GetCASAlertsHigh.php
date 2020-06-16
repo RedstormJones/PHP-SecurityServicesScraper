@@ -110,7 +110,9 @@ class GetCASAlertsHigh extends Command
 
                 // add count of returned alerts to count
                 $count += count($data['data']);
-            } else {
+            } 
+            /*
+            else {
                 // if no then M$ is probably throttling us, so sleep it off
                 Log::warning('[WARN]: [CAS_ALERTS_HIGH] no data found in response: '.$data['detail']);
 
@@ -120,6 +122,7 @@ class GetCASAlertsHigh extends Command
                 Log::info('[+] [CAS_ALERTS_HIGH] sleeping it off ('.$hits[1].' sec)...');
                 sleep((float) $hits[1]);
             }
+            /**/
         } while ($has_next);
 
         $high_alerts = array_collapse($high_alerts);
