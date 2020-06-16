@@ -27,18 +27,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        /*
-         * Commands run on monthly schedule
-         */
-
-        /*
-         * Commands run on weekly-ish schedule
-         */
+        // Commands run on weekly-ish schedule
         $schedule->command('get:securitycentervulns')->weekly()->tuesdays()->at('18:00')->timezone('America/Chicago');  // runs on Tuesdays at 06:00pm
 
-        /*
-         * Commands run on daily schedule
-         */
+        // Commands run on daily schedule
         $schedule->command('get:sitesubnets')->dailyAt('09:00')->timezone('America/Chicago');               // runs daily at 09:00am
 
         $schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');               // runs daily at 08:30pm
@@ -47,28 +39,15 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:sumipvulns')->dailyAt('22:05')->timezone('America/Chicago');                // runs daily at 10:05pm
         $schedule->command('get:securitycenterassetvulns')->dailyAt('22:30')->timezone('America/Chicago');  // runs daily at 10:30pm
 
-        /*
-         * Commands run multiple times a day
-         */
+        // Commands run multiple times a day
         $schedule->command('get:sccmsystems')->twiceDaily(5, 13)->timezone('America/Chicago');              // runs twice daily at 05:00am and 01:00pm
 
-        /*
-        $schedule->command('get:cylanceapidevices')->twiceDaily(8, 10)->timezone('America/Chicago');           // runs twice daily at 08:00am and 10:00am
-        $schedule->command('get:cylanceapidevices')->twiceDaily(12, 14)->timezone('America/Chicago');          // runs twice daily at 12:00pm and 02:00pm
-        $schedule->command('get:cylanceapidevices')->twiceDaily(16, 18)->timezone('America/Chicago');          // runs twice daily at 04:00pm and 06:00pm
-        */
-
-        /*
-         * Commands run on an hourly basis
-         */
-
+        // Commands run on an hourly basis
         $schedule->command('get:nexposesites')->hourly()->timezone('America/Chicago');                                                      // runs hourly
         $schedule->command('get:graphsecurityalerts')->hourly()->timezone('America/Chicago');                                               // runs hourly
         $schedule->command('get:threatindicators')->hourly()->timezone('America/Chicago');                                                  // runs hourly
 
-        /*
-         * Commands run every five or ten minutes
-         */
+        // Commands run every five or ten minutes
         $schedule->command('check:winlogbeat')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                  // runs every ten minutes between the hours of 05:00am and 11:00pm
         $schedule->command('check:elastalert')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                  // runs every ten minutes between the hours of 05:00am and 11:00pm
         $schedule->command('check:syslog')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                      // runs every ten minutes between the hours of 05:00am and 11:00pm
@@ -78,9 +57,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('check:packetbeat')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                  // runs every ten minutes between the hours of 05:00am and 11:00pm
         $schedule->command('check:phantom')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                     // runs every ten minutes between the hours of 05:00am and 11:00pm
 
-        /*
-         * Commands run every minute
-         */
+        // Commands run every minute
         $schedule->command('get:proofpointsiem')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
 
         $schedule->command('get:casalertshigh')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
