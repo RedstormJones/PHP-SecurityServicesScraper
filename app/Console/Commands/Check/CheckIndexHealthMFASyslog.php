@@ -99,7 +99,7 @@ class CheckIndexHealthMFASyslog extends Command
             if ($last_log_timestamp->lessThanOrEqualTo($threshold_timestamp)) {
                 // POP SMOKE!
                 //$this->logToSlack($index.' has fallen 30 or more minutes behind!');
-                $this->logToMSTeams($index.' has fallen 30 or more minutes behind!');
+                $this->logToMSTeams($index.' has fallen 30 or more minutes behind!', $log);
             } else {
                 // we're good
                 Log::info('[+] '.$index.' within acceptable range');
@@ -114,7 +114,7 @@ class CheckIndexHealthMFASyslog extends Command
             // pop smoke and bail
             Log::error('[!] '.$error_string);
             //$this->logToSlack($error_string);
-            $this->logToMSTeams($error_string);
+            $this->logToMSTeams($error_string, $log);
             die($error_string);
         } else {
             // otherwise, pop smoke and bail
@@ -169,7 +169,7 @@ class CheckIndexHealthMFASyslog extends Command
      *
      * @return null
      */
-    public function logToMSTeams($message)
+    public function logToMSTeams($message, $log)
     {
         // setup crawler
         $cookiejar = storage_path('app/cookies/ms-teams-cookie.txt');
