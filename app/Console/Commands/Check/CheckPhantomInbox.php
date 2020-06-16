@@ -104,11 +104,7 @@ class CheckPhantomInbox extends Command
             // compare the last log's timestamp with the threshold timestamp
             if ($last_log_timestamp->lessThanOrEqualTo($threshold_timestamp)) {
                 // POP SMOKE!
-<<<<<<< HEAD
-                $this->logToMSTeams($log, $index.' has fallen 2 or more hours behind!');
-=======
                 $this->logToMSTeams($index.' has fallen 2 or more hours behind!', $log);
->>>>>>> 76231782e1c960c815d2baf5c367a0773c76a95f
             } else {
                 // we're good
                 $log->info(''.$index.' within acceptable range');
@@ -123,11 +119,7 @@ class CheckPhantomInbox extends Command
             // pop smoke and bail
             $log->error('[ERROR] '.$error_string);
             //$this->logToSlack($error_string);
-<<<<<<< HEAD
-            $this->logToMSTeams($log, $error_string);
-=======
             $this->logToMSTeams($error_string, $log);
->>>>>>> 76231782e1c960c815d2baf5c367a0773c76a95f
             die($error_string);
         } else {
             // otherwise, pop smoke and bail
@@ -143,11 +135,7 @@ class CheckPhantomInbox extends Command
      *
      * @return null
      */
-<<<<<<< HEAD
-    public function logToMSTeams($log, $message)
-=======
     public function logToMSTeams($message, $log)
->>>>>>> 76231782e1c960c815d2baf5c367a0773c76a95f
     {
         // setup crawler
         $cookiejar = storage_path('app/cookies/ms-teams-cookie.txt');
