@@ -57,9 +57,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('check:packetbeat')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                  // runs every ten minutes between the hours of 05:00am and 11:00pm
         $schedule->command('check:phantom')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                     // runs every ten minutes between the hours of 05:00am and 11:00pm
 
-        // Commands run every minute
-        $schedule->command('get:proofpointsiem')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
+        $schedule->command('get:proofpointsiem')->everyTenMinutes()->timezone('America/Chicago');
 
+        // Commands run every minute
         $schedule->command('get:casalertshigh')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
         $schedule->command('get:casalertsmedium')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
         $schedule->command('get:casalertslow')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
