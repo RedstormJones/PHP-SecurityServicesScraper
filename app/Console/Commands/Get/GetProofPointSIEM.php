@@ -4,6 +4,7 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
