@@ -46,6 +46,8 @@ class GetProofPointSIEM extends Command
 
         Log::info(PHP_EOL.PHP_EOL.'*************************************'.PHP_EOL.'* Starting ProofPoint SIEM command! *'.PHP_EOL.'*************************************');
 
+        $date = Carbon::now()->toDateString();
+
         // setup cookie file and instantiate crawler
         $cookiejar = storage_path('app/cookies/proofpointcookie.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
@@ -511,6 +513,9 @@ class GetProofPointSIEM extends Command
             $producer = new \Kafka\Producer();
 
             foreach ($siem_data as $data) {
+                $data_json = \Metaclassing\Utility::encodeJson($data);
+                file_put_contents(storage_path('app/output/'.$date.'-proofpoint-siem.log'), $data_json, FILE_APPEND);
+
                 // send data to Kafka
                 $result = $producer->send([
                     [
