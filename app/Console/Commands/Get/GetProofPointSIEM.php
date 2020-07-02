@@ -247,18 +247,20 @@ class GetProofPointSIEM extends Command
                                 $error = $e->getMessage();
                             }
 
-                            // build forensic reports array
-                            foreach ($response['reports'] as $report) {
-                                // add forensic reports to forensic_reports array
-                                $forensic_reports[] = [
-                                    'threat_id'     => $threat_info['threatID'],
-                                    'report_id'     => $report['id'],
-                                    'report_name'   => $report['name'],
-                                    'report_scope'  => $report['scope'],
-                                    //'report_type'   => $report['type'],
-                                    'threat_status' => $report['threatStatus'],
-                                    'forensics'     => $report['forensics'],
-                                ];
+                            if (count($response['reports'])){
+                                // build forensic reports array
+                                foreach ($response['reports'] as $report) {
+                                    // add forensic reports to forensic_reports array
+                                    $forensic_reports[] = [
+                                        'threat_id'     => $threat_info['threatID'],
+                                        'report_id'     => $report['id'],
+                                        'report_name'   => $report['name'],
+                                        'report_scope'  => $report['scope'],
+                                        //'report_type'   => $report['type'],
+                                        'threat_status' => $report['threatStatus'],
+                                        'forensics'     => $report['forensics'],
+                                    ];
+                                }
                             }
 
                             // build threats_info array
