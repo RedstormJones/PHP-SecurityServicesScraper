@@ -56,8 +56,8 @@ class GetNexposeSites extends Command
         $nexpose_url = getenv('NEXPOSE_URL2');
 
         // get creds and build auth string
-        $username = getenv('NEXPOSE_USERNAME2');
-        $password = getenv('NEXPOSE_PASSWORD2');
+        $username = getenv('NEXPOSE_USERNAME');
+        $password = getenv('NEXPOSE_PASSWORD');
 
         $auth_str = base64_encode($username.':'.$password);
 
