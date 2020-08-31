@@ -4,6 +4,7 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -41,6 +42,8 @@ class GetPhishLabsThreatIndicators extends Command
     public function handle()
     {
         Log::info('[GetPhishLabsThreatIndicators.php] Starting API Poll!');
+
+        $date = Carbon::now()->toDateString();
 
         // setup cookie jar
         $cookiejar = storage_path('app/cookies/phishlabs.txt');
@@ -161,6 +164,9 @@ class GetPhishLabsThreatIndicators extends Command
         $producer = new \Kafka\Producer();
 
         foreach ($indicators_collection as $data) {
+            $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
+            file_put_contents(storage_path('app/output/phishlabs/'.$date.'-phishlabs-threat-indicators.log'), $data_json, FILE_APPEND);
+
             // send data to Kafka
             $result = $producer->send([
                 [
