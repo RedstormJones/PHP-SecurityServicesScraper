@@ -67,7 +67,7 @@ class GetPhishLabsIncidents extends Command
         $url_params = [
             'created_after' => $date_str,
             'direction'     => 'asc',
-            'sort'          => 'created_after',
+            'sort'          => 'created_at',
         ];
         $url_params_str = $this->postArrayToString($url_params);
 
