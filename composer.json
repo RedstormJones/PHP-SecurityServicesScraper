@@ -23,7 +23,8 @@
         "nesbot/carbon": "~1.21",
         "phpreboot/stopwatch": "^1.0",
         "nmred/kafka-php": "0.2.*",
-        "microsoft/microsoft-graph": "dev-master"
+        "microsoft/microsoft-graph": "dev-master",
+        "akamai-open/edgegrid-client": "dev-master"
     },
     "minimum-stability": "dev",
     "require-dev": {
