@@ -43,10 +43,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:sccmsystems')->twiceDaily(5, 13)->timezone('America/Chicago');              // runs twice daily at 05:00am and 01:00pm
 
         // Commands run on an hourly basis
-        $schedule->command('get:nexposesites')->hourly()->timezone('America/Chicago');                                                      // runs hourly
-        $schedule->command('get:graphsecurityalerts')->hourly()->timezone('America/Chicago');                                               // runs hourly
-        $schedule->command('get:threatindicators')->hourly()->timezone('America/Chicago');                                                  // runs hourly
-        $schedule->command('get:phishlabsincidents')->hourly()->timezone('America/Chicago');                                                  // runs hourly
+        $schedule->command('get:nexposesites')->hourly()->timezone('America/Chicago');                      // runs hourly
+        $schedule->command('get:graphsecurityalerts')->hourly()->timezone('America/Chicago');               // runs hourly
+        $schedule->command('get:threatindicators')->hourly()->timezone('America/Chicago');                  // runs hourly
+        $schedule->command('get:phishlabsincidents')->hourly()->timezone('America/Chicago');                // runs hourly
+        $schedule->command('get:newdomains')->hourly()->timezone('America/Chicago');                        // runs hourly
 
         // Commands run every five or ten minutes
         $schedule->command('check:winlogbeat')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                  // runs every ten minutes between the hours of 05:00am and 11:00pm
