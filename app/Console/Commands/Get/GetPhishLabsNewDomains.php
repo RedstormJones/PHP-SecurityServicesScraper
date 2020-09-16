@@ -44,10 +44,14 @@ class GetPhishLabsNewDomains extends Command
         Log::info('[GetPhishLabsNewDomains.php] Starting PhishLabs New Domains API Poll!');
 
         // calculate time ranges for URL parameters
-        $sub_hours = 6;
+        $sub_hours = 1;
+        $from_date = Carbon::now()->subHours($sub_hours);
+        $to_date = Carbon::now()->toDateTimeString();
+        $from_date_short = substr($from_date->toDateTimeString(), 0, -3);
+        $to_date_short = substr($to_date, 0, -3);
+
+        // setup date string for output filename
         $output_date = Carbon::now()->toDateString();
-        $from_date = substr(Carbon::now()->subHours($sub_hours)->toDateTimeString(), 0, -3);
-        $to_date = substr(Carbon::now()->toDateTimeString(), 0, -3);
 
         // setup cookie jar for crawler
         $cookiejar = storage_path('app/cookies/phishlabs_new_domains.txt');
@@ -61,16 +65,16 @@ class GetPhishLabsNewDomains extends Command
         // setup URL parameters
         $url_params = [
             'custid'    => $phishlabs_cust_id,
-            'fromdate'  => $from_date,
-            'todate'    => $to_date,
+            'fromdate'  => $from_date_short,
+            'todate'    => $to_date_short,
             'grpcatid'  => 7,
         ];
         $url_params_str = $this->postArrayToString($url_params);
 
+        // build the new domains URI and replace any spaces with %20
         $phishlabs_new_domains_uri = getenv('PHISHLABS_FEED_URL').$url_params_str;
         $phishlabs_new_domains_uri = str_replace(' ', '%20', $phishlabs_new_domains_uri);
         Log::info('[GetPhishLabsNewDomains.php] new domains url: '.$phishlabs_new_domains_uri);
-        //echo 'new domains url: '.$phishlabs_new_domains_uri.PHP_EOL;
 
         try {
             // send GET request, capture and dump response to file
@@ -79,8 +83,7 @@ class GetPhishLabsNewDomains extends Command
 
             // JSON decode response and log response count
             $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info('[GetPhishLabsNewDomains.php] count of new domains found in last '.$sub_hours.' hour(s): '.count($response));
-            //echo 'count of new domains found in last '.$sub_hours.' hour(s): '.count($response).PHP_EOL;
+            Log::info('[GetPhishLabsNewDomains.php] count of domains found/modified in last '.$sub_hours.' hour(s): '.count($response));
 
         } catch (\Exception $e) {
             // pop smoke and bail
@@ -90,19 +93,21 @@ class GetPhishLabsNewDomains extends Command
 
         // cycle through the new domains, JSON encode with newline and append to output file
         foreach ($response as $new_domain) {
-            $incident_id = $new_domain['Infrid'];
-            $incident_status = $new_domain['Ticketstatus'];
+            // get domain from log
             $target_domain = $new_domain['Domain'];
-            $severity = $new_domain['Severityname'];
-            $mx_record = $new_domain['Mxrecord'];
-            $current_stance = $new_domain['Status'];
+
+            // use the create date to build a Carbon datetime object
             $created_date = $new_domain['Createdate'];
+            $created_date = Carbon::createFromFormat('!Y-n-j\TG:i:s', $created_date, NULL);
 
-            Log::info('[GetPhishLabsNewDomains.php] '.$created_date.' | '.$incident_id.' | '.$target_domain.' | '.$current_stance);
-            //echo $created_date.' - '.$incident_id.' ['.$incident_status.'] '.$target_domain.PHP_EOL;
+            // if create date is GTE to from date then this incident is new so log it
+            if ($created_date->gte($from_date)) {
+                Log::info('[GetPhishLabsNewDomains.php] New domain found! '.$target_domain);
 
-            $new_domain_json = \Metaclassing\Utility::encodeJson($new_domain)."\n";
-            file_put_contents(storage_path('app/output/phishlabs_new_domains/'.$output_date.'-phishlabs-new-domains.log'), $new_domain_json, FILE_APPEND);
+                // JSON encode and append to file
+                $new_domain_json = \Metaclassing\Utility::encodeJson($new_domain)."\n";
+                file_put_contents(storage_path('app/output/phishlabs_new_domains/'.$output_date.'-phishlabs-new-domains.log'), $new_domain_json, FILE_APPEND);
+            }
         }
 
         Log::info('[GetPhishLabsThreatIndicators.php] DONE!');
