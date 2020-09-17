@@ -44,7 +44,7 @@ class GetPhishLabsNewDomains extends Command
         Log::info('[GetPhishLabsNewDomains.php] Starting PhishLabs New Domains API Poll!');
 
         // calculate time ranges for URL parameters
-        $sub_hours = 1;
+        $sub_hours = 72;
         $from_date = Carbon::now()->subHours($sub_hours);
         $to_date = Carbon::now()->toDateTimeString();
         $from_date_short = substr($from_date->toDateTimeString(), 0, -3);
@@ -83,13 +83,14 @@ class GetPhishLabsNewDomains extends Command
 
             // JSON decode response and log response count
             $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info('[GetPhishLabsNewDomains.php] count of domains found/modified in last '.$sub_hours.' hour(s): '.count($response));
 
         } catch (\Exception $e) {
             // pop smoke and bail
             Log::error('[GetPhishLabsNewDomain.php] ERROR: '.$e);
             die($e);
         }
+
+        $new_domains_collection = [];
 
         // cycle through the new domains, JSON encode with newline and append to output file
         foreach ($response as $new_domain) {
@@ -104,12 +105,16 @@ class GetPhishLabsNewDomains extends Command
             if ($created_date->gte($from_date)) {
                 Log::info('[GetPhishLabsNewDomains.php] New domain found! '.$target_domain);
 
+                // add new domain to new domains collection
+                $new_domains_collection[] = $new_domain;
+
                 // JSON encode and append to file
                 $new_domain_json = \Metaclassing\Utility::encodeJson($new_domain)."\n";
                 file_put_contents(storage_path('app/output/phishlabs_new_domains/'.$output_date.'-phishlabs-new-domains.log'), $new_domain_json, FILE_APPEND);
             }
         }
 
+        Log::info('[GetPhishLabsNewDomains.php] count of domains found/modified in last '.$sub_hours.' hour(s): '.count($new_domains_collection));
         Log::info('[GetPhishLabsThreatIndicators.php] DONE!');
     }
 
