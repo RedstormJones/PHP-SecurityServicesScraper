@@ -114,7 +114,7 @@ class GetPhishLabsNewDomains extends Command
         }
 
         Log::info('[GetPhishLabsNewDomains.php] count of new domains found in last '.$sub_hours.' hour(s): '.count($new_domains_collection));
-        Log::info('[GetPhishLabsThreatIndicators.php] DONE!');
+        Log::info('[GetPhishLabsNewDomains.php] DONE!');
     }
 
     /**
