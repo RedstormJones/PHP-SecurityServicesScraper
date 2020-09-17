@@ -74,7 +74,6 @@ class GetPhishLabsNewDomains extends Command
         // build the new domains URI and replace any spaces with %20
         $phishlabs_new_domains_uri = getenv('PHISHLABS_FEED_URL').$url_params_str;
         $phishlabs_new_domains_uri = str_replace(' ', '%20', $phishlabs_new_domains_uri);
-        Log::info('[GetPhishLabsNewDomains.php] new domains url: '.$phishlabs_new_domains_uri);
 
         try {
             // send GET request, capture and dump response to file
@@ -114,7 +113,7 @@ class GetPhishLabsNewDomains extends Command
             }
         }
 
-        Log::info('[GetPhishLabsNewDomains.php] count of domains found/modified in last '.$sub_hours.' hour(s): '.count($new_domains_collection));
+        Log::info('[GetPhishLabsNewDomains.php] count of new domains found in last '.$sub_hours.' hour(s): '.count($new_domains_collection));
         Log::info('[GetPhishLabsThreatIndicators.php] DONE!');
     }
 
