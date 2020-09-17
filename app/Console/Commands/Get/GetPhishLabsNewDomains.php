@@ -44,7 +44,7 @@ class GetPhishLabsNewDomains extends Command
         Log::info('[GetPhishLabsNewDomains.php] Starting PhishLabs New Domains API Poll!');
 
         // calculate time ranges for URL parameters
-        $sub_hours = 72;
+        $sub_hours = 1;
         $from_date = Carbon::now()->subHours($sub_hours);
         $to_date = Carbon::now()->toDateTimeString();
         $from_date_short = substr($from_date->toDateTimeString(), 0, -3);
