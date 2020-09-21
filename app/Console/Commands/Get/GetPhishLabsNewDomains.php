@@ -49,6 +49,8 @@ class GetPhishLabsNewDomains extends Command
         $to_date = Carbon::now()->toDateTimeString();
         $from_date_short = substr($from_date->toDateTimeString(), 0, -3);
         $to_date_short = substr($to_date, 0, -3);
+        Log::info('[GetPhishLabsNewDomains.php] from date short: '.$from_date_short);
+        Log::info('[GetPhishLabsNewDomains.php] to date short: '.$to_date_short);
 
         // setup date string for output filename
         $output_date = Carbon::now()->toDateString();
@@ -99,6 +101,7 @@ class GetPhishLabsNewDomains extends Command
             // use the create date to build a Carbon datetime object
             $created_date = $new_domain['Createdate'];
             $created_date = Carbon::createFromFormat('!Y-n-j\TG:i:s', $created_date, NULL);
+            Log::info('[GetPhishLabsNewDomains.php] created date for domain '.$target_domain.': '.$created_date);
 
             // if create date is GTE to from date then this incident is new so log it
             if ($created_date->gte($from_date)) {
