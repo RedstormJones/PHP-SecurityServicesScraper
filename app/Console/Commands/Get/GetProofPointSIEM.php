@@ -45,7 +45,7 @@ class GetProofPointSIEM extends Command
          * [1] Get ProofPoint SIEM data *
          ********************************/
 
-        Log::info(PHP_EOL.PHP_EOL.'*************************************'.PHP_EOL.'* Starting ProofPoint SIEM command! *'.PHP_EOL.'*************************************');
+        Log::info('[GetProofPointSIEM.php] Starting ProofPoint SIEM API Poll!');
 
         $date = Carbon::now()->toDateString();
 
@@ -85,8 +85,8 @@ class GetProofPointSIEM extends Command
 
             // if we didn't get any data then just die
             if (count($messages_delivered) === 0 and count($messages_blocked) === 0 and count($clicks_permitted) === 0 and count($clicks_blocked) === 0) {
-                Log::info('[-] no new data retrieved from ProofPoint - terminating execution');
-                die('[-] no new data retrieved from ProofPoint - terminating execution...'.PHP_EOL);
+                Log::info('[GetProofPointSIEM.php] no new data retrieved from ProofPoint - terminating execution');
+                die('[GetProofPointSIEM.php] no new data retrieved from ProofPoint - terminating execution...'.PHP_EOL);
             }
 
             // final data collection array
@@ -530,17 +530,17 @@ class GetProofPointSIEM extends Command
                 // check for errors
                 if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
                     //Log::error('[!] Error sending ProofPoint SIEM API data to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
-                    Log::error('[!] Error sending ProofPoint SIEM API data to Kafka: '.\Metaclassing\Utility::encodeJson($result));
-                    Log::error('[!] Error sending ProofPoint SIEM API data to Kafka - size of attempted message: '. mb_strlen(serialize($data), '8bit'));
+                    Log::error('[GetProofPointSIEM.php] ERROR sending ProofPoint SIEM API data to Kafka: '.\Metaclassing\Utility::encodeJson($result));
+                    Log::error('[GetProofPointSIEM.php] ERROR sending ProofPoint SIEM API data to Kafka - size of attempted message: '. mb_strlen(serialize($data), '8bit'));
                 } else {
-                    //Log::info('[*] ProofPoint SIEM data successfully sent to Kafka');
+                    //Log::info('[GetProofPointSIEM.php] ProofPoint SIEM data successfully sent to Kafka');
                 }
             }
         } else {
             // otherwise pop smoke and bail
-            Log::info('[-] no data returned from ProofPoint SIEM API...');
+            Log::info('[GetProofPointSIEM.php] no data returned from ProofPoint SIEM API...');
         }
 
-        Log::info('[*] ProofPoint SIEM command completed! [*]'.PHP_EOL);
+        Log::info('[GetProofPointSIEM.php] ProofPoint SIEM command completed!'.PHP_EOL);
     }
 }
