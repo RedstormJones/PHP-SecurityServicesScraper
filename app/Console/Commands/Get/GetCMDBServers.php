@@ -45,7 +45,7 @@ class GetCMDBServers extends Command
          * [1] Get all CMDB servers *
          ****************************/
 
-        Log::info(PHP_EOL.PHP_EOL.'**********************************'.PHP_EOL.'* Starting CMDB servers crawler! *'.PHP_EOL.'**********************************');
+        Log::info('[GetCMDBServers.php] Starting ServiceNow API Poll!');
 
         // setup cookiejar
         $cookiejar = storage_path('app/cookies/snow_cookie.txt');
@@ -75,7 +75,7 @@ class GetCMDBServers extends Command
 
         // get the data we care about and log how many records we got
         $servers = $response['result'];
-        Log::info('total server count: '.count($servers));
+        Log::info('[GetCMDBServers.php] total server count: '.count($servers));
 
         $cmdb_servers = [];
 
@@ -310,47 +310,13 @@ class GetCMDBServers extends Command
 
             // check for and log errors
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+                Log::error('[GetCMDBServers.php] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
-                Log::info('[*] Data successfully sent to Kafka: '.$server['name']);
+                Log::info('[GetCMDBServers.php] Data successfully sent to Kafka: '.$server['name']);
             }
         }
 
-        /*
-            $cookiejar = storage_path('app/cookies/elasticsearch_cookie.txt');
-            $crawler = new \Crawler\Crawler($cookiejar);
-
-            $headers = [
-                'Content-Type: application/json',
-            ];
-
-            // setup curl HTTP headers with $headers
-            curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
-
-            foreach ($cmdb_servers as $server) {
-                $url = 'http://10.243.32.36:9200/cmdb_servers/cmdb_servers/'.$server['sys_id'];
-                Log::info('HTTP Post to elasticsearch: '.$url);
-
-                $post = [
-                    'doc'           => $server,
-                    'doc_as_upsert' => true,
-                ];
-
-                $json_response = $crawler->post($url, '', \Metaclassing\Utility::encodeJson($post));
-
-                $response = \Metaclassing\Utility::decodeJson($json_response);
-                Log::info($response);
-
-                if (!array_key_exists('error', $response) && $response['_shards']['failed'] == 0) {
-                    Log::info('CMDB server was successfully inserted into ES: '.$server['name']);
-                } else {
-                    Log::error('Something went wrong inserting CMDB server: '.$server['name']);
-                    die('Something went wrong inserting CMDB server: '.$server['name'].PHP_EOL);
-                }
-            }
-        */
-
-        Log::info('* CMDB servers completed! *'.PHP_EOL);
+        Log::info('[GetCMDBServers.php] CMDB servers completed! *'.PHP_EOL);
     }
 
     /**
