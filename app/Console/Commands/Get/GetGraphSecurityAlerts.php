@@ -41,7 +41,7 @@ class GetGraphSecurityAlerts extends Command
      */
     public function handle()
     {
-        Log::info(PHP_EOL.PHP_EOL.'*******************************************'.PHP_EOL.'* Starting Graph Security Alerts command! *'.PHP_EOL.'*******************************************');
+        Log::info('[GetGraphSecurityAlerts.php] Starting MS Graph Security Alerts API Poll!');
 
         // setup cookiejar
         $cookiejar = storage_path('app/cookies/mgsa_cookie.txt');
@@ -62,7 +62,7 @@ class GetGraphSecurityAlerts extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // setup post data
-        Log::info('[+] setting up post data for new refresh token...');
+        Log::info('[GetGraphSecurityAlerts.php] setting up post data for new refresh token...');
         $post_data = [
             'client_id'     => $client_id,
             'client_secret' => $client_secret,
@@ -82,7 +82,7 @@ class GetGraphSecurityAlerts extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         // post for access and refresh tokens and dump to file
-        Log::info('[+] posting for new access and refresh tokens...');
+        Log::info('[GetGraphSecurityAlerts.php] posting for new access and refresh tokens...');
         $json_response = $crawler->post($token_endpoint, '', $post_data);
         file_put_contents(storage_path('app/responses/mgsa_refresh_token_response.json'), $json_response);
 
@@ -90,17 +90,17 @@ class GetGraphSecurityAlerts extends Command
             // get access token from response
             $response = \Metaclassing\Utility::decodeJson($json_response);
             $access_token = $response['access_token'];
-            Log::info('[+] got access token...');
+            Log::info('[GetGraphSecurityAlerts.php] got access token...');
 
             // get refresh token from response and dump to file
             if (array_key_exists('refresh_token', $response)) {
                 $refresh_token = $response['refresh_token'];
-                Log::info('[+] writing new refresh token to file...');
+                Log::info('[GetGraphSecurityAlerts.php] writing new refresh token to file...');
                 file_put_contents(storage_path('app/responses/mgsa_refresh_token.txt'), $refresh_token);
             }
         } catch (\Exception $e) {
-            Log::error('[!] failed to get access token: '.$e->getMessage());
-            die('[!] failed to get access token: '.$e->getMessage().PHP_EOL);
+            Log::error('[GetGraphSecurityAlerts.php] ERROR failed to get access token: '.$e->getMessage());
+            die('[GetGraphSecurityAlerts.php] ERROR failed to get access token: '.$e->getMessage().PHP_EOL);
         }
 
         // instantiate new crawler
@@ -120,7 +120,7 @@ class GetGraphSecurityAlerts extends Command
         $collection = [];
         $page_count = 1;
 
-        Log::info('[+] querying MS graph security api for list of alerts...');
+        Log::info('[GetGraphSecurityAlerts.php] querying MS graph security api for list of alerts...');
 
         // query MS graph security API for alerts, using the value of nextLink to determine whether we loop or terminate
         do {
@@ -134,10 +134,10 @@ class GetGraphSecurityAlerts extends Command
 
                 // add response values to collection and log alert count for current page
                 $collection[] = $response['value'];
-                Log::info('[+] received ['.count($response['value']).'] MS Graph Security alerts from page '.$page_count);
+                Log::info('[GetGraphSecurityAlerts.php] received '.count($response['value']).' MS Graph Security alerts from page '.$page_count);
             } catch (\Exception $e) {
-                Log::error('[!] failed to decode JSON response: '.$e->getMessage());
-                die('[!] failed to decode JSON response: '.$e->getMessage().PHP_EOL);
+                Log::error('[GetGraphSecurityAlerts.php] ERROR failed to decode JSON response: '.$e->getMessage());
+                die('[GetGraphSecurityAlerts.php] ERROR failed to decode JSON response: '.$e->getMessage().PHP_EOL);
             }
 
             // check for next link and set accordingly
@@ -165,10 +165,10 @@ class GetGraphSecurityAlerts extends Command
         }
 
         // log total count of collected graph security alerts and dump alerts to file
-        Log::info('[+] collected ['.count($mgsa_alerts).'] MS graph security alerts');
+        Log::info('[GetGraphSecurityAlerts.php] collected '.count($mgsa_alerts).' MS graph security alerts');
         file_put_contents(storage_path('app/collections/mgsa_alerts.json'), \Metaclassing\Utility::encodeJson($mgsa_alerts));
 
-        Log::info('[+] sending ['.count($mgsa_alerts).'] graph security alerts to kafka...');
+        Log::info('[GetGraphSecurityAlerts.php] sending '.count($mgsa_alerts).' graph security alerts to kafka...');
 
         // instantiate a Kafka producer config and set the broker IP
         $config = \Kafka\ProducerConfig::getInstance();
@@ -192,11 +192,11 @@ class GetGraphSecurityAlerts extends Command
 
             // check for and log errors
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+                Log::error('[GetGraphSecurityAlerts.php] ERROR sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             }
         }
 
-        Log::info('[***] Graph Security Alerts command completed! [***]'.PHP_EOL);
+        Log::info('[GetGraphSecurityAlerts.php] MS Graph Security Alerts completed!'.PHP_EOL);
     }
 
     /**

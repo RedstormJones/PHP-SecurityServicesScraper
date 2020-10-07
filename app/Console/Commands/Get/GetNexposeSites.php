@@ -41,7 +41,7 @@ class GetNexposeSites extends Command
      */
     public function handle()
     {
-        Log::info(PHP_EOL.PHP_EOL.'**********************************'.PHP_EOL.'* Starting Nexpose Site crawler! *'.PHP_EOL.'**********************************');
+        Log::info('[GetNexposeSites.php] Starting Nexpose Sites API Poll!');
 
         // response path
         $response_path = storage_path('app/responses/');
@@ -74,17 +74,17 @@ class GetNexposeSites extends Command
         $url = $nexpose_url.'/sites?size=500';
 
         // capture JSON response and dump to file
-        Log::info('[+] sending GET request to: '.$url);
+        Log::info('[GetNexposeSites.php] sending GET request to: '.$url);
         $json_response = $crawler->get($url);
         file_put_contents($response_path.'nexpose_sites.json', $json_response);
 
         try {
             // attempt to JSON decode response
             $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info('[+] collected ['.count($response['resources']).'] sites from Nexpose...');
+            Log::info('[GetNexposeSites.php] collected '.count($response['resources']).' sites from Nexpose...');
         } catch (\Exception $e) {
-            Log::error('[!] failed to decode JSON response: '.$e->getMessage());
-            die('[!] failed to decode JSON response: '.$e->getMessage().PHP_EOL);
+            Log::error('[GetNexposeSites.php] ERROR failed to decode JSON response: '.$e->getMessage());
+            die('[GetNexposeSites.php] ERROR failed to decode JSON response: '.$e->getMessage().PHP_EOL);
         }
         // instantiate sites array
         $sites_array = [];
@@ -120,7 +120,7 @@ class GetNexposeSites extends Command
 
         file_put_contents(storage_path('app/collections/nexpose-sites.json'), \Metaclassing\Utility::encodeJson($sites_array));
 
-        Log::info('[+] sending ['.count($sites_array).'] nexpose sites to kafka...');
+        Log::info('[GetNexposeSites.php] sending '.count($sites_array).' nexpose sites to kafka...');
 
         // instantiate a Kafka producer config and set the broker IP
         $config = \Kafka\ProducerConfig::getInstance();
@@ -143,10 +143,10 @@ class GetNexposeSites extends Command
 
             // check for and log errors
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+                Log::error('[GetNexposeSites.php] ERROR sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             }
         }
 
-        Log::info('[+] *** Nexpose sites completed! ***');
+        Log::info('[GetNexposeSites.php] Nexpose Sites completed!');
     }
 }
