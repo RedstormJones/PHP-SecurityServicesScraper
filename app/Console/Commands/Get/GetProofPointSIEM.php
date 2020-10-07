@@ -87,6 +87,12 @@ class GetProofPointSIEM extends Command
             if (count($messages_delivered) === 0 and count($messages_blocked) === 0 and count($clicks_permitted) === 0 and count($clicks_blocked) === 0) {
                 Log::info('[GetProofPointSIEM.php] no new data retrieved from ProofPoint - terminating execution');
                 die('[GetProofPointSIEM.php] no new data retrieved from ProofPoint - terminating execution...'.PHP_EOL);
+            } else {
+                // log counts for each type
+                Log::info('[GetProofPointSIEM.php] count of messages delivered: '.count($messages_delivered));
+                Log::info('[GetProofPointSIEM.php] count of messages blocked: '.count($messages_blocked));
+                Log::info('[GetProofPointSIEM.php] count of clicks permitted: '.count($clicks_permitted));
+                Log::info('[GetProofPointSIEM.php] count of clicks blocked: '.count($clicks_blocked));
             }
 
             // final data collection array
