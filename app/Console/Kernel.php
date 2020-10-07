@@ -40,7 +40,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command('get:securitycenterassetvulns')->dailyAt('22:30')->timezone('America/Chicago');  // runs daily at 10:30pm
 
         // Commands run multiple times a day
-        $schedule->command('get:sccmsystems')->twiceDaily(5, 13)->timezone('America/Chicago');              // runs twice daily at 05:00am and 01:00pm
+        //$schedule->command('get:sccmsystems')->twiceDaily(5, 13)->timezone('America/Chicago');              // runs twice daily at 05:00am and 01:00pm
 
         // Commands run on an hourly basis
         $schedule->command('get:nexposesites')->hourly()->timezone('America/Chicago');                      // runs hourly
