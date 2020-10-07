@@ -41,7 +41,7 @@ class GetCASAlertsHigh extends Command
      */
     public function handle()
     {
-        Log::info(PHP_EOL.PHP_EOL.'***********************************'.PHP_EOL.'* Starting CAS High Alerts Query! *'.PHP_EOL.'***********************************');
+        Log::info('[GetCASAlertsHigh.php] Starting MCAS High Alerts API Poll!');
 
         // setup file to hold cookie
         $cookiejar = storage_path('app/cookies/cas_cookie.txt');
@@ -70,8 +70,8 @@ class GetCASAlertsHigh extends Command
         $alert_threshold = $now_minus_10->timestamp;
         $alert_threshold_ms = $alert_threshold * 1000;
 
-        Log::info('[+] current timestamp: '.$current_timestamp);
-        Log::info('[+] alert datetime threshold (ms): '.$alert_threshold_ms);
+        Log::info('[GetCASAlertsHigh.php] current timestamp: '.$current_timestamp);
+        Log::info('[GetCASAlertsHigh.php] alert datetime threshold (ms): '.$alert_threshold_ms);
 
         do {
             // setup post data
@@ -190,7 +190,7 @@ class GetCASAlertsHigh extends Command
         // instantiate new Kafka producer
         $producer = new \Kafka\Producer();
 
-        Log::info('[+] [CAS_ALERTS_HIGH] sending ['.count($alerts).'] CAS high alerts to Kafka...');
+        Log::info('[GetCASAlertsHigh.php] sending '.count($alerts).' CAS high alerts to Kafka...');
 
         // cycle through Cylance devices
         foreach ($alerts as $alert) {
@@ -207,12 +207,12 @@ class GetCASAlertsHigh extends Command
 
             // check for and log errors
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                Log::error('[!] [CAS_ALERTS_HIGH] Error sending CAS high alert to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+                Log::error('[GetCASAlertsHigh.php] Error sending CAS high alert to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             } else {
-                //Log::info('[+] CAS high alert successfully sent to Kafka: '.$alert['alert_id']);
+                //Log::info('[GetCASAlertsHigh.php] CAS high alert successfully sent to Kafka: '.$alert['alert_id']);
             }
         }
 
-        Log::info('* [CAS_ALERTS_HIGH] CAS high alerts completed! *'.PHP_EOL);
+        Log::info('[GetCASAlertsHigh.php] MCAS High Alerts Completed! '.PHP_EOL);
     }
 }

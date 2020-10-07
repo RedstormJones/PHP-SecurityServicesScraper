@@ -316,7 +316,7 @@ class GetCMDBServers extends Command
             }
         }
 
-        Log::info('[GetCMDBServers.php] CMDB servers completed! *'.PHP_EOL);
+        Log::info('[GetCMDBServers.php] CMDB servers completed!'.PHP_EOL);
     }
 
     /**
