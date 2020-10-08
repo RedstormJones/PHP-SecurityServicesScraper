@@ -138,25 +138,28 @@ class GetProofPointSIEM extends Command
                             try {
                                 $response = \Metaclassing\Utility::decodeJson($json_response);
                                 $error = 'No errors detected';
+
+                                if (array_key_exists('reports', $response)) {
+                                    // build forensic reports array
+                                    foreach ($response['reports'] as $report) {
+                                        // add forensic reports to forensic_reports array
+                                        $forensic_reports[] = [
+                                            'threat_id'     => $threat_info['threatID'],
+                                            'report_id'     => $report['id'],
+                                            'report_name'   => $report['name'],
+                                            'report_scope'  => $report['scope'],
+                                            //'report_type'   => $report['type'],
+                                            'threat_status' => $report['threatStatus'],
+                                            'forensics'     => $report['forensics'],
+                                        ];
+                                    }
+                                }
                             } catch (\Exception $e) {
                                 $response = null;
                                 $error = $e->getMessage();
                             }
 
-                            // build forensic reports array
-                            foreach ($response['reports'] as $report) {
-                                // add forensic reports to forensic_reports array
-                                $forensic_reports[] = [
-                                    'threat_id'     => $threat_info['threatID'],
-                                    'report_id'     => $report['id'],
-                                    'report_name'   => $report['name'],
-                                    'report_scope'  => $report['scope'],
-                                    //'report_type'   => $report['type'],
-                                    'threat_status' => $report['threatStatus'],
-                                    'forensics'     => $report['forensics'],
-                                ];
-                            }
-
+                            
                             // build threats_info array
                             $threats_info[] = [
                                 'threat_type'       => $threat_info['threatType'],
