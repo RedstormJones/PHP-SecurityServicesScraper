@@ -44,7 +44,7 @@ class GetPhishLabsNewDomains extends Command
         Log::info('[GetPhishLabsNewDomains.php] Starting PhishLabs New Domains API Poll!');
 
         // calculate time ranges for URL parameters
-        $sub_hours = 4;
+        $sub_hours = 24;
         $from_date = Carbon::now()->subHours($sub_hours);
         $to_date = Carbon::now()->toDateTimeString();
         $from_date_short = substr($from_date->toDateTimeString(), 0, -3);
@@ -91,7 +91,12 @@ class GetPhishLabsNewDomains extends Command
             die($e);
         }
 
+        // setup collection array
         $new_domains_collection = [];
+
+        // format from date for comparison with create dates later on
+        $from_date = str_replace(' ', 'T', $from_date->toDateTimeString());
+        Log::info('[GetPhishLabsNewDomains.php] formatted from date: '.$from_date);
 
         // cycle through the new domains, JSON encode with newline and append to output file
         foreach ($response as $new_domain) {
@@ -101,12 +106,10 @@ class GetPhishLabsNewDomains extends Command
             // use the create date to build a Carbon datetime object
             $created_date = $new_domain['Createdate'];
             $created_date = Carbon::createFromFormat('!Y-n-j\TG:i:s', $created_date, NULL);
-            //Log::info('[GetPhishLabsNewDomains.php] created date for domain '.$target_domain.': '.$created_date);
 
             // if create date is GTE to from date then this incident is new so log it
             if ($created_date->gte($from_date)) {
                 Log::info('[GetPhishLabsNewDomains.php] New domain found '.$target_domain.' - created date '.$created_date);
-                
 
                 // add new domain to new domains collection
                 $new_domains_collection[] = $new_domain;
