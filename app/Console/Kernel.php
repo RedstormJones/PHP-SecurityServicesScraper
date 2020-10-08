@@ -31,13 +31,13 @@ class Kernel extends ConsoleKernel
         //$schedule->command('get:sitesubnets')->dailyAt('09:00')->timezone('America/Chicago');             // runs daily at 09:00am
         //$schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');             // runs daily at 08:30pm
 
-        $schedule->command('get:newdomains')->daily()->timezone('America/Chicago');                         // runs daily at midnight
-        //$schedule->command('get:newdomains')->cron('0 */4 * * *')->timezone('America/Chicago');             // runs every 4 hours
+        //$schedule->command('get:newdomains')->daily()->timezone('America/Chicago');                         // runs daily at midnight
 
         // Commands run multiple times a day
         //$schedule->command('get:sccmsystems')->twiceDaily(5, 13)->timezone('America/Chicago');              // runs twice daily at 05:00am and 01:00pm
 
         // Commands run on an hourly basis
+        $schedule->command('get:newdomains')->hourly()->timezone('America/Chicago');                        // runs hourly
         $schedule->command('get:nexposesites')->hourly()->timezone('America/Chicago');                      // runs hourly
         $schedule->command('get:graphsecurityalerts')->hourly()->timezone('America/Chicago');               // runs hourly
         $schedule->command('get:threatindicators')->hourly()->timezone('America/Chicago');                  // runs hourly
