@@ -43,7 +43,7 @@ class GetPhishLabsNewDomains extends Command
     {
         Log::info('[GetPhishLabsNewDomains.php] Starting PhishLabs New Domains API Poll!');
 
-        // calculate time ranges for URL parameters
+        // calculate time ranges for URL parameters todate and fromdate
         $sub_hours = 1;
         $from_date = Carbon::now()->subHours($sub_hours)->setTimezone('America/Chicago');
         $to_date = Carbon::now()->setTimezone('America/Chicago')->toDateTimeString();
@@ -94,15 +94,12 @@ class GetPhishLabsNewDomains extends Command
         // setup collection array
         $new_domains_collection = [];
 
-        // format from date for comparison with create dates later on
-        //$from_date = str_replace(' ', 'T', $from_date->toDateTimeString());
-
         // cycle through the new domains, JSON encode with newline and append to output file
         foreach ($response as $new_domain) {
             // get domain from log
             $target_domain = $new_domain['Domain'];
 
-            // use the create date to build a Carbon datetime object
+            // use the create date to build a Carbon datetime object and shift the time to CST
             $created_date = Carbon::createFromFormat('!Y-n-j\TG:i:s', $new_domain['Createdate'], 'America/New_York');
             $created_date = $created_date->setTimezone('America/Chicago');
 
