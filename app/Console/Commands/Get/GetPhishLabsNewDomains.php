@@ -45,8 +45,8 @@ class GetPhishLabsNewDomains extends Command
 
         // calculate time ranges for URL parameters todate and fromdate
         $sub_hours = 1;
-        $from_date = Carbon::now()->subHours($sub_hours)->setTimezone('America/Chicago');
-        $to_date = Carbon::now()->setTimezone('America/Chicago')->toDateTimeString();
+        $from_date = Carbon::now()->subHours($sub_hours)->setTimezone('America/New_York');
+        $to_date = Carbon::now()->setTimezone('America/New_York')->toDateTimeString();
         $from_date_short = substr($from_date->toDateTimeString(), 0, -3);
         $to_date_short = substr($to_date, 0, -3);
         Log::info('[GetPhishLabsNewDomains.php] from date short: '.$from_date_short);
@@ -99,9 +99,11 @@ class GetPhishLabsNewDomains extends Command
             // get domain from log
             $target_domain = $new_domain['Domain'];
 
-            // use the create date to build a Carbon datetime object and shift the time to CST
+            // use the create date to build a Carbon datetime object and don't shift the time to CST
             $created_date = Carbon::createFromFormat('!Y-n-j\TG:i:s', $new_domain['Createdate'], 'America/New_York');
-            $created_date = $created_date->setTimezone('America/Chicago');
+            //Log::info('[GetPhishLabsNewDomains.php] Createdate pulled from new domain log: '.$created_date);
+            //$created_date = $created_date->setTimezone('America/Chicago');
+            //Log::info('[GetPhishLabsNewDomains.php] Createdate after setting TZ to America/Chicago: '.$created_date);
 
             Log::info('[GetPhishLabsNewDomains.php] checking created date ('.$created_date.') GTE from date ('.$from_date.')');
 
