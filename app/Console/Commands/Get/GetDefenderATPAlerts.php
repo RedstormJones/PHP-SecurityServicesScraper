@@ -45,6 +45,9 @@ class GetDefenderATPAlerts extends Command
 
         $cookiejar = storage_path('app/cookies/atp_cookie.txt');
 
+        // set up output date for output file
+        $output_date = Carbon::now()->toDateString();
+
         // get values from environment file
         $token_endpoint = getenv('MS_OAUTH_DEFENDER_TOKEN_ENDPOINT');
         $app_id = getenv('MS_APP_ID');
@@ -133,35 +136,44 @@ class GetDefenderATPAlerts extends Command
             // dump alert collection to file
             file_put_contents(storage_path('app/collections/defender-atp-alerts.json'), \Metaclassing\Utility::encodeJson($defender_alerts));
 
-            Log::info('[+] sending ['.count($response).'] Defender ATP alerts to kafka...');
+            Log::info('[+] sending ['.count($response).'] Defender ATP alerts to file');
 
-            // instantiate a Kafka producer config and set the broker IP
-            $config = \Kafka\ProducerConfig::getInstance();
-            $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
 
-            // instantiate new Kafka producer
-            $producer = new \Kafka\Producer();
-
-            // cycle through Cylance devices
             foreach ($defender_alerts as $alert) {
-                // add upsert datetime
-                $alert['UpsertDate'] = Carbon::now()->toAtomString();
-
-                // ship data to Kafka
-                $result = $producer->send([
-                    [
-                        'topic' => 'defender-atp',
-                        'value' => \Metaclassing\Utility::encodeJson($alert),
-                    ],
-                ]);
-
-                // check for and log errors
-                if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                    Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
-                } else {
-                    Log::info('[*] Sent Defender ATP alert '.$alert['AlertId']);
-                }
+                // JSON encode and append to file
+                $alert_json = \Metaclassing\Utility::encodeJson($alert);
+                file_put_contents(storage_path('app/output/defender/'.$output_date.'-defender-atp-alerts.log'), $alert_json, FILE_APPEND);
             }
+
+            /*
+                // instantiate a Kafka producer config and set the broker IP
+                $config = \Kafka\ProducerConfig::getInstance();
+                $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+
+                // instantiate new Kafka producer
+                $producer = new \Kafka\Producer();
+
+                // cycle through Cylance devices
+                foreach ($defender_alerts as $alert) {
+                    // add upsert datetime
+                    $alert['UpsertDate'] = Carbon::now()->toAtomString();
+
+                    // ship data to Kafka
+                    $result = $producer->send([
+                        [
+                            'topic' => 'defender-atp',
+                            'value' => \Metaclassing\Utility::encodeJson($alert),
+                        ],
+                    ]);
+
+                    // check for and log errors
+                    if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
+                        Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+                    } else {
+                        Log::info('[*] Sent Defender ATP alert '.$alert['AlertId']);
+                    }
+                }
+            */
         }
 
         Log::info('[***] Defender ATP Alerts command completed! [***]'.PHP_EOL);

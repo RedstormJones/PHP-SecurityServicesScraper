@@ -37,7 +37,8 @@ class Kernel extends ConsoleKernel
         //$schedule->command('get:sccmsystems')->twiceDaily(5, 13)->timezone('America/Chicago');              // runs twice daily at 05:00am and 01:00pm
 
         // Commands run on an hourly basis
-        $schedule->command('get:newdomains')->hourly()->timezone('America/New_York');                        // runs hourly
+        $schedule->command('get:defenderatpalerts')->hourly()->timezone('America/Chicago');                 // runs hourly
+        $schedule->command('get:newdomains')->hourly()->timezone('America/New_York');                       // runs hourly
         $schedule->command('get:nexposesites')->hourly()->timezone('America/Chicago');                      // runs hourly
         $schedule->command('get:graphsecurityalerts')->hourly()->timezone('America/Chicago');               // runs hourly
         $schedule->command('get:threatindicators')->hourly()->timezone('America/Chicago');                  // runs hourly
@@ -61,7 +62,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command('get:casalertsmedium')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
         //$schedule->command('get:casalertslow')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
 
-        //$schedule->command('get:defenderatpalerts')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
+        
     }
 
     /**
