@@ -47,7 +47,7 @@ class GetAkamaiAUPEvents extends Command
         $output_date = Carbon::now()->toDateString();
 
         // setup timeframe (sec) for request argument
-        $start_timeframe_secs = Carbon::now()->subMinutes(1)->timestamp;
+        $start_timeframe_secs = Carbon::now()->subMinutes(10)->timestamp;
         $end_timeframe_secs = Carbon::now()->timestamp;
         //Log::info('[GetAkamaiAUPEvents.php] startTimeSec: '.$start_timeframe_secs);
         //Log::info('[GetAkamaiAUPEvents.php] endTimeSec: '.$end_timeframe_secs);
