@@ -4,9 +4,6 @@ namespace App\Console\Commands\Get;
 
 require_once app_path('Console/Crawler/Crawler.php');
 
-//include '/Users/sthorne/Downloads/akamai-open-edgegrid-auth-1.0.1.phar';
-include '/home/tyler/d/Spectre/akamai-open-edgegrid-auth-1.0.1.phar';
-
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
