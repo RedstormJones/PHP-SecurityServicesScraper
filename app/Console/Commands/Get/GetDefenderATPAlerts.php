@@ -41,7 +41,7 @@ class GetDefenderATPAlerts extends Command
      */
     public function handle()
     {
-        Log::info(PHP_EOL.PHP_EOL.'*****************************************'.PHP_EOL.'* Starting Defender ATP Alerts command! *'.PHP_EOL.'*****************************************');
+        Log::info('[GetDefenderATPAlerts.php] Starting Defender ATP Alerts Poll!');
 
         $cookiejar = storage_path('app/cookies/atp_cookie.txt');
 
@@ -57,7 +57,7 @@ class GetDefenderATPAlerts extends Command
         $crawler = new \Crawler\Crawler($cookiejar);
 
         // setup access token post data
-        Log::info('[+] setting up post data...');
+        Log::info('[GetDefenderATPAlerts.php] setting up post data...');
         $post_data = 'resource=https://graph.windows.net&client_id='.$app_id.'&client_secret='.$app_key.'&grant_type=client_credentials';
 
         $headers = [
@@ -66,7 +66,7 @@ class GetDefenderATPAlerts extends Command
         curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
         // post to token endpoint
-        Log::info('[+] posting for access token...');
+        Log::info('[GetDefenderATPAlerts.php] posting for access token...');
         $json_response = $crawler->post($token_endpoint, '', $post_data);
         file_put_contents(storage_path('app/responses/token_response.json'), $json_response);
 
@@ -74,10 +74,10 @@ class GetDefenderATPAlerts extends Command
             // get access token from response
             $response = \Metaclassing\Utility::decodeJson($json_response);
             $access_token = $response['access_token'];
-            Log::info('[+] got access token...');
+            Log::info('[GetDefenderATPAlerts.php] got access token...');
         } catch (\Exception $e) {
-            Log::error('[!] failed to get access token: '.$e->getMessage());
-            die('[!] failed to get access token: '.$e->getMessage().PHP_EOL);
+            Log::error('[GetDefenderATPAlerts.php] ERROR: failed to get access token: '.$e->getMessage());
+            die('[GetDefenderATPAlerts.php] ERROR: failed to get access token: '.$e->getMessage().PHP_EOL);
         }
 
         // instantiate new crawler
@@ -93,17 +93,17 @@ class GetDefenderATPAlerts extends Command
         $defender_api_url = getenv('DEFENDER_ALERTS_ENDPOINT').'?ago=PT1H';
 
         // capture response and dump to file
-        Log::info('[+] requesting Defender ATP alerts for past 1 hours: '.$defender_api_url);
+        Log::info('[GetDefenderATPAlerts.php] requesting Defender ATP alerts for past 1 hours: '.$defender_api_url);
         $json_response = $crawler->get($defender_api_url);
         file_put_contents(storage_path('app/responses/defender_alerts_response.json'), $json_response);
 
         // attempt to decode JSON response
         try {
             $response = \Metaclassing\Utility::decodeJson($json_response);
-            Log::info('[+] received ['.count($response).'] alerts from Defender ATP');
+            Log::info('[GetDefenderATPAlerts.php] received ['.count($response).'] alerts from Defender ATP');
         } catch (\Exception $e) {
-            Log::error('[!] failed to decode JSON response: '.$e->getMessage());
-            die('[!] failed to decode JSON response: '.$e->getMessage().PHP_EOL);
+            Log::error('[GetDefenderATPAlerts.php] ERROR: failed to decode JSON response: '.$e->getMessage());
+            die('[GetDefenderATPAlerts.php] ERROR: failed to decode JSON response: '.$e->getMessage().PHP_EOL);
         }
 
         if (count($response)) {
@@ -136,7 +136,7 @@ class GetDefenderATPAlerts extends Command
             // dump alert collection to file
             file_put_contents(storage_path('app/collections/defender-atp-alerts.json'), \Metaclassing\Utility::encodeJson($defender_alerts));
 
-            Log::info('[+] sending ['.count($response).'] Defender ATP alerts to file');
+            Log::info('[GetDefenderATPAlerts.php] sending '.count($defender_alerts).' Defender ATP alerts to file');
 
 
             foreach ($defender_alerts as $alert) {
@@ -176,6 +176,6 @@ class GetDefenderATPAlerts extends Command
             */
         }
 
-        Log::info('[***] Defender ATP Alerts command completed! [***]'.PHP_EOL);
+        Log::info('[GetDefenderATPAlerts.php] Defender ATP Alerts completed!');
     }
 }
