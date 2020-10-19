@@ -58,7 +58,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:proofpointsiem')->everyTenMinutes()->timezone('America/Chicago');
 
         // Commands run every minute
-        $schedule->command('get:aupevents')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
+        //$schedule->command('get:aupevents')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
         $schedule->command('get:casalertshigh')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
         //$schedule->command('get:casalertsmedium')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
         //$schedule->command('get:casalertslow')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
