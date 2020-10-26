@@ -141,7 +141,7 @@ class GetDefenderATPAlerts extends Command
 
             foreach ($defender_alerts as $alert) {
                 // JSON encode and append to file
-                $alert_json = \Metaclassing\Utility::encodeJson($alert);
+                $alert_json = \Metaclassing\Utility::encodeJson($alert)."\n";
                 file_put_contents(storage_path('app/output/defender/'.$output_date.'-defender-atp-alerts.log'), $alert_json, FILE_APPEND);
             }
 
