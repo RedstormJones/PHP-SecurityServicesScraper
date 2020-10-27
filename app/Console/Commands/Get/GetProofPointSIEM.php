@@ -520,15 +520,18 @@ class GetProofPointSIEM extends Command
             file_put_contents(storage_path('app/collections/proofpoint_siem.json'), \Metaclassing\Utility::encodeJson($siem_data));
 
             // setup a Kafka producer
+            /*
             $config = \Kafka\ProducerConfig::getInstance();
             $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
             $producer = new \Kafka\Producer();
+            */
 
             foreach ($siem_data as $data) {
                 $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
                 file_put_contents(storage_path('app/output/proofpoint/'.$date.'-proofpoint-siem.log'), $data_json, FILE_APPEND);
 
                 // send data to Kafka
+                /*
                 $result = $producer->send([
                     [
                         'topic' => 'proofpoint_siem',
@@ -544,6 +547,7 @@ class GetProofPointSIEM extends Command
                 } else {
                     //Log::info('[GetProofPointSIEM.php] ProofPoint SIEM data successfully sent to Kafka');
                 }
+                */
             }
         } else {
             // otherwise pop smoke and bail

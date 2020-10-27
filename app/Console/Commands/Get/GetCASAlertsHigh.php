@@ -184,6 +184,7 @@ class GetCASAlertsHigh extends Command
         file_put_contents(storage_path('app/collections/cas_alerts_high.json'), \Metaclassing\Utility::encodeJson($alerts));
 
         // instantiate a Kafka producer config and set the broker IP
+        /*
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
 
@@ -194,6 +195,7 @@ class GetCASAlertsHigh extends Command
 
         // cycle through Cylance devices
         foreach ($alerts as $alert) {
+
             // add upsert datetime
             $alert['upsert_date'] = Carbon::now()->toAtomString();
 
@@ -212,6 +214,7 @@ class GetCASAlertsHigh extends Command
                 //Log::info('[GetCASAlertsHigh.php] CAS high alert successfully sent to Kafka: '.$alert['alert_id']);
             }
         }
+        */
 
         Log::info('[GetCASAlertsHigh.php] MCAS High Alerts Completed! '.PHP_EOL);
     }
