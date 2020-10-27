@@ -107,25 +107,31 @@ class GetAkamaiAUPEvents extends Command
                 // JSON decode response
                 $response = \Metaclassing\Utility::decodeJson($response);
 
-                // get AUP events from response dataRows
-                $aup_events = $response['dataRows'];
+                if (array_key_exists('dataRows', $response)) {
+                    // get AUP events from response dataRows
+                    $aup_events = $response['dataRows'];
 
-                // get total records count from response
-                $total_records = $response['pageInfo']['totalRecords'];
+                    // get total records count from response
+                    $total_records = $response['pageInfo']['totalRecords'];
 
-                // increment running count by the number of events we got and log it
-                $running_count += count($aup_events);
-                Log::info('[GetAkamaiAUPEvents.php] current running count: '.$running_count);
+                    // increment running count by the number of events we got and log it
+                    $running_count += count($aup_events);
+                    Log::info('[GetAkamaiAUPEvents.php] current running count: '.$running_count);
 
-                // cycle through AUP events
-                foreach ($aup_events as $data) {
-                    // JSON encode with newline and append to output file
-                    $json_data = \Metaclassing\Utility::encodeJson($data)."\n";
-                    file_put_contents(storage_path('app/output/akamai_aup_events/'.$output_date.'-akamai-aup-events.log'), $json_data, FILE_APPEND);
+                    // cycle through AUP events
+                    foreach ($aup_events as $data) {
+                        // JSON encode with newline and append to output file
+                        $json_data = \Metaclassing\Utility::encodeJson($data)."\n";
+                        file_put_contents(storage_path('app/output/akamai_aup_events/'.$output_date.'-akamai-aup-events.log'), $json_data, FILE_APPEND);
+                    }
+
+                    // increment page number for next request if needed
+                    $page_number += 1;
+                } else {
+                    $json_response = \Metaclassing\Utility::encodeJson($response);
+                    Log::error('[GetAkamaiAUPEvents.php] dataRows not found in response: '.$json_response);
+                    die('[GetAkamaiAUPEvents.php] dataRows not found in response: '.$json_response);
                 }
-
-                // increment page number for next request if needed
-                $page_number += 1;
             }
         // if we haven't collected all the records yet then loop
         } while ($running_count < $total_records);
