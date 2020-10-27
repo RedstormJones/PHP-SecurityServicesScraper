@@ -154,20 +154,54 @@ class GetPhishLabsThreatIndicators extends Command
             }
         }
 
+        /*
+        $crawler = new \Crawler\Crawler($cookiejar);
+        $headers = [
+            'Content-Type: application/json'
+        ];
+        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+
+        $proofpoint_url_decode = 'https://tap-api-v2.proofpoint.com/v2/url/decode';
+
+        foreach ($indicators_collection as $indicator) {
+            if ($indicator['indicator_type'] == 'URL') {
+
+                $post_body = [
+                    'urls'  => [
+                        $indicator['value']
+                    ]
+                ];
+                $post_body_json = \Metaclassing\Utility::encodeJson($post_body);
+
+                $response_json = $crawler->post($proofpoint_url_decode, '', $post_body_json);
+                $response = \Metaclassing\Utility::decodeJson($response_json);
+
+                foreach ($response['urls'] as $r) {
+                    if ($r['success']) {
+                        $indicator['value'] = $r['encodedUrl'];
+                    }
+                }
+            }
+        }
+        */
+
         // dump indicators collection to file
         file_put_contents(storage_path('app/collections/phishlabs-threat-indicators.json'), \Metaclassing\Utility::encodeJson($indicators_collection));
         Log::info('[GetPhishLabsThreatIndicators.php] indicators collection count: '.count($indicators_collection));
 
         // setup a Kafka producer
+        /*
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
         $producer = new \Kafka\Producer();
+        */
 
         foreach ($indicators_collection as $data) {
             $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
             file_put_contents(storage_path('app/output/phishlabs/'.$date.'-phishlabs-threat-indicators.log'), $data_json, FILE_APPEND);
 
             // send data to Kafka
+            /*
             $result = $producer->send([
                 [
                     'topic' => 'phishlabs',
@@ -179,6 +213,7 @@ class GetPhishLabsThreatIndicators extends Command
             if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
                 Log::error('[GetPhishLabsThreatIndicators.php] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
             }
+            */
         }
 
         Log::info('[GetPhishLabsThreatIndicators.php] DONE!');
