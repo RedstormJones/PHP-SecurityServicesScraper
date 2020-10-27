@@ -554,6 +554,6 @@ class GetProofPointSIEM extends Command
             Log::info('[GetProofPointSIEM.php] no data returned from ProofPoint SIEM API...');
         }
 
-        Log::info('[GetProofPointSIEM.php] ProofPoint SIEM command completed!'.PHP_EOL);
+        Log::info('[GetProofPointSIEM.php] ProofPoint SIEM command completed!');
     }
 }
