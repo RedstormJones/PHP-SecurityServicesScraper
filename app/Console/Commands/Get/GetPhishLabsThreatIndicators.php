@@ -62,7 +62,8 @@ class GetPhishLabsThreatIndicators extends Command
 
         // setup url params and convert to &-delimited string
         $url_params = [
-            'since' => '1h',
+            //'since' => '1h',
+            'since' => '10m',
             'limit' => 10000,
             'sort'  => 'createdAt',
         ];
@@ -88,7 +89,7 @@ class GetPhishLabsThreatIndicators extends Command
             $data = $response['data'];
 
             $indicators_count = $response['meta']['count'];
-            Log::info('[GetPhishLabsThreatIndicators.php] count of indicators from last hour: '.$indicators_count);
+            Log::info('[GetPhishLabsThreatIndicators.php] count of IOCs from last 10 minutes: '.$indicators_count);
         } else {
             Log::error('[GetPhishLabsThreatIndicators.php] unidentified response: '.$json_response);
             die('[GetPhishLabsThreatIndicators.php] unidentified response: '.$json_response);
@@ -187,33 +188,12 @@ class GetPhishLabsThreatIndicators extends Command
 
         // dump indicators collection to file
         file_put_contents(storage_path('app/collections/phishlabs-threat-indicators.json'), \Metaclassing\Utility::encodeJson($indicators_collection));
-        Log::info('[GetPhishLabsThreatIndicators.php] indicators collection count: '.count($indicators_collection));
 
-        // setup a Kafka producer
-        /*
-        $config = \Kafka\ProducerConfig::getInstance();
-        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
-        $producer = new \Kafka\Producer();
-        */
-
+        // cycle through threat indicators
         foreach ($indicators_collection as $data) {
+            // JSON encode each IOC and append to output file
             $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
             file_put_contents(storage_path('app/output/phishlabs/'.$date.'-phishlabs-threat-indicators.log'), $data_json, FILE_APPEND);
-
-            // send data to Kafka
-            /*
-            $result = $producer->send([
-                [
-                    'topic' => 'phishlabs',
-                    'value' => \Metaclassing\Utility::encodeJson($data),
-                ],
-            ]);
-
-            // check for errors
-            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                Log::error('[GetPhishLabsThreatIndicators.php] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
-            }
-            */
         }
 
         Log::info('[GetPhishLabsThreatIndicators.php] DONE!');

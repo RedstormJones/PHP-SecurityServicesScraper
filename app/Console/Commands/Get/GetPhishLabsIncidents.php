@@ -43,7 +43,8 @@ class GetPhishLabsIncidents extends Command
     {
         Log::info('[GetPhishLabsIncidents.php] Starting API Poll!');
 
-        $date = Carbon::now()->subHour();
+        //$date = Carbon::now()->subHour();
+        $date = Carbon::now()->subMinutes(10);
         $date_str = $date->toIso8601ZuluString();
 
         $output_date = Carbon::now()->toDateString();

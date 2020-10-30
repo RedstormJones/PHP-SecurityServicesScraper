@@ -27,46 +27,18 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // Commands run on daily schedule
-        //$schedule->command('get:sitesubnets')->dailyAt('09:00')->timezone('America/Chicago');             // runs daily at 09:00am
-        //$schedule->command('get:cmdbservers')->dailyAt('20:30')->timezone('America/Chicago');             // runs daily at 08:30pm
-
-        //$schedule->command('get:newdomains')->daily()->timezone('America/Chicago');                         // runs daily at midnight
-
-        // Commands run multiple times a day
-        //$schedule->command('get:sccmsystems')->twiceDaily(5, 13)->timezone('America/Chicago');              // runs twice daily at 05:00am and 01:00pm
-
         // Commands run on an hourly basis
         $schedule->command('get:defenderatpalerts')->hourly()->timezone('America/Chicago');                 // runs hourly
         $schedule->command('get:newdomains')->hourly()->timezone('America/New_York');                       // runs hourly
-        //$schedule->command('get:nexposesites')->hourly()->timezone('America/Chicago');                      // runs hourly
-        //$schedule->command('get:graphsecurityalerts')->hourly()->timezone('America/Chicago');               // runs hourly
-        $schedule->command('get:threatindicators')->hourly()->timezone('America/Chicago');                  // runs hourly
-        $schedule->command('get:phishlabsincidents')->hourly()->timezone('America/Chicago');                // runs hourly
-        
+        //$schedule->command('get:threatindicators')->hourly()->timezone('America/Chicago');                  // runs hourly
+        //$schedule->command('get:phishlabsincidents')->hourly()->timezone('America/Chicago');                // runs hourly
 
-        // Commands run every five or ten minutes
+        // Commands run every ten minutes
+        $schedule->command('get:threatindicators')->everyTenMinutes()->timezone('America/Chicago');
+        $schedule->command('get:phishlabsincidents')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:aupevents')->everyTenMinutes()->withoutOverlapping(1)->timezone('America/Chicago');
         $schedule->command('get:threatevents')->everyTenMinutes()->withoutOverlapping(1)->timezone('America/Chicago');
-        /*
-        $schedule->command('check:winlogbeat')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                  // runs every ten minutes between the hours of 05:00am and 11:00pm
-        $schedule->command('check:elastalert')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                  // runs every ten minutes between the hours of 05:00am and 11:00pm
-        $schedule->command('check:syslog')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                      // runs every ten minutes between the hours of 05:00am and 11:00pm
-        $schedule->command('check:syslogmcas')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                  // runs every ten minutes between the hours of 05:00am and 11:00pm
-        $schedule->command('check:mfasyslog')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                   // runs every ten minutes between the hours of 05:00am and 11:00pm
-        $schedule->command('check:netflow')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                     // runs every ten minutes between the hours of 05:00am and 11:00pm
-        $schedule->command('check:packetbeat')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                  // runs every ten minutes between the hours of 05:00am and 11:00pm
-        $schedule->command('check:phantom')->everyTenMinutes()->between('05:00', '23:00')->timezone('America/Chicago');                     // runs every ten minutes between the hours of 05:00am and 11:00pm
-        */
-
         $schedule->command('get:proofpointsiem')->everyTenMinutes()->timezone('America/Chicago');
-
-        // Commands run every minute
-        //$schedule->command('get:casalertshigh')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
-        //$schedule->command('get:casalertsmedium')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
-        //$schedule->command('get:casalertslow')->everyMinute()->withoutOverlapping(1)->timezone('America/Chicago');
-
-        
     }
 
     /**
