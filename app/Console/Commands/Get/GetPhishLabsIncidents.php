@@ -92,15 +92,18 @@ class GetPhishLabsIncidents extends Command
             $incidents = $response['incidents'];
 
             $incidents_count = $response['metadata']['count'];
-            Log::info('[GetPhishLabsIncidents.php] count of incidents from last hour: '.$incidents_count);
+            Log::info('[GetPhishLabsIncidents.php] count of incidents from last 10 minutes: '.$incidents_count);
         } else {
             Log::error('[GetPhishLabsIncidents.php] unidentified response: '.$json_response);
             die('[GetPhishLabsIncidents.php] unidentified response: '.$json_response);
         }
 
+        // dump incidents collection to file
         file_put_contents(storage_path('app/collections/phishlabs-incidents.json'), \Metaclassing\Utility::encodeJson($incidents));
 
+        // cycle through indicents
         foreach ($incidents as $data) {
+            // JSON encode incident and append to output file
             $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
             file_put_contents(storage_path('app/output/phishlabs_incidents/'.$output_date.'-phishlabs-incidents.log'), $data_json, FILE_APPEND);
         }
