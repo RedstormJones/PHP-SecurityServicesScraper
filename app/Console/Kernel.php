@@ -38,7 +38,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:phishlabsincidents')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:aupevents')->everyTenMinutes()->withoutOverlapping(1)->timezone('America/Chicago');
         $schedule->command('get:threatevents')->everyTenMinutes()->withoutOverlapping(1)->timezone('America/Chicago');
-        $schedule->command('get:proofpointsiem')->everyTenMinutes()->timezone('America/Chicago');
+        
+        //$schedule->command('get:proofpointsiem')->everyTenMinutes()->timezone('America/Chicago');
+        $schedule->command('get:ppclickspermitted')->everyTenMinutes()->timezone('America/Chicago');
+        $schedule->command('get:ppclicksblocked')->everyTenMinutes()->timezone('America/Chicago');
+        $schedule->command('get:ppmessagesdelivered')->everyTenMinutes()->timezone('America/Chicago');
+        $schedule->command('get:ppmessagesblocked')->everyTenMinutes()->timezone('America/Chicago');
     }
 
     /**

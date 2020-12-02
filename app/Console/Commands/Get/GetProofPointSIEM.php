@@ -351,7 +351,7 @@ class GetProofPointSIEM extends Command
                         // forensic reports array
                         $forensic_reports = [];
 
-                        foreach ($msg['threatsInfoMap'] as $threat_info) {
+                        foreach ($click['threatsInfoMap'] as $threat_info) {
                             // use threat ID to create forensics url
                             $url = 'https://tap-api-v2.proofpoint.com/v2/forensics?threatId='.$threat_info['threatID'].'&format=json';
 
@@ -448,7 +448,7 @@ class GetProofPointSIEM extends Command
                         // forensic reports array
                         $forensic_reports = [];
 
-                        foreach ($msg['threatsInfoMap'] as $threat_info) {
+                        foreach ($click['threatsInfoMap'] as $threat_info) {
                             // use threat ID to create forensics url
                             $url = 'https://tap-api-v2.proofpoint.com/v2/forensics?threatId='.$threat_info['threatID'].'&format=json';
 
@@ -519,35 +519,10 @@ class GetProofPointSIEM extends Command
 
             file_put_contents(storage_path('app/collections/proofpoint_siem.json'), \Metaclassing\Utility::encodeJson($siem_data));
 
-            // setup a Kafka producer
-            /*
-            $config = \Kafka\ProducerConfig::getInstance();
-            $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
-            $producer = new \Kafka\Producer();
-            */
 
             foreach ($siem_data as $data) {
                 $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
                 file_put_contents(storage_path('app/output/proofpoint/'.$date.'-proofpoint-siem.log'), $data_json, FILE_APPEND);
-
-                // send data to Kafka
-                /*
-                $result = $producer->send([
-                    [
-                        'topic' => 'proofpoint_siem',
-                        'value' => \Metaclassing\Utility::encodeJson($data),
-                    ],
-                ]);
-
-                // check for errors
-                if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                    //Log::error('[!] Error sending ProofPoint SIEM API data to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
-                    Log::error('[GetProofPointSIEM.php] ERROR sending ProofPoint SIEM API data to Kafka: '.\Metaclassing\Utility::encodeJson($result));
-                    Log::error('[GetProofPointSIEM.php] ERROR sending ProofPoint SIEM API data to Kafka - size of attempted message: '. mb_strlen(serialize($data), '8bit'));
-                } else {
-                    //Log::info('[GetProofPointSIEM.php] ProofPoint SIEM data successfully sent to Kafka');
-                }
-                */
             }
         } else {
             // otherwise pop smoke and bail
