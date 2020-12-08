@@ -115,9 +115,10 @@ class GetProofPointClicksPermitted extends Command
                     // build threats info map array
                     $threats_info = [];
 
+                    // forensic reports array
+                    $forensic_reports = [];
+
                     if (array_key_exists('threatsInfoMap', $click)) {
-                        // forensic reports array
-                        $forensic_reports = [];
 
                         foreach ($click['threatsInfoMap'] as $threat_info) {
                             // use threat ID to create forensics url
