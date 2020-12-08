@@ -195,7 +195,7 @@ class GetProofPointClicksBlocked extends Command
             foreach ($clicks as $data) {
                 // JSON encode each log and append to the output file
                 $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
-                file_put_contents(storage_path('app/output/proofpoint/messages/clicks/'.$date.'-proofpoint-clicks-blocked.log'), $data_json, FILE_APPEND);
+                file_put_contents(storage_path('app/output/proofpoint/clicks/'.$date.'-proofpoint-clicks-blocked.log'), $data_json, FILE_APPEND);
             }
         } else {
             // otherwise pop smoke and bail
