@@ -46,6 +46,9 @@ class GetGraphSecurityAlerts extends Command
         // setup cookiejar
         $cookiejar = storage_path('app/cookies/mgsa_cookie.txt');
 
+        // set up output date for output file
+        $output_date = Carbon::now()->toDateString();
+
         // get values from environment file
         $authorize_endpoint = getenv('MS_OAUTH_AUTHORIZE_ENDPOINT');
         $token_endpoint = getenv('MS_OAUTH_TOKEN_ENDPOINT');
@@ -170,31 +173,40 @@ class GetGraphSecurityAlerts extends Command
 
         Log::info('[GetGraphSecurityAlerts.php] sending '.count($mgsa_alerts).' graph security alerts to kafka...');
 
-        // instantiate a Kafka producer config and set the broker IP
-        $config = \Kafka\ProducerConfig::getInstance();
-        $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
-
-        // instantiate new Kafka producer
-        $producer = new \Kafka\Producer();
-
-        // cycle through Cylance devices
+        // cycle through Graph security alerts
         foreach ($mgsa_alerts as $alert) {
-            // add upsert datetime
-            $alert['upsertDate'] = Carbon::now()->toAtomString();
+            // JSON encode each alert and append newline
+            $alert_json = \Metaclassing\Utility::encodeJson($alert)."\n";
 
-            // ship data to Kafka
-            $result = $producer->send([
-                [
-                    'topic' => 'ms-graph-security-api',
-                    'value' => \Metaclassing\Utility::encodeJson($alert),
-                ],
-            ]);
-
-            // check for and log errors
-            if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                Log::error('[GetGraphSecurityAlerts.php] ERROR sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
-            }
+            // append JSON encoded alert to output file
+            file_put_contents(storage_path('app/output/msga/'.$output_date.'-mgsa-alerts.log'), $alert_json, FILE_APPEND);
         }
+
+        // // instantiate a Kafka producer config and set the broker IP
+        // $config = \Kafka\ProducerConfig::getInstance();
+        // $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
+
+        // // instantiate new Kafka producer
+        // $producer = new \Kafka\Producer();
+
+        // // cycle through Cylance devices
+        // foreach ($mgsa_alerts as $alert) {
+        //     // add upsert datetime
+        //     $alert['upsertDate'] = Carbon::now()->toAtomString();
+
+        //     // ship data to Kafka
+        //     $result = $producer->send([
+        //         [
+        //             'topic' => 'ms-graph-security-api',
+        //             'value' => \Metaclassing\Utility::encodeJson($alert),
+        //         ],
+        //     ]);
+
+        //     // check for and log errors
+        //     if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
+        //         Log::error('[GetGraphSecurityAlerts.php] ERROR sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
+        //     }
+        // }
 
         Log::info('[GetGraphSecurityAlerts.php] MS Graph Security Alerts completed!'.PHP_EOL);
     }
