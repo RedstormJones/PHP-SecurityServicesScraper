@@ -115,6 +115,8 @@ class GetProofPointMessagesBlocked extends Command
                     // build threats info map array
                     $threats_info = [];
 
+                    $json_response = null;
+
                     if (count($msg['threatsInfoMap'])) {
                         // forensic reports array
                         $forensic_reports = [];
@@ -128,26 +130,31 @@ class GetProofPointMessagesBlocked extends Command
                             file_put_contents(storage_path('app/responses/pp_threat.response'), $json_response);
 
                             // try to JSON decode the response
-                            try {
-                                $response = \Metaclassing\Utility::decodeJson($json_response);
-                            } catch (\Exception $e) {
-                                $response = null;
-                                Log::error('[GetProofPointMessagesBlocked.php] '.$e->getMessage());
+                            if ($json_response) {
+                                try {
+                                    $response = \Metaclassing\Utility::decodeJson($json_response);
+                                } catch (\Exception $e) {
+                                    $response = null;
+                                    Log::error('[GetProofPointMessagesBlocked.php] '.$e->getMessage());
+                                    //die('[GetProofPointMessagesBlocked.php] '.$e->getMessage());
+                                }
                             }
 
-                            if (count($response['reports'])){
-                                // build forensic reports array
-                                foreach ($response['reports'] as $report) {
-                                    // add forensic reports to forensic_reports array
-                                    $forensic_reports[] = [
-                                        'threat_id'     => $threat_info['threatID'],
-                                        'report_id'     => $report['id'],
-                                        'report_name'   => $report['name'],
-                                        'report_scope'  => $report['scope'],
-                                        //'report_type'   => $report['type'],
-                                        'threat_status' => $report['threatStatus'],
-                                        'forensics'     => $report['forensics'],
-                                    ];
+                            if ($response) {
+                                if (array_key_exists('reports', $response)) {
+                                    // build forensic reports array
+                                    foreach ($response['reports'] as $report) {
+                                        // add forensic reports to forensic_reports array
+                                        $forensic_reports[] = [
+                                            'threat_id'     => $threat_info['threatID'],
+                                            'report_id'     => $report['id'],
+                                            'report_name'   => $report['name'],
+                                            'report_scope'  => $report['scope'],
+                                            //'report_type'   => $report['type'],
+                                            'threat_status' => $report['threatStatus'],
+                                            'forensics'     => $report['forensics'],
+                                        ];
+                                    }
                                 }
                             }
 
