@@ -48,6 +48,7 @@ class GetProofPointClicksPermitted extends Command
         Log::info('[GetProofPointClicksPermitted.php] Starting ProofPoint SIEM API Poll for CLICKS PERMITTED!');
 
         $date = Carbon::now()->toDateString();
+        $date_year = Carbon::now()->year;
 
         // setup cookie file and instantiate crawler
         $cookiejar = storage_path('app/cookies/proofpointcookie_clickspermitted.txt');
@@ -196,6 +197,9 @@ class GetProofPointClicksPermitted extends Command
                 // JSON encode each log and append to the output file
                 $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
                 file_put_contents(storage_path('app/output/proofpoint/clicks/'.$date.'-proofpoint-clicks-permitted.log'), $data_json, FILE_APPEND);
+
+                // output clicks permitted logs to year-long file for GRC to use for reporting
+                file_put_contents(storage_path('app/output/proofpoint/clicks/GRC/'.$date_year.'-proofpoint-clicks-permitted.log'), $data_json, FILE_APPEND);
             }
         } else {
             // otherwise pop smoke and bail
