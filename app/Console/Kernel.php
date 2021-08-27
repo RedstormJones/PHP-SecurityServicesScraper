@@ -36,8 +36,8 @@ class Kernel extends ConsoleKernel
         // Commands run every ten minutes
         $schedule->command('get:threatindicators')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:phishlabsincidents')->everyTenMinutes()->timezone('America/Chicago');
-        $schedule->command('get:aupevents')->everyTenMinutes()->withoutOverlapping(1)->timezone('America/Chicago');
-        $schedule->command('get:threatevents')->everyTenMinutes()->withoutOverlapping(1)->timezone('America/Chicago');
+        //$schedule->command('get:aupevents')->everyTenMinutes()->withoutOverlapping(1)->timezone('America/Chicago');
+        //$schedule->command('get:threatevents')->everyTenMinutes()->withoutOverlapping(1)->timezone('America/Chicago');
         
         //$schedule->command('get:proofpointsiem')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:ppclickspermitted')->everyTenMinutes()->timezone('America/Chicago');
