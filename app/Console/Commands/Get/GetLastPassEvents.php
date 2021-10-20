@@ -47,8 +47,9 @@ class GetLastPassEvents extends Command
         $output_date = Carbon::now()->toDateString();
 
         // setup from date for post body
-        $from_date = Carbon::now()->subMinutes(10)->toDateTimeString();
-        Log::info('[GetLastPassEvents.php] from date: '.$from_date);
+        $from_date = Carbon::now('America/Chicago')->subMinutes(10)->toDateTimeString();
+        $to_date = Carbon::now('America/Chicago')->toDateTimeString();
+        Log::info('[GetLastPassEvents.php] querying lastpass for time period: '.$from_date.' - '.$to_date);
 
         // setup cookie file and instantiate crawler
         $cookiejar = storage_path('app/cookies/proofpointcookie_clicksblocked.txt');
@@ -68,7 +69,8 @@ class GetLastPassEvents extends Command
             'provhash'  => $lastpass_prov_hash,
             'cmd'       => 'reporting',
             'data'      => [
-                'from'  => $from_date
+                'from'  => $from_date,
+                'to'    => $to_date
             ]
         ];
         $post_body_json = \Metaclassing\Utility::encodeJson($post_body);
