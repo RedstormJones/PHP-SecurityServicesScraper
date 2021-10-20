@@ -48,11 +48,11 @@ class GetLastPassEvents extends Command
 
         // setup from date for post body
         $from_date = Carbon::now()->subMinutes(10)->toDateTimeString();
+        Log::info('[GetLastPassEvents.php] from date: '.$from_date);
 
         // setup cookie file and instantiate crawler
         $cookiejar = storage_path('app/cookies/proofpointcookie_clicksblocked.txt');
         $crawler = new \Crawler\Crawler($cookiejar);
-
 
         // setup lastpass uri
         $lastpass_uri = 'https://lastpass.com/enterpriseapi.php';
@@ -100,6 +100,7 @@ class GetLastPassEvents extends Command
 
                 // get event data from the response
                 $data = $response['data'];
+                Log::info('[GetLastPassEvents.php] count of events received from LastPass for the last 10 minutes: '.count($data));
 
                 // cycle through event data and build event objects
                 foreach ($data as $event) {
