@@ -119,7 +119,7 @@ class GetLastPassEvents extends Command
                     $event_obj_json = \Metaclassing\Utility::encodeJson($event_obj)."\n";
 
                     // JSON encode event object and append it to the output file
-                    file_put_contents(storage_path('app/output/lastpass/'.$output_date.'-lastpass_events.json'), $event_obj_json, FILE_APPEND);
+                    file_put_contents(storage_path('app/output/lastpass/'.$output_date.'-lastpass_events.log'), $event_obj_json, FILE_APPEND);
                 }
 
             } else {
