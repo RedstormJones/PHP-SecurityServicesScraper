@@ -46,6 +46,8 @@ class GetLastPassEvents extends Command
         // setup date string for output filename
         $output_date = Carbon::now()->toDateString();
 
+        $webhook_uri = getenv('WEBHOOK_URI');
+
         // setup from date for post body
         $from_date = Carbon::now('America/Chicago')->subMinutes(10)->toDateTimeString();
         $to_date = Carbon::now('America/Chicago')->toDateTimeString();
@@ -106,20 +108,27 @@ class GetLastPassEvents extends Command
 
                 // cycle through event data and build event objects
                 foreach ($data as $event) {
+                    $event_timestamp = str_replace(' ', 'T', $event['Time']).'Z';
                     
                     // build event object
                     $event_obj = [
-                        'timestamp' => $event['Time'],
-                        'username'  => $event['Username'],
-                        'sip'       => $event['IP_Address'],
-                        'action'    => $event['Action'],
-                        'object'    => $event['Data']
+                        'timestamp.iso1806'         => $event_timestamp,
+                        'login'                     => $event['Username'],
+                        'sip'                       => $event['IP_Address'],
+                        'action'                    => $event['Action'],
+                        'object'                    => $event['Data'],
+                        'whsdp'                     => True,
+                        'fullyqualifiedbeatname'    => 'LASTPASS_EVENT',
+                        'original_message'          => \Metaclassing\Utility::encodeJson($event)
                     ];
 
                     $event_obj_json = \Metaclassing\Utility::encodeJson($event_obj)."\n";
 
                     // JSON encode event object and append it to the output file
-                    file_put_contents(storage_path('app/output/lastpass/'.$output_date.'-lastpass_events.log'), $event_obj_json, FILE_APPEND);
+                    //file_put_contents(storage_path('app/output/lastpass/'.$output_date.'-lastpass_events.log'), $event_obj_json, FILE_APPEND);
+
+                    $webhook_response = $crawler->post($webhook_uri, '', $event_obj_json);
+                    file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
                 }
 
             } else {
