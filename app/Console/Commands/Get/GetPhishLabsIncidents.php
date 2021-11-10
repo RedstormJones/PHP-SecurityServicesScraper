@@ -103,6 +103,12 @@ class GetPhishLabsIncidents extends Command
         // dump incidents collection to file
         file_put_contents(storage_path('app/collections/phishlabs-incidents.json'), \Metaclassing\Utility::encodeJson($incidents));
 
+        // setup webhook cookie jar
+        $cookiejar = storage_path('app/cookies/OCwebhook.cookie');
+
+        // setup new crawler
+        $crawler = new \Crawler\Crawler($cookiejar);
+
         // cycle through indicents
         foreach ($incidents as $data) {
             // JSON encode incident and append to output file
