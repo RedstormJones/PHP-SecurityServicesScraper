@@ -28,19 +28,13 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // Commands run on an hourly basis
-        $schedule->command('get:defenderatpalerts')->hourly()->timezone('America/Chicago');                 // runs hourly
-        $schedule->command('get:newdomains')->hourly()->timezone('America/New_York');                       // runs hourly
-        //$schedule->command('get:threatindicators')->hourly()->timezone('America/Chicago');                  // runs hourly
-        //$schedule->command('get:phishlabsincidents')->hourly()->timezone('America/Chicago');                // runs hourly
+        $schedule->command('get:defenderatpalerts')->hourly()->timezone('America/Chicago');
+        $schedule->command('get:newdomains')->hourly()->timezone('America/New_York');
 
         // Commands run every ten minutes
         $schedule->command('get:threatindicators')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:phishlabsincidents')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:lastpassevents')->everyTenMinutes()->timezone('America/Chicago');
-        //$schedule->command('get:aupevents')->everyTenMinutes()->withoutOverlapping(1)->timezone('America/Chicago');
-        //$schedule->command('get:threatevents')->everyTenMinutes()->withoutOverlapping(1)->timezone('America/Chicago');
-        
-        //$schedule->command('get:proofpointsiem')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:ppclickspermitted')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:ppclicksblocked')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:ppmessagesdelivered')->everyTenMinutes()->timezone('America/Chicago');
