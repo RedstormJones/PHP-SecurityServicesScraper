@@ -43,6 +43,8 @@ class GetPhishLabsNewDomains extends Command
     {
         Log::info('[GetPhishLabsNewDomains.php] Starting PhishLabs New Domains API Poll!');
 
+        $webhook_uri = getenv('WEBHOOK_URI');
+
         // calculate time ranges for URL parameters todate and fromdate
         $sub_hours = 1;
         $from_date = Carbon::now()->subHours($sub_hours)->setTimezone('America/New_York');
@@ -91,8 +93,7 @@ class GetPhishLabsNewDomains extends Command
             die($e);
         }
 
-        // setup collection array
-        $new_domains_collection = [];
+
 
         // cycle through the new domains, JSON encode with newline and append to output file
         foreach ($response as $new_domain) {
@@ -111,12 +112,13 @@ class GetPhishLabsNewDomains extends Command
             if ($created_date >= $from_date) {
                 Log::info('[GetPhishLabsNewDomains.php] New domain found '.$target_domain);
 
-                // add new domain to new domains collection
-                $new_domains_collection[] = $new_domain;
-
                 // JSON encode and append to file
                 $new_domain_json = \Metaclassing\Utility::encodeJson($new_domain)."\n";
                 file_put_contents(storage_path('app/output/phishlabs_new_domains/'.$output_date.'-phishlabs-new-domains.log'), $new_domain_json, FILE_APPEND);
+
+                // post JSON log to webhookbeat on the LR OC
+                $webhook_response = $crawler->post($webhook_uri, '', $new_domain_json);
+                file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
             }
         }
 

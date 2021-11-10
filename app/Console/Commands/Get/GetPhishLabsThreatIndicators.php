@@ -43,6 +43,10 @@ class GetPhishLabsThreatIndicators extends Command
     {
         Log::info('[GetPhishLabsThreatIndicators.php] Starting API Poll!');
 
+        // setup webhook URI for later
+        $webhook_uri = getenv('WEBHOOK_URI');
+
+        // setup date for later
         $date = Carbon::now()->toDateString();
 
         // setup cookie jar
@@ -194,6 +198,10 @@ class GetPhishLabsThreatIndicators extends Command
             // JSON encode each IOC and append to output file
             $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
             file_put_contents(storage_path('app/output/phishlabs/'.$date.'-phishlabs-threat-indicators.log'), $data_json, FILE_APPEND);
+
+            // post JSON log to webhookbeat on the LR OC
+            $webhook_response = $crawler->post($webhook_uri, '', $data_json);
+            file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
         }
 
         Log::info('[GetPhishLabsThreatIndicators.php] DONE!');

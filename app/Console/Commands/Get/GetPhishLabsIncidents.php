@@ -49,6 +49,8 @@ class GetPhishLabsIncidents extends Command
 
         $output_date = Carbon::now()->toDateString();
 
+        $webhook_uri = getenv('WEBHOOK_URI');
+
         // setup cookie jar
         $cookiejar = storage_path('app/cookies/phishlabs_case_api.txt');
 
@@ -106,6 +108,9 @@ class GetPhishLabsIncidents extends Command
             // JSON encode incident and append to output file
             $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
             file_put_contents(storage_path('app/output/phishlabs_incidents/'.$output_date.'-phishlabs-incidents.log'), $data_json, FILE_APPEND);
+
+            $webhook_response = $crawler->post($webhook_uri, '', $data_json);
+            file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
         }
 
         Log::info('[GetPhishLabsIncidents.php] DONE!');
