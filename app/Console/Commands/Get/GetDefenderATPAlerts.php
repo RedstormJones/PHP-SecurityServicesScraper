@@ -43,6 +43,8 @@ class GetDefenderATPAlerts extends Command
     {
         Log::info('[GetDefenderATPAlerts.php] Starting Defender ATP Alerts Poll!');
 
+        $webhook_uri = getenv('WEBHOOK_URI');
+
         $cookiejar = storage_path('app/cookies/atp_cookie.txt');
 
         // set up output date for output file
@@ -133,47 +135,59 @@ class GetDefenderATPAlerts extends Command
                 $defender_alerts[] = $alert;
             }
 
-            // dump alert collection to file
-            file_put_contents(storage_path('app/collections/defender-atp-alerts.json'), \Metaclassing\Utility::encodeJson($defender_alerts));
+            // setup webhook cookie jar
+            $cookiejar = storage_path('app/cookies/OCwebhook.cookie');
 
-            Log::info('[GetDefenderATPAlerts.php] sending '.count($defender_alerts).' Defender ATP alerts to file');
+            // setup new crawler
+            $crawler = new \Crawler\Crawler($cookiejar);
 
-
+            // cycle through alerts and build new object array with fields mapped to the LR metadata schema
             foreach ($defender_alerts as $alert) {
-                // JSON encode and append to file
-                $alert_json = \Metaclassing\Utility::encodeJson($alert)."\n";
-                file_put_contents(storage_path('app/output/defender/'.$output_date.'-defender-atp-alerts.log'), $alert_json, FILE_APPEND);
+
+                // immediately JSON encode alert and append it to the original output file before LR metadata transformations
+                $alert_json = \Metaclassing\Utility::encodeJson($alert);
+                file_put_contents(storage_path('app/output/defender/'.$output_date.'-defender-atp-alerts.log'), $alert_json."\n", FILE_APPEND);
+
+                // metadata transformations to adhere to LR schema
+                $lr_alert = [
+                    'beatname'                  => 'webhookbeat',
+                    'device_type'               => 'Windows_Defender',
+                    'sname'                     => $alert['ComputerDnsName'],
+                    'severity'                  => $alert['Severity'],
+                    'objecttype'                => $alert['Category'],
+                    'tag1'                      => $alert['Category'],
+                    'subject'                   => $alert['LinkToWDATP'],
+                    'vendorinfo'                => $alert['AlertTitle'],
+                    'login'                     => $alert['Actor'],
+                    'hash'                      => $alert['Sha1'],
+                    'objectname'                => $alert['FileName'],
+                    'sip'                       => $alert['IpAddress'],
+                    'url'                       => $alert['Url'],
+                    'account'                   => $alert['LogOnUsers'],
+                    'object'                    => $alert['ThreatCategory'],
+                    'threatname'                => $alert['ThreatName'],
+                    'action'                    => $alert['RemediationAction'],
+                    'result'                    => $alert['RemediationIsSuccess'],
+                    'command'                   => $alert['CommandLine'],
+                    'group'                     => $alert['MachineGroup'],
+                    'threatid'                  => $alert['IocUniqueId'],
+                    'reason'                    => $alert['CloudCreatedMachineTags'],
+                    'whsdp'                     => True,
+                    'fullyqualifiedbeatname'    => 'webhookbeat-defender',
+                    'original_message'          => \Metaclassing\Utility::encodeJson($alert)
+                ];
+
+                // JSON encode alert
+                $lr_alert_json = \Metaclassing\Utility::encodeJson($lr_alert);
+
+                // post to webhookbeat, capture response and dump to file
+                $webhook_response = $crawler->post($webhook_uri, '', $lr_alert_json);
+                file_put_contents(storage_path('app/responses/defender_webhook.response'), $webhook_response);
             }
 
-            /*
-                // instantiate a Kafka producer config and set the broker IP
-                $config = \Kafka\ProducerConfig::getInstance();
-                $config->setMetadataBrokerList(getenv('KAFKA_BROKERS'));
-
-                // instantiate new Kafka producer
-                $producer = new \Kafka\Producer();
-
-                // cycle through Cylance devices
-                foreach ($defender_alerts as $alert) {
-                    // add upsert datetime
-                    $alert['UpsertDate'] = Carbon::now()->toAtomString();
-
-                    // ship data to Kafka
-                    $result = $producer->send([
-                        [
-                            'topic' => 'defender-atp',
-                            'value' => \Metaclassing\Utility::encodeJson($alert),
-                        ],
-                    ]);
-
-                    // check for and log errors
-                    if ($result[0]['data'][0]['partitions'][0]['errorCode']) {
-                        Log::error('[!] Error sending to Kafka: '.$result[0]['data'][0]['partitions'][0]['errorCode']);
-                    } else {
-                        Log::info('[*] Sent Defender ATP alert '.$alert['AlertId']);
-                    }
-                }
-            */
+            // dump alert collection to file
+            Log::info('[GetDefenderATPAlerts.php] sending '.count($defender_alerts).' Defender ATP alerts to file');
+            file_put_contents(storage_path('app/collections/defender-atp-alerts.json'), \Metaclassing\Utility::encodeJson($defender_alerts));
         }
 
         Log::info('[GetDefenderATPAlerts.php] Defender ATP Alerts completed!');

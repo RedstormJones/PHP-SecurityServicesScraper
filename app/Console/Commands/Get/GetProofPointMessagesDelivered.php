@@ -47,6 +47,8 @@ class GetProofPointMessagesDelivered extends Command
 
         Log::info('[GetProofPointMessagesDelivered.php] Starting ProofPoint SIEM API Poll for MESSAGES DELIVERED!');
 
+        $webhook_uri = getenv('WEBHOOK_URI');
+
         $date = Carbon::now()->toDateString();
 
         // setup cookie file and instantiate crawler
@@ -210,6 +212,33 @@ class GetProofPointMessagesDelivered extends Command
                 // JSON encode each log and append to the output file
                 $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
                 file_put_contents(storage_path('app/output/proofpoint/messages/'.$date.'-proofpoint-messages-delivered.log'), $data_json, FILE_APPEND);
+
+                $lr_message = [
+                    'beatname'                  => 'webhookbeat',
+                    'device_type'               => 'PROOFPOINT',
+                    'subject'                   => $data['subject'],
+                    'sender'                    => $data['sender'],
+                    'recipient'                 => $data['recipient'],
+                    'sip'                       => $data['sender_ip'],
+                    'result'                    => $data['proofpoint_type'],
+                    'action'                    => $data['quarantine_folder'],
+                    'severity'                  => $data['phish_score'],
+                    'reason'                    => $threat_info[0]['classification'],
+                    'url'                       => $threat_info[0]['threat'],
+                    'status'                    => $threat_info[0]['threat_status'],
+                    'policy'                    => $threat_info[0]['threat_type'],
+                    'vendorinfo'                => $threat_info[0]['threat_url'],
+                    'whsdp'                     => True,
+                    'fullyqualifiedbeatname'    => 'webhookbeat-proofpoint-message-delivered',
+                    'original_message'          => $data_json
+                ];
+
+                // JSON encode message
+                $lr_message_json = \Metaclassing\Utility::encodeJson($lr_message);
+
+                // post JSON log to webhookbeat on the LR OC
+                $webhook_response = $crawler->post($webhook_uri, '', $lr_message_json);
+                file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
             }
         } else {
             // otherwise pop smoke and bail

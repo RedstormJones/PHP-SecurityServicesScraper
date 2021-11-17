@@ -47,6 +47,9 @@ class GetProofPointClicksBlocked extends Command
 
         Log::info('[GetProofPointClicksBlocked.php] Starting ProofPoint SIEM API Poll for CLICKS BLOCKED!');
 
+        // setup webhook URI for later
+        $webhook_uri = getenv('WEBHOOK_URI');
+
         $date = Carbon::now()->toDateString();
 
         // setup cookie file and instantiate crawler
@@ -191,11 +194,40 @@ class GetProofPointClicksBlocked extends Command
             // dump collection to file
             file_put_contents(storage_path('app/collections/proofpoint-clicks-blocked.json'), \Metaclassing\Utility::encodeJson($clicks));
 
+            // setup webhook cookie jar
+            $cookiejar = storage_path('app/cookies/OCwebhook.cookie');
+
+            // setup new crawler
+            $crawler = new \Crawler\Crawler($cookiejar);
+
             // cycle through collection 
             foreach ($clicks as $data) {
                 // JSON encode each log and append to the output file
-                $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
-                file_put_contents(storage_path('app/output/proofpoint/clicks/'.$date.'-proofpoint-clicks-blocked.log'), $data_json, FILE_APPEND);
+                $data_json = \Metaclassing\Utility::encodeJson($data);
+                file_put_contents(storage_path('app/output/proofpoint/clicks/'.$date.'-proofpoint-clicks-blocked.log'), $data_json."\n", FILE_APPEND);
+
+                $lr_click = [
+                    'beatname'                  => 'webhookbeat',
+                    'device_type'               => 'PROOFPOINT',
+                    'sender'                    => $data['sender'],
+                    'recipient'                 => $data['recipient'],
+                    'sip'                       => $data['sender_ip'],
+                    'result'                    => $data['proofpoint_type'],
+                    'reason'                    => $data['classification'],
+                    'url'                       => $data['url'],
+                    'status'                    => $data['threat_status'],
+                    'vendorinfo'                => $data['threat_url'],
+                    'whsdp'                     => True,
+                    'fullyqualifiedbeatname'    => 'webhookbeat-proofpoint-click-blocked',
+                    'original_message'          => $data_json
+                ];
+
+                // JSON encode click
+                $lr_click_json = \Metaclassing\Utility::encodeJson($lr_click);
+
+                // post JSON log to webhookbeat on the LR OC
+                $webhook_response = $crawler->post($webhook_uri, '', $lr_click_json);
+                file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
             }
         } else {
             // otherwise pop smoke and bail

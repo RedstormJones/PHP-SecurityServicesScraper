@@ -44,7 +44,7 @@ class GetLastPassEvents extends Command
         Log::info('[GetLastPassEvents.php] Starting LastPass API events poll!');
 
         // setup date string for output filename
-        $output_date = Carbon::now()->toDateString();
+        //$output_date = Carbon::now()->toDateString();
 
         $webhook_uri = getenv('WEBHOOK_URI');
 
@@ -118,17 +118,17 @@ class GetLastPassEvents extends Command
                         'action'                    => $event['Action'],
                         'object'                    => $event['Data'],
                         'whsdp'                     => True,
-                        'fullyqualifiedbeatname'    => 'LASTPASS_EVENT',
+                        'fullyqualifiedbeatname'    => 'webhookbeat-lastpass',
                         'original_message'          => \Metaclassing\Utility::encodeJson($event)
                     ];
 
-                    $event_obj_json = \Metaclassing\Utility::encodeJson($event_obj)."\n";
+                    $event_obj_json = \Metaclassing\Utility::encodeJson($event_obj);
 
                     // JSON encode event object and append it to the output file
                     //file_put_contents(storage_path('app/output/lastpass/'.$output_date.'-lastpass_events.log'), $event_obj_json, FILE_APPEND);
 
                     $webhook_response = $crawler->post($webhook_uri, '', $event_obj_json);
-                    file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
+                    file_put_contents(storage_path('app/responses/lastpass_webhook.response'), $webhook_response);
                 }
 
             } else {

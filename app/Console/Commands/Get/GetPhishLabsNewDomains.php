@@ -93,7 +93,11 @@ class GetPhishLabsNewDomains extends Command
             die($e);
         }
 
+        // setup webhook cookie jar
+        $cookiejar = storage_path('app/cookies/OCwebhook.cookie');
 
+        // setup new crawler
+        $crawler = new \Crawler\Crawler($cookiejar);
 
         // cycle through the new domains, JSON encode with newline and append to output file
         foreach ($response as $new_domain) {
@@ -113,12 +117,36 @@ class GetPhishLabsNewDomains extends Command
                 Log::info('[GetPhishLabsNewDomains.php] New domain found '.$target_domain);
 
                 // JSON encode and append to file
-                $new_domain_json = \Metaclassing\Utility::encodeJson($new_domain)."\n";
-                file_put_contents(storage_path('app/output/phishlabs_new_domains/'.$output_date.'-phishlabs-new-domains.log'), $new_domain_json, FILE_APPEND);
+                $new_domain_json = \Metaclassing\Utility::encodeJson($new_domain);
+                file_put_contents(storage_path('app/output/phishlabs_new_domains/'.$output_date.'-phishlabs-new-domains.log'), $new_domain_json."\n", FILE_APPEND);
+
+                $lr_new_domain = [
+                    'beatname'                  => 'webhookbeat',
+                    'device_type'               => 'PhishLabs_Domains',
+                    'url'                       => $new_domain['Url'],
+                    'vmid'                      => $new_domain['Infrid'],
+                    'vendorinfo'                => $new_domain['Catname'],
+                    'status'                    => $new_domain['Status'],
+                    'login'                     => $new_domain['Assignee'],
+                    'domainimpacted'            => $new_domain['Domain'],
+                    'group'                     => $new_domain['Groupcatname'],
+                    'object'                    => $new_domain['Statusdescr'],
+                    'subject'                   => $new_domain['Comment'],
+                    'action'                    => $new_domain['Actiondescr'],
+                    'severity'                  => $new_domain['Severityname'],
+                    'objecttype'                => $new_domain['Mxrecord'],
+                    'result'                    => $new_domain['Ticketstatus'],
+                    'whsdp'                     => True,
+                    'fullyqualifiedbeatname'    => 'webhookbeat-phishlabs-newdomain',
+                    'original_message'          => $new_domain_json
+                ];
+
+                // JSON encode new domain
+                $lr_new_domain_json = \Metaclassing\Utility::encodeJson($lr_new_domain);
 
                 // post JSON log to webhookbeat on the LR OC
-                $webhook_response = $crawler->post($webhook_uri, '', $new_domain_json);
-                file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
+                $webhook_response = $crawler->post($webhook_uri, '', $lr_new_domain_json);
+                file_put_contents(storage_path('app/responses/phishlabs_newdomains_webhook.response'), $webhook_response);
             }
         }
 

@@ -47,6 +47,8 @@ class GetProofPointClicksPermitted extends Command
 
         Log::info('[GetProofPointClicksPermitted.php] Starting ProofPoint SIEM API Poll for CLICKS PERMITTED!');
 
+        $webhook_uri = getenv('WEBHOOK_URI');
+
         $date = Carbon::now()->toDateString();
         $date_year = Carbon::now()->year;
 
@@ -200,6 +202,29 @@ class GetProofPointClicksPermitted extends Command
 
                 // output clicks permitted logs to year-long file for GRC to use for reporting
                 file_put_contents(storage_path('app/output/proofpoint/clicks/GRC/'.$date_year.'-proofpoint-clicks-permitted.log'), $data_json, FILE_APPEND);
+
+                $lr_click = [
+                    'beatname'                  => 'webhookbeat',
+                    'device_type'               => 'PROOFPOINT',
+                    'sender'                    => $data['sender'],
+                    'recipient'                 => $data['recipient'],
+                    'sip'                       => $data['sender_ip'],
+                    'result'                    => $data['proofpoint_type'],
+                    'reason'                    => $data['classification'],
+                    'url'                       => $data['url'],
+                    'status'                    => $data['threat_status'],
+                    'vendorinfo'                => $data['threat_url'],
+                    'whsdp'                     => True,
+                    'fullyqualifiedbeatname'    => 'webhookbeat-proofpoint-click-permitted',
+                    'original_message'          => $data_json
+                ];
+
+                // JSON encode click
+                $lr_click_json = \Metaclassing\Utility::encodeJson($lr_click);
+
+                // post JSON log to webhookbeat on the LR OC
+                $webhook_response = $crawler->post($webhook_uri, '', $lr_click_json);
+                file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
             }
         } else {
             // otherwise pop smoke and bail

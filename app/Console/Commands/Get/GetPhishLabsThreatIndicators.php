@@ -160,48 +160,178 @@ class GetPhishLabsThreatIndicators extends Command
         }
 
         /*
-        $crawler = new \Crawler\Crawler($cookiejar);
-        $headers = [
-            'Content-Type: application/json'
-        ];
-        curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
+            $crawler = new \Crawler\Crawler($cookiejar);
+            $headers = [
+                'Content-Type: application/json'
+            ];
+            curl_setopt($crawler->curl, CURLOPT_HTTPHEADER, $headers);
 
-        $proofpoint_url_decode = 'https://tap-api-v2.proofpoint.com/v2/url/decode';
+            $proofpoint_url_decode = 'https://tap-api-v2.proofpoint.com/v2/url/decode';
 
-        foreach ($indicators_collection as $indicator) {
-            if ($indicator['indicator_type'] == 'URL') {
+            foreach ($indicators_collection as $indicator) {
+                if ($indicator['indicator_type'] == 'URL') {
 
-                $post_body = [
-                    'urls'  => [
-                        $indicator['value']
-                    ]
-                ];
-                $post_body_json = \Metaclassing\Utility::encodeJson($post_body);
+                    $post_body = [
+                        'urls'  => [
+                            $indicator['value']
+                        ]
+                    ];
+                    $post_body_json = \Metaclassing\Utility::encodeJson($post_body);
 
-                $response_json = $crawler->post($proofpoint_url_decode, '', $post_body_json);
-                $response = \Metaclassing\Utility::decodeJson($response_json);
+                    $response_json = $crawler->post($proofpoint_url_decode, '', $post_body_json);
+                    $response = \Metaclassing\Utility::decodeJson($response_json);
 
-                foreach ($response['urls'] as $r) {
-                    if ($r['success']) {
-                        $indicator['value'] = $r['encodedUrl'];
+                    foreach ($response['urls'] as $r) {
+                        if ($r['success']) {
+                            $indicator['value'] = $r['encodedUrl'];
+                        }
                     }
                 }
             }
-        }
         */
 
         // dump indicators collection to file
         file_put_contents(storage_path('app/collections/phishlabs-threat-indicators.json'), \Metaclassing\Utility::encodeJson($indicators_collection));
 
+        // setup webhook cookie jar
+        $cookiejar = storage_path('app/cookies/OCwebhook.cookie');
+
+        // setup new crawler
+        $crawler = new \Crawler\Crawler($cookiejar);
+
         // cycle through threat indicators
         foreach ($indicators_collection as $data) {
             // JSON encode each IOC and append to output file
-            $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
-            file_put_contents(storage_path('app/output/phishlabs/'.$date.'-phishlabs-threat-indicators.log'), $data_json, FILE_APPEND);
+            $data_json = \Metaclassing\Utility::encodeJson($data);
+            file_put_contents(storage_path('app/output/phishlabs/'.$date.'-phishlabs-threat-indicators.log'), $data_json."\n", FILE_APPEND);
+
+
+            // if indicator_type is E-mail
+            if ($data['indicator_type'] == 'E-mail') {
+
+                // grab the ioc incident data
+                $ioc_incident = $data['incident'];
+
+                // grab the ioc attributes
+                $ioc_attributes = $data['attributes'];
+
+                $ioc = [
+                    'beatname'                  => 'webhookbeat',
+                    'device_type'               => 'PhishLabs-IOC',
+                    'subject'                   => $ioc_incident['description'],
+                    'vmid'                      => $ioc_incident['reference_id'],
+                    'serialnumber'              => $data['indicator_id'],
+                    'tag1'                      => $data['indicator_type'],
+                    'policy'                    => $data['indicator_type'],
+                    'status'                    => $data['false_positive'],
+                    'sender'                    => $ioc_attributes['from']['value'],
+                    'recipient'                 => $ioc_attributes['to']['value'],
+                    'whsdp'                     => True,
+                    'fullyqualifiedbeatname'    => 'webhookbeat-phishlabs-ioc',
+                    'original_message'          => $data_json
+                ];
+
+            }
+            // elseif indicator_type is Attachment
+            elseif ($data['indicator_type'] == 'Attachment') {
+
+                // grab the ioc incident data
+                $ioc_incident = $data['incident'];
+
+                // grab the ioc attributes
+                $ioc_attributes = $data['attributes'];
+
+                $ioc = [
+                    'beatname'                  => 'webhookbeat',
+                    'device_type'               => 'PhishLabs-IOC',
+                    'subject'                   => $ioc_incident['description'],
+                    'vmid'                      => $ioc_incident['reference_id'],
+                    'serialnumber'              => $data['indicator_id'],
+                    'tag1'                      => $data['indicator_type'],
+                    'policy'                    => $data['indicator_type'],
+                    'status'                    => $data['false_positive'],
+                    'hash'                      => $ioc_attributes['md5']['value'],
+                    'objecttype'                => $ioc_attributes['filetype']['value'],
+                    'object'                    => $ioc_attributes['name']['value'],
+                    'recipient'                 => $ioc_attributes['to']['value'],
+                    'whsdp'                     => True,
+                    'fullyqualifiedbeatname'    => 'webhookbeat-phishlabs-ioc',
+                    'original_message'          => $data_json
+                ];
+
+            }
+            // elseif indicator_type is EmailAddress
+            elseif ($data['indicatory_type'] == 'EmailAddress') {
+
+                // grab the ioc incident data
+                $ioc_incident = $data['incident'];
+
+                $ioc = [
+                    'beatname'                  => 'webhookbeat',
+                    'device_type'               => 'PhishLabs-IOC',
+                    'subject'                   => $ioc_incident['description'],
+                    'vmid'                      => $ioc_incident['reference_id'],
+                    'serialnumber'              => $data['indicator_id'],
+                    'tag1'                      => $data['indicator_type'],
+                    'policy'                    => $data['indicator_type'],
+                    'status'                    => $data['false_positive'],
+                    'sender'                    => $data['value'],
+                    'whsdp'                     => True,
+                    'fullyqualifiedbeatname'    => 'webhookbeat-phishlabs-ioc',
+                    'original_message'          => $data_json
+                ];
+
+            }
+            // elseif indicator_type is URL
+            elseif ($data['indicator_type'] == 'URL') {
+
+                // grab the ioc incident data
+                $ioc_incident = $data['incident'];
+
+                $ioc = [
+                    'beatname'                  => 'webhookbeat',
+                    'device_type'               => 'PhishLabs-IOC',
+                    'subject'                   => $ioc_incident['description'],
+                    'vmid'                      => $ioc_incident['reference_id'],
+                    'serialnumber'              => $data['indicator_id'],
+                    'tag1'                      => $data['indicator_type'],
+                    'policy'                    => $data['indicator_type'],
+                    'status'                    => $data['false_positive'],
+                    'url'                       => $data['value'],
+                    'whsdp'                     => True,
+                    'fullyqualifiedbeatname'    => 'webhookbeat-phishlabs-ioc',
+                    'original_message'          => $data_json
+                ];
+
+            }
+            // else
+            else {
+
+                // grab the ioc incident data
+                $ioc_incident = $data['incident'];
+
+                $ioc = [
+                    'beatname'                  => 'webhookbeat',
+                    'device_type'               => 'PhishLabs-IOC',
+                    'subject'                   => $ioc_incident['description'],
+                    'vmid'                      => $ioc_incident['reference_id'],
+                    'serialnumber'              => $data['indicator_id'],
+                    'tag1'                      => $data['indicator_type'],
+                    'policy'                    => $data['indicator_type'],
+                    'status'                    => $data['false_positive'],
+                    'whsdp'                     => True,
+                    'fullyqualifiedbeatname'    => 'webhookbeat-phishlabs-ioc',
+                    'original_message'          => $data_json
+                ];
+
+            }
+
+            // JSON encode ioc
+            $ioc_json = \Metaclassing\Utility::encodeJson($ioc);
 
             // post JSON log to webhookbeat on the LR OC
-            $webhook_response = $crawler->post($webhook_uri, '', $data_json);
-            file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
+            $webhook_response = $crawler->post($webhook_uri, '', $ioc_json);
+            file_put_contents(storage_path('app/responses/phishlabs_threats_webhook.response'), $webhook_response);
         }
 
         Log::info('[GetPhishLabsThreatIndicators.php] DONE!');

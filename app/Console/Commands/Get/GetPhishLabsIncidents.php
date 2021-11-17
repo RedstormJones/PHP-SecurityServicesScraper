@@ -112,11 +112,39 @@ class GetPhishLabsIncidents extends Command
         // cycle through indicents
         foreach ($incidents as $data) {
             // JSON encode incident and append to output file
-            $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
-            file_put_contents(storage_path('app/output/phishlabs_incidents/'.$output_date.'-phishlabs-incidents.log'), $data_json, FILE_APPEND);
+            $data_json = \Metaclassing\Utility::encodeJson($data);
+            file_put_contents(storage_path('app/output/phishlabs_incidents/'.$output_date.'-phishlabs-incidents.log'), $data_json."\n", FILE_APPEND);
 
-            $webhook_response = $crawler->post($webhook_uri, '', $data_json);
-            file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
+            // just put the details into their own array
+            $data_details = $data['details'];
+
+            // metadata transformations to adhere to LR schema
+            $incident = [
+                'beatname'                  => 'webhookbeat',
+                'device_type'               => 'PhishLabs_Incident',
+                'vmid'                      => $data['id'],
+                'vendorinfo'                => $data['service'],
+                'subject'                   => $data['title'],
+                'status'                    => $data['status'],
+                'object'                    => $data_details['caseType'],
+                'objectname'                => $data_details['classification'],
+                'tag1'                      => $data_details['classification'],
+                'objecttype'                => $data_details['subClassification'],
+                'severity'                  => $data_details['severity'],
+                'recipient'                 => $data_details['emailReportedBy'],
+                'sender'                    => $data_details['sender'],
+                'threatname'                => $data_details['payloadFamily'],
+                'milliseconds'              => $data['duration'],
+                'whsdp'                     => True,
+                'fullyqualifiedbeatname'    => 'webhookbeat-phishlabs-incident',
+                'original_message'          => \Metaclassing\Utility::encodeJson($data)
+            ];
+
+            // JSON encode incident
+            $incident_json = \Metaclassing\Utility::encodeJson($incident);
+
+            $webhook_response = $crawler->post($webhook_uri, '', $incident_json);
+            file_put_contents(storage_path('app/responses/phishlabs_incidents_webhook.response'), $webhook_response);
         }
 
         Log::info('[GetPhishLabsIncidents.php] DONE!');
