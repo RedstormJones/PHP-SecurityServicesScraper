@@ -261,7 +261,7 @@ class GetPhishLabsThreatIndicators extends Command
 
             }
             // elseif indicator_type is EmailAddress
-            elseif ($data['indicatory_type'] == 'EmailAddress') {
+            elseif ($data['indicator_type'] == 'EmailAddress') {
 
                 // grab the ioc incident data
                 $ioc_incident = $data['incident'];
