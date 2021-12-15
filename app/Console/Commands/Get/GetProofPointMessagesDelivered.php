@@ -213,6 +213,8 @@ class GetProofPointMessagesDelivered extends Command
                 $data_json = \Metaclassing\Utility::encodeJson($data)."\n";
                 file_put_contents(storage_path('app/output/proofpoint/messages/'.$date.'-proofpoint-messages-delivered.log'), $data_json, FILE_APPEND);
 
+                $threat_info = $data['threats_info_map'];
+
                 $lr_message = [
                     'beatname'                  => 'webhookbeat',
                     'device_type'               => 'PROOFPOINT',
