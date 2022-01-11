@@ -214,6 +214,7 @@ class GetProofPointClicksPermitted extends Command
                     'url'                       => $data['url'],
                     'status'                    => $data['threat_status'],
                     'vendorinfo'                => $data['threat_url'],
+                    'useragent'                 => $data['user_agent'],
                     'whsdp'                     => True,
                     'fullyqualifiedbeatname'    => 'webhookbeat-proofpoint-click-permitted',
                     'original_message'          => $data_json

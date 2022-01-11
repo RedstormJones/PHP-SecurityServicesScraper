@@ -217,6 +217,7 @@ class GetProofPointClicksBlocked extends Command
                     'url'                       => $data['url'],
                     'status'                    => $data['threat_status'],
                     'vendorinfo'                => $data['threat_url'],
+                    'useragent'                 => $data['user_agent'],
                     'whsdp'                     => True,
                     'fullyqualifiedbeatname'    => 'webhookbeat-proofpoint-click-blocked',
                     'original_message'          => $data_json
