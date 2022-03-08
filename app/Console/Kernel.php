@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // Commands run on an hourly basis
-        $schedule->command('get:defenderatpalerts')->hourly()->timezone('America/Chicago');
+        //$schedule->command('get:defenderatpalerts')->hourly()->timezone('America/Chicago');
         $schedule->command('get:newdomains')->hourly()->timezone('America/New_York');
 
         // Commands run every ten minutes
