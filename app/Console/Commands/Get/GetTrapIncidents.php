@@ -256,6 +256,8 @@ class GetTrapIncidents extends Command
                             'subject'                   => $subject,
                             'reason'                    => $spam_reason,
                             'url'                       => $url_str,
+                            'tag1'                      => $field_values_array['Classification'],
+                            'tag2'                      => $field_values_array['Abuse Disposition'],
                             'whsdp'                     => true,
                             'fullyqualifiedbeatname'    => 'webhookbeat-proofpoint-trap-incident',
                             'original_message'          => \Metaclassing\Utility::encodeJson($new_original_message)
