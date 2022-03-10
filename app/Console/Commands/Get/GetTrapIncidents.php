@@ -65,7 +65,7 @@ class GetTrapIncidents extends Command
 
 
         # setup UTC datetime
-        $created_after = Carbon::now()->subHour()->toIso8601ZuluString();
+        $created_after = Carbon::now()->subMinutes(10)->toIso8601ZuluString();
         Log::info('[GetTrapIncidents.php] created after date: '.$created_after);
 
         // setup url params and convert to &-delimited string
