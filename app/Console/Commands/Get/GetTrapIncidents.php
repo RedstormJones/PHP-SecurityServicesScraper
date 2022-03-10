@@ -178,6 +178,7 @@ class GetTrapIncidents extends Command
                                         $url_str = $urls[0];
                                     }
 
+                                    // rebuild emails array with only the important stuff
                                     $new_emails_array[] = [
                                         'messageId'     => $email['messageId'],
                                         'sender'        => $sender_email,
@@ -192,6 +193,7 @@ class GetTrapIncidents extends Command
                                 }
                             }
 
+                            // rebuild events array with new email array
                             $new_events_array[] = [
                                 'eventId'           => $event['id'],
                                 'alertType'         => $event['alertType'],
@@ -203,6 +205,7 @@ class GetTrapIncidents extends Command
                                 'emails'            => $new_emails_array
                             ];
 
+                            // if we have botha  sender and recipient email then break from processing events
                             if ($sender_email && $recipient_email) {
                                 break;
                             }
