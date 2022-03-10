@@ -87,7 +87,6 @@ class GetTrapIncidents extends Command
             die('[GetTrapIncidents.php] attempt to decode JSON response failed: '.$e->getMessage());
         }
 
-        Log::info('[GetTrapIncidents.php] incidents count: '.count($response));
 
         // cycle through each incident in the response
         foreach ($response as $incident) {
@@ -95,6 +94,7 @@ class GetTrapIncidents extends Command
 
                 foreach($incident['event_sources'] as $source) {
                     if ($source == "CLEAR") {
+                        Log::info('[GetTrapIncidents.php] found CLEAR incident with Closed state: '.$incident['id']);
 
                         // instantiate the event sources string we're about to build
                         $event_sources_str = '';
@@ -210,26 +210,26 @@ class GetTrapIncidents extends Command
 
                         // build new original message
                         $new_original_message = [
-                            'incident_id'        => $incident['id'],
-                            'summary'           => $incident['summary'],
-                            'description'       => $incident['description'],
-                            'score'             => $incident['score'],
-                            'state'             => $incident['state'],
-                            'created_at'        => $incident['created_at'],
-                            'updated_at'        => $incident['updated_at'],
-                            'closed_at'         => $incident['closed_at'],
-                            'close_summary'     => $incident['close_summary'],
-                            'close_detail'      => $incident['close_detail'],
-                            'event_count'       => $incident['event_count'],
-                            'false_positive_count'  => $incident['false_positive_count'],
-                            'event_sources'         => $incident['event_sources'],
-                            'users'                 => $incident['users'],
-                            'assignee'              => $incident['assignee'],
-                            'team'                  => $incident['team'],
-                            'incident_field_values' => $incident['incident_field_values'],
-                            'events'                => $new_events_array,
-                            'comments'              => $incident['comments'],
-                            'quarantine_results'    => $incident['quarantine_results'],
+                            'incident_id'               => $incident['id'],
+                            'summary'                   => $incident['summary'],
+                            'description'               => $incident['description'],
+                            'score'                     => $incident['score'],
+                            'state'                     => $incident['state'],
+                            'created_at'                => $incident['created_at'],
+                            'updated_at'                => $incident['updated_at'],
+                            'closed_at'                 => $incident['closed_at'],
+                            'close_summary'             => $incident['close_summary'],
+                            'close_detail'              => $incident['close_detail'],
+                            'event_count'               => $incident['event_count'],
+                            'false_positive_count'      => $incident['false_positive_count'],
+                            'event_sources'             => $incident['event_sources'],
+                            'users'                     => $incident['users'],
+                            'assignee'                  => $incident['assignee'],
+                            'team'                      => $incident['team'],
+                            'incident_field_values'     => $incident['incident_field_values'],
+                            'events'                    => $new_events_array,
+                            'comments'                  => $incident['comments'],
+                            'quarantine_results'        => $incident['quarantine_results'],
                             'successful_quarantines'    => $incident['successful_quarantines'],
                             'failed_quarantines'        => $incident['failed_quarantines'],
                             'pending_quarantines'       => $incident['pending_quarantines']
