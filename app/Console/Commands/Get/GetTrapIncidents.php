@@ -167,15 +167,17 @@ class GetTrapIncidents extends Command
                                         $spam_reason = $headers['X-Proofpoint-Spam-Reason'];
                                     }
                                     
-                                    $urls = $email['urls'];
-                                    if (count($urls) > 1) {
-                                        /*foreach ($email['urls'] as $url) {
-                                            $url_str .= $url.';';
-                                        }*/
+                                    if (array_key_exists('urls', $email)) {
+                                        $urls = $email['urls'];
+                                        if (count($urls) > 1) {
+                                            /*foreach ($email['urls'] as $url) {
+                                                $url_str .= $url.';';
+                                            }*/
 
-                                        $url_str = implode(';', $urls);
-                                    } else {
-                                        $url_str = $urls[0];
+                                            $url_str = implode(';', $urls);
+                                        } else {
+                                            $url_str = $urls[0];
+                                        }
                                     }
 
                                     // rebuild emails array with only the important stuff
