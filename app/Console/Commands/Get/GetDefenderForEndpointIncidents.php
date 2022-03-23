@@ -230,6 +230,10 @@ class GetDefenderForEndpointIncidents extends Command
             $webhook_response = $crawler->post($webhook_uri, '', \Metaclassing\Utility::encodeJson($oc_log));
             file_put_contents(storage_path('app/responses/deffore_webhook.response'), $webhook_response);
 
+            // be easy on the OC
+            sleep(1);
+
+
             // clear out the key/value pairs specific to the incident log
             $oc_log['vendorinfo'] = null;
             $oc_log['timestamp.iso1806'] = null;
@@ -284,6 +288,9 @@ class GetDefenderForEndpointIncidents extends Command
                 // post alert log to the OC webhookbeat and dump response to file
                 $webhook_response = $crawler->post($webhook_uri, '', \Metaclassing\Utility::encodeJson($oc_log));
                 file_put_contents(storage_path('app/responses/deffore_webhook.response'), $webhook_response);
+
+                // be easy on the OC
+                sleep(1);
 
                 // clear out the key/value pairs specific to the alert log
                 $oc_log['timestamp.iso1806'] = null;
@@ -347,6 +354,10 @@ class GetDefenderForEndpointIncidents extends Command
                     // post device log to the OC webhookbeat and dump response to file
                     $webhook_response = $crawler->post($webhook_uri, '', \Metaclassing\Utility::encodeJson($oc_log));
                     file_put_contents(storage_path('app/responses/deffore_webhook.response'), $webhook_response);
+
+                    // be easy on the OC
+                    sleep(1);
+
                     
                     // clear out the key/value pairs specific to the device log
                     $oc_log['object'] = null;
@@ -391,6 +402,10 @@ class GetDefenderForEndpointIncidents extends Command
                         // post user log to the OC webhookbeat and dump response to file
                         $webhook_response = $crawler->post($webhook_uri, '', \Metaclassing\Utility::encodeJson($oc_log));
                         file_put_contents(storage_path('app/responses/deffore_webhook.response'), $webhook_response);
+
+                        // be easy on the OC
+                        sleep(1);
+
 
                         // clear out the key/value pairs specific to the user log
                         $oc_log['account'] = null;
@@ -506,6 +521,10 @@ class GetDefenderForEndpointIncidents extends Command
                     // post entity log to the OC webhookbeat and dump response to file
                     $webhook_response = $crawler->post($webhook_uri, '', \Metaclassing\Utility::encodeJson($oc_log));
                     file_put_contents(storage_path('app/responses/deffore_webhook.response'), $webhook_response);
+
+                    // be easy on the OC
+                    sleep(1);
+
 
                     // clear out key/value pairs specific to entity logs
                     $oc_log['size'] = null;
