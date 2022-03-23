@@ -32,7 +32,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:newdomains')->hourly()->timezone('America/New_York');
 
         // Commands run every ten minutes
-        $schedule->command('get:endpointincidents')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:trapincidents')->everyTenMinutes()->timezone('America/Chicago');
         // $schedule->command('get:threatindicators')->everyTenMinutes()->timezone('America/Chicago');
         // $schedule->command('get:phishlabsincidents')->everyTenMinutes()->timezone('America/Chicago');
@@ -41,6 +40,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('get:ppclicksblocked')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:ppmessagesdelivered')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:ppmessagesblocked')->everyTenMinutes()->timezone('America/Chicago');
+
+        // Commands run every 5 minutes
+        $schedule->command('get:endpointincidents')->everyFiveMinutes()->timezone('America/Chicago');
     }
 
     /**
