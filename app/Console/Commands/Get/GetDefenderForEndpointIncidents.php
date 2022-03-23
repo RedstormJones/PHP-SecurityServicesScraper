@@ -513,7 +513,10 @@ class GetDefenderForEndpointIncidents extends Command
                         $oc_log['vendorinfo'] = $entity['registryKey'];
                         $oc_log['version'] = $entity['registryValueType'];
                         $oc_log['subject'] = $entity['registryValue'];
-                        $oc_log['object'] = $entity['deviceId'];
+
+                        if (array_key_exists('deviceId', $entity)) {
+                            $oc_log['object'] = $entity['deviceId'];
+                        }
                     }
 
                     file_put_contents(storage_path('app/output/defender/entities/'.$output_date.'-entities.json'), \Metaclassing\Utility::encodeJson($oc_log).PHP_EOL, FILE_APPEND);
