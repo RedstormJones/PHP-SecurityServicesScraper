@@ -111,7 +111,7 @@ class GetDefenderForEndpointIncidents extends Command
             foreach ($response['value'] as $value) {
                 $deffore_incidents[] = $value;
             }
-            Log::info('[GetDefenderForEndpointIncidents.php] received ['.count($response['value']).'] incidents from Defender ATP');
+            Log::info('[GetDefenderForEndpointIncidents.php] received ['.count($response['value']).'] incidents from Defender for Endpoint API');
         } catch (\Exception $e) {
             Log::error('[GetDefenderForEndpointIncidents.php] ERROR: failed to decode JSON response: '.$e->getMessage());
             die('[GetDefenderForEndpointIncidents.php] ERROR: failed to decode JSON response: '.$e->getMessage().PHP_EOL);
@@ -131,7 +131,7 @@ class GetDefenderForEndpointIncidents extends Command
                 foreach ($response['value'] as $value) {
                     $deffore_incidents[] = $value;
                 }
-                Log::info('[GetDefenderForEndpointIncidents.php] received ['.count($response['value']).'] incidents from Defender ATP');
+                Log::info('[GetDefenderForEndpointIncidents.php] received ['.count($response['value']).'] incidents from Defender for Endpoint API');
             } catch (\Exception $e) {
                 Log::error('[GetDefenderForEndpointIncidents.php] ERROR: failed to decode JSON response: '.$e->getMessage());
                 die('[GetDefenderForEndpointIncidents.php] ERROR: failed to decode JSON response: '.$e->getMessage().PHP_EOL);
