@@ -486,7 +486,10 @@ class GetDefenderForEndpointIncidents extends Command
                     // set fields specific to Process entities
                     if ($entity['entityType'] == 'Process') {
                         $oc_log['processid'] = $entity['processId'];
-                        $oc_log['command'] = $entity['processCommandLine'];
+
+                        if (array_key_exists('processCommandLine', $entity)) {
+                            $oc_log['command'] = $entity['processCommandLine'];
+                        }
                         
                         if (array_key_exists('parentProcessId', $entity)) {
                             $oc_log['parentprocessid'] = $entity['parentProcessId'];
