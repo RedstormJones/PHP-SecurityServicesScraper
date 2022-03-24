@@ -279,6 +279,7 @@ class GetDefenderForEndpointIncidents extends Command
                 $oc_log['status'] = $alert['status'];
                 $oc_log['severity'] = $alert['severity'];
                 $oc_log['reason'] = $alert['classification'];
+                $oc_log['parentprocessname'] = $alert['detectionSource'];
                 $oc_log['tag3'] = $alert['detectionSource'];
                 $oc_log['threatname'] = $alert['threatFamilyName'];
 
@@ -301,6 +302,7 @@ class GetDefenderForEndpointIncidents extends Command
                 $oc_log['status'] = null;
                 $oc_log['severity'] = null;
                 $oc_log['reason'] = null;
+                $oc_log['parentprocessname'] = null;
                 $oc_log['tag3'] = null;
                 $oc_log['threatname'] = null;
 
