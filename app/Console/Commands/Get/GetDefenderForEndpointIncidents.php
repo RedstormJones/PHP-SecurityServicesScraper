@@ -453,7 +453,10 @@ class GetDefenderForEndpointIncidents extends Command
                         $oc_log['sender'] = $entity['sender'];
                         $oc_log['recipient'] = $entity['recipient'];
                         $oc_log['subject'] = $entity['subject'];
-                        $oc_log['action'] = $entity['deliveryAction'];
+
+                        if (array_key_exists('deliveryAction', $entity)) {
+                            $oc_log['action'] = $entity['deliveryAction'];
+                        }
                     }
 
                     // set fields specific to Mailbox entities
