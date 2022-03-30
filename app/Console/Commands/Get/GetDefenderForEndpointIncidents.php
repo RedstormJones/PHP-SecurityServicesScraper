@@ -265,6 +265,7 @@ class GetDefenderForEndpointIncidents extends Command
                     severity            => severity
                     classification      => reason
                     detectionSource     => tag3
+                    detectionSource     => parentprocessname
                     threatFamilyName    => threatname
                 */
                 
@@ -574,6 +575,9 @@ class GetDefenderForEndpointIncidents extends Command
                     $oc_log['status'] = null;
 
                 } // end of alert entities loop
+
+                // reset the quantity field to the count of alerts in the incident for the next alert loop
+                $oc_log['quantity']  = count($incident['alerts']);
 
             } // end of incident alerts loop
 
