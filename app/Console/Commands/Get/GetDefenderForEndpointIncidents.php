@@ -95,7 +95,7 @@ class GetDefenderForEndpointIncidents extends Command
 
         // setup url params
         $url_params = [
-            "\$filter"   => "createdTime+gt+".$created_after."+and+status+eq+'Active'"
+            "\$filter"   => "createdTime+ge+".$created_after."+and+status+eq+'Active'"
         ];
         $url_params_str = $this->postArrayToString($url_params);
 
@@ -454,7 +454,10 @@ class GetDefenderForEndpointIncidents extends Command
                         $oc_log['account'] = $entity['userPrincipalName'];
                         $oc_log['sender'] = $entity['sender'];
                         $oc_log['recipient'] = $entity['recipient'];
-                        $oc_log['subject'] = $entity['subject'];
+
+                        if (array_key_exists('subject', $entity)) {
+                            $oc_log['subject'] = $entity['subject'];
+                        }
 
                         if (array_key_exists('deliveryAction', $entity)) {
                             $oc_log['action'] = $entity['deliveryAction'];
@@ -474,7 +477,10 @@ class GetDefenderForEndpointIncidents extends Command
 
                     // set fields specific to File entities
                     if ($entity['entityType'] == 'File') {
-                        $oc_log['hash'] = $entity['sha1'];
+                        if (array_key_exists('sha1', $entity)) {
+                            $oc_log['hash'] = $entity['sha1'];
+                        }
+
                         $oc_log['vendorinfo'] = $entity['filePath'].'\\'.$entity['fileName'];
                         $oc_log['object'] = $entity['deviceId'];
 
@@ -500,8 +506,12 @@ class GetDefenderForEndpointIncidents extends Command
                     if ($entity['entityType'] == 'User') {
                         $oc_log['account'] = $entity['accountName'];
                         $oc_log['login'] = $entity['accountName'];
-                        $oc_log['domainimpacted'] = $entity['domainName'];
-                        $oc_log['domainorigin'] = $entity['domainName'];
+                        
+                        if (array_key_exists('domainName', $entity)) {
+                            $oc_log['domainimpacted'] = $entity['domainName'];
+                            $oc_log['domainorigin'] = $entity['domainName'];
+                        }
+
                         $oc_log['objectname'] = $entity['aadUserId'];
                     }
 

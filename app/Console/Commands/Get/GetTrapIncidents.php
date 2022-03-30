@@ -152,14 +152,24 @@ class GetTrapIncidents extends Command
                             foreach ($event['emails'] as $email) {
                                 // grab recipeint and sender objects
                                 $recipient = $email['recipient'];
-                                $sender = $email['sender'];
+
+                                if (array_key_exists('sender', $email)) {
+                                    $sender = $email['sender'];
+                                } else {
+                                    $sender = null;
+                                }
 
                                 // check that recipient email is not trapabuse or spam@kiewit.com
                                 if ($recipient['email'] != "trapabuse@kiewit.com" && $recipient['email'] != "spam@kiewit.com") {
                                     // set recipient, sender and subject accordingly
                                     $recipient_email = $recipient['email'];
                                     $sender_email = $sender['email'];
-                                    $subject = $email['subject'];
+
+                                    if (array_key_exists('subject', $email)) {
+                                        $subject = $email['subject'];
+                                    } else {
+                                        $subject = null;
+                                    }
 
                                     // grab email headers and get PP spam reason header
                                     $headers = $email['headers'];
