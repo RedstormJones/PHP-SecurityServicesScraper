@@ -230,7 +230,7 @@ class GetDefenderForEndpointIncidents extends Command
 
             // post incident log to OC webhookbeat
             $webhook_response = $crawler->post($webhook_uri, '', \Metaclassing\Utility::encodeJson($oc_log));
-            file_put_contents(storage_path('app/responses/deffore_webhook.response'), $webhook_response);
+            file_put_contents(storage_path('app/responses/deffore_webhook_incident.response'), $webhook_response);
 
             // be easy on the OC
             sleep(1);
