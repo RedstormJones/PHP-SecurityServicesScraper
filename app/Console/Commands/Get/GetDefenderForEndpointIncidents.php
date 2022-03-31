@@ -82,6 +82,8 @@ class GetDefenderForEndpointIncidents extends Command
         //$created_after = Carbon::now()->subHour()->toIso8601ZuluString();
         //$created_after = Carbon::now()->subHours(24)->toIso8601ZuluString();
         $created_after = Carbon::now()->subMinutes(5)->toIso8601ZuluString();
+        $created_after_10 = Carbon::now()->subMinutes(10)->toIso8601ZuluString();
+
         Log::info('[GetDefenderForEndpointIncidents.php] created after datetime: '.$created_after);
 
         // re-instantiate crawler to get incidents from the Defender for Endpoint Incidents API
@@ -95,7 +97,7 @@ class GetDefenderForEndpointIncidents extends Command
 
         // setup url params
         $url_params = [
-            "\$filter"   => "createdTime+ge+".$created_after."+and+status+eq+'Active'"
+            "\$filter"   => "createdTime+ge+".$created_after_10."+and+createdTime+lt+$created_after+and+status+eq+'Active'"
         ];
         $url_params_str = $this->postArrayToString($url_params);
 
