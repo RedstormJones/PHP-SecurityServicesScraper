@@ -84,7 +84,7 @@ class GetDefenderForEndpointIncidents extends Command
         $created_after = Carbon::now()->subMinutes(5)->toIso8601ZuluString();
         $created_after_10 = Carbon::now()->subMinutes(10)->toIso8601ZuluString();
 
-        Log::info('[GetDefenderForEndpointIncidents.php] created after datetime: '.$created_after);
+        Log::info('[GetDefenderForEndpointIncidents.php] created after datetime range: '.$created_after_10.' - '.$created_after);
 
         // re-instantiate crawler to get incidents from the Defender for Endpoint Incidents API
         $crawler = new \Crawler\Crawler($cookiejar);
