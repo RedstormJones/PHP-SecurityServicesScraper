@@ -246,6 +246,7 @@ class GetDefenderForEndpointIncidents extends Command
 
             // set the quantity field to the count of alerts in the incident
             $oc_log['quantity']  = count($incident['alerts']);
+            Log::info('[GetDefenderForEndpointIncidents.php] found '.count($incident['alerts']).' alerts for incident '.$incident['incidentId']);
 
             // instantiate the number of the alert we are currently processing
             $alert_current = 0;
@@ -311,6 +312,7 @@ class GetDefenderForEndpointIncidents extends Command
 
                 // set the quantity field to the count of devices in the alert
                 $oc_log['quantity'] = count($alert['devices']);
+                Log::info('[GetDefenderForEndpointIncidents.php] found '.count($alert['devices']).' devices for alert '.$alert['alertId']);
 
                 // instantiate the number of the device we are currently processing
                 $device_current = 0;
@@ -377,6 +379,7 @@ class GetDefenderForEndpointIncidents extends Command
                     
                     // set the quantity field to the count of logged on users in the device
                     $oc_log['quantity'] = count($device['loggedOnUsers']);
+                    Log::info('[GetDefenderForEndpointIncidents.php] found '.count($device['loggedOnUsers']).' users for device '.$device_current.' in alert '.$alert['alertId']);
 
                     // instantiate the number of the user we are currently processing
                     $user_current = 0;
@@ -423,6 +426,7 @@ class GetDefenderForEndpointIncidents extends Command
 
                 // set the quantity field to the count of entities in the alert
                 $oc_log['quantity'] = count($alert['entities']);
+                Log::info('[GetDefenderForEndpointIncidents.php] found '.count($alert['entities']).' entities for alert '.$alert['alertId']);
 
                 // instantiate the number of the entity we are currently processing
                 $entity_current = 0;
