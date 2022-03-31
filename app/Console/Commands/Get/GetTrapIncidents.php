@@ -172,11 +172,13 @@ class GetTrapIncidents extends Command
                                     }
 
                                     // grab email headers and get PP spam reason header
-                                    $headers = $email['headers'];
-                                    if (array_key_exists('X-Proofpoint-Spam-Reason', $headers)) {
-                                        $spam_reason = $headers['X-Proofpoint-Spam-Reason'];
+                                    if (array_key_exists('headers', $email)) {
+                                        $headers = $email['headers'];
+                                        if (array_key_exists('X-Proofpoint-Spam-Reason', $headers)) {
+                                            $spam_reason = $headers['X-Proofpoint-Spam-Reason'];
+                                        }
                                     }
-                                    
+
                                     if (array_key_exists('urls', $email)) {
                                         $urls = $email['urls'];
                                         if (count($urls) > 1) {
