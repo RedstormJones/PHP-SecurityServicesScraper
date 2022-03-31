@@ -244,15 +244,17 @@ class GetDefenderForEndpointIncidents extends Command
 
 
 
+            $alerts = $incident['alerts'];
+
             // set the quantity field to the count of alerts in the incident
-            $oc_log['quantity']  = count($incident['alerts']);
-            Log::info('[GetDefenderForEndpointIncidents.php] found '.count($incident['alerts']).' alerts for incident '.$incident['incidentId']);
+            $oc_log['quantity']  = count($alerts);
+            Log::info('[GetDefenderForEndpointIncidents.php] found '.count($alerts).' alerts for incident '.$incident['incidentId']);
 
             // instantiate the number of the alert we are currently processing
             $alert_current = 0;
 
             // cycle through incident alerts and build incident alert logs
-            foreach ($incident['alerts'] as $alert) {
+            foreach ($alerts as $alert) {
                 /*
                     'Alert'             => objectype
                     *incidentId         => serialnumber
@@ -310,15 +312,17 @@ class GetDefenderForEndpointIncidents extends Command
 
 
 
+                $devices = $alert['devices'];
+
                 // set the quantity field to the count of devices in the alert
-                $oc_log['quantity'] = count($alert['devices']);
-                Log::info('[GetDefenderForEndpointIncidents.php] found '.count($alert['devices']).' devices for alert '.$alert['alertId']);
+                $oc_log['quantity'] = count($devices);
+                Log::info('[GetDefenderForEndpointIncidents.php] found '.count($devices).' devices for alert '.$alert['alertId']);
 
                 // instantiate the number of the device we are currently processing
                 $device_current = 0;
 
                 // cycle through entities and create alert entities logs
-                foreach ($alert['devices'] as $device) {
+                foreach ($devices as $device) {
                     /*
                         objecttype      => 'Device'
                         *serialnumber   => incidentId
@@ -377,15 +381,17 @@ class GetDefenderForEndpointIncidents extends Command
                     $oc_log['policy'] = null;
 
                     
+                    $users = $device['loggedOnUsers'];
+
                     // set the quantity field to the count of logged on users in the device
-                    $oc_log['quantity'] = count($device['loggedOnUsers']);
-                    Log::info('[GetDefenderForEndpointIncidents.php] found '.count($device['loggedOnUsers']).' users for device '.$device_current.' in alert '.$alert['alertId']);
+                    $oc_log['quantity'] = count($users);
+                    Log::info('[GetDefenderForEndpointIncidents.php] found '.count($users).' users for device '.$device_current.' in alert '.$alert['alertId']);
 
                     // instantiate the number of the user we are currently processing
                     $user_current = 0;
 
                     // cycle through users and create alert users logs
-                    foreach ($device['loggedOnUsers'] as $user) {
+                    foreach ($users as $user) {
                         /*
                             objecttype      => 'User'
                             *serialnumber   => incidentId
@@ -424,15 +430,17 @@ class GetDefenderForEndpointIncidents extends Command
                 } // end of alert devices loop
 
 
+                $entities = $alert['entities'];
+
                 // set the quantity field to the count of entities in the alert
-                $oc_log['quantity'] = count($alert['entities']);
-                Log::info('[GetDefenderForEndpointIncidents.php] found '.count($alert['entities']).' entities for alert '.$alert['alertId']);
+                $oc_log['quantity'] = count($entities);
+                Log::info('[GetDefenderForEndpointIncidents.php] found '.count($entities).' entities for alert '.$alert['alertId']);
 
                 // instantiate the number of the entity we are currently processing
                 $entity_current = 0;
 
                 // cycle through devices and create alert devices logs
-                foreach ($alert['entities'] as $entity) {
+                foreach ($entities as $entity) {
                     /*
                         objecttype          => 'Entity'
                         *serialnumber       => incidentId
@@ -581,7 +589,7 @@ class GetDefenderForEndpointIncidents extends Command
                 } // end of alert entities loop
 
                 // reset the quantity field to the count of alerts in the incident for the next alert loop
-                $oc_log['quantity']  = count($incident['alerts']);
+                $oc_log['quantity']  = count($alerts);
 
             } // end of incident alerts loop
 
