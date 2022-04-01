@@ -181,7 +181,8 @@ class GetDefenderForEndpointIncidents extends Command
                 'reason'                    => $incident['classification'],
                 'status'                    => $incident['status'],
                 'severity'                  => $incident['severity'],
-                'original_message'          => $incident,
+                // 'original_message'          => $incident,
+                'original_message'          => urldecode($incident['incidentUri']),
                 'whsdp'                     => True,
                 'fullyqualifiedbeatname'    => 'webhookbeat-defender-incident',
 
