@@ -497,7 +497,10 @@ class GetDefenderForEndpointIncidents extends Command
                             $oc_log['hash'] = $entity['sha1'];
                         }
 
-                        $oc_log['vendorinfo'] = $entity['filePath'].'\\'.$entity['fileName'];
+                        if (array_key_exists('filePath', $entity) && array_key_exists('fileName', $entity)) {
+                            $oc_log['vendorinfo'] = $entity['filePath'].'\\'.$entity['fileName'];
+                        }
+
                         $oc_log['object'] = $entity['deviceId'];
 
                         if (array_key_exists('detectionStatus', $entity)) {
