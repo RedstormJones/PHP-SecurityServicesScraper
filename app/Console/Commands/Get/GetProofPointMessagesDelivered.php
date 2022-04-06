@@ -66,16 +66,18 @@ class GetProofPointMessagesDelivered extends Command
         $since_seconds = 600;
         $url = 'https://tap-api-v2.proofpoint.com/v2/siem/messages/delivered?format=json&sinceSeconds='.$since_seconds;
 
-        // send GET request to url and dump response to file
-        $json_response = $crawler->get($url);
-        file_put_contents(storage_path('app/responses/proofpoint_messages_delivered.response'), $json_response);
 
         // try to JSON decode the response
         try {
+            // send GET request to url and dump response to file
+            $json_response = $crawler->get($url);
+            file_put_contents(storage_path('app/responses/proofpoint_messages_delivered.response'), $json_response);
+
             $response = \Metaclassing\Utility::decodeJson($json_response);
         } catch (\Exception $e) {
             $response = null;
             Log::error('[GetProofPointMessagesDelivered.php] '.$e->getMessage());
+            die('[GetProofPointMessagesDelivered.php] '.$e->getMessage());
         }
 
         if ($response) {
