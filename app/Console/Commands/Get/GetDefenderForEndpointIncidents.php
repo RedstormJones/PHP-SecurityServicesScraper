@@ -98,6 +98,7 @@ class GetDefenderForEndpointIncidents extends Command
         // setup url params
         $url_params = [
             "\$filter"   => "createdTime+ge+".$created_after_10."+and+createdTime+lt+$created_after+and+status+eq+'Active'"
+            //"\$filter"   => "createdTime+ge+".$created_after."+and+status+eq+'Active'"
         ];
         $url_params_str = $this->postArrayToString($url_params);
 
@@ -171,6 +172,7 @@ class GetDefenderForEndpointIncidents extends Command
                 severity            => severity
             */
 
+
             $oc_log = [
                 // these key/value pairs should persist down into sub-logs
                 'objecttype'                => 'Incident',
@@ -181,6 +183,7 @@ class GetDefenderForEndpointIncidents extends Command
                 'reason'                    => $incident['classification'],
                 'status'                    => $incident['status'],
                 'severity'                  => $incident['severity'],
+                'parentprocessname'         => $incident['alerts'][0]['detectionSource'],
                 // 'original_message'          => $incident,
                 'original_message'          => urldecode($incident['incidentUri']),
                 'whsdp'                     => True,
@@ -203,7 +206,6 @@ class GetDefenderForEndpointIncidents extends Command
                 'process'                   => null,
                 'processid'                 => null,
                 'parentprocessid'           => null,
-                'parentprocessname'         => null,
                 'quantity'                  => null,
                 'amount'                    => null,
                 'size'                      => null,
@@ -243,6 +245,7 @@ class GetDefenderForEndpointIncidents extends Command
             $oc_log['reason'] = null;
             $oc_log['status'] = null;
             $oc_log['severity'] = null;
+            $oc_log['parentprocessname'] = null;
             $oc_log['original_message'] = null;
 
 
@@ -255,6 +258,7 @@ class GetDefenderForEndpointIncidents extends Command
 
             // instantiate the number of the alert we are currently processing
             $alert_current = 0;
+
 
             // cycle through incident alerts and build incident alert logs
             foreach ($alerts as $alert) {
