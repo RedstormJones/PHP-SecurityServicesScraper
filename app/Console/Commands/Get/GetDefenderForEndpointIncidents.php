@@ -535,7 +535,9 @@ class GetDefenderForEndpointIncidents extends Command
                             $oc_log['domainorigin'] = $entity['domainName'];
                         }
 
-                        $oc_log['objectname'] = $entity['aadUserId'];
+                        if (array_key_exists('aadUserId', $entity)) {
+                            $oc_log['objectname'] = $entity['aadUserId'];
+                        }
                     }
 
                     // set fields specific to IP entities
