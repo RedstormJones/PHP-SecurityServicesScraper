@@ -49,6 +49,8 @@ class GetSaviyntLogs extends Command
         $login_uri = getenv('SAVIYNT_LOGIN_URI');
         $logs_uri = getenv('SAVIYNT_LOGS_URI');
         $webhook_uri = getenv('WEBHOOK_URI');
+        
+        $timeframe = 30;
 
         // create date string for output filename
         $output_date = Carbon::now()->toDateString();
@@ -107,7 +109,7 @@ class GetSaviyntLogs extends Command
             $post_body = [
                 'analyticsname' => 'SIEM Logging2',
                 'attributes'     => [
-                    'timeFrame' => 30
+                    'timeFrame' => $timeframe
                 ]
             ];
             $post_body_json = \Metaclassing\Utility::encodeJson($post_body);
@@ -129,6 +131,7 @@ class GetSaviyntLogs extends Command
 
                 // get results from response
                 $results = $response['results'];
+                Log::info('[GetSaviyntLogs.php] count of results found for last '.$timeframe.' mins: '.count($results));
 
                 foreach ($results as $result) {
                     $object_name = null;
