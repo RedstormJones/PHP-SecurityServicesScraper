@@ -181,8 +181,8 @@ class GetSaviyntLogs extends Command
                     file_put_contents(storage_path('app/output/saviynt/'.$output_date.'.log'), $event_obj_json, FILE_APPEND);
 
                     // post to webhook
-                    //$webhook_response = $crawler->post($webhook_uri, '', $event_obj_json);
-                    //file_put_contents(storage_path('app/responses/saviynt_webhook.response'), $webhook_response);
+                    $webhook_response = $crawler->post($webhook_uri, '', $event_obj_json);
+                    file_put_contents(storage_path('app/responses/saviynt_webhook.response'), $webhook_response);
                 }
             }
 
