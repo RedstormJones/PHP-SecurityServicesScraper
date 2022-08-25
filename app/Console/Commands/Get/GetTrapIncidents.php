@@ -257,6 +257,7 @@ class GetTrapIncidents extends Command
                         $incident_log = [
                             'vmid'                      => $incident['id'],
                             'result'                    => $field_values_array['Abuse Disposition'],
+                            'objectname'                => $field_values_array['Sub Disposition'],
                             'severity'                  => $field_values_array['Severity'],
                             'classification'            => $field_values_array['Classification'],
                             'size'                      => $incident['successful_quarantines'],
