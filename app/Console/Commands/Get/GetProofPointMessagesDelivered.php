@@ -86,8 +86,8 @@ class GetProofPointMessagesDelivered extends Command
 
             // if we didn't get any data then pop smoke and bail
             if (count($messages_delivered) === 0) {
-                Log::info('[GetProofPointMessagesDelivered.php] no new MESSAGES_DELIVERED from ProofPoint for last 1 hour - terminating execution');
-                die('[GetProofPointMessagesDelivered.php] no new MESSAGES_DELIVERED retrieved from ProofPoint for last 1 hour - terminating execution...'.PHP_EOL);
+                Log::info('[GetProofPointMessagesDelivered.php] no new MESSAGES_DELIVERED from ProofPoint for last 10 minutes - terminating execution');
+                die('[GetProofPointMessagesDelivered.php] no new MESSAGES_DELIVERED retrieved from ProofPoint for last 10 minutes - terminating execution...'.PHP_EOL);
             } else {
                 Log::info('[GetProofPointMessagesDelivered.php] count of messages delivered (last 10 mins): '.count($messages_delivered));
             }
