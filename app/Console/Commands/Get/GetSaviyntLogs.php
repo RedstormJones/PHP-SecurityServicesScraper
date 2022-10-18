@@ -107,7 +107,7 @@ class GetSaviyntLogs extends Command
 
             // build post body and JSON encode
             $post_body = [
-                'analyticsname' => 'SIEM Logging2',
+                'analyticsname' => 'SIEM Logging',
                 'attributes'     => [
                     'timeFrame' => $timeframe
                 ]
