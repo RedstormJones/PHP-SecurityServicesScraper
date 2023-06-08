@@ -139,26 +139,30 @@ class GetProofPointMessagesDelivered extends Command
                                 Log::error('[GetProofPointMessagesDelivered.php] '.$e->getMessage());
                             }
 
-                            if (count($response['reports'])){
-                                // build forensic reports array
-                                foreach ($response['reports'] as $report) {
-                                    if (array_key_exists('forensics', $report)){
-                                        $forensics = $report['forensics'];
-                                    } else {
-                                        $forensics = null;
-                                    }
+                            if (array_key_exists('reports', $response)){
+                                if (count($response['reports'])){
+                                    // build forensic reports array
+                                    foreach ($response['reports'] as $report) {
+                                        if (array_key_exists('forensics', $report)){
+                                            $forensics = $report['forensics'];
+                                        } else {
+                                            $forensics = null;
+                                        }
 
-                                    // add forensic reports to forensic_reports array
-                                    $forensic_reports[] = [
-                                        'threat_id'     => $threat_info['threatID'],
-                                        'report_id'     => $report['id'],
-                                        'report_name'   => $report['name'],
-                                        'report_scope'  => $report['scope'],
-                                        //'report_type'   => $report['type'],
-                                        'threat_status' => $report['threatStatus'],
-                                        'forensics'     => $forensics,
-                                    ];
+                                        // add forensic reports to forensic_reports array
+                                        $forensic_reports[] = [
+                                            'threat_id'     => $threat_info['threatID'],
+                                            'report_id'     => $report['id'],
+                                            'report_name'   => $report['name'],
+                                            'report_scope'  => $report['scope'],
+                                            //'report_type'   => $report['type'],
+                                            'threat_status' => $report['threatStatus'],
+                                            'forensics'     => $forensics,
+                                        ];
+                                    }
                                 }
+                            } else {
+                                $forensic_reports = null;
                             }
 
                             // build threats_info array
