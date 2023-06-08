@@ -81,8 +81,8 @@ class GetDefenderForEndpointIncidents extends Command
 
         //$created_after = Carbon::now()->subHour()->toIso8601ZuluString();
         //$created_after = Carbon::now()->subHours(24)->toIso8601ZuluString();
-        $created_after = Carbon::now()->subMinutes(10)->toIso8601ZuluString();
-        $created_after_10 = Carbon::now()->subMinutes(15)->toIso8601ZuluString();
+        $created_after = Carbon::now()->startOfMinute()->subMinutes(10)->toIso8601ZuluString();
+        $created_after_10 = Carbon::now()->startOfMinute()->subMinutes(15)->toIso8601ZuluString();
 
         Log::info('[GetDefenderForEndpointIncidents.php] created after datetime range: '.$created_after_10.' - '.$created_after);
 
