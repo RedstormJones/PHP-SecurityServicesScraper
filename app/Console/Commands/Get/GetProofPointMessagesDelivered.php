@@ -142,6 +142,12 @@ class GetProofPointMessagesDelivered extends Command
                             if (count($response['reports'])){
                                 // build forensic reports array
                                 foreach ($response['reports'] as $report) {
+                                    if (array_key_exists('forensics', $report)){
+                                        $forensics = $report['forensics'];
+                                    } else {
+                                        $forensics = null;
+                                    }
+
                                     // add forensic reports to forensic_reports array
                                     $forensic_reports[] = [
                                         'threat_id'     => $threat_info['threatID'],
@@ -150,7 +156,7 @@ class GetProofPointMessagesDelivered extends Command
                                         'report_scope'  => $report['scope'],
                                         //'report_type'   => $report['type'],
                                         'threat_status' => $report['threatStatus'],
-                                        'forensics'     => $report['forensics'],
+                                        'forensics'     => $forensics,
                                     ];
                                 }
                             }
