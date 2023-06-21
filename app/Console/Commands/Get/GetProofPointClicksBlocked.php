@@ -229,6 +229,11 @@ class GetProofPointClicksBlocked extends Command
                 // post JSON log to webhookbeat on the LR OC
                 $webhook_response = $crawler->post($webhook_uri, '', $lr_click_json);
                 file_put_contents(storage_path('app/responses/webhook.response'), $webhook_response);
+
+                $curl_info = curl_getinfo($crawler->curl);
+                $json_size = strlen($lr_click_json);
+                $request_size = $curl_info['request_size'] + $json_size;
+                Log::info('[GetProofPointMessagesBlocked.php] request size: '.$request_size);
             }
         } else {
             // otherwise pop smoke and bail
