@@ -36,10 +36,10 @@ class Kernel extends ConsoleKernel
         // Commands run every ten minutes
         $schedule->command('get:trapincidents')->everyTenMinutes()->timezone('America/Chicago');
         $schedule->command('get:lastpassevents')->everyTenMinutes()->timezone('America/Chicago');
-        $schedule->command('get:ppclickspermitted')->everyTenMinutes()->timezone('America/Chicago');
-        $schedule->command('get:ppclicksblocked')->everyTenMinutes()->timezone('America/Chicago');
-        $schedule->command('get:ppmessagesdelivered')->everyTenMinutes()->timezone('America/Chicago');
-        $schedule->command('get:ppmessagesblocked')->everyTenMinutes()->timezone('America/Chicago');
+        //$schedule->command('get:ppclickspermitted')->everyTenMinutes()->timezone('America/Chicago');
+        //$schedule->command('get:ppclicksblocked')->everyTenMinutes()->timezone('America/Chicago');
+        //$schedule->command('get:ppmessagesdelivered')->everyTenMinutes()->timezone('America/Chicago');
+        //$schedule->command('get:ppmessagesblocked')->everyTenMinutes()->timezone('America/Chicago');
 
         // Commands run every 5 minutes
         $schedule->command('get:endpointincidents')->everyFiveMinutes()->timezone('America/Chicago');
